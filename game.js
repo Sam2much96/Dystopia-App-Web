@@ -495,7 +495,7 @@ class Inputs extends GameObject {
 
     update() {
         // mouse and TouchScreen Input
-        this.pos = mousePos;
+        //this.pos = mousePos;
 
         // Maps Key Presses To Input States And Appends Them to The input buffer
         //
@@ -503,25 +503,54 @@ class Inputs extends GameObject {
         //console.log("Testing Input Singleton");
         if (keyWasPressed('KeyW')) {
             console.log("key W as pressed! ");
+
+            // update input buffer
             this.input_buffer.push(this.input_state.get("UP"));
+
+            // move up
+            this.pos.x += 0.1;
+            console.log("Position debug 1: ", this.pos.x);
         }
 
         // Move Down
         if (keyWasPressed('KeyS')) {
             console.log("key S as pressed! ");
+
+            // update input buffer
             this.input_buffer.push(this.input_state.get("DOWN"));
+
+            //move down
+
+            // move up
+            this.pos.x -= 0.01;
         }
 
         // Move Left
         if (keyWasPressed('KeyA')) {
+
+            // move left
             console.log("key A as pressed! ");
+
+            //update input buffer
             this.input_buffer.push(this.input_state.get("LEFT"));
+
+
+            // move left
+            this.pos.y -= 0.01;
         }
 
         // Move Right
         if (keyWasPressed('KeyD')) {
+
+            //move right
             console.log("key D as pressed! ");
+
+            //update input buffer
             this.input_buffer.push(this.input_state.get("RIGHT"));
+
+
+            // move right
+            this.pos.y += 0.01;
         }
 
         // Debug Input Buffer
@@ -556,12 +585,13 @@ class Player extends GameObject {
 
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
-        this.health = window.globals.health
+        this.health = window.globals.health;
+        this.input = window.input; // global input singleton
 
         // create a pointer to the Particle fx class
 
         // store player object in global array
-        window.globals.players.push(this)
+        window.globals.players.push(this);
 
         this.color = randColor();//RED; // make random colour
 
@@ -577,8 +607,12 @@ class Player extends GameObject {
     }
 
     update() {
-        // for debugging
-        this.pos = mousePos;
+
+        if (this.input) {
+            // for debugging
+            // update sprite position to input singleton position
+            this.pos = this.input.pos; //mousePos;
+        }
     }
 
 
