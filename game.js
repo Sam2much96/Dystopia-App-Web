@@ -557,6 +557,8 @@ class Inputs extends GameObject {
 
             // move right
             this.pos.y += WALKING;
+
+
         }
 
         // Debug Input Buffer
@@ -566,6 +568,14 @@ class Inputs extends GameObject {
         }
 
 
+
+        // Inventory Debug
+        if (keyWasPressed('KeyI'))  && (window.inventory){
+
+            //Debug Inventory
+
+            console.log("key I was pressed: ", window.inventory.getAllItems());
+        }
 
         // Prevents Buffer/ Mem Overflow for Input Buffer
         if (this.input_buffer.length > 12) {
@@ -877,7 +887,7 @@ function gameInit() {
     // Add  Inventory Items
     window.inventory.set("apple", 5);
     window.inventory.set("banana", 3);
-    console.log(window.inventory.getAllItems());
+
 
     //const TwoDCanvas = document.getElementById('littlejs-2d-layer')
 
