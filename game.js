@@ -66,13 +66,13 @@ class Music {
         this.sound_start = new Sound([, 0, 500, , .04, .3, 1, 2, , , 570, .02, .02, , , , .04]);
         this.sound_break = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
         this.sound_bounce = new Sound([, , 1e3, , .03, .02, 1, 2, , , 940, .03, , , , , .2, .6, , .06]);
-        this.sound_mosquito_flys = new Sound([,,269,.36,.01,.01,2,2.6,,4,,,.07,,,,,.62]); // Random 30
-        this.souund_mosquito_dies = new Sound([1.3,,328,.03,.34,.02,2,1.3,,,-27,.14,,,.6,,.01,.54,.19]); // Random 31
-        this.sound_zapp = new Sound([1.2,,678,.19,.49,.02,1,4.1,-75,9,-263,.43,,.3,3,,.09,.66,.41,.06,381]); // Random 24
-        this.,sound_call = new Sound([1.9,,66,.05,.48,.009,,3.1,-38,20,,,.13,,.5,.7,.1,.58,.19,.14,-1495]); // Random 26
-        this.sound_boing = new Sound([1.4,,286,,.19,.009,,2.7,,-9,363,.33,,,61,,.22,.96,.14,.18,-1176]); // Random 29
-        this.sound_tv_static = new Sound([.7,,187,.01,,.01,4,4.8,2,72,,,,.1,,,,,.41,,102]); // Random 32
-        this.sound_metal_gong = new Sound([.7,,286,.08,,.46,3,3.9,,,-76,.57,,,15,,.07,.65,.08,,204]); // Random 33
+        this.sound_mosquito_flys = new Sound([, , 269, .36, .01, .01, 2, 2.6, , 4, , , .07, , , , , .62]); // Random 30
+        this.souund_mosquito_dies = new Sound([1.3, , 328, .03, .34, .02, 2, 1.3, , , -27, .14, , , .6, , .01, .54, .19]); // Random 31
+        this.sound_zapp = new Sound([1.2, , 678, .19, .49, .02, 1, 4.1, -75, 9, -263, .43, , .3, 3, , .09, .66, .41, .06, 381]); // Random 24
+        this.sound_call = new Sound([1.9, , 66, .05, .48, .009, , 3.1, -38, 20, , , .13, , .5, .7, .1, .58, .19, .14, -1495]); // Random 26
+        this.sound_boing = new Sound([1.4, , 286, , .19, .009, , 2.7, , -9, 363, .33, , , 61, , .22, .96, .14, .18, -1176]); // Random 29
+        this.sound_tv_static = new Sound([.7, , 187, .01, , .01, 4, 4.8, 2, 72, , , , .1, , , , , .41, , 102]); // Random 32
+        this.sound_metal_gong = new Sound([.7, , 286, .08, , .46, 3, 3.9, , , -76, .57, , , 15, , .07, .65, .08, , 204]); // Random 33
         this.zelda = null;
 
         this.current_track = null;//"track placeholder";
@@ -499,6 +499,7 @@ class Inputs extends GameObject {
     }
 
     update() {
+        const WALKING = 1.0;
         // mouse and TouchScreen Input
         //this.pos = mousePos;
 
@@ -513,7 +514,7 @@ class Inputs extends GameObject {
             this.input_buffer.push(this.input_state.get("UP"));
 
             // move up
-            this.pos.x += 0.1;
+            this.pos.x += WALKING;
             console.log("Position debug 1: ", this.pos.x);
         }
 
@@ -527,7 +528,7 @@ class Inputs extends GameObject {
             //move down
 
             // move up
-            this.pos.x -= 0.01;
+            this.pos.x -= WALKING;
         }
 
         // Move Left
@@ -541,7 +542,7 @@ class Inputs extends GameObject {
 
 
             // move left
-            this.pos.y -= 0.01;
+            this.pos.y -= WALKING;
         }
 
         // Move Right
@@ -555,7 +556,7 @@ class Inputs extends GameObject {
 
 
             // move right
-            this.pos.y += 0.01;
+            this.pos.y += WALKING;
         }
 
         // Debug Input Buffer
