@@ -778,6 +778,8 @@ class UI extends UIObject {
     /* 
     Game UI System
     
+    Docs: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/uiSystem/game.js 
+
     To DO:
     (1) in-game menu
     (2) Controls Menu
@@ -796,29 +798,78 @@ class UI extends UIObject {
 
         // sound effects
         const sound_ui = new Sound([1, 0]);
+
+        // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
         this.UI_ROOT = new UIObject();
         this.UI_MENU = new UIObject();
 
-        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
-            'LittleJS UI System Example\nM = Toggle menu');
 
-        uiInfo.textColor = WHITE;
-        uiInfo.lineWidth = 8;
-        this.UI_ROOT.addChild(uiInfo);
+
+        //parent & child
+        this.UI_ROOT.addChild(this.UI_MENU);
+
+        //center UI root
+        this.UI_ROOT.pos.x = mainCanvasSize.x / 2;
+
+        // example scrollbar
+        const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
+
+        this.UI_MENU.addChild(scrollbar);
+        //can be used for title screen/ stroy intro
+        //const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
+        //    'LittleJS UI System Example\nM = Toggle menu');
+
+        //uiInfo.textColor = WHITE;
+        //uiInfo.lineWidth = 8;
+
+        //this.UI_ROOT.addChild(uiInfo);
 
         // example background
         const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
 
         this.UI_MENU.addChild(uiBackground);
 
-        // example button
-        const button1 = new UIButton(vec2(0, 140), vec2(350, 50), 'Test Button');
+        // Create Ingame Menu
+        // Bug : only adds 1 button, i.e the last button
+        const button1 = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+        const button2 = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+        const button3 = new UIButton(vec2(0, 190), vec2(350, 50), 'Comics');
+        const button4 = new UIButton(vec2(0, 260), vec2(350, 50), 'Controls');
+        const button5 = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+
+        // parent button objects        
         this.UI_MENU.addChild(button1);
+        this.UI_MENU.addChild(button2);
+        this.UI_MENU.addChild(button3);
+        this.UI_MENU.addChild(button4);
+        this.UI_MENU.addChild(button5);
+
+        // button signals
+
         button1.onPress = () => {
-            console.log('Button 1 clicked');
+            console.log('New Game Pressed');
             sound_ui.play();
         }
+
+        button2.onPress = () => {
+            console.log('Continue Pressed');
+            sound_ui.play();
+        }
+        button3.onPress = () => {
+            console.log('Comics Pressed');
+            sound_ui.play();
+        }
+        button4.onPress = () => {
+            console.log('Controls Pressed');
+            sound_ui.play();
+        }
+
+        button5.onPress = () => {
+            console.log('Quit Pressed');
+            sound_ui.play();
+        }
+
     }
 
 
@@ -834,8 +885,8 @@ function gameInit() {
     // setup the game
     console.log("Game Started!");
 
-    // UI Testing
-    const uI = new UI();
+    // UI Setup
+    window.ui = new UI();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -905,6 +956,8 @@ function gameUpdatePost() {
     // called after physics and objects are updated
     // setup camera and prepare for render
     setCameraPos(vec2(5));
+
+
 }
 
 function gameRender() {
