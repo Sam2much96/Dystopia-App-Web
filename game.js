@@ -77,14 +77,21 @@ class Music {
 
         this.current_track = null;//"track placeholder";
         this.next_track = null;//"";
-        this.default_playlist = null;//{ 0: "", 1: "" };
-        this.timer = new Timer();
+        //this.default_playlist = null;//{ 0: "", 1: "" };
+        //this.timer = new Timer();
         this.counter = 0;
         // Map sounds to different sound effects and play them via an enumerator/global script
         //required for a music shuffler
         this.sfx_playlist = new Map([
             [0, this.zelda_powerup],
         ])
+
+        // Music tracks Url's
+        this.default_playlist = [
+            "https://music-files.vercel.app/music/fairy-fountain.ogg",
+            "https://music-files.vercel.app/music/310-world-map-loop.ogg"
+        ];
+
     }
     playZeldaOpeningLittleJS() {
         console.log("Playing A Zelda Theme Song");
@@ -95,11 +102,23 @@ class Music {
     }
 
     play_track() {
-        //https://music-files-pxchifv2z-sam2much96s-projects.vercel.app/music/310-world-map-loop.ogg
-        console.log("Music Soundtracks ", this.counter);
-        //document.getElementById("310-world-map-loop").play();
+        var track = this.default_playlist;
+
+        // Static variable to keep track of the last played track
+        if (!this.lastPlayedTrack) {
+            this.lastPlayedTrack = null;
+        }
+
+        // Filter out the last played track and pick a random one from the remaining tracks
+        const availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
+        const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+
+
+        // Log the selected track
+        console.log("Selected Track: ", randomTrack, "/", this.counter);
+
         var sound = new Howl({
-            src: ["https://music-files.vercel.app/music/fairy-fountain.ogg"],// "https://music-files.vercel.app/music/310-world-map-loop.ogg"],
+            src: [randomTrack],
             format: ['ogg'], // Specify the format(s) of your audio file
             volume: 0.5,
             autoplay: true, // Whether to autoplay (optional)
@@ -110,6 +129,10 @@ class Music {
                 console.log("Finished Playing Music");//alert("Finished!");
             }
         });
+
+        // Update the last played track
+        this.lastPlayedTrack = randomTrack;
+
         sound.play();
 
         //console.log("310-world-map-loop", this.counter);
@@ -453,17 +476,26 @@ class ThreeRender {
 }
 
 
-/*
+class Utils {
 
-Utils.js
+    /*
+    
+    Utils.js
+    
+    Features: 
+    (1)  Contains All Game Math Logic in One Script
+    (2) Extends Static Functions to Other Scenes For Handing Maths, and Logical Caculations asides Simulation Logic
+    */
 
-Features: 
-(1)  Contains All Game Object Logic in One Script
-(2)  Contrains Base Class for Player, ENemy And All Interactible Objecs like Coins and Items
-(3) Extends Static Functions to Other Scenes For Handing Maths, and Logical Caculations asides Simulation Logic
-*/
 
-
+    enemyMob() {
+        //enemy mob logic in pure javascript
+        return 0;
+    }
+    enemyPathFinding() {
+        return 0;
+    }
+}
 
 
 class GameObject extends EngineObject {
@@ -673,7 +705,13 @@ class Player extends GameObject {
     (2) Adds A ground Level To Scene
 */
 
-class CubeLogic extends GameObject {
+class Simulation extends GameObject {
+    /*
+    
+    Simulation Singleton In One Class
+    Handles all simulation logic
+    
+     */
     // To DO : Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
 
 
