@@ -570,7 +570,7 @@ class Inputs extends GameObject {
 
 
         // Inventory Debug
-        if (keyWasPressed('KeyI'))  && (window.inventory){
+        if (keyWasPressed('KeyI') && window.inventory) {
 
             //Debug Inventory
 
@@ -676,82 +676,6 @@ class CubeLogic extends GameObject {
             window.THREE_RENDER.setCubePosition(this.cubePosition.x, this.cubePosition.y -= 0.03, this.cubePosition.z);
         }
 
-        /*
-        // Restart Game After win
-        if (mouseWasPressed(0) && !window.THREE_RENDER.cube) {
-
-            console.log("Restarting Game Loop");
-            //restart game loop
-            // destroy all objects
-            //engineObjectsDestroy();
-            //gameInit();
-            location.reload();
-        }
-
-
-
-
-        // Left Click
-        // Nested If's? Bad Code
-        if (mouseWasPressed(0) && window.THREE_RENDER.cube) {
-            console.log(" Mouse Button 0 Pressed");
-            window.music.zelda_powerup.play();
-
-
-            // Debug Cube's 2d position to see if overlap occured
-            console.log("Player Position Debug: ", Math.ceil(this.pos.x), "/", Math.ceil(this.pos.y));
-            console.log("Cube Position Debug: ", Math.ceil(this.cubePosition.x), "/", Math.ceil(this.cubePosition.y), "/");
-
-            // Game Win Conditional
-            // 
-            // Hit Collision Detection
-            // rewrite to use collisions instead
-            if (Math.ceil(this.pos.x - this.cubePosition.x) == 1) { //margin of error
-                console.log("Player And Cube Overlap on X Axis");
-
-                // increase score count
-                window.globals.score += 1;
-
-                // delete Cube
-                //window.THREE_RENDER.deleteCube();
-            }
-
-            if (Math.ceil(this.pos.y - this.cubePosition.y) == 1) {
-                console.log("Player And Cube Overlap on Y Axis");
-
-                //increase score count
-                window.globals.score += 1;
-
-                //spawn 2d particle fx
-                //new ParticleFX(this.pos, this.size);
-
-            }
-
-            if (window.globals.score >= 3) {
-
-                //spawn 2d particle fx
-                new ParticleFX(this.pos, this.size);
-
-
-                //delete cube
-                window.THREE_RENDER.deleteCube();
-            }
-        }
-
-
-        if (mouseWasReleased(0)) {
-            console.log(" Mouse Button 0 Released");
-            //window.music.zelda_powerup.play();
-
-            // To DO: 
-            // (1) Set The Cube In a Random Position
-            //window.THREE_RENDER.setCubePosition(this.pos.x, this.pos.y, 0);
-            window.THREE_RENDER.setCubePosition(Math.random() * 10 - 5, Math.random() * 15 - 8, 0);
-
-        }
-
-        */
-
     }
 
 
@@ -850,6 +774,57 @@ class Globals {
 
 
 
+class UI extends UIObject {
+    /* 
+    Game UI System
+    
+    To DO:
+    (1) in-game menu
+    (2) Controls Menu
+    (3) Game HUD
+    (4) Dialogs Box
+    (5) Heartbox
+    */
+
+    constructor() {
+
+        super();
+
+        //initialise the UI Plugin system
+        initUISystem();
+
+
+        // sound effects
+        const sound_ui = new Sound([1, 0]);
+        // set root to attach all ui elements to
+        this.UI_ROOT = new UIObject();
+        this.UI_MENU = new UIObject();
+
+        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
+            'LittleJS UI System Example\nM = Toggle menu');
+
+        uiInfo.textColor = WHITE;
+        uiInfo.lineWidth = 8;
+        this.UI_ROOT.addChild(uiInfo);
+
+        // example background
+        const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
+
+        this.UI_MENU.addChild(uiBackground);
+
+        // example button
+        const button1 = new UIButton(vec2(0, 140), vec2(350, 50), 'Test Button');
+        this.UI_MENU.addChild(button1);
+        button1.onPress = () => {
+            console.log('Button 1 clicked');
+            sound_ui.play();
+        }
+    }
+
+
+
+}
+
 /* LittleJS Main Loop*/
 
 
@@ -858,6 +833,9 @@ function gameInit() {
     // called once after the engine starts up
     // setup the game
     console.log("Game Started!");
+
+    // UI Testing
+    const uI = new UI();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
