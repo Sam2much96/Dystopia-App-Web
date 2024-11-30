@@ -370,9 +370,19 @@ class ThreeRender {
         }
     }
 
+    hasCube() {
+        // Exported safe function to check if there is a cube instance
+        if (this.cube) {
+            return true;
+        }
+        else {
+            return false;
+        }
 
+    }
 
     getCubePosition() {
+        // sets a cube instance's 3d position
         if (this.cube) {
             return {
                 x: this.cube.position.x,
@@ -405,6 +415,16 @@ class ThreeRender {
         } else {
             console.warn("No cube to delete.");
         }
+    }
+
+    hideThreeLayer() {
+        //hides the threejs css render layer
+        document.getElementById("threejs-layer").style.visibility = "hidden";
+    }
+
+    showThreeLayer() {
+        //shows the threejs css render layer
+        document.getElementById("threejs-layer").style.visibility = "visible";
     }
 
 
@@ -575,6 +595,14 @@ class Inputs extends GameObject {
             //Debug Inventory
 
             console.log("key I was pressed: ", window.inventory.getAllItems());
+        }
+
+        // show/hide menu
+        if (keyWasPressed('KeyP') && window.ui) {
+            var menuVisible = window.ui.getMenuVisible();
+            console.log("Key P was Pressed, Menu toggle: ", menuVisible);
+            window.ui.setMenuVisible(!menuVisible);
+
         }
 
         // Prevents Buffer/ Mem Overflow for Input Buffer
@@ -783,9 +811,13 @@ class UI extends UIObject {
     To DO:
     (1) in-game menu
     (2) Controls Menu
-    (3) Game HUD
+    (3) Game HUD 
+        -inventory ui
+        -quest ui
+        -mini-map ui
     (4) Dialogs Box
     (5) Heartbox
+    (6) Should Play UI sounds from singleton class
     */
 
     constructor() {
@@ -803,74 +835,119 @@ class UI extends UIObject {
         // set root to attach all ui elements to
         this.UI_ROOT = new UIObject();
         this.UI_MENU = new UIObject();
-
+        this.UI_STATS = new UIObject();
+        this.UI_CONTROLS = new UIObject();
+        //this.
+        this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
 
 
         //parent & child
         this.UI_ROOT.addChild(this.UI_MENU);
+        this.UI_ROOT.addChild(this.DIALOG_BOX);
+
 
         //center UI root
         this.UI_ROOT.pos.x = mainCanvasSize.x / 2;
 
-        // example scrollbar
-        const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
+        // example horizontal scrollbar
+        //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
 
-        this.UI_MENU.addChild(scrollbar);
+        //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
-        //const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
-        //    'LittleJS UI System Example\nM = Toggle menu');
+        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
 
-        //uiInfo.textColor = WHITE;
-        //uiInfo.lineWidth = 8;
+        uiInfo.textColor = WHITE;
+        uiInfo.lineWidth = 8;
 
-        //this.UI_ROOT.addChild(uiInfo);
+        this.DIALOG_BOX.addChild(uiInfo);
+
+        //hide dialog box temporarily
+        this.DIALOG_BOX.visible = false;
+
+        //hide game menu temporarily
+        //trigger it with button click if there's no player instance
+        this.UI_MENU.visible = false;
 
         // example background
-        const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
+        //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
 
-        this.UI_MENU.addChild(uiBackground);
+        //this.UI_MENU.addChild(uiBackground);
 
         // Create Ingame Menu
-        // Bug : only adds 1 button, i.e the last button
-        const button1 = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
-        const button2 = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-        const button3 = new UIButton(vec2(0, 190), vec2(350, 50), 'Comics');
-        const button4 = new UIButton(vec2(0, 260), vec2(350, 50), 'Controls');
-        const button5 = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+        // 
+        const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+        const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+        const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
+        const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
+        const Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
 
         // parent button objects        
-        this.UI_MENU.addChild(button1);
-        this.UI_MENU.addChild(button2);
-        this.UI_MENU.addChild(button3);
-        this.UI_MENU.addChild(button4);
-        this.UI_MENU.addChild(button5);
+        this.UI_MENU.addChild(newGame);
+        this.UI_MENU.addChild(contGame);
+        this.UI_MENU.addChild(Comics);
+        this.UI_MENU.addChild(Controls);
+        this.UI_MENU.addChild(Quit);
 
         // button signals
 
-        button1.onPress = () => {
+        newGame.onPress = () => {
             console.log('New Game Pressed');
             sound_ui.play();
+            // (1) Instance player
+            // (2) Hide Menu
+            // (3) kill 3d cube
+            this.UI_MENU.visible = false;
+
+            //create global player object
+            if (!window.player) {
+                window.player = new Player();
+            }
+
+            //delete title screen 3d screen
+            //temporarily disabled
+            if (window.THREE_RENDER.hasCube()) {
+                //window.THREE_RENDER.deleteCube();
+                window.THREE_RENDER.hideThreeLayer();
+                //window.THREE_RENDER = null;
+
+                //return 0;
+
+            }
         }
 
-        button2.onPress = () => {
+        contGame.onPress = () => {
             console.log('Continue Pressed');
             sound_ui.play();
         }
-        button3.onPress = () => {
+        Comics.onPress = () => {
             console.log('Comics Pressed');
             sound_ui.play();
         }
-        button4.onPress = () => {
+        Controls.onPress = () => {
             console.log('Controls Pressed');
             sound_ui.play();
         }
 
-        button5.onPress = () => {
+        Quit.onPress = () => {
+            // (1) delete player
+            // (2) show 3d layer
             console.log('Quit Pressed');
             sound_ui.play();
+
+            window.THREE_RENDER.showThreeLayer()
         }
 
     }
+
+    getMenuVisible() {
+        return this.UI_MENU.visible
+    };
+
+    setMenuVisible(visible) {
+        //external method to toggle menu visibility
+        this.UI_MENU.visible = visible
+    };
 
 
 
@@ -910,7 +987,7 @@ function gameInit() {
     //window.music = music;
 
     window.input = new Inputs(); //Global Input Class extends gameObject
-    const player = new Player();
+
 
 
     // Add  Inventory Items
@@ -972,9 +1049,11 @@ function gameRender() {
 
 
 function gameRenderPost() {
+    // depreciated in favor of UI class
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
+    /*
     drawText = (text, x, y, size = 40) => {
         overlayContext.textAlign = 'center';
         overlayContext.textBaseline = 'top';
@@ -997,6 +1076,8 @@ function gameRenderPost() {
 
     }
     //
+
+    */
 
 }
 
