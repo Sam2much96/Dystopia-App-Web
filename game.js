@@ -135,16 +135,8 @@ class Music {
 
         sound.play();
 
-        //console.log("310-world-map-loop", this.counter);
-        //document.getElementById("310-world-map-loop").play();
-        //
-        //<audio id="310-world-map-loop">
-        //   <source src="https://drive.google.com/file/d/1fjGxGP-RJtHTA71e3cHfTNUxRKDFtS_x/view?usp=drive_link" type="audio/ogg">
-        //</audio>
-
-
+        // counter for logging how many loops the Music singleton has player through
         this.counter += 1;
-        //window.globals.PlayingMusic = true;
     }
 
 
@@ -695,22 +687,37 @@ class Player extends GameObject {
 
 }
 
+class Enemy extends GameObject {
+    // To DO :
+    // (1) Enemy spawner
+    // (2) Enemy Mob logic using Utils functions
+    // (3) Enemy State Machine
+    // (4) Enemy Collisions
+    // (5) Enemy Animations
 
-/* 
-    Cube Object logic
-    3d Cube Logic handled by littlejs
+    constructor(pos, type) {
+        //(1) set the Enemy object's position
+        //(2) set the Enemy object's type which determines the logic
+        return 0;
+    }
+}
+class EnemySpawner extends GameObject {
+    //spawn an enemy count at specific posisitons
+}
 
-    Features:
-    (1) Add Gravity TO Cube Object
-    (2) Adds A ground Level To Scene
-*/
 
 class Simulation extends GameObject {
     /*
     
     Simulation Singleton In One Class
     Handles all simulation logic
-    
+
+    3d Cube Logic handled by littlejs
+
+    Features:
+    (1) Add Gravity TO Cube Object
+    (2) Adds A ground Level To Scene
+
      */
     // To DO : Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
 
@@ -721,6 +728,7 @@ class Simulation extends GameObject {
         this.cubePosition = null; // for storing the cube geometry 3d position 
         this.groundLevel = -13; // ground position for stopping Gravity on Cube 
 
+        this.timer = new Timer(); //timer necessary for running the simulation timer loop
 
         return 0;
     };
@@ -749,12 +757,27 @@ class Simulation extends GameObject {
 }
 
 
+class Networking {
 
+    /* 
+    Should Handle All Multiplayer Logic 
+    alongside simulation and utils singleton classes
+    
+    */
+}
 
 
 
 class Items extends GameObject {
-    // Items Base Class For Bombs, Arrows, Health Potion
+    /**
+     * 
+     * All Player Interactible Objects
+     * They increase the player's inventory count per item and only collide with
+     * Player objects' collission
+     * 
+     * @param {*} item 
+     * @returns 
+     */
     constructor(item) {
         if (item == "Generic Item") {
             // Should Increase Player Speed
@@ -787,10 +810,17 @@ class Items extends GameObject {
 }
 
 class ParticleFX extends GameObject {
-    // TO DO : (1) Make A Sub function within Player Class 
-    // 
-    // Extends LittleJS Particle FX mapped to an enumerator
-    // attach a trail effect
+    /**
+     * Particle Effects Logic in a single class 
+     * 
+     * TO DO : (1) Make A Sub function within Player Class 
+     
+     * Extends LittleJS Particle FX mapped to an enumerator
+     * attach a trail effect
+     * 
+     * @param {*} pos 
+     * @param {*} size 
+     */
     constructor(pos, size) {
         super();
         this.color = new Color(0, 0, 0, 0); // make object invisible
@@ -834,6 +864,7 @@ class Globals {
         this.scenes = {};// holds pointers to all scenes
         //this.PlayingMusic = false; // boolean for stopping music start loop
         this.score = 0;
+        this.kill_count = 0; //enemy kill count
     }
 }
 
