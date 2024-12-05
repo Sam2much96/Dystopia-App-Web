@@ -9,7 +9,7 @@ Main Game Logic
 
 */
 
-"use strict"
+//teplorarily disabling for ads testing -"use strict"
 
 
 // TO DO: import only the modules you need for faster load time
@@ -489,6 +489,30 @@ class Utils {
     }
 }
 
+class Signal {
+    /** Event Driven Signal Class in  Javascript
+     * 
+     */
+    constructor() {
+        this.listeners = [];
+    }
+
+    connect(listener) {
+        // connect functions to the signal class
+        this.listeners.push(listener);
+    }
+
+    disconnect(listener) {
+        // disconnect functions from the signal class
+        this.listeners = this.listeners.filter(l => l !== listener);
+    }
+
+    emit(...args) {
+        // emit the signal which triggers all methods connected to this
+        this.listeners.forEach(listener => listener(...args));
+    }
+}
+
 
 class GameObject extends EngineObject {
     // Base Class for All Game Objects
@@ -552,19 +576,19 @@ class Inputs extends GameObject {
         // Move UP
         //console.log("Testing Input Singleton");
         if (keyWasPressed('KeyW')) {
-            console.log("key W as pressed! ");
+            //console.log("key W as pressed! ");
 
             // update input buffer
             this.input_buffer.push(this.input_state.get("UP"));
 
             // move up
-            this.pos.x += WALKING;
-            console.log("Position debug 1: ", this.pos.x);
+            this.pos.y += WALKING;
+            //console.log("Position debug 1: ", this.pos.x);
         }
 
         // Move Down
         if (keyWasPressed('KeyS')) {
-            console.log("key S as pressed! ");
+            //console.log("key S as pressed! ");
 
             // update input buffer
             this.input_buffer.push(this.input_state.get("DOWN"));
@@ -572,35 +596,35 @@ class Inputs extends GameObject {
             //move down
 
             // move up
-            this.pos.x -= WALKING;
+            this.pos.y -= WALKING;
         }
 
         // Move Left
         if (keyWasPressed('KeyA')) {
 
             // move left
-            console.log("key A as pressed! ");
+            //console.log("key A as pressed! ");
 
             //update input buffer
             this.input_buffer.push(this.input_state.get("LEFT"));
 
 
             // move left
-            this.pos.y -= WALKING;
+            this.pos.x -= WALKING;
         }
 
         // Move Right
         if (keyWasPressed('KeyD')) {
 
             //move right
-            console.log("key D as pressed! ");
+            //console.log("key D as pressed! ");
 
             //update input buffer
             this.input_buffer.push(this.input_state.get("RIGHT"));
 
 
             // move right
-            this.pos.y += WALKING;
+            this.pos.x += WALKING;
 
 
         }
@@ -642,7 +666,7 @@ class Player extends GameObject {
     PLAYER CLASS
     
     Features:
-    (1) Player Script triggers the music player loop and caps it at 250 loops
+    (1) Base Class for all plyer types, 3d, platformer, and top down
     
     */
 
@@ -653,7 +677,7 @@ class Player extends GameObject {
 
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
-        this.health = window.globals.health;
+
         this.input = window.input; // global input singleton
 
         // create a pointer to the Particle fx class
@@ -663,12 +687,112 @@ class Player extends GameObject {
 
         this.color = randColor();//RED; // make random colour
 
+        // Player Logic Variables 
+        this.WALK_SPEED = 500; // pixels per second 
+        this.ROLL_SPEED = 1000; // pixels per second
+        this.GRAVITY = 0; // For Platforming Levels
+        this.ATTACK = 1; // For Item Equip
+        this.hitpoints = window.globals.health; // global hp singleton 
+        this.pushback = 5000;
+        this.linear_vel = vec2(0, 0);
+        this.roll_direction = vec2(0, 1);//Vector2.DOWN
+
+        this.StateBuffer = [];
+        this.item_equip = ""; //Unused Item Equip Variant
+
+        // player signal class
+        // signal class implementation is buggy
+        this.health_signal = new Signal();
+
+        // player GUI
+        this.local_heart_box = null // Pointer To Heart Box HUD from the UI Class
 
 
+        function health_changed(new_hp) {
+            console.log("Health Changed Debug: ", 3); //this.hitpoints
+            //this.health_signal.emit(new_hp)
+            return 0;
+        }
+
+        function healthDebug(hp) {
+            //placeholder helath debug method for testing signAL CLASS
+            // remove later
+            console.log("Health Debug 2: ", hp);
+        }
+
+        // TO DO:
+        // (1) Connect to Mini Map UI
+        // (2)
+
+        // Connect Heart box signals
+        // check if signal is connected
+        // temporarily debugging signal implementation
+        if (!this.local_heart_box) {
+
+            // connect health changed method to global class signal
+            this.health_signal.connect(health_changed);
+            this.health_signal.connect(healthDebug);
+        }
+
+        // Set initial player health
+        health_changed(this.hitpoints);
+
+        // player state machine
+        this.state_machine = new Map([
+            ['STATE_BLOCKED', 0],
+            ['STATE_IDLE', 1],
+            ['STATE_WALKING', 2],
+            ['STATE_ATTACK', 3],
+            ['STATE_ROLL', 4],
+            ['STATE_DIE', 5],
+            ['STATE_HURT', 6],
+            ['STATE_DANCE', 7]
+        ]);
+
+        // PLAYER'S FACING
+        this.facing_state_machine = new Map([
+            ['UP', 0],
+            ['DOWN', 1],
+            ['LEFT', 2],
+            ['RIGHT', 3],
+        ]);
+
+        // set initial player's default state
+        this.state = this.state_machine.get("STATE_IDLE");
+        this.facing = this.facing_state_machine.get("DOWN");
+
+        //TO DO: player's camera pointer (1) Camer should follow/ track the player's position
+        //TO DO: player's animation node pointer
+
+        //disconnect extra signal
+        this.health_signal.disconnect(healthDebug);
+
+        //PLAYER'S PARTICLE AND SOUND FX POINTERS
+        this.blood = null;
+        this.despawn_particles = null;
+        this.die_sfx = null;
+        this.hurt_sfx = null;
+
+        // Music Singleton Pointer
+        // this would be kinda drepreciated as each Zzfx can play its own sould 
+        // this not needing the music singleton pointer to actually play sfx
+        this.music_singleton_ = null;
+
+        // player collision & mass
+        this.setCollision(); // make object collide
+        this.mass = this.GRAVITY; // make object have static physics
     }
 
+    collideWithObject(o) {
+        //Player Hit collision detection
+        // TO DO:
+        // (1) Map different Behaviours to different object collisions
+        console.log("player collided with object: ", o);
+        this.destroy(); // destroy block when hit
+        return true; // allow object to collide
+    }
 
-    hit_animation() {
+    hurt() {
 
         //use a timer to flash the player object colour from orig  -> white -> orig
         return 0;
@@ -683,11 +807,22 @@ class Player extends GameObject {
         }
     }
 
+    despawn() {
+        return 0;
+    }
 
+    respawn() {
+        return 0;
+    }
+
+    shake() {
+        // shaky cam fx
+        return 0;
+    }
 
 }
 
-class Enemy extends GameObject {
+class Enemy extends EngineObject {
     // To DO :
     // (1) Enemy spawner
     // (2) Enemy Mob logic using Utils functions
@@ -695,10 +830,60 @@ class Enemy extends GameObject {
     // (4) Enemy Collisions
     // (5) Enemy Animations
 
-    constructor(pos, type) {
+    constructor(pos, size) {
+        super(pos, size);
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
-        return 0;
+
+        this.color = RED; // make red colour
+
+        // set enemy position from the initialisation script
+        this.pos = pos;
+
+        // Enemy Type Enum
+        this.enemy_type = new Map([
+            ['EASY', 0],
+            ['INTERMEDIATE', 1],
+            ['HARD', 2]
+        ])
+
+        // Match Frame Rate to Both Enemy TIme And Engine FPS
+        this.IDIOT_FRAME_RATE = 60
+        this.SLOW_FRAME_RATE = 30
+        this.AVERAGE_FRAME_RATE = 15
+        this.FAST_FRAME_RATE = 5
+
+
+        //Input State Machine Enumeration
+        this.state_machine = new Map([
+            ['UP', 0],
+            ['DOWN', 1],
+            ['LEFT', 2],
+            ['RIGHT', 3],
+            ['ATTACK', 4],
+            ['ROLL', 5],
+            ['MOB', 6],
+        ]);
+
+        // Enemy Movement Logic
+        this.velocity = vec2(0, 0); // default temp velocity
+
+        // Testing Enemy Type Enumeration
+        console.log("Input Debug 1: ", this.enemy_type.get("EASY"));
+
+        // Enemy collision & mass
+        this.setCollision(); // make object collide
+        this.mass = 0; // make object have static physics
+
+    }
+
+    collideWithObject(o) {
+        //Enemy Hit collision detection
+        // TO DO:
+        // (1) Map different Behaviours to different object collisions
+        this.destroy(); // destroy block when hit
+        console.log("Enemy collided with object: ", o);
+        return true; // allow object to collide
     }
 }
 class EnemySpawner extends GameObject {
@@ -885,6 +1070,8 @@ class UI extends UIObject {
         -quest ui
         -mini-map ui
     (4) Dialogs Box
+        -map dialogue text to dialog box boundaries
+        
     (5) Heartbox
     (6) Should Play UI sounds from singleton class
     */
@@ -904,6 +1091,8 @@ class UI extends UIObject {
         // set root to attach all ui elements to
         this.UI_ROOT = new UIObject();
         this.UI_MENU = new UIObject();
+        this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
+        this.UI_HEARTBOX = new UIObject();
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
         //this.
@@ -932,6 +1121,7 @@ class UI extends UIObject {
         this.DIALOG_BOX.addChild(uiInfo);
 
         //hide dialog box temporarily
+        // until dialog box ui has been fully setup
         this.DIALOG_BOX.visible = false;
 
         //hide game menu temporarily
@@ -972,6 +1162,9 @@ class UI extends UIObject {
             if (!window.player) {
                 window.player = new Player();
             }
+
+            //create template Enemy Object
+            const enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
 
             //delete title screen 3d screen
             //temporarily disabled
@@ -1017,6 +1210,55 @@ class UI extends UIObject {
         //external method to toggle menu visibility
         this.UI_MENU.visible = visible
     };
+
+
+
+}
+
+class Adsense {
+    //Buggy:
+    //(1) Content Security Violation Policies
+    //(2) Doesn't work in serverless environments out the box
+    //(3) CORS restrictions
+    //(4) Ad Blockers
+
+    constructor() {
+        return 0;
+    }
+
+    loadAdSense() {
+
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3900377589557710";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+
+        script.onload = () => {
+            // Initialize AdSense after the script loads
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            console.log("Loaded ads script :", window.adsbygoogle);
+        };
+
+        script.onerror = () => {
+            console.error("AdSense script failed to load.");
+        };
+        document.cookie = "TESTCOOKIESENABLED=true; SameSite=None; Secure";
+        document.head.appendChild(script);
+
+    }
+    /*
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3900377589557710"
+        crossorigin="anonymous"></script>
+    <!-- Dystopia App 1 -->
+    <ins class="adsbygoogle" style="display:block; min-width:300px; min-height:250px;"
+        data-ad-client="ca-pub-3900377589557710" data-ad-slot="3917381126" data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    
+    
+    */
 
 
 
@@ -1089,7 +1331,10 @@ function gameInit() {
 
     window.THREE_RENDER.animate();
 
-
+    //Ads
+    //buggy
+    const ads = new Adsense();
+    ads.loadAdSense();
 }
 
 function gameUpdate() {
@@ -1122,31 +1367,7 @@ function gameRenderPost() {
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
-    /*
-    drawText = (text, x, y, size = 40) => {
-        overlayContext.textAlign = 'center';
-        overlayContext.textBaseline = 'top';
-        overlayContext.font = size + 'px arial';
-        overlayContext.fillStyle = '#fff';
-        overlayContext.lineWidth = 3;
-        overlayContext.strokeText(text, x, y);
-        overlayContext.fillText(text, x, y);
-    }
-    if (window.THREE_RENDER.cube) {
-        drawText('Score: ' + window.globals.score + "/3", overlayCanvas.width * 3 / 4, 20);
-    }
 
-    if (!window.THREE_RENDER.cube) {
-
-        drawText('You Win Click To Play Again! ', overlayCanvas.width * 2 / 4, 20); // Draw Health Bar Instead
-        //drawText('Deaths: ' + 0, overlayCanvas.width * 3 / 4, 20);
-
-
-
-    }
-    //
-
-    */
 
 }
 
