@@ -807,7 +807,10 @@ class Player extends GameObject {
     hurt() {
 
         //use a timer to flash the player object colour from orig  -> white -> orig
-        return 0;
+        //(1) Play Hurt Animation
+        //(2) Trigger kickback
+        //(3) Update Player health
+        this.hitpoints -= 1
     }
 
     update() {
@@ -819,13 +822,21 @@ class Player extends GameObject {
         }
 
         // player hit collision detection
+        // (1) Enemy Template
         if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size)) {
             console.log("Player Hit Collision Detection Triggered");
+
+            // TODO: if input is in attack state, reduce enemy health
+            window.enemy1.hitpoints -= 1
         }
     }
 
     despawn() {
-        return 0;
+        // (1) Play Despawn Animation
+        if (this.hitpoints <= 0) {
+            // delete player object
+            this.destroy();
+        }
     }
 
     respawn() {
@@ -856,6 +867,8 @@ class Enemy extends GameObject {
 
         // set enemy position from the initialisation script
         this.pos = pos;
+
+        this.hitpoints = 1; //set a default enemy hp
 
         // store player object in global array
         window.globals.enemies.push(this);
@@ -900,9 +913,39 @@ class Enemy extends GameObject {
         // Enemy hit collision detection
         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
             console.log("ENemy Hit Collision Detection Triggered");
-            this.destroy(); // destroy block when hit
+
+            this.hitpoints -= 1;
+
+            // TO DO: (1) Trigger Kickback Logic
         }
 
+        // Despawn logic
+        if (this.hitpoints <= 0) {
+            this.despawn();
+        }
+
+    }
+
+    _get_player() {
+
+        //(1) Gets the Player Object in the Scene Tree if Player unavailable, get him from the global pointer 
+        return 0;
+    }
+
+    despawn() {
+        if (this.hitpoints <= 0) {
+            // destroy block when hitpoints is at zero or less
+            this.destroy();
+        }
+    }
+    _on_enemy_eyesight_body_entered() {
+        // player detection with a raycast
+        return 0;
+    }
+
+    _on_enemy_eyesight_body_exited() {
+        // player leaves enemy detection raycast
+        return 0;
     }
 
 }
