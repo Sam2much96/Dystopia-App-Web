@@ -56,7 +56,8 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-
+        this.ENABLE = false; // turning off music singleton for bandwidth saving
+        this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
 
@@ -118,42 +119,51 @@ class Music {
     }
     */
 
-    play_track() {
-        var track = this.default_playlist;
 
-        // Static variable to keep track of the last played track
-        if (!this.lastPlayedTrack) {
-            this.lastPlayedTrack = null;
+    play_track() {
+
+        if (this.ENABLE) {
+
+            var track = this.default_playlist;
+
+            // Static variable to keep track of the last played track
+            //if (!this.lastPlayedTrack) {
+            //    this.lastPlayedTrack = null;
+            //}
+
+            // Filter out the last played track and pick a random one from the remaining tracks
+            const availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
+            const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+
+
+            // Log the selected track
+            console.log("Selected Track: ", randomTrack, "/", this.counter);
+
+            var sound = new Howl({
+                src: [randomTrack],
+                format: ['ogg'], // Specify the format(s) of your audio file
+                volume: 0.5,
+                autoplay: true, // Whether to autoplay (optional)
+                loop: true,     // Loop playback (optional)
+                preload: true,   // Preload the audio (default is true)
+
+                onend: function () {
+                    console.log("Finished Playing Music");//alert("Finished!");
+                }
+            });
+
+            // Update the last played track
+            this.lastPlayedTrack = randomTrack;
+
+            sound.play();
+
+            // counter for logging how many loops the Music singleton has player through
+            this.counter += 1;
         }
 
-        // Filter out the last played track and pick a random one from the remaining tracks
-        const availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
-        const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-
-
-        // Log the selected track
-        console.log("Selected Track: ", randomTrack, "/", this.counter);
-
-        var sound = new Howl({
-            src: [randomTrack],
-            format: ['ogg'], // Specify the format(s) of your audio file
-            volume: 0.5,
-            autoplay: true, // Whether to autoplay (optional)
-            loop: true,     // Loop playback (optional)
-            preload: true,   // Preload the audio (default is true)
-
-            onend: function () {
-                console.log("Finished Playing Music");//alert("Finished!");
-            }
-        });
-
-        // Update the last played track
-        this.lastPlayedTrack = randomTrack;
-
-        sound.play();
-
-        // counter for logging how many loops the Music singleton has player through
-        this.counter += 1;
+        if (!this.ENABLE) {
+            return 1;
+        }
     }
 
 
@@ -552,6 +562,8 @@ class Inputs extends GameObject {
     (3) Handles creation and Destruction of Game HUD as a child
     (4) Maps Player Input Action To A Global Enum
     
+    TO DO:
+    (1) Map and Test Gamepad implementation in the wild
     */
 
 
@@ -572,9 +584,10 @@ class Inputs extends GameObject {
             ['ROLL', 5],
         ]);
 
+        this.state = null; // holds the current input state asides the input buffer
 
         // Testing Input Enumeration
-        console.log("Input Debug 1: ", this.input_state.get("UP"));
+        //console.log("Input Debug 1: ", this.input_state.get("UP"));
         //console.log("Input Debug 2: ",input_state.get("ATTACK");
     }
 
@@ -598,6 +611,9 @@ class Inputs extends GameObject {
             // update input buffer
             this.input_buffer.push(this.input_state.get("UP"));
 
+            // update current state
+            this.state = this.input_state.get("UP");
+
             // move up
             this.pos.y += WALKING;
             //console.log("Position debug 1: ", this.pos.x);
@@ -610,7 +626,8 @@ class Inputs extends GameObject {
             // update input buffer
             this.input_buffer.push(this.input_state.get("DOWN"));
 
-            //move down
+            // update current state
+            this.state = this.input_state.get("DOWN");
 
             // move up
             this.pos.y -= WALKING;
@@ -626,6 +643,9 @@ class Inputs extends GameObject {
             this.input_buffer.push(this.input_state.get("LEFT"));
 
 
+            // update current state
+            this.state = this.input_state.get("LEFT");
+
             // move left
             this.pos.x -= WALKING;
         }
@@ -639,10 +659,26 @@ class Inputs extends GameObject {
             //update input buffer
             this.input_buffer.push(this.input_state.get("RIGHT"));
 
+            // update current state
+            this.state = this.input_state.get("RIGHT");
 
             // move right
             this.pos.x += WALKING;
 
+
+        }
+
+        // Attack
+        // does not work yet
+        if (keyWasPressed('KeyX')) {
+            // for debug purposes only
+            console.log(" Key X Pressed");
+
+            //update input buffer
+            this.input_buffer.push(this.input_state.get("ATTACK"));
+
+            // update current state
+            this.state = this.input_state.get("ATTACK");
 
         }
 
@@ -668,6 +704,25 @@ class Inputs extends GameObject {
             console.log("Key P was Pressed, Menu toggle: ", menuVisible);
             window.ui.setMenuVisible(!menuVisible);
 
+        }
+
+        // show / hide menu 2
+        if (!(window.player) && window.ui && mouseWasPressed(0)) {
+
+            var menuVisible = window.ui.getMenuVisible();
+            console.log("Mouse was Pressed, Menu toggle: ", menuVisible);
+            window.ui.setMenuVisible(!menuVisible);
+        }
+
+        // GamePad Input
+        if (gamepadWasPressed(1)) {
+            console.log("Game Pad Was Pressed, Test Successfull");
+            return 0;
+        }
+
+        if (gamepadWasPressed(2)) {
+            console.log("Game Pad Was Pressed, Test Successfull 2");
+            return 0;
         }
 
         // Prevents Buffer/ Mem Overflow for Input Buffer
@@ -818,15 +873,18 @@ class Player extends GameObject {
         if (this.input) {
             // for debugging
             // update sprite position to input singleton position
-            this.pos = this.input.pos; //mousePos;
+            this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
+
         }
 
         // player hit collision detection
+        // TO DO:
+        // (1) Adjust for multiple enemies using a collision radius / enemy object pool pointers
         // (1) Enemy Template
-        if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size)) {
+        if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size) && this.input.state == 4) { // if hit collission and attack state
             console.log("Player Hit Collision Detection Triggered");
 
-            // TODO: if input is in attack state, reduce enemy health
+            // reduce enemy health
             window.enemy1.hitpoints -= 1
         }
     }
@@ -836,6 +894,9 @@ class Player extends GameObject {
         if (this.hitpoints <= 0) {
             // delete player object
             this.destroy();
+
+            // set the global player to null
+            window.player = null;
         }
     }
 
@@ -914,7 +975,7 @@ class Enemy extends GameObject {
         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
             console.log("ENemy Hit Collision Detection Triggered");
 
-            this.hitpoints -= 1;
+            // this.hitpoints -= 1;
 
             // TO DO: (1) Trigger Kickback Logic
         }
@@ -1400,9 +1461,9 @@ function gameInit() {
     window.THREE_RENDER.animate();
 
     //Ads
-    //buggy
-    const ads = new Adsense();
-    ads.loadAdSense();
+    //buggy & performance hog
+    //const ads = new Adsense();
+    //ads.loadAdSense();
 }
 
 function gameUpdate() {
@@ -1414,8 +1475,12 @@ function gameUpdate() {
 function gameUpdatePost() {
     // called after physics and objects are updated
     // setup camera and prepare for render
-    setCameraPos(vec2(5));
+    if (window.player) {
 
+        // Track player
+        // set camera position to player position
+        setCameraPos(window.player.pos);
+    }
 
 }
 
