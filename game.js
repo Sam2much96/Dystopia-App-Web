@@ -76,8 +76,7 @@ class Music {
         this.zelda = null;
 
         this.current_track = null;//"track placeholder";
-        this.next_track = null;//"";
-        //this.default_playlist = null;//{ 0: "", 1: "" };
+        this.next_track = null;
         //this.timer = new Timer();
         this.counter = 0;
         // Map sounds to different sound effects and play them via an enumerator/global script
@@ -89,10 +88,27 @@ class Music {
         // Music tracks Url's
         this.default_playlist = [
             "https://music-files.vercel.app/music/fairy-fountain.ogg",
-            "https://music-files.vercel.app/music/310-world-map-loop.ogg"
+            "https://music-files.vercel.app/music/310-world-map-loop.ogg",
+            "https://music-files.vercel.app/music/Astrolife chike san.ogg",
+            "https://music-files.vercel.app/music/captured_land.ogg",
+            "https://music-files.vercel.app/music/chike san afro 1.ogg",
+            "https://music-files.vercel.app/music/chike san afro 2.ogg",
+            "https://music-files.vercel.app/music/chike san afro 3.ogg",
+            "https://music-files.vercel.app/music/Gregorian-Chant(chosic.com).ogg",
+            "https://music-files.vercel.app/music/hard_won_nobility.ogg",
+            "https://music-files.vercel.app/music/here_comes_trouble.ogg",
+            "https://music-files.vercel.app/music/here_comes_trouble.ogg",
+            "https://music-files.vercel.app/music/Inhumanity Game Track 3.ogg",
+            "https://music-files.vercel.app/music/Marble Tower 4.ogg",
+            "https://music-files.vercel.app/music/paranoia.ogg",
+            "https://music-files.vercel.app/music/Spooky-Chike-san song.ogg",
+            "https://music-files.vercel.app/music/The Road Warrior.ogg",
+            "https://music-files.vercel.app/music/Track 1-1.ogg",
+            "https://music-files.vercel.app/music/zelda2.ogg"
         ];
 
     }
+    /* 
     playZeldaOpeningLittleJS() {
         console.log("Playing A Zelda Theme Song");
         this.zelda = new Sound()
@@ -100,6 +116,7 @@ class Music {
 
 
     }
+    */
 
     play_track() {
         var track = this.default_playlist;
@@ -667,7 +684,10 @@ class Player extends GameObject {
     
     Features:
     (1) Base Class for all plyer types, 3d, platformer, and top down
-    
+
+
+    You can use the isOverlapping function to check the object against the camera. For culling you maybe want to enlarge th…
+    if (!isOverlapping(this.pos, this.size, cameraPos, renderWindowSize)) 
     */
 
     constructor() {
@@ -779,18 +799,10 @@ class Player extends GameObject {
         this.music_singleton_ = null;
 
         // player collision & mass
-        this.setCollision(); // make object collide
         this.mass = this.GRAVITY; // make object have static physics
     }
 
-    collideWithObject(o) {
-        //Player Hit collision detection
-        // TO DO:
-        // (1) Map different Behaviours to different object collisions
-        console.log("player collided with object: ", o);
-        this.destroy(); // destroy block when hit
-        return true; // allow object to collide
-    }
+
 
     hurt() {
 
@@ -804,6 +816,11 @@ class Player extends GameObject {
             // for debugging
             // update sprite position to input singleton position
             this.pos = this.input.pos; //mousePos;
+        }
+
+        // player hit collision detection
+        if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size)) {
+            console.log("Player Hit Collision Detection Triggered");
         }
     }
 
@@ -822,7 +839,7 @@ class Player extends GameObject {
 
 }
 
-class Enemy extends EngineObject {
+class Enemy extends GameObject {
     // To DO :
     // (1) Enemy spawner
     // (2) Enemy Mob logic using Utils functions
@@ -839,6 +856,9 @@ class Enemy extends EngineObject {
 
         // set enemy position from the initialisation script
         this.pos = pos;
+
+        // store player object in global array
+        window.globals.enemies.push(this);
 
         // Enemy Type Enum
         this.enemy_type = new Map([
@@ -872,19 +892,19 @@ class Enemy extends EngineObject {
         console.log("Input Debug 1: ", this.enemy_type.get("EASY"));
 
         // Enemy collision & mass
-        this.setCollision(); // make object collide
-        this.mass = 0; // make object have static physics
+        //this.setCollision(true, true); // make object collide
+        //this.mass = 0; // make object have static physics
+
+    }
+    update() {
+        // Enemy hit collision detection
+        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            console.log("ENemy Hit Collision Detection Triggered");
+            this.destroy(); // destroy block when hit
+        }
 
     }
 
-    collideWithObject(o) {
-        //Enemy Hit collision detection
-        // TO DO:
-        // (1) Map different Behaviours to different object collisions
-        this.destroy(); // destroy block when hit
-        console.log("Enemy collided with object: ", o);
-        return true; // allow object to collide
-    }
 }
 class EnemySpawner extends GameObject {
     //spawn an enemy count at specific posisitons
@@ -1046,6 +1066,7 @@ class Globals {
 
         this.health = 3;
         this.players = []; // internal array to hold all playe objects
+        this.enemies = []; // internal global array to hold all enemy types
         this.scenes = {};// holds pointers to all scenes
         //this.PlayingMusic = false; // boolean for stopping music start loop
         this.score = 0;
@@ -1164,8 +1185,10 @@ class UI extends UIObject {
             }
 
             //create template Enemy Object
-            const enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
+            if (!window.enemy1) {
+                window.enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
 
+            }
             //delete title screen 3d screen
             //temporarily disabled
             if (window.THREE_RENDER.hasCube()) {
@@ -1183,8 +1206,10 @@ class UI extends UIObject {
             sound_ui.play();
         }
         Comics.onPress = () => {
+            // open comics website in new tab
             console.log('Comics Pressed');
             sound_ui.play();
+            window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
         }
         Controls.onPress = () => {
             console.log('Controls Pressed');
