@@ -1223,7 +1223,16 @@ class UI extends UIObject {
         this.UI_ROOT = new UIObject();
         this.UI_MENU = new UIObject();
         this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
-        this.UI_HEARTBOX = new UIObject();
+
+
+        //this.UI_HEARTBOX = [this.UI_HEART_1]
+        //this.UI_HEARTBOX.addChild(this.UI_HEART_1);
+        //this.UI_HEARTBOX.addChild(this.UI_HEART_2);
+        //this.UI_HEARTBOX.addChild(this.UI_HEART_3);
+
+        //this.UI_HEARTBOX.visible = true;
+
+
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
         //this.
@@ -1233,6 +1242,7 @@ class UI extends UIObject {
         //parent & child
         this.UI_ROOT.addChild(this.UI_MENU);
         this.UI_ROOT.addChild(this.DIALOG_BOX);
+        //this.UI_ROOT.addChild(this.UI_HEARTBOX);
 
 
         //center UI root
@@ -1511,23 +1521,30 @@ function gameRenderPost() {
     //
     // To DO: 
     // (1) Draw hud to overlay canvas/ offset it from the camera in world space, or use screen coords
+    /** 
+        const heart1 = drawTile(
+            vec2(5, 5),
+            vec2(1),
+            tile(-5, 32, 0, 0.2),
+            RED,
+            0,
+            false
+    
+        ); // draws a heartbox 32x32 sprite
+        const heart2 = drawTile(vec2(4, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
+        const heart3 = drawTile(vec2(3, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
+    
+        const heartbox = [heart1, heart2, heart3];
+    
+        */
+    //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
 
-    const heart1 = drawTile(
-        vec2(5, 5),
-        vec2(1),
-        tile(-5, 32, 0, 0.2),
-        RED,
-        0,
-        false,
+    // Create A HeartBox Object
+    const UI_HEART_1 = drawUITile(vec2(100, 30), vec2(50, 50), tile(0, 32, 0, 0));
+    const UI_HEART_2 = drawUITile(vec2(50, 30), vec2(50, 50), tile(0, 32, 0, 0));
+    const UI_HEART_3 = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 0, 0));
 
-
-
-
-    ); // draws a heartbox 32x32 sprite
-    const heart2 = drawTile(vec2(4, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-    const heart3 = drawTile(vec2(3, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-
-    const heartbox = [heart1, heart2, heart3];
+    const HEART_BOX = [UI_HEART_1, UI_HEART_2, UI_HEART_3];
 }
 
 
