@@ -1500,8 +1500,12 @@ function gameRenderPost() {
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
+    // docs: https://killedbyapixel.github.io/LittleJS/docs/Draw.html#.drawTile
+    // docs 2 : https://github.com/KilledByAPixel/LittleJS/blob/e967368c21147235ad8d216243fea32b834bed58/FAQ.md#L9
 
-
+    const heartbox1 = drawTile(vec2(5, 5), vec2(1), tile(-5, 32, 0, 0.5)); // draws a heartbox 32x32 sprite
+    const heartbox2 = drawTile(vec2(4, 5), vec2(1), tile(-5, 32, 0, 0.5)); // draws a heartbox 32x32 sprite
+    const heartbox3 = drawTile(vec2(3, 5), vec2(1), tile(-5, 32, 0, 0.5)); // draws a heartbox 32x32 sprite
 }
 
 
