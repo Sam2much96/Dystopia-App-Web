@@ -669,7 +669,6 @@ class Inputs extends GameObject {
         }
 
         // Attack
-        // does not work yet
         if (keyWasPressed('KeyX')) {
             // for debug purposes only
             console.log(" Key X Pressed");
@@ -715,6 +714,8 @@ class Inputs extends GameObject {
         }
 
         // GamePad Input
+        // TO DO :
+        // (1) Test on mobile & map buttons more properly 
         if (gamepadWasPressed(1)) {
             console.log("Game Pad Was Pressed, Test Successfull");
             return 0;
@@ -722,6 +723,11 @@ class Inputs extends GameObject {
 
         if (gamepadWasPressed(2)) {
             console.log("Game Pad Was Pressed, Test Successfull 2");
+            return 0;
+        }
+
+        if (gamepadWasPressed(3)) {
+            console.log("Game Pad Was Pressed, Test Successfull 3");
             return 0;
         }
 
