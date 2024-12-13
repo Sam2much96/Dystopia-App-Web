@@ -13,8 +13,9 @@ Main Game Logic
 
 
 // TO DO: import only the modules you need for faster load time
-import * as THREE from 'https://unpkg.com/three@0.170.0/build/three.module.js';//'/node_modules/three/src/Three.js';
+import * as THREE from 'https://cdn.skypack.dev/three@0.133.0/build/three.module.js';//'/node_modules/three/src/Three.js';
 
+import { GLTFLoader } from "https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js";
 
 // show the LittleJS splash screen
 setShowSplashScreen(true);
@@ -258,12 +259,13 @@ class ThreeRender {
 
         console.log("Three JS Debug 1: ", this.THREE);
 
+
         const { Scene, PerspectiveCamera, WebGLRenderer } = this.THREE;
 
         //make  scene and camera globally accessible
         // Create the scene, camera, and renderer
         this.scene = new Scene();
-        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new WebGLRenderer();
 
 
@@ -289,6 +291,47 @@ class ThreeRender {
     renderStill() {
         // renders a still image with no animmation
         this.renderer.render(this.scene, this.camera);
+
+    }
+
+    LoadModel() {
+        /**
+         * Loads A 3D Gltf model via script
+         * Works
+         */
+        console.log("Loading 3d model");
+
+        //const { GLTFLoader } = this.GLTF;
+
+
+        const loader = new GLTFLoader;
+        const DEBUG = false;
+        loader.load(
+            '/overworld_map.glb',
+            (gltf) => {
+                if (DEBUG) {
+
+
+                    console.log('Loaded GLTF:', gltf.scene);
+                    console.log("pointer debug: ", this.cube);
+                    // Access and log key details
+                    console.log('Scene:', gltf.scene); // The root scene object
+                    console.log('Animations:', gltf.animations); // Animation clips
+                    console.log('Nodes:', gltf.scene.children); // All child nodes
+                    console.log('Materials:', gltf.scene.children.map(obj => obj.material)); // Materials
+                    console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
+                }
+
+                this.cube = gltf.scene; // save scene as global pointer
+                this.scene.add(gltf.scene); // Ensure 'this' is bound properly
+            },
+            undefined,
+            (error) => {
+                console.error('error occurred loading the 3d model:', error);
+            }
+        );
+
+        console.log("Finished loading model", this.cube);
 
     }
 
@@ -483,8 +526,8 @@ class ThreeRender {
 
             // Rotate the cube
             if (this.cube) {
-                this.cube.rotation.x += 0.01;
-                this.cube.rotation.y += 0.01;
+                //this.cube.rotation.x += 0.01;
+                this.cube.rotation.y += 0.006; // temporarily disabling x-axis animation for 3d scene
             }
 
             // Render the scene
@@ -879,6 +922,7 @@ class Player extends GameObject {
         if (this.input) {
             // for debugging
             // update sprite position to input singleton position
+
             this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
 
         }
@@ -1465,7 +1509,7 @@ function gameInit() {
     // (1) Create 2 Cubes
 
     // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
-    window.THREE_RENDER.Cube();
+    window.THREE_RENDER.LoadModel();
     //window.THREE_RENDER.Cube();
 
 
