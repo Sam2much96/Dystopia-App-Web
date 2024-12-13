@@ -557,6 +557,35 @@ class Utils {
     enemyPathFinding() {
         return 0;
     }
+
+    detectBrowser() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        let browser = 'unknown';
+        let platform = 'unknown';
+
+        // Detect browser
+        if (userAgent.includes('chrome')) {
+            browser = 'Chrome';
+        } else if (userAgent.includes('firefox')) {
+            browser = 'Firefox';
+        } else if (userAgent.includes('safari')) {
+            browser = 'Safari';
+        } else if (userAgent.includes('edge')) {
+            browser = 'Edge';
+        } else if (userAgent.includes('opera') || userAgent.includes('opr')) {
+            browser = 'Opera';
+        }
+
+        // Detect platform
+        if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)) {
+            platform = 'Mobile';
+        } else {
+            platform = 'Desktop';
+        }
+
+        console.log(`Browser: ${browser}, Platform: ${platform}`);
+        return { browser, platform };
+    }
 }
 
 class Signal {
@@ -809,7 +838,7 @@ class Player extends GameObject {
         // store player object in global array
         window.globals.players.push(this);
 
-        this.color = randColor();//RED; // make random colour
+        //this.color = randColor();//RED; // make random colour
 
         // Player Logic Variables 
         this.WALK_SPEED = 500; // pixels per second 
@@ -904,6 +933,10 @@ class Player extends GameObject {
 
         // player collision & mass
         this.mass = this.GRAVITY; // make object have static physics
+
+        // player sprite
+        // use tileInfo frame function to play animations
+        this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
     }
 
 
@@ -967,14 +1000,16 @@ class Enemy extends GameObject {
     // (2) Enemy Mob logic using Utils functions
     // (3) Enemy State Machine
     // (4) Enemy Collisions
-    // (5) Enemy Animations
+    // (5) Enemy Animations (1/2)
 
-    constructor(pos, size) {
-        super(pos, size);
+    constructor(pos) {
+        super(pos);
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
 
-        this.color = RED; // make red colour
+        //this.color = RED; // make red colour
+
+        this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
 
         // set enemy position from the initialisation script
         this.pos = pos;
@@ -1477,11 +1512,14 @@ function gameInit() {
 
     window.inventory = new Inventory;
     window.globals = new Globals;
-
+    window.utils = new Utils;
     window.music = new Music;
 
-    // Play Music Loop WIth howler JS
-    window.music.play_track(); //work
+    //get device browser type/ platform
+    window.utils.detectBrowser();
+
+    // Play Randomised Playlist With howler JS
+    window.music.play_track(); //works, disabled to save bandwidth
 
     //make global
     //window.music = music;
@@ -1491,6 +1529,7 @@ function gameInit() {
 
 
     // Add  Inventory Items
+    // to do : feed inventory globals to inventroy ui
     window.inventory.set("apple", 5);
     window.inventory.set("banana", 3);
 
@@ -1524,6 +1563,12 @@ function gameInit() {
     //buggy & performance hog
     //const ads = new Adsense();
     //ads.loadAdSense();
+
+    //draw title screen
+    // TO DO :
+    // convert dystopia logo to a font file
+    //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
+    //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
 }
 
 function gameUpdate() {
@@ -1540,6 +1585,7 @@ function gameUpdatePost() {
         // Track player
         // set camera position to player position
         setCameraPos(window.player.pos);
+        setCameraScale(32);  // zoom camera to 32 pixels per world unit
     }
 
 }
@@ -1596,6 +1642,6 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png']);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png"]);
 
 
