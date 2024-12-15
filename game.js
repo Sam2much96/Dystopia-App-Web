@@ -706,7 +706,7 @@ class Inputs extends GameObject {
     }
 
     update() {
-        const WALKING = 0.07;
+        const WALKING = 0.06;
         // mouse and TouchScreen Input
         //this.pos = mousePos;
 
@@ -996,6 +996,7 @@ class Player extends GameObject {
         // use tileInfo frame function to play animations
         this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
 
+        //this.color = new Color(1, 0, 0, 0); // transparent white
     }
 
 
@@ -1178,6 +1179,7 @@ class Simulation extends GameObject {
     Features:
     (1) Add Gravity TO Cube Object
     (2) Adds A ground Level To Scene
+    (3) Triggers start of game loop
 
      */
     // To DO : 
@@ -1188,11 +1190,11 @@ class Simulation extends GameObject {
     constructor() {
         super();
         this.cubePosition = null; // for storing the cube geometry 3d position 
-        this.groundLevel = -13; // ground position for stopping Gravity on Cube 
-
+        this.groundLevel = -4; // ground position for stopping Gravity on Cube 
+        this.color = new Color(0, 0, 0, 0); // make object invisible
         this.timer = new Timer(); //timer necessary for running the simulation timer loop
 
-        return 0;
+        //return 0;
     };
 
 
@@ -1210,6 +1212,14 @@ class Simulation extends GameObject {
         // add gravity to cube
         if (this.cubePosition.y > this.groundLevel) {
             window.THREE_RENDER.setCubePosition(this.cubePosition.x, this.cubePosition.y -= 0.03, this.cubePosition.z);
+        }
+
+        // hide threejs layer once game starts
+        if (this.cubePosition.y < this.groundLevel) {
+            window.THREE_RENDER.hideThreeLayer();
+
+            // save to global conditional for rendering game backgrounds and starting core game loop
+            window.globals.GAME_START = true;
         }
 
         // TO DO:
@@ -1330,6 +1340,8 @@ class Globals {
         //this.PlayingMusic = false; // boolean for stopping music start loop
         this.score = 0;
         this.kill_count = 0; //enemy kill count
+
+        this.GAME_START = false;// for triggering the main game loop logic in other scenes
     }
 }
 
@@ -1448,16 +1460,12 @@ class UI extends UIObject {
             // (3) kill 3d cube
             this.UI_MENU.visible = false;
 
-            //create global player object
-            if (!window.player) {
-                window.player = new Player();
-            }
 
-            //create template Enemy Object
-            if (!window.enemy1) {
-                window.enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
+            // apply gravity to 3d model to trigger game start
+            const anim = new Simulation();
 
-            }
+
+
             //delete title screen 3d screen
             //temporarily disabled
             //if (window.THREE_RENDER.hasCube()) {
@@ -1582,6 +1590,20 @@ class Adsense {
 
 }
 
+class OverWorld extends GameObject {
+    /*
+        The Overworld Scene + Objects as children
+    */
+
+    constructor() {
+        super();
+
+        // create temple object from tempple object layer png's using draw tile method
+        const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
+        console.log("Creating Temple sprite: ", TEMPLE);
+    }
+}
+
 /* LittleJS Main Loop*/
 
 
@@ -1691,6 +1713,28 @@ function gameRender() {
     //const y = new glContext;
 
     //drawRect(cameraPos, vec2(100), new Color(.5, .5, .5)); // draw background
+
+    //The third tile parameter constrols which tile object to draw
+    //draw tile allows for better object scalling
+    if (window.globals.GAME_START) {
+        // triggers srart of game loop from simulation singleton
+        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(10, 10), tile(0, 32, 3, 0), WHITE);
+
+        const TREE_1 = drawTile(vec2(10, 0), vec2(5, 5), tile(0, 64, 4, 0)); //64X64 pixels
+
+        //create global player object
+        if (!window.player) {
+            window.player = new Player();
+
+            //const overworld_ = new OverWorld();
+        }
+
+        //create template Enemy Object
+        if (!window.enemy1) {
+            window.enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
+
+        }
+    }
 }
 
 
@@ -1722,6 +1766,8 @@ function gameRenderPost() {
     
         */
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
+
+    //draw heartbox ui
     window.ui.heartbox(window.globals.health);
 
 }
@@ -1731,6 +1777,6 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png"]);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png"]);
 
 
