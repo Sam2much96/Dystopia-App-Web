@@ -201,16 +201,30 @@ class Inventory {
 
     // Retrieve the quantity of an item
     get(itemName) {
+        //type check
+        if (typeof value !== 'string') {
+            console.error('Value must be a string');
+        }
+        //add type parameters to all inventort functions
         return this.items[itemName] || 0; // Return 0 if the item doesn't exist
     }
 
     // Check if an item exists in the inventory
     has(itemName) {
+
+        //type check
+        if (typeof value !== 'string') {
+            console.error('Value must be a string');
+        }
         return itemName in this.items;
     }
 
     // Remove an item completely from the inventory
     remove(itemName) {
+        //type check
+        if (typeof value !== 'string') {
+            console.error('Value must be a string');
+        }
         delete this.items[itemName];
     }
 
@@ -448,6 +462,10 @@ class ThreeRender {
     }
 
     setCubePosition(x, y, z) {
+
+        // type parameters
+
+
         if (this.cube) {
             this.cube.position.set(x, y, z);
         } else {
@@ -514,12 +532,31 @@ class ThreeRender {
 
 
     setCamera(Int_Distance) {
+        // type parameter
+        if (typeof Int_Distance !== 'number' || !Number.isInteger(Int_Distance)) {
+            console.error('Value must be an integer');
+        }
+
         // Sets the camera at a specific distance
         this.camera.position.z = Int_Distance;
 
     }
 
     animate() {
+        /*
+        
+        Custom 3Js animation method
+
+        TO DO:
+        (1) Add Animation parameters (Done) Animation is done via a simulation class
+        (2) Add Keyframe object
+        (3) Expand functionalite
+            -Horizontal loop
+            -Vertical Loop
+            -Vertical Loop Until
+
+        
+        */
         // Bind `this` to preserve context in animation loop
         const animate = () => {
             requestAnimationFrame(animate);
@@ -669,7 +706,7 @@ class Inputs extends GameObject {
     }
 
     update() {
-        const WALKING = 1.0;
+        const WALKING = 0.07;
         // mouse and TouchScreen Input
         //this.pos = mousePos;
 
@@ -677,7 +714,7 @@ class Inputs extends GameObject {
         //
         // Move UP
         //console.log("Testing Input Singleton");
-        if (keyWasPressed('KeyW')) {
+        if (keyIsDown('KeyW')) {
             //console.log("key W as pressed! ");
 
             // update input buffer
@@ -692,7 +729,7 @@ class Inputs extends GameObject {
         }
 
         // Move Down
-        if (keyWasPressed('KeyS')) {
+        if (keyIsDown('KeyS')) {
             //console.log("key S as pressed! ");
 
             // update input buffer
@@ -706,7 +743,7 @@ class Inputs extends GameObject {
         }
 
         // Move Left
-        if (keyWasPressed('KeyA')) {
+        if (keyIsDown('KeyA')) {
 
             // move left
             //console.log("key A as pressed! ");
@@ -723,7 +760,7 @@ class Inputs extends GameObject {
         }
 
         // Move Right
-        if (keyWasPressed('KeyD')) {
+        if (keyIsDown('KeyD')) {
 
             //move right
             //console.log("key D as pressed! ");
@@ -765,24 +802,43 @@ class Inputs extends GameObject {
         if (keyWasPressed('KeyI') && window.inventory) {
 
             //Debug Inventory
-
+            // TO DO :
+            // (1) Inventory UI
             console.log("key I was pressed: ", window.inventory.getAllItems());
         }
 
         // show/hide menu
         if (keyWasPressed('KeyP') && window.ui) {
-            var menuVisible = window.ui.getMenuVisible();
+            var menuVisible = window.ui.MenuVisible;
             console.log("Key P was Pressed, Menu toggle: ", menuVisible);
-            window.ui.setMenuVisible(!menuVisible);
+            window.ui.MenuVisible = !menuVisible;
 
         }
+
+        //show / hide dialogue
+        if (keyWasPressed('KeyE') && window.ui) {
+            var diagVisible = window.ui.DialogVisible;
+            console.log("Key E was Pressed, Dialog toggle: ", diagVisible);
+            window.ui.DialogVisible = !diagVisible;
+
+            // Run a 3-second timer
+            // To DO :
+            // (1) Use GLobal Input Timer as 
+            //new Timer(3, () => {
+            //    window.ui.DialogVisible = false;
+            //   console.log("Dialog hidden after 3 seconds.");
+            //});
+        }
+
+        // show / hide dialogue box
 
         // show / hide menu 2
         if (!(window.player) && window.ui && mouseWasPressed(0)) {
 
-            var menuVisible = window.ui.getMenuVisible();
-            console.log("Mouse was Pressed, Menu toggle: ", menuVisible);
-            window.ui.setMenuVisible(!menuVisible);
+            var menuVisible2 = window.ui.MenuVisible;
+            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2);
+
+            window.ui.MenuVisible = !menuVisible2;
         }
 
         // GamePad Input
@@ -807,6 +863,8 @@ class Inputs extends GameObject {
         if (this.input_buffer.length > 12) {
             this.input_buffer.length = 0; // Clears the array
         }
+
+        this.pos.scale(timeDelta);//hmm
     }
 }
 
@@ -858,7 +916,7 @@ class Player extends GameObject {
         this.health_signal = new Signal();
 
         // player GUI
-        this.local_heart_box = null // Pointer To Heart Box HUD from the UI Class
+        this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
 
 
         function health_changed(new_hp) {
@@ -937,6 +995,7 @@ class Player extends GameObject {
         // player sprite
         // use tileInfo frame function to play animations
         this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
+
     }
 
 
@@ -947,7 +1006,8 @@ class Player extends GameObject {
         //(1) Play Hurt Animation
         //(2) Trigger kickback
         //(3) Update Player health
-        this.hitpoints -= 1
+        this.hitpoints -= 1;
+        console.log("Player hit: ", this.hitpoints);
     }
 
     update() {
@@ -957,6 +1017,7 @@ class Player extends GameObject {
             // update sprite position to input singleton position
 
             this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
+            this.pos.scale(timeDelta);//hmm
 
         }
 
@@ -967,8 +1028,12 @@ class Player extends GameObject {
         if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size) && this.input.state == 4) { // if hit collission and attack state
             console.log("Player Hit Collision Detection Triggered");
 
+            // Attack
             // reduce enemy health
             window.enemy1.hitpoints -= 1
+
+            //hit
+            //this.hurt();
         }
     }
 
@@ -1013,6 +1078,7 @@ class Enemy extends GameObject {
 
         // set enemy position from the initialisation script
         this.pos = pos;
+
 
         this.hitpoints = 1; //set a default enemy hp
 
@@ -1061,6 +1127,7 @@ class Enemy extends GameObject {
             console.log("ENemy Hit Collision Detection Triggered");
 
             // this.hitpoints -= 1;
+
 
             // TO DO: (1) Trigger Kickback Logic
         }
@@ -1113,8 +1180,9 @@ class Simulation extends GameObject {
     (2) Adds A ground Level To Scene
 
      */
-    // To DO : Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
-
+    // To DO : 
+    // Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
+    // Expantd Timer Functionality for animations via global singleton
 
 
     constructor() {
@@ -1144,6 +1212,8 @@ class Simulation extends GameObject {
             window.THREE_RENDER.setCubePosition(this.cubePosition.x, this.cubePosition.y -= 0.03, this.cubePosition.z);
         }
 
+        // TO DO:
+        // Add Rotation to the cube
     }
 
 
@@ -1311,7 +1381,7 @@ class UI extends UIObject {
 
         //this.UI_HEARTBOX.visible = true;
 
-
+        this.HEART_BOX = null; //created with the heartbox function
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
         //this.
@@ -1390,14 +1460,15 @@ class UI extends UIObject {
             }
             //delete title screen 3d screen
             //temporarily disabled
-            if (window.THREE_RENDER.hasCube()) {
-                //window.THREE_RENDER.deleteCube();
-                window.THREE_RENDER.hideThreeLayer();
-                //window.THREE_RENDER = null;
+            //if (window.THREE_RENDER.hasCube()) {
+            //    //window.THREE_RENDER.deleteCube();
+            //    window.THREE_RENDER.hideThreeLayer();
+            //window.THREE_RENDER = null;
 
-                //return 0;
+            //return 0;
 
-            }
+            //}
+            // create simulation instance for threejs
         }
 
         contGame.onPress = () => {
@@ -1425,18 +1496,41 @@ class UI extends UIObject {
         }
 
     }
+    //external methods to toggle UI states as setter & getter functions
 
-    getMenuVisible() {
+    get MenuVisible() {
         return this.UI_MENU.visible
     };
 
-    setMenuVisible(visible) {
-        //external method to toggle menu visibility
+    set MenuVisible(visible) {
+
         this.UI_MENU.visible = visible
     };
 
 
+    get DialogVisible() {
 
+        return this.DIALOG_BOX.visible;
+    }
+
+    set DialogVisible(visible) {
+        this.DIALOG_BOX.visible = visible;
+    }
+
+
+    heartbox(heartCount) {
+        /* Creates A HeartBox UI Object */
+        this.HEART_BOX = []; // Reset or initialize the heartbox array
+
+        for (let i = 0; i < heartCount; i++) {
+            // Position each heartbox horizontally spaced by 50px, starting at x = 50
+            const position = vec2(50 + i * 50, 30);
+
+            // Create a new heartbox UI tile and add it to the HEART_BOX array
+            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+            this.HEART_BOX.push(heartTile);
+        }
+    }
 }
 
 class Adsense {
@@ -1585,7 +1679,7 @@ function gameUpdatePost() {
         // Track player
         // set camera position to player position
         setCameraPos(window.player.pos);
-        setCameraScale(32);  // zoom camera to 32 pixels per world unit
+        setCameraScale(64);  // zoom camera to 64 pixels per world unit
     }
 
 }
@@ -1628,13 +1722,8 @@ function gameRenderPost() {
     
         */
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
+    window.ui.heartbox(window.globals.health);
 
-    // Create A HeartBox Object
-    const UI_HEART_1 = drawUITile(vec2(100, 30), vec2(50, 50), tile(0, 32, 0, 0));
-    const UI_HEART_2 = drawUITile(vec2(50, 30), vec2(50, 50), tile(0, 32, 0, 0));
-    const UI_HEART_3 = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 0, 0));
-
-    const HEART_BOX = [UI_HEART_1, UI_HEART_2, UI_HEART_3];
 }
 
 
