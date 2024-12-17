@@ -57,7 +57,7 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = false; // turning off music singleton for bandwidth saving
+        this.ENABLE = true; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
@@ -321,7 +321,7 @@ class ThreeRender {
         const loader = new GLTFLoader;
         const DEBUG = false;
         loader.load(
-            '/overworld_map.glb',
+            'overworld_map.glb',
             (gltf) => {
                 if (DEBUG) {
 
