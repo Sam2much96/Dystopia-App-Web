@@ -149,7 +149,8 @@ class Music {
                 preload: true,   // Preload the audio (default is true)
 
                 onend: function () {
-                    console.log("Finished Playing Music");//alert("Finished!");
+                    console.log("Finished Playing Music");
+                    this.play_track(); // play randomised track again
                 }
             });
 
@@ -695,6 +696,7 @@ class Inputs extends GameObject {
 
         this.state = null; // holds the current input state asides the input buffer
 
+        this.WALKING = 0.06;
         // Testing Input Enumeration
         //console.log("Input Debug 1: ", this.input_state.get("UP"));
         //console.log("Input Debug 2: ",input_state.get("ATTACK");
@@ -706,7 +708,7 @@ class Inputs extends GameObject {
     }
 
     update() {
-        const WALKING = 0.06;
+
         // mouse and TouchScreen Input
         //this.pos = mousePos;
 
@@ -715,78 +717,28 @@ class Inputs extends GameObject {
         // Move UP
         //console.log("Testing Input Singleton");
         if (keyIsDown('KeyW')) {
-            //console.log("key W as pressed! ");
-
-            // update input buffer
-            this.input_buffer.push(this.input_state.get("UP"));
-
-            // update current state
-            this.state = this.input_state.get("UP");
-
-            // move up
-            this.pos.y += WALKING;
-            //console.log("Position debug 1: ", this.pos.x);
+            this.up()
         }
 
         // Move Down
         if (keyIsDown('KeyS')) {
-            //console.log("key S as pressed! ");
-
-            // update input buffer
-            this.input_buffer.push(this.input_state.get("DOWN"));
-
-            // update current state
-            this.state = this.input_state.get("DOWN");
-
-            // move up
-            this.pos.y -= WALKING;
+            this.down()
         }
 
         // Move Left
         if (keyIsDown('KeyA')) {
-
-            // move left
-            //console.log("key A as pressed! ");
-
-            //update input buffer
-            this.input_buffer.push(this.input_state.get("LEFT"));
-
-
-            // update current state
-            this.state = this.input_state.get("LEFT");
-
-            // move left
-            this.pos.x -= WALKING;
+            this.left()
         }
 
         // Move Right
         if (keyIsDown('KeyD')) {
-
-            //move right
-            //console.log("key D as pressed! ");
-
-            //update input buffer
-            this.input_buffer.push(this.input_state.get("RIGHT"));
-
-            // update current state
-            this.state = this.input_state.get("RIGHT");
-
-            // move right
-            this.pos.x += WALKING;
-
+            this.right()
 
         }
 
         // Attack
         if (keyWasPressed('KeyX')) {
-            // for debug purposes only
-            console.log(" Key X Pressed");
-
-            //update input buffer
-            this.input_buffer.push(this.input_state.get("ATTACK"));
-
-            // update current state
-            this.state = this.input_state.get("ATTACK");
+            this.attack()
 
         }
 
@@ -832,8 +784,8 @@ class Inputs extends GameObject {
 
         // show / hide dialogue box
 
-        // show / hide menu 2
-        if (!(window.player) && window.ui && mouseWasPressed(0)) {
+        // show / hide menu with mouse input once game hasnt started
+        if (!(window.player) && window.ui && mouseWasPressed(0) && !window.globals.GAME_START) {
 
             var menuVisible2 = window.ui.MenuVisible;
             console.log("Mouse was Pressed, Menu toggle: ", menuVisible2);
@@ -844,18 +796,40 @@ class Inputs extends GameObject {
         // GamePad Input
         // TO DO :
         // (1) Test on mobile & map buttons more properly 
-        if (gamepadWasPressed(1)) {
-            console.log("Game Pad Was Pressed, Test Successfull");
+        if (gamepadStick() == vec2(0, 1)) {
+            //console.log("gamepad move up");
+
+            // move up
+            this.up();
+        }
+
+
+        if (gamepadStick() == vec2(0, 1)) {
+            //console.log("gamepad move down");
+
+            // move down
+            this.down();
+        }
+
+
+        if (gamepadIsDown(1)) {
+            console.log("Game Pad Was Pressed, Test Successfull: ");
             return 0;
         }
 
-        if (gamepadWasPressed(2)) {
+        if (gamepadIsDown(2)) {
             console.log("Game Pad Was Pressed, Test Successfull 2");
+            this.attack()
+        }
+
+        if (gamepadIsDown(3)) {
+            console.log("Game Pad Was Pressed, Test Successfull 3");
             return 0;
         }
 
-        if (gamepadWasPressed(3)) {
-            console.log("Game Pad Was Pressed, Test Successfull 3");
+
+        if (gamepadIsDown(0)) {
+            console.log("Game Pad Was Pressed, Test Successfull 4");
             return 0;
         }
 
@@ -866,6 +840,78 @@ class Inputs extends GameObject {
 
         this.pos.scale(timeDelta);//hmm
     }
+
+    attack() {
+        // Attack State
+        // for debug purposes only
+        console.log(" Key X Pressed");
+
+        //update input buffer
+        this.input_buffer.push(this.input_state.get("ATTACK"));
+
+        // update current state
+        this.state = this.input_state.get("ATTACK");
+    }
+
+    up() {
+        //console.log("key W as pressed! ");
+
+        // update input buffer
+        this.input_buffer.push(this.input_state.get("UP"));
+
+        // update current state
+        this.state = this.input_state.get("UP");
+
+        // move up
+        this.pos.y += this.WALKING;
+        //console.log("Position debug 1: ", this.pos.x);
+    }
+
+    down() {
+        //console.log("key S as pressed! ");
+
+        // update input buffer
+        this.input_buffer.push(this.input_state.get("DOWN"));
+
+        // update current state
+        this.state = this.input_state.get("DOWN");
+
+        // move down
+        this.pos.y -= this.WALKING;
+    }
+
+    right() {
+
+        //move right
+        //console.log("key D as pressed! ");
+
+        //update input buffer
+        this.input_buffer.push(this.input_state.get("RIGHT"));
+
+        // update current state
+        this.state = this.input_state.get("RIGHT");
+
+        // move right
+        this.pos.x += this.WALKING;
+
+    }
+
+    left() {
+
+        // move left
+        //console.log("key A as pressed! ");
+
+        //update input buffer
+        this.input_buffer.push(this.input_state.get("LEFT"));
+
+
+        // update current state
+        this.state = this.input_state.get("LEFT");
+
+        // move left
+        this.pos.x -= this.WALKING;
+    }
+
 }
 
 
@@ -1033,6 +1079,8 @@ class Player extends GameObject {
             // reduce enemy health
             window.enemy1.hitpoints -= 1
 
+            window.enemy1.kickback();
+
             //hit
             //this.hurt();
         }
@@ -1079,7 +1127,7 @@ class Enemy extends GameObject {
 
         // set enemy position from the initialisation script
         this.pos = pos;
-
+        this.startPosition = pos.copy();
 
         this.hitpoints = 1; //set a default enemy hp
 
@@ -1112,7 +1160,7 @@ class Enemy extends GameObject {
         ]);
 
         // Enemy Movement Logic
-        this.velocity = vec2(0, 0); // default temp velocity
+        //this.velocity = vec2(0, 0); // default temp velocity
 
         // Testing Enemy Type Enumeration
         console.log("Input Debug 1: ", this.enemy_type.get("EASY"));
@@ -1128,10 +1176,16 @@ class Enemy extends GameObject {
             console.log("ENemy Hit Collision Detection Triggered");
 
             // this.hitpoints -= 1;
+            //this.pos = window.player.pos
 
+            // Follow the player
 
-            // TO DO: (1) Trigger Kickback Logic
+            // TO DO: 
+            // (1) Trigger Kickback Logic
+            // (2) Add Raycast for detection
         }
+
+
 
         // Despawn logic
         if (this.hitpoints <= 0) {
@@ -1146,11 +1200,15 @@ class Enemy extends GameObject {
         return 0;
     }
 
+    kickback() {
+        return 0;
+    }
+
     despawn() {
-        if (this.hitpoints <= 0) {
-            // destroy block when hitpoints is at zero or less
-            this.destroy();
-        }
+        //if (this.hitpoints <= 0) {
+        // destroy block when hitpoints is at zero or less
+        this.destroy();
+        //}
     }
     _on_enemy_eyesight_body_entered() {
         // player detection with a raycast
@@ -1189,6 +1247,7 @@ class Simulation extends GameObject {
 
     constructor() {
         super();
+        console.log("Simulation Singleton Created")
         this.cubePosition = null; // for storing the cube geometry 3d position 
         this.groundLevel = -4; // ground position for stopping Gravity on Cube 
         this.color = new Color(0, 0, 0, 0); // make object invisible
