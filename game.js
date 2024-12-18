@@ -57,7 +57,7 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = true; // turning off music singleton for bandwidth saving
+        this.ENABLE = false; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
@@ -79,8 +79,9 @@ class Music {
 
         this.current_track = null;//"track placeholder";
         this.next_track = null;
-        //this.timer = new Timer();
         this.counter = 0;
+        this.randomTrack = null;
+
         // Map sounds to different sound effects and play them via an enumerator/global script
         //required for a music shuffler
         this.sfx_playlist = new Map([
@@ -110,38 +111,28 @@ class Music {
         ];
 
     }
-    /* 
-    playZeldaOpeningLittleJS() {
-        console.log("Playing A Zelda Theme Song");
-        this.zelda = new Sound()
-        // Notes and their corresponding frequencies (in Hz)
 
+    shuffle() {
+
+        var track = this.default_playlist;
+
+        // Filter out the last played track and pick a random one from the remaining tracks
+        var availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
+        this.randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+
+
+        // Log the selected track
+        console.log("Selected Track: ", this.randomTrack, "/", this.counter);
 
     }
-    */
-
 
     play_track() {
 
         if (this.ENABLE) {
-
-            var track = this.default_playlist;
-
-            // Static variable to keep track of the last played track
-            //if (!this.lastPlayedTrack) {
-            //    this.lastPlayedTrack = null;
-            //}
-
-            // Filter out the last played track and pick a random one from the remaining tracks
-            const availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
-            const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-
-
-            // Log the selected track
-            console.log("Selected Track: ", randomTrack, "/", this.counter);
+            this.shuffle();
 
             var sound = new Howl({
-                src: [randomTrack],
+                src: [this.randomTrack],
                 format: ['ogg'], // Specify the format(s) of your audio file
                 volume: 0.5,
                 autoplay: true, // Whether to autoplay (optional)
@@ -150,12 +141,15 @@ class Music {
 
                 onend: function () {
                     console.log("Finished Playing Music");
-                    this.play_track(); // play randomised track again
+                    // play randomised track again
+                    // should stop current track, delete the sound object and create a new one
+                    //window.music.play_track();
+
                 }
             });
 
             // Update the last played track
-            this.lastPlayedTrack = randomTrack;
+            this.lastPlayedTrack = this.randomTrack;
 
             sound.play();
 
@@ -716,22 +710,22 @@ class Inputs extends GameObject {
         //
         // Move UP
         //console.log("Testing Input Singleton");
-        if (keyIsDown('KeyW')) {
+        if (keyIsDown('ArrowUp')) {
             this.up()
         }
 
         // Move Down
-        if (keyIsDown('KeyS')) {
+        if (keyIsDown('ArrowDown')) {
             this.down()
         }
 
         // Move Left
-        if (keyIsDown('KeyA')) {
+        if (keyIsDown('ArrowLeft')) {
             this.left()
         }
 
         // Move Right
-        if (keyIsDown('KeyD')) {
+        if (keyIsDown('ArrowRight')) {
             this.right()
 
         }
@@ -739,6 +733,13 @@ class Inputs extends GameObject {
         // Attack
         if (keyWasPressed('KeyX')) {
             this.attack()
+
+        }
+
+
+        // Dash
+        if (keyWasPressed('Space')) {
+            console.log("Space pressed, Player Dash");
 
         }
 
@@ -760,9 +761,9 @@ class Inputs extends GameObject {
         }
 
         // show/hide menu
-        if (keyWasPressed('KeyP') && window.ui) {
+        if (keyWasPressed('Enter') && window.ui) {
             var menuVisible = window.ui.MenuVisible;
-            console.log("Key P was Pressed, Menu toggle: ", menuVisible);
+            console.log("Escape was Pressed, Menu toggle: ", menuVisible);
             window.ui.MenuVisible = !menuVisible;
 
         }
@@ -794,27 +795,33 @@ class Inputs extends GameObject {
         }
 
         // GamePad Input
-        // TO DO :
-        // (1) Test on mobile & map buttons more properly 
-        if (gamepadStick() == vec2(0, 1)) {
-            //console.log("gamepad move up");
+        let stk = gamepadStick(0, 0); // capture gamestik
+        if (stk.x < 0) {
+            // move left
+            this.left();
+        }
 
+        if (stk.x > 0) {
+            // move right
+            this.right();
+        }
+
+        if (stk.y < 0) {
+            // move down
+            this.down();
+        }
+        if (stk.y > 0) {
             // move up
             this.up();
         }
 
 
-        if (gamepadStick() == vec2(0, 1)) {
-            //console.log("gamepad move down");
-
-            // move down
-            this.down();
-        }
 
 
         if (gamepadIsDown(1)) {
             console.log("Game Pad Was Pressed, Test Successfull: ");
-            return 0;
+            //return 0;
+            this.dash();
         }
 
         if (gamepadIsDown(2)) {
@@ -844,13 +851,19 @@ class Inputs extends GameObject {
     attack() {
         // Attack State
         // for debug purposes only
-        console.log(" Key X Pressed");
+        console.log(" Attack Pressed");
 
         //update input buffer
         this.input_buffer.push(this.input_state.get("ATTACK"));
 
         // update current state
         this.state = this.input_state.get("ATTACK");
+    }
+
+    dash() {
+
+        // dash state
+        console.log(" Dash Pressed");
     }
 
     up() {
@@ -1064,26 +1077,29 @@ class Player extends GameObject {
             // update sprite position to input singleton position
 
             this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
-            this.pos.scale(timeDelta);//hmm
+            -this.pos.scale(timeDelta);//hmm
 
         }
 
         // player hit collision detection
-        // TO DO:
-        // (1) Adjust for multiple enemies using a collision radius / enemy object pool pointers
-        // (1) Enemy Template
-        if (isOverlapping(this.pos, this.size, window.enemy1.pos, window.enemy1.size) && this.input.state == 4) { // if hit collission and attack state
-            console.log("Player Hit Collision Detection Triggered");
+        // detects collision between any enemy in the global enemies pool
+        for (let i = 0; i < window.globals.enemies.length; i++) {
 
-            // Attack
-            // reduce enemy health
-            window.enemy1.hitpoints -= 1
+            if (isOverlapping(this.pos, this.size, window.globals.enemies[i].pos, window.globals.enemies[i].size) && this.input.state == 4) { // if hit collission and attack state
+                console.log("Player Hit Collision Detection Triggered");
 
-            window.enemy1.kickback();
+                // Attack
+                // reduce enemy health
+                window.globals.enemies[i].hitpoints -= 1
 
-            //hit
-            //this.hurt();
+                window.globals.enemies[i].kickback();
+
+                //hit register
+
+            }
+
         }
+
     }
 
     despawn() {
@@ -1127,7 +1143,9 @@ class Enemy extends GameObject {
 
         // set enemy position from the initialisation script
         this.pos = pos;
-        this.startPosition = pos.copy();
+
+        // store object to global pointer for object pooling
+        window.globals.enemies.push(this);
 
         this.hitpoints = 1; //set a default enemy hp
 
@@ -1169,16 +1187,44 @@ class Enemy extends GameObject {
         //this.setCollision(true, true); // make object collide
         //this.mass = 0; // make object have static physics
 
+        //enemy AI variables
+        this.speed = 1.5// Movement speed
+        //this.size = 20; // Enemy size for collision
+        this.detectionRange = 200; // Range to detect the player
+        this.minDistance = 30; // Minimum distance from player to stop following
+        this.targetPos = vec2(0, 0); // Random wandering target
+        this.wanderCooldown = 0; // Time before choosing a new wandering target
+
     }
     update() {
+
+        // enemy AI
+
+        //calculate enemy distance to player
+        const dx = window.player.pos.x - this.pos.x;
+        const dy = window.player.pos.y - this.pos.y;
+        const distanceToPlayer = Math.sqrt(dx * dx + dy * dy);
+
+        const MOB = true;
+
+        if (MOB) {
+
+
+            // Follow the player
+            // Follow the player
+
+            //console.log("following the player");
+            this.pos.x += (dx / distanceToPlayer) * this.speed * timeDelta;
+            this.pos.y += (dy / distanceToPlayer) * this.speed * timeDelta;
+        }
+
         // Enemy hit collision detection
         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-            console.log("ENemy Hit Collision Detection Triggered");
+            //console.log("ENemy Hit Collision Detection Triggered: ", distanceToPlayer);
 
             // this.hitpoints -= 1;
             //this.pos = window.player.pos
 
-            // Follow the player
 
             // TO DO: 
             // (1) Trigger Kickback Logic
@@ -1223,6 +1269,20 @@ class Enemy extends GameObject {
 }
 class EnemySpawner extends GameObject {
     //spawn an enemy count at specific posisitons
+    constructor() {
+        super();
+        console.log("Enemy Spawner Instanced");
+    }
+
+    update() {
+
+        if (window.globals.enemies.length <= 1) {
+            window.enemy1 = new Enemy(vec2(5, 10), vec2(2, 2));
+
+            window.enemy2 = new Enemy(vec2(5, 5), vec2(2, 2));
+
+        }
+    }
 }
 
 
@@ -1779,7 +1839,7 @@ function gameRender() {
         // triggers srart of game loop from simulation singleton
         const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(10, 10), tile(0, 32, 3, 0), WHITE);
 
-        const TREE_1 = drawTile(vec2(10, 0), vec2(5, 5), tile(0, 64, 4, 0)); //64X64 pixels
+        const TREE_1 = drawTile(vec2(20, 0), vec2(5, 5), tile(0, 64, 4, 0)); //64X64 pixels
 
         //create global player object
         if (!window.player) {
@@ -1788,10 +1848,13 @@ function gameRender() {
             //const overworld_ = new OverWorld();
         }
 
-        //create template Enemy Object
-        if (!window.enemy1) {
-            window.enemy1 = new Enemy(vec2(5, 5), vec2(2, 2));
+        //Spawn Enemy Object
+        if (!window.enemyspawner) {
+            window.enemyspawner = new EnemySpawner();
 
+            //window.enemy2 = new Enemy(vec2(5, 10), vec2(2, 2));
+
+            //window.enemy3 = new Enemy(vec2(5, 5), vec2(2, 2));
         }
     }
 }
