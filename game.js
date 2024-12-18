@@ -1150,7 +1150,7 @@ class Enemy extends GameObject {
         this.hitpoints = 1; //set a default enemy hp
 
         // store player object in global array
-        window.globals.enemies.push(this);
+        //window.globals.enemies.push(this);
 
         // Enemy Type Enum
         this.enemy_type = new Map([
@@ -1236,6 +1236,8 @@ class Enemy extends GameObject {
         // Despawn logic
         if (this.hitpoints <= 0) {
             this.despawn();
+            // remove object from global array
+            window.globals.enemies.splice(this);
         }
 
     }
@@ -1251,10 +1253,10 @@ class Enemy extends GameObject {
     }
 
     despawn() {
-        //if (this.hitpoints <= 0) {
         // destroy block when hitpoints is at zero or less
         this.destroy();
-        //}
+
+        // remove object from global object pool
     }
     _on_enemy_eyesight_body_entered() {
         // player detection with a raycast
@@ -1272,15 +1274,26 @@ class EnemySpawner extends GameObject {
     constructor() {
         super();
         console.log("Enemy Spawner Instanced");
+
+        this.ENABLE = true;
+        this.COUNTER = 0; // counter for calculatin how much enemies been spawned
     }
 
     update() {
 
-        if (window.globals.enemies.length <= 1) {
-            window.enemy1 = new Enemy(vec2(5, 10), vec2(2, 2));
+        // spawn 2 new enemies if the enemy pool is 0
+        if (window.globals.enemies.length < 1 && this.ENABLE) {
+            const enemy1 = new Enemy(vec2(5, 10), vec2(2, 2));
 
-            window.enemy2 = new Enemy(vec2(5, 5), vec2(2, 2));
+            this.COUNTER += 1;
 
+            return
+
+        }
+
+        // stop spawning if enemy spawn count is 15
+        if (window.globals.enemies.length == 15) {
+            this.ENABLE = false
         }
     }
 }
