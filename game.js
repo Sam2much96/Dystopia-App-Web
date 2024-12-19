@@ -731,14 +731,14 @@ class Inputs extends GameObject {
         }
 
         // Attack
-        if (keyWasPressed('KeyX')) {
+        if (keyIsDown('KeyX')) {
             this.attack()
 
         }
 
 
         // Dash
-        if (keyWasPressed('Space')) {
+        if (keyIsDown('Space')) {
             console.log("Space pressed, Player Dash");
 
         }
@@ -1090,12 +1090,15 @@ class Player extends GameObject {
 
                 // Attack
                 // reduce enemy health
-                window.globals.enemies[i].hitpoints -= 1
+                window.globals.enemies[i].hitpoints -= 1;
 
                 window.globals.enemies[i].kickback();
 
                 //hit register
 
+
+                //sfx
+                window.music.sound_metal_gong.play();
             }
 
         }
@@ -1195,6 +1198,13 @@ class Enemy extends GameObject {
         this.targetPos = vec2(0, 0); // Random wandering target
         this.wanderCooldown = 0; // Time before choosing a new wandering target
 
+
+        // blood fx
+        this.blood_fx = null
+        // Timer to destroy the ParticleFX object after 5 seconds
+        this.despawn_timer = new Timer;    // creates a timer that is not set
+
+
     }
     update() {
 
@@ -1235,10 +1245,17 @@ class Enemy extends GameObject {
 
         // Despawn logic
         if (this.hitpoints <= 0) {
-            this.despawn();
-            // remove object from global array
-            window.globals.enemies.splice(this);
+            this.despawn(); // trigger despawn timer
+
         }
+        // exit tree
+
+        // if (this.despawn_timer.elapsed() && this.hitpoints <= 0) {
+        //this.blood_fx.destroy();
+
+        // destroy block when hitpoints is at zero or less and despawn animation finished playing
+        /////    this.destroy();
+        //}
 
     }
 
@@ -1253,10 +1270,20 @@ class Enemy extends GameObject {
     }
 
     despawn() {
-        // destroy block when hitpoints is at zero or less
-        this.destroy();
+        // The Enemy Despawn animation
+
+        //create particle fx
+        //let blood_fx = new ParticleFX(this.pos, this.size);
+
+        this.despawn_timer.set(3);
+
 
         // remove object from global object pool
+        // remove object from global array
+        window.globals.enemies.splice(this);
+
+        //blood_fx.destroy();
+        this.destroy();
     }
     _on_enemy_eyesight_body_entered() {
         // player detection with a raycast
@@ -1276,6 +1303,7 @@ class EnemySpawner extends GameObject {
         console.log("Enemy Spawner Instanced");
 
         this.ENABLE = true;
+        this.color = new Color(0, 0, 0, 0); // make object invisible
         this.COUNTER = 0; // counter for calculatin how much enemies been spawned
     }
 
@@ -1415,7 +1443,7 @@ class Items extends GameObject {
     }
 }
 
-class ParticleFX extends GameObject {
+class ParticleFX extends EngineObject {
     /**
      * Particle Effects Logic in a single class 
      * 
@@ -1432,7 +1460,7 @@ class ParticleFX extends GameObject {
         this.color = new Color(0, 0, 0, 0); // make object invisible
 
         const color__ = hsl(0, 0, .2);
-        const trailEffect = new ParticleEmitter(
+        this.trailEffect = new ParticleEmitter(
             pos, 0,                          // pos, angle
             size, 0, 80, PI,                 // emitSize, emitTime, emitRate, emiteCone
             tile(0, 16),                          // tileIndex, tileSize
@@ -1443,11 +1471,10 @@ class ParticleFX extends GameObject {
             .1, .5, 0, 1        // fade, randomness, collide, additive
         );
 
-        // play some sfx
-        window.music.sound_start.play();
-    }
 
+    }
 }
+
 
 /*
 Globals Singleton
@@ -1508,8 +1535,7 @@ class UI extends UIObject {
         initUISystem();
 
 
-        // sound effects
-        const sound_ui = new Sound([1, 0]);
+
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
@@ -1586,12 +1612,11 @@ class UI extends UIObject {
 
         newGame.onPress = () => {
             console.log('New Game Pressed');
-            sound_ui.play();
-            // (1) Instance player
-            // (2) Hide Menu
-            // (3) kill 3d cube
-            this.UI_MENU.visible = false;
+            window.music.sound_start.play();
+            //this.UI_MENU.visible = false;
 
+            // turn menu invisible
+            this.UI_MENU.visible = false;
 
             // apply gravity to 3d model to trigger game start
             const anim = new Simulation();
@@ -1613,7 +1638,7 @@ class UI extends UIObject {
 
         contGame.onPress = () => {
             console.log('Continue Pressed');
-            sound_ui.play();
+            window.music.sound_start.play();
         }
         Comics.onPress = () => {
             // open comics website in new tab
@@ -1623,14 +1648,14 @@ class UI extends UIObject {
         }
         Controls.onPress = () => {
             console.log('Controls Pressed');
-            sound_ui.play();
+            window.music.sound_start.play();
         }
 
         Quit.onPress = () => {
             // (1) delete player
             // (2) show 3d layer
             console.log('Quit Pressed');
-            sound_ui.play();
+            window.music.sound_start.play();
 
             window.THREE_RENDER.showThreeLayer()
         }
@@ -1643,7 +1668,7 @@ class UI extends UIObject {
     };
 
     set MenuVisible(visible) {
-
+        //window.music.sound_start.play(); // play sfx
         this.UI_MENU.visible = visible
     };
 
@@ -1849,10 +1874,17 @@ function gameRender() {
     //The third tile parameter constrols which tile object to draw
     //draw tile allows for better object scalling
     if (window.globals.GAME_START) {
-        // triggers srart of game loop from simulation singleton
-        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(10, 10), tile(0, 32, 3, 0), WHITE);
 
-        const TREE_1 = drawTile(vec2(20, 0), vec2(5, 5), tile(0, 64, 4, 0)); //64X64 pixels
+
+        //turn menu invisible
+        //window.ui.MenuVisible = false;
+
+
+        // triggers srart of game loop from simulation singleton
+        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), WHITE);
+
+        const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
 
         //create global player object
         if (!window.player) {
