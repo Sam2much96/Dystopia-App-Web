@@ -14,16 +14,19 @@ Main Game Logic
 
 
 
-import * as THREE from 'https://cdn.skypack.dev/three@0.133.0/build/three.module.js';//'/node_modules/three/src/Three.js';
+import * as THREE from 'three';
 
-import { GLTFLoader } from "https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-import * as LittleJS from 'https://littlejs-static.vercel.app/js/littlejs.js';
-const { tile, vec2, hsl, drawTile, Timer, timeDelta } = LittleJS;
-
-import { Howl } from 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js'; // Ensure you have Howler installed and imported
+import * as LittleJS from 'littlejsengine';
 
 
+
+const { tile, vec2, hsl, drawTile, Timer, timeDelta, touchGamepadEnable } = LittleJS;
+
+import { Howl } from 'howler'; // Ensure you have Howler installed and imported
+
+'use strict';
 
 
 // import module
@@ -32,11 +35,11 @@ import { Howl } from 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.
 LittleJS.setShowSplashScreen(true);
 
 // Show Game Pad on Mobile Devices
-LittleJS.touchGamepadEnable = true;
+//LittleJS.touchGamepadEnable = true;
 
 
 
-'use strict';
+
 
 
 
@@ -1644,7 +1647,7 @@ class Globals {
 
 
 
-class UI extends LittleJS.UIObject {
+class UI extends UIObject {
     /* 
     Game UI System
     
@@ -1679,7 +1682,7 @@ class UI extends LittleJS.UIObject {
         super();
 
         //initialise the UI Plugin system
-        LittleJS.initUISystem();
+        //LittleJS.initUISystem();
 
 
 
@@ -1889,7 +1892,8 @@ function gameInit() {
     console.log("Game Started!");
 
     // UI Setup
-    window.ui = new UI();
+    // UI setup is buggy and requires another approach not using the ljs ui plugin codes
+    //window.ui = new UI();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -2053,7 +2057,7 @@ function gameRenderPost() {
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
 
     //draw heartbox ui
-    window.ui.heartbox(window.globals.health);
+    //window.ui.heartbox(window.globals.health);
 
 }
 

@@ -1,0 +1,29 @@
+{
+  "name": "dystopia-app-web",
+  "version": "1.0.0",
+  "description": "A Custom Web Version Of Dystopia App game written in Html5 and JavaScript. An 8 Bit Action RPG Maiintained For The Web.",
+  "main": "game.bak.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc --watch",
+    "vite": "vite",
+    "build": "npx tsc vite.config.ts game.ts && npm run vite",
+    "dev": "npx tsc game.ts --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/howler": "^2.2.12",
+    "@types/node": "^22.10.7",
+    "@types/three": "^0.172.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.9",
+    "vite-plugin-cdn-import": "^1.0.1"
+  },
+  "dependencies": {
+    "howler": "^2.2.4",
+    "littlejsengine": "^1.11.2",
+    "three": "^0.172.0"
+  }
+}
