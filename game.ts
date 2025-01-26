@@ -20,7 +20,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import * as LittleJS from 'littlejsengine';
 
-
+import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
 
 const { tile, vec2, hsl, drawTile, Timer, timeDelta, touchGamepadEnable } = LittleJS;
 
@@ -92,7 +92,7 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = true; // turning off music singleton for bandwidth saving
+        this.ENABLE = false; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
@@ -807,11 +807,19 @@ class Inputs extends GameObject {
         }
 
         // show/hide menu
+        // press enter to start game
         if (LittleJS.keyWasPressed('Enter') && window.ui) {
             var menuVisible = window.ui.MenuVisible;
             console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-            window.ui.MenuVisible = !menuVisible;
+            //window.ui.MenuVisible = !menuVisible;
 
+            console.log('New Game Started');
+            window.music.sound_start.play();
+            //this.UI_MENU.visible = false;
+
+
+            // apply gravity to 3d model to trigger game start
+            const anim = new Simulation();
         }
 
         //show / hide dialogue
@@ -1669,13 +1677,13 @@ class UI extends UIObject {
 
 
     // UI components
-    public UI_ROOT: LittleJS.UIObject;
-    public UI_MENU: LittleJS.UIObject;
-    public UI_GAME_HUD: LittleJS.UIObject;
-    public HEART_BOX: LittleJS.UIObject[] | null;
-    public UI_STATS: LittleJS.UIObject;
-    public UI_CONTROLS: LittleJS.UIObject;
-    public DIALOG_BOX: LittleJS.UIObject;
+    public UI_ROOT: UIObject;
+    public UI_MENU: UIObject;
+    public UI_GAME_HUD: UIObject;
+    public HEART_BOX: UIObject[] | null;
+    public UI_STATS: UIObject;
+    public UI_CONTROLS: UIObject;
+    public DIALOG_BOX: UIObject;
 
     constructor() {
 
@@ -1689,9 +1697,9 @@ class UI extends UIObject {
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = new LittleJS.UIObject();
-        this.UI_MENU = new LittleJS.UIObject();
-        this.UI_GAME_HUD = new LittleJS.UIObject(); // contains all game hud buttons
+        this.UI_ROOT = new UIObject();
+        this.UI_MENU = new UIObject();
+        this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
 
 
         //this.UI_HEARTBOX = [this.UI_HEART_1]
@@ -1702,10 +1710,10 @@ class UI extends UIObject {
         //this.UI_HEARTBOX.visible = true;
 
         this.HEART_BOX = null; //created with the heartbox function
-        this.UI_STATS = new LittleJS.UIObject();
-        this.UI_CONTROLS = new LittleJS.UIObject();
-        //this.
-        this.DIALOG_BOX = new LittleJS.UIObject(vec2(0, 0), vec2(200, 400));
+        this.UI_STATS = new UIObject();
+        this.UI_CONTROLS = new UIObject();
+
+        this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
 
 
         //parent & child
@@ -1722,7 +1730,7 @@ class UI extends UIObject {
 
         //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
-        const uiInfo = new LittleJS.UIText(vec2(0, 50), vec2(1e3, 70),
+        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
 
         uiInfo.textColor = LittleJS.WHITE;
@@ -1745,11 +1753,11 @@ class UI extends UIObject {
 
         // Create Ingame Menu
         // 
-        const newGame = new LittleJS.UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
-        const contGame = new LittleJS.UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-        const Comics = new LittleJS.UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
-        const Controls = new LittleJS.UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
-        const Quit = new LittleJS.UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+        const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+        const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+        const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
+        const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
+        const Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
 
         // parent button objects        
         this.UI_MENU.addChild(newGame);
@@ -1822,7 +1830,7 @@ class UI extends UIObject {
     }
 
 
-    heartbox(heartCount) {
+    heartbox(heartCount: number) {
         /* Creates A HeartBox UI Object */
         this.HEART_BOX = []; // Reset or initialize the heartbox array
 
@@ -1831,8 +1839,9 @@ class UI extends UIObject {
             const position = vec2(50 + i * 50, 30);
 
             // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = LittleJS.UIObject.drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
-            this.HEART_BOX.push(heartTile);
+            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+
+            //this.HEART_BOX.push(heartTile);
         }
     }
 }
@@ -1892,8 +1901,8 @@ function gameInit() {
     console.log("Game Started!");
 
     // UI Setup
-    // UI setup is buggy and requires another approach not using the ljs ui plugin codes
-    //window.ui = new UI();
+    // UI setup is buggy 
+    window.ui = new UI();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -1999,7 +2008,7 @@ function gameRender() {
 
 
         //turn menu invisible
-        //window.ui.MenuVisible = false;
+        window.ui.MenuVisible = false;
 
 
         // triggers srart of game loop from simulation singleton

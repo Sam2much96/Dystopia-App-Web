@@ -13,7 +13,7 @@ Main Game Logic
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as LittleJS from 'littlejsengine';
-import { UIObject } from './uiSystem.js';
+import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
 const { tile, vec2, hsl, drawTile, Timer, timeDelta, touchGamepadEnable } = LittleJS;
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 'use strict';
@@ -26,7 +26,7 @@ class Music {
     constructor() {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
-        this.ENABLE = true; // turning off music singleton for bandwidth saving
+        this.ENABLE = false; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
         this.zelda_powerup = new LittleJS.Sound([1.5, , 214, .05, .19, .3, 1, .1, , , 167, .05, .09, , , , .11, .8, .15, .22]); // Powerup 9// Powerup 9
@@ -571,10 +571,16 @@ class Inputs extends GameObject {
             console.log("key I was pressed: ", window.inventory.getAllItems());
         }
         // show/hide menu
+        // press enter to start game
         if (LittleJS.keyWasPressed('Enter') && window.ui) {
             var menuVisible = window.ui.MenuVisible;
             console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-            window.ui.MenuVisible = !menuVisible;
+            //window.ui.MenuVisible = !menuVisible;
+            console.log('New Game Started');
+            window.music.sound_start.play();
+            //this.UI_MENU.visible = false;
+            // apply gravity to 3d model to trigger game start
+            const anim = new Simulation();
         }
         //show / hide dialogue
         if (LittleJS.keyWasPressed('KeyE') && window.ui) {
@@ -1080,13 +1086,13 @@ class ParticleFX extends LittleJS.EngineObject {
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new LittleJS.ParticleEmitter(pos, 0, // pos, angle
-            size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
-            tile(0, 16), // tileIndex, tileSize
-            color__, color__, // colorStartA, colorStartB
-            color__.scale(0), color__.scale(0), // colorEndA, colorEndB
-            2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
-            .99, .95, 0, LittleJS.PI, // damp, angleDamp, gravity, cone
-            .1, .5, 0, 1 // fade, randomness, collide, additive
+        size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
+        tile(0, 16), // tileIndex, tileSize
+        color__, color__, // colorStartA, colorStartB
+        color__.scale(0), color__.scale(0), // colorEndA, colorEndB
+        2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
+        .99, .95, 0, LittleJS.PI, // damp, angleDamp, gravity, cone
+        .1, .5, 0, 1 // fade, randomness, collide, additive
         );
     }
 }
@@ -1113,27 +1119,25 @@ class Globals {
         this.GAME_START = false; // for triggering the main game loop logic in other scenes
     }
 }
-
 class UI extends UIObject {
     constructor() {
         super();
         //initialise the UI Plugin system
-        LittleJS.initUISystem();
+        //LittleJS.initUISystem();
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = new LittleJS.UIObject();
-        this.UI_MENU = new LittleJS.UIObject();
-        this.UI_GAME_HUD = new LittleJS.UIObject(); // contains all game hud buttons
+        this.UI_ROOT = new UIObject();
+        this.UI_MENU = new UIObject();
+        this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
         //this.UI_HEARTBOX = [this.UI_HEART_1]
         //this.UI_HEARTBOX.addChild(this.UI_HEART_1);
         //this.UI_HEARTBOX.addChild(this.UI_HEART_2);
         //this.UI_HEARTBOX.addChild(this.UI_HEART_3);
         //this.UI_HEARTBOX.visible = true;
         this.HEART_BOX = null; //created with the heartbox function
-        this.UI_STATS = new LittleJS.UIObject();
-        this.UI_CONTROLS = new LittleJS.UIObject();
-        //this.
-        this.DIALOG_BOX = new LittleJS.UIObject(vec2(0, 0), vec2(200, 400));
+        this.UI_STATS = new UIObject();
+        this.UI_CONTROLS = new UIObject();
+        this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
         //parent & child
         this.UI_ROOT.addChild(this.UI_MENU);
         this.UI_ROOT.addChild(this.DIALOG_BOX);
@@ -1144,7 +1148,7 @@ class UI extends UIObject {
         //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
         //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
-        const uiInfo = new LittleJS.UIText(vec2(0, 50), vec2(1e3, 70), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
+        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
         uiInfo.textColor = LittleJS.WHITE;
         uiInfo.lineWidth = 8;
         this.DIALOG_BOX.addChild(uiInfo);
@@ -1159,11 +1163,11 @@ class UI extends UIObject {
         //this.UI_MENU.addChild(uiBackground);
         // Create Ingame Menu
         // 
-        const newGame = new LittleJS.UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
-        const contGame = new LittleJS.UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-        const Comics = new LittleJS.UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
-        const Controls = new LittleJS.UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
-        const Quit = new LittleJS.UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+        const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+        const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+        const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
+        const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
+        const Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
         // parent button objects        
         this.UI_MENU.addChild(newGame);
         this.UI_MENU.addChild(contGame);
@@ -1225,8 +1229,8 @@ class UI extends UIObject {
             // Position each heartbox horizontally spaced by 50px, starting at x = 50
             const position = vec2(50 + i * 50, 30);
             // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = LittleJS.UIObject.drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
-            this.HEART_BOX.push(heartTile);
+            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+            //this.HEART_BOX.push(heartTile);
         }
     }
 }
@@ -1247,8 +1251,8 @@ function gameInit() {
     // setup the game
     console.log("Game Started!");
     // UI Setup
-    //window.ui = new UI();
-
+    // UI setup is buggy 
+    window.ui = new UI();
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
     /* Create 3D Scenes And Objects*/
@@ -1317,7 +1321,7 @@ function gameRender() {
     //draw tile allows for better object scalling
     if (window.globals.GAME_START) {
         //turn menu invisible
-        //window.ui.MenuVisible = false;
+        window.ui.MenuVisible = false;
         // triggers srart of game loop from simulation singleton
         const TEMPLE_EXTERIOR = LittleJS.drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
         const TREE_1 = LittleJS.drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
@@ -1362,7 +1366,6 @@ function gameRenderPost() {
     
         */
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
-
     //draw heartbox ui
     //window.ui.heartbox(window.globals.health);
 }

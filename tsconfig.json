@@ -1,6 +1,31 @@
 {
     "compilerOptions": {
         "allowJs": true,
-        "target": "es6",
+        "target": "ES2015",
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "strict": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "esModuleInterop": true, // Ensures interoperability between CommonJS and ESM
+        "allowSyntheticDefaultImports": true, // Optional: Allows default imports from non-ESM modules
+        "forceConsistentCasingInFileNames": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "three/examples/jsm/*": [
+                "node_modules/three/examples/jsm/*"
+            ],
+            "littlejsengine/*": [
+                "node_modules/littlejsengine/*"
+            ],
+            "./uiSystem": [
+                "uiSystem.js"
+            ]
+        },
     }
 }
