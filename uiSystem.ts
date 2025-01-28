@@ -14,7 +14,8 @@
 import {
     WHITE, BLACK, hsl, vec2, engineAddPlugin,
     overlayContext, ASSERT, fontDefault, Vector2,
-    mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, TileInfo, drawTile
+    mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, TileInfo,
+    drawTile, isTouchDevice, mousePosScreen,
 } from 'littlejsengine';
 
 // ui defaults
@@ -37,7 +38,7 @@ export function initUISystem(context = overlayContext) {
 
     // setup recursive update and render
     function uiUpdate() {
-        function updateObject(o) {
+        function updateObject(o: UIObject) {
             if (!o.visible)
                 return;
             if (o.parent)
@@ -49,7 +50,7 @@ export function initUISystem(context = overlayContext) {
         uiObjects.forEach(o => o.parent || updateObject(o));
     }
     function uiRender() {
-        function renderObject(o) {
+        function renderObject(o: UIObject) {
             if (!o.visible)
                 return;
             if (o.parent)
@@ -110,6 +111,7 @@ class UIObject {
     public children: Array<UIObject>;
     public parent: any;
     mouseIsOver: boolean = false;
+    mouseIsHeld: boolean = false;
 
 
     constructor(localPos = vec2(), size = vec2()) {
@@ -186,8 +188,8 @@ class UIText extends UIObject {
     public align;
     public font;
     public lineWidth;
-    public pos: Vector2 | undefined;
-    public size: Vector2 | undefined;
+    public pos: Vector2 = vec2();
+    public size: Vector2 = vec2();
 
 
     constructor(pos: Vector2, size: Vector2, text = '', align = 'center', font = fontDefault) {
@@ -210,8 +212,8 @@ class UITile extends UIObject {
     public color;
     public angle;
     public mirror;
-    public pos: Vector2 | undefined;
-    public size: Vector2 | undefined;
+    public pos: Vector2 = vec2();
+    public size: Vector2 = vec2();
 
     constructor(pos: Vector2, size: Vector2, tileInfo: TileInfo, color = WHITE, angle = 0, mirror = false) {
         super(pos, size);
@@ -231,11 +233,12 @@ class UITile extends UIObject {
 class UIButton extends UIObject {
     public pos: any;
     public size: any;
-    public text: String;
+    public text: string;
     public font: any;
     public color;
+
     mouseIsHeld: boolean | undefined;
-    mouseIsOver: boolean | undefined;
+    mouseIsOver: boolean = false;
     lineColor: any;
     hoverColor: any;
     lineWidth: any;
@@ -243,7 +246,7 @@ class UIButton extends UIObject {
     align: any;
 
 
-    constructor(pos: Vector2, size: Vector2, text: String) {
+    constructor(pos: Vector2, size: Vector2, text: string) {
         super(pos, size);
         this.text = text;
         this.color = uiDefaultButtonColor;
