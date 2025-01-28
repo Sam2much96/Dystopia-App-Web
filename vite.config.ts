@@ -4,9 +4,10 @@ import VitePluginCdnImport from 'vite-plugin-cdn-import';
 export default defineConfig({
     build: {
         ssr: false, // Ensure no server-side rendering
-        outDir: '.',
+        outDir: 'build',
         rollupOptions: {
             external: ['howler', 'three', 'littlejs'],
+
         },
     },
 
@@ -48,6 +49,7 @@ export default defineConfig({
                 }
 
             ]
-        })
+        }),
+
     ],
 });

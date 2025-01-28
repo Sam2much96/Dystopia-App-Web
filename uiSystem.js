@@ -8,8 +8,9 @@
  */
 'use strict';
 ///////////////////////////////////////////////////////////////////////////////
-import { WHITE, BLACK, hsl, vec2, engineAddPlugin, overlayContext, ASSERT, fontDefault } from 'littlejsengine';
+import { WHITE, BLACK, hsl, vec2, engineAddPlugin, overlayContext, ASSERT, fontDefault, mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, drawTile, isTouchDevice, mousePosScreen, } from 'littlejsengine';
 // ui defaults
+// customise later
 let uiDefaultColor = WHITE;
 let uiDefaultLineColor = BLACK;
 let uiDefaultTextColor = BLACK;
@@ -78,6 +79,8 @@ export function drawUIText(text, pos, size, color = uiDefaultColor, lineWidth = 
 ///////////////////////////////////////////////////////////////////////////////
 class UIObject {
     constructor(localPos = vec2(), size = vec2()) {
+        this.mouseIsOver = false;
+        this.mouseIsHeld = false;
         this.localPos = localPos.copy();
         this.pos = localPos.copy();
         this.size = size.copy();
@@ -141,6 +144,8 @@ class UIObject {
 class UIText extends UIObject {
     constructor(pos, size, text = '', align = 'center', font = fontDefault) {
         super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
         this.text = text;
         this.align = align;
         this.font = font;
@@ -154,6 +159,8 @@ class UIText extends UIObject {
 class UITile extends UIObject {
     constructor(pos, size, tileInfo, color = WHITE, angle = 0, mirror = false) {
         super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
         this.tileInfo = tileInfo;
         this.color = color;
         this.angle = angle;
@@ -167,6 +174,10 @@ class UITile extends UIObject {
 class UIButton extends UIObject {
     constructor(pos, size, text) {
         super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
+        this.mouseIsHeld = false;
+        this.mouseIsOver = false;
         this.text = text;
         this.color = uiDefaultButtonColor;
     }

@@ -231,13 +231,13 @@ class UITile extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIButton extends UIObject {
-    public pos: any;
-    public size: any;
+    public pos: Vector2 = vec2();
+    public size: Vector2 = vec2();
     public text: string;
     public font: any;
     public color;
 
-    mouseIsHeld: boolean | undefined;
+    mouseIsHeld: boolean = false;
     mouseIsOver: boolean = false;
     lineColor: any;
     hoverColor: any;

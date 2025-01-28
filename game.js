@@ -1134,7 +1134,7 @@ class UI extends UIObject {
         //this.UI_HEARTBOX.addChild(this.UI_HEART_2);
         //this.UI_HEARTBOX.addChild(this.UI_HEART_3);
         //this.UI_HEARTBOX.visible = true;
-        this.HEART_BOX = null; //created with the heartbox function
+        this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
         this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
@@ -1157,7 +1157,7 @@ class UI extends UIObject {
         this.DIALOG_BOX.visible = false;
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
-        this.UI_MENU.visible = false;
+        this.UI_MENU.visible = true;
         // example background
         //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
         //this.UI_MENU.addChild(uiBackground);
@@ -1250,6 +1250,8 @@ function gameInit() {
     // called once after the engine starts up
     // setup the game
     console.log("Game Started!");
+    // set touchpad visible
+    touchGamepadEnable;
     // UI Setup
     // UI setup is buggy 
     window.ui = new UI();

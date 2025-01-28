@@ -1675,7 +1675,7 @@ class UI extends UIObject {
     public UI_ROOT: UIObject;
     public UI_MENU: UIObject;
     public UI_GAME_HUD: UIObject;
-    public HEART_BOX: UIObject[] | null;
+    public HEART_BOX: Array<UIObject>;
     public UI_STATS: UIObject;
     public UI_CONTROLS: UIObject;
     public DIALOG_BOX: UIObject;
@@ -1704,7 +1704,7 @@ class UI extends UIObject {
 
         //this.UI_HEARTBOX.visible = true;
 
-        this.HEART_BOX = null; //created with the heartbox function
+        this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
 
@@ -1739,7 +1739,7 @@ class UI extends UIObject {
 
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
-        this.UI_MENU.visible = false;
+        this.UI_MENU.visible = true;
 
         // example background
         //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
