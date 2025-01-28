@@ -854,9 +854,9 @@ class Inputs extends GameObject {
         if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
 
             var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
+            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
 
-            window.ui.MenuVisible = !menuVisible2;
+            window.ui.MenuVisible = false;//!menuVisible2;
         }
 
         // GamePad Input
@@ -2104,7 +2104,15 @@ class UI extends UIObject {
 
     set MenuVisible(visible: boolean) {
         //window.music.sound_start.play(); // play sfx
-        this.UI_MENU.visible = visible
+        this.UI_MENU.visible = visible;
+        console.log("Unfinished turn off implementations");
+
+        for (let i = 0; i < this.UI_MENU.children.length; i++) {
+            //this.UI_MENU.children.get(i) = visible
+
+            //turn all children nodes visible
+        }
+
     };
 
 
