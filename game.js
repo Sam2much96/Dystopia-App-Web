@@ -14,12 +14,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as LittleJS from 'littlejsengine';
 import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
-const { tile, vec2, hsl, drawTile, Timer, timeDelta, touchGamepadEnable } = LittleJS;
+const { tile, vec2, hsl, drawTile, TileInfo, Sound, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 'use strict';
 // import module
 // show the LittleJS splash screen
-LittleJS.setShowSplashScreen(true);
+setShowSplashScreen(true);
 // Show Game Pad on Mobile Devices
 //LittleJS.touchGamepadEnable = true;
 class Music {
@@ -493,7 +493,7 @@ class Utils {
         return { browser, platform };
     }
 }
-class GameObject extends LittleJS.EngineObject {
+class GameObject extends EngineObject {
     // Base Class for All Game Objects
     constructor() {
         super();
@@ -875,7 +875,7 @@ class Enemy extends GameObject {
         //this.color = RED; // make red colour
         this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
         // set enemy position from the initialisation script
-        this.pos = pos;
+        //this.pos = pos.copy();
         // store object to global pointer for object pooling
         window.globals.enemies.push(this);
         this.hitpoints = 1; //set a default enemy hp
@@ -1013,6 +1013,23 @@ class EnemySpawner extends GameObject {
 class Simulation extends GameObject {
     constructor() {
         super();
+        /*
+        
+        Simulation Singleton In One Class
+        Handles all simulation logic
+    
+        3d Cube Logic handled by littlejs
+    
+        Features:
+        (1) Add Gravity TO Cube Object
+        (2) Adds A ground Level To Scene
+        (3) Triggers start of game loop
+    
+         */
+        // To DO : 
+        // Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
+        // Expantd Timer Functionality for animations via global singleton
+        this.cubePosition = null;
         console.log("Simulation Singleton Created");
         //this.cubePosition = null; // for storing the cube geometry 3d position 
         this.groundLevel = -4; // ground position for stopping Gravity on Cube 
@@ -1081,19 +1098,19 @@ class Items extends GameObject {
         }
     }
 }
-class ParticleFX extends LittleJS.EngineObject {
+class ParticleFX extends EngineObject {
     constructor(pos, size) {
         super();
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         const color__ = hsl(0, 0, .2);
-        this.trailEffect = new LittleJS.ParticleEmitter(pos, 0, // pos, angle
-        size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
+        this.trailEffect = new LittleJS.ParticleEmitter(this.pos, 0, // pos, angle
+        this.size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
         tile(0, 16), // tileIndex, tileSize
         color__, color__, // colorStartA, colorStartB
         color__.scale(0), color__.scale(0), // colorEndA, colorEndB
         2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
         .99, .95, 0, LittleJS.PI, // damp, angleDamp, gravity, cone
-        .1, .5, 0, 1 // fade, randomness, collide, additive
+        .1, .5, true, true // fade, randomness, collide, additive
         );
     }
 }
@@ -1326,9 +1343,9 @@ function gameRender() {
         //turn menu invisible
         window.ui.MenuVisible = false;
         // triggers srart of game loop from simulation singleton
-        const TEMPLE_EXTERIOR = LittleJS.drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
-        const TREE_1 = LittleJS.drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        const TREE_2 = LittleJS.drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
+        const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
         //create global player object
         if (!window.player) {
             window.player = new Player();

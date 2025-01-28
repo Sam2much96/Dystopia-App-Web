@@ -22,7 +22,7 @@ import * as LittleJS from 'littlejsengine';
 
 import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
 
-const { tile, vec2, hsl, drawTile, Timer, timeDelta, touchGamepadEnable } = LittleJS;
+const { tile, vec2, hsl, drawTile, TileInfo, Sound, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -32,7 +32,7 @@ import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 // import module
 
 // show the LittleJS splash screen
-LittleJS.setShowSplashScreen(true);
+setShowSplashScreen(true);
 
 // Show Game Pad on Mobile Devices
 //LittleJS.touchGamepadEnable = true;
@@ -677,7 +677,7 @@ class Utils {
 
 
 
-class GameObject extends LittleJS.EngineObject {
+class GameObject extends EngineObject {
     // Base Class for All Game Objects
     constructor() {
         super();
@@ -707,7 +707,7 @@ class Inputs extends GameObject {
     (1) Map and Test Gamepad implementation in the wild
     */
 
-    private color: LittleJS.Color;
+    public color: LittleJS.Color;
     public input_buffer: number[];
     public input_state: Map<string, number>;
     public state: number | undefined; // holds the current input state asides the input buffer
@@ -998,8 +998,8 @@ class Player extends GameObject {
 
     // Properties
     private input: any; // Update this type if there's a defined Input class
-    public pos: Vector2;
-    public size: Vector2;
+    //public pos: Vector2;
+    //public size: Vector2;
     private hitpoints: number;
     private linear_vel = LittleJS.vec2(0, 0);
     private roll_direction = LittleJS.vec2(0, 1);
@@ -1024,8 +1024,8 @@ class Player extends GameObject {
     private music_singleton_: any = null;
 
     // Player attributes
-    private mass: number = this.GRAVITY;
-    private tileInfo: any; // Update type to match tile info structure
+    public mass: number = this.GRAVITY;
+    public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
 
 
     constructor() {
@@ -1066,13 +1066,13 @@ class Player extends GameObject {
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
 
 
-        function health_changed(new_hp) {
+        function health_changed(new_hp: number) {
             console.log("Health Changed Debug: ", 3); //this.hitpoints
             //this.health_signal.emit(new_hp)
             return 0;
         }
 
-        function healthDebug(hp) {
+        function healthDebug(hp: number) {
             //placeholder helath debug method for testing signAL CLASS
             // remove later
             console.log("Health Debug 2: ", hp);
@@ -1224,8 +1224,8 @@ class Enemy extends GameObject {
     // (4) Enemy Collisions
     // (5) Enemy Animations (1/2)
 
-    public pos: Vector2;
-    public size: Vector2;
+    //private pos: Vector2 = vec2();
+    //public size: Vector2;
     public tileInfo: any;
     public hitpoints: number;
     public speed: number;
@@ -1241,7 +1241,7 @@ class Enemy extends GameObject {
     private FAST_FRAME_RATE: number;
     private despawn_timer: any;
 
-    constructor(pos) {
+    constructor(pos: Vector2) {
         super();
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
@@ -1251,7 +1251,7 @@ class Enemy extends GameObject {
         this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
 
         // set enemy position from the initialisation script
-        this.pos = pos;
+        //this.pos = pos.copy();
 
         // store object to global pointer for object pooling
         window.globals.enemies.push(this);
@@ -1412,7 +1412,7 @@ class Enemy extends GameObject {
 class EnemySpawner extends GameObject {
     public ENABLE: boolean;
     private COUNTER: number;
-    private color: any | null;
+    public color: any | null;
 
     //spawn an enemy count at specific posisitons
     constructor() {
@@ -1462,9 +1462,9 @@ class Simulation extends GameObject {
     // Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
     // Expantd Timer Functionality for animations via global singleton
 
-    public cubePosition: Vector3 | null;
+    public cubePosition: Vector3 | null = null;
     public groundLevel: number;
-    private color: any | null;
+    public color: any | null;
     private timer: any;
 
     constructor() {
@@ -1570,7 +1570,7 @@ class Items extends GameObject {
 }
 
 
-class ParticleFX extends LittleJS.EngineObject {
+class ParticleFX extends EngineObject {
     /**
      * Particle Effects Logic in a single class 
      * 
@@ -1583,25 +1583,24 @@ class ParticleFX extends LittleJS.EngineObject {
      * @param {*} size 
      */
 
-    public pos: Vector2;
-    public size: Vector2;
-    private color: any;
+
+    public color: any;
     private trailEffect: any;
 
-    constructor(pos, size) {
+    constructor(pos: Vector2, size: Vector2) {
         super();
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
 
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new LittleJS.ParticleEmitter(
-            pos, 0,                          // pos, angle
-            size, 0, 80, LittleJS.PI,                 // emitSize, emitTime, emitRate, emiteCone
+            this.pos, 0,                          // pos, angle
+            this.size, 0, 80, LittleJS.PI,                 // emitSize, emitTime, emitRate, emiteCone
             tile(0, 16),                          // tileIndex, tileSize
             color__, color__,                         // colorStartA, colorStartB
             color__.scale(0), color__.scale(0),       // colorEndA, colorEndB
             2, .4, 1, .001, .05,// time, sizeStart, sizeEnd, speed, angleSpeed
             .99, .95, 0, LittleJS.PI,    // damp, angleDamp, gravity, cone
-            .1, .5, 0, 1        // fade, randomness, collide, additive
+            .1, .5, true, true        // fade, randomness, collide, additive
         );
 
 
@@ -1624,8 +1623,8 @@ class Globals {
 
     // All Global Variables
     public health: number;
-    public players: any[]; // Update the type to a specific Player class if available
-    public enemies: any[]; // Update the type to a specific Enemy class if available
+    public players: Array<Player>; // Update the type to a specific Player class if available
+    public enemies: Array<Enemy>; // Update the type to a specific Enemy class if available
     public scenes: Record<string, any>; // Update the value type if you have a specific Scene type
     public score: number;
     public kill_count: number;
@@ -2012,10 +2011,10 @@ function gameRender() {
 
 
         // triggers srart of game loop from simulation singleton
-        const TEMPLE_EXTERIOR = LittleJS.drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
+        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
 
-        const TREE_1 = LittleJS.drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        const TREE_2 = LittleJS.drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
 
         //create global player object
         if (!window.player) {
