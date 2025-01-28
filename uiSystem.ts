@@ -11,9 +11,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { WHITE, BLACK, hsl, vec2, engineAddPlugin, overlayContext, ASSERT, fontDefault } from 'littlejsengine';
+import {
+    WHITE, BLACK, hsl, vec2, engineAddPlugin,
+    overlayContext, ASSERT, fontDefault, Vector2,
+    mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, TileInfo, drawTile
+} from 'littlejsengine';
 
 // ui defaults
+// customise later
 let uiDefaultColor = WHITE;
 let uiDefaultLineColor = BLACK;
 let uiDefaultTextColor = BLACK;
@@ -23,7 +28,7 @@ let uiDefaultLineWidth = 4;
 let uiDefaultFont = 'arial';
 
 // ui system
-let uiObjects: unknown[] = [];
+let uiObjects: Array<UIObject> = [];
 let uiContext: any;
 
 export function initUISystem(context = overlayContext) {
@@ -57,7 +62,7 @@ export function initUISystem(context = overlayContext) {
     }
 }
 
-export function drawUIRect(pos, size, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
+export function drawUIRect(pos: Vector2, size: Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
     uiContext.fillStyle = color.toString();
     uiContext.beginPath();
     uiContext.rect(pos.x - size.x / 2, pos.y - size.y / 2, size.x, size.y);
@@ -69,7 +74,7 @@ export function drawUIRect(pos, size, color = uiDefaultColor, lineWidth = uiDefa
     }
 }
 
-function drawUILine(posA, posB, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
+function drawUILine(posA: Vector2, posB: Vector2, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
     uiContext.strokeStyle = color.toString();
     uiContext.lineWidth = thickness;
     uiContext.beginPath();
@@ -78,11 +83,11 @@ function drawUILine(posA, posB, thickness = uiDefaultLineWidth, color = uiDefaul
     uiContext.stroke();
 }
 
-export function drawUITile(pos, size, tileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
+export function drawUITile(pos: Vector2, size: Vector2, tileInfo: TileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
     drawTile(pos, size, tileInfo, color, angle, mirror, BLACK, false, true, uiContext);
 }
 
-export function drawUIText(text, pos, size, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor, align = 'center', font = uiDefaultFont) {
+export function drawUIText(text: string, pos: Vector2, size: Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor, align = 'center', font = uiDefaultFont) {
     drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
 }
 
@@ -91,6 +96,22 @@ export function drawUIText(text, pos, size, color = uiDefaultColor, lineWidth = 
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIObject {
+
+    public localPos;
+    public pos;
+    public size;
+    public color;
+    public lineColor;
+    public textColor;
+    public hoverColor;
+    public lineWidth;
+    public font;
+    public visible;
+    public children: Array<UIObject>;
+    public parent: any;
+    mouseIsOver: boolean = false;
+
+
     constructor(localPos = vec2(), size = vec2()) {
         this.localPos = localPos.copy();
         this.pos = localPos.copy();
@@ -107,13 +128,13 @@ class UIObject {
         uiObjects.push(this);
     }
 
-    addChild(child) {
+    addChild(child: UIObject) {
         ASSERT(!child.parent && !this.children.includes(child));
         this.children.push(child);
         child.parent = this;
     }
 
-    removeChild(child) {
+    removeChild(child: UIObject) {
         ASSERT(child.parent == this && this.children.includes(child));
         this.children.splice(this.children.indexOf(child), 1);
         child.parent = 0;
@@ -159,7 +180,17 @@ class UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIText extends UIObject {
-    constructor(pos, size, text = '', align = 'center', font = fontDefault) {
+    public text;
+    public textColor: any;
+    public lineColor: any;
+    public align;
+    public font;
+    public lineWidth;
+    public pos: Vector2 | undefined;
+    public size: Vector2 | undefined;
+
+
+    constructor(pos: Vector2, size: Vector2, text = '', align = 'center', font = fontDefault) {
         super(pos, size);
 
         this.text = text;
@@ -175,7 +206,14 @@ class UIText extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UITile extends UIObject {
-    constructor(pos, size, tileInfo, color = WHITE, angle = 0, mirror = false) {
+    public tileInfo: TileInfo;
+    public color;
+    public angle;
+    public mirror;
+    public pos: Vector2 | undefined;
+    public size: Vector2 | undefined;
+
+    constructor(pos: Vector2, size: Vector2, tileInfo: TileInfo, color = WHITE, angle = 0, mirror = false) {
         super(pos, size);
 
         this.tileInfo = tileInfo;
@@ -191,7 +229,21 @@ class UITile extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIButton extends UIObject {
-    constructor(pos, size, text) {
+    public pos: any;
+    public size: any;
+    public text: String;
+    public font: any;
+    public color;
+    mouseIsHeld: boolean | undefined;
+    mouseIsOver: boolean | undefined;
+    lineColor: any;
+    hoverColor: any;
+    lineWidth: any;
+    textColor: any;
+    align: any;
+
+
+    constructor(pos: Vector2, size: Vector2, text: String) {
         super(pos, size);
         this.text = text;
         this.color = uiDefaultButtonColor;
@@ -199,6 +251,8 @@ class UIButton extends UIObject {
     render() {
         const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
         const color = this.mouseIsOver ? this.hoverColor : this.color;
+
+
         drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
         const textSize = vec2(this.size.x, this.size.y * .8);
         drawUIText(this.text, this.pos, textSize,

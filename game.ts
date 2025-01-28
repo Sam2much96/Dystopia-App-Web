@@ -40,11 +40,6 @@ LittleJS.setShowSplashScreen(true);
 
 
 
-
-
-
-
-
 class Music {
 
 
@@ -64,7 +59,7 @@ class Music {
     (2) Most Browsers Refuse Audio music play by default unless the player / user enters an input gesture
     */
 
-    ENABLE: boolean;
+    public ENABLE: boolean;
     lastPlayedTrack: string | null;
     sound_shoot: LittleJS.Sound;
     zelda_powerup: LittleJS.Sound;
@@ -1899,6 +1894,11 @@ function gameInit() {
     // called once after the engine starts up
     // setup the game
     console.log("Game Started!");
+
+
+    // set touchpad visible
+    touchGamepadEnable
+
 
     // UI Setup
     // UI setup is buggy 
