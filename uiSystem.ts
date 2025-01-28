@@ -240,8 +240,8 @@ class UITile extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIButton extends UIObject {
-    public pos: Vector2 = vec2();
-    public size: Vector2 = vec2();
+    //public pos: Vector2;
+    //public size: Vector2 = vec2();
     public text: string;
     public font: any;
     public color;
@@ -273,7 +273,7 @@ class UIButton extends UIObject {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class UICheckbox extends UIObject {
     public pos: Vector2 = vec2();

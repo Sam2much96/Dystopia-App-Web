@@ -20,9 +20,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import * as LittleJS from 'littlejsengine';
 
-import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
+//import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, TileInfo, Sound, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
+const { tile, vec2, hsl, drawTile, drawTextOverlay, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -314,7 +314,7 @@ class ThreeRender {
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
-    private cube: THREE.Mesh | null;
+    private cube: any | null;
 
     constructor() {
         //super();
@@ -385,11 +385,24 @@ class ThreeRender {
                     console.log('Scene:', gltf.scene); // The root scene object
                     console.log('Animations:', gltf.animations); // Animation clips
                     console.log('Nodes:', gltf.scene.children); // All child nodes
-                    console.log('Materials:', gltf.scene.children.map(obj => obj.material)); // Materials
-                    console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
+
+                    // buggy debugs
+                    //console.log('Materials:', gltf.scene.children.map(obj => obj.material )); // Materials
+                    //console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
                 }
 
-                this.cube = gltf.scene; // save scene as global pointer
+                // save scene as global pointer
+                if (gltf.scene instanceof THREE.Mesh) {
+                    this.cube = gltf.scene;
+                } else {
+                    console.error("gltf.scene is not a Mesh");
+                    this.cube = gltf.scene;
+                }
+
+                //this.cube = gltf.scene; // save scene as global pointer
+
+
+
                 this.scene.add(gltf.scene); // Ensure 'this' is bound properly
             },
             undefined,
@@ -556,7 +569,10 @@ class ThreeRender {
                 this.cube.geometry.dispose();
             }
             if (this.cube.material) {
+
+
                 this.cube.material.dispose();
+
             }
 
             // Set the cube reference to null
@@ -838,7 +854,7 @@ class Inputs extends GameObject {
         if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
 
             var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2);
+            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
 
             window.ui.MenuVisible = !menuVisible2;
         }
@@ -1599,7 +1615,7 @@ class ParticleFX extends EngineObject {
             color__, color__,                         // colorStartA, colorStartB
             color__.scale(0), color__.scale(0),       // colorEndA, colorEndB
             2, .4, 1, .001, .05,// time, sizeStart, sizeEnd, speed, angleSpeed
-            .99, .95, 0, LittleJS.PI,    // damp, angleDamp, gravity, cone
+            .99, .95, 0, PI,    // damp, angleDamp, gravity, cone
             .1, .5, true, true        // fade, randomness, collide, additive
         );
 
@@ -1646,6 +1662,343 @@ class Globals {
     }
 }
 
+// ui defaults
+// customise later
+let uiDefaultColor = LittleJS.WHITE;
+let uiDefaultLineColor = LittleJS.BLACK;
+let uiDefaultTextColor = LittleJS.BLACK;
+let uiDefaultButtonColor = hsl(0, 0, .5);
+let uiDefaultHoverColor = hsl(0, 0, .7);
+let uiDefaultLineWidth = 4;
+let uiDefaultFont = 'arial';
+
+// ui system
+let uiObjects: Array<UIObject> = [];
+let uiContext: any;
+
+function initUISystem(context = LittleJS.overlayContext) {
+    console.log("Initialising UI System");
+
+    uiContext = context;
+    LittleJS.engineAddPlugin(uiUpdate, uiRender);
+
+    // setup recursive update and render
+    function uiUpdate() {
+        function updateObject(o: any) {
+            if (!o.visible)
+                return;
+            if (o.parent)
+                o.pos = o.localPos.add(o.parent.pos);
+            o.update();
+            for (const c of o.children)
+                updateObject(c);
+        }
+        uiObjects.forEach(o => o.parent || updateObject(o));
+    }
+    function uiRender() {
+        function renderObject(o: any) {
+            if (!o.visible)
+                return;
+            if (o.parent)
+                o.pos = o.localPos.add(o.parent.pos);
+            o.render();
+            for (const c of o.children)
+                renderObject(c);
+        }
+        uiObjects.forEach(o => o.parent || renderObject(o));
+    }
+}
+
+function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
+    uiContext.fillStyle = color.toString();
+    uiContext.beginPath();
+    uiContext.rect(pos.x - size.x / 2, pos.y - size.y / 2, size.x, size.y);
+    uiContext.fill();
+    if (lineWidth) {
+        uiContext.strokeStyle = lineColor.toString();
+        uiContext.lineWidth = lineWidth;
+        uiContext.stroke();
+    }
+}
+
+function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
+    uiContext.strokeStyle = color.toString();
+    uiContext.lineWidth = thickness;
+    uiContext.beginPath();
+    uiContext.lineTo(posA.x, posA.y);
+    uiContext.lineTo(posB.x, posB.y);
+    uiContext.stroke();
+}
+
+function drawUITile(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
+    drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
+}
+
+function drawUIText(
+    text: string,
+    pos: LittleJS.Vector2,
+    size: LittleJS.Vector2,
+    color = uiDefaultColor,
+    lineWidth = uiDefaultLineWidth,
+    lineColor = uiDefaultLineColor,
+    align: CanvasTextAlign = 'center',
+    font = uiDefaultFont,
+) {
+    LittleJS.drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
+}
+
+
+class UIObject extends EngineObject {
+    public localPos: LittleJS.Vector2;
+    public pos: LittleJS.Vector2;
+    public size: LittleJS.Vector2;
+    public color;
+    public lineColor;
+    public textColor;
+    public hoverColor;
+    public lineWidth;
+    public font;
+    public visible;
+    public children: Array<UIObject>;
+    public parent: any;
+    mouseIsOver: boolean = false;
+    mouseIsHeld: boolean = false;
+    //uiDefaultColor = LittleJS.WHITE;
+    //uiDefaultLineColor = LittleJS.BLACK;
+    //uiDefaultTextColor = LittleJS.RED;
+    //uiDefaultHoverColor = LittleJS.GREEN;
+    //uiDefaultLineWidth = 5;
+    //uiDefaultFont = "arial"
+    //uiObjects = []
+
+    constructor(localPos: LittleJS.Vector2 = vec2(), size: LittleJS.Vector2 = vec2()) {
+        super();
+        this.localPos = localPos.copy();
+        this.pos = localPos.copy();
+        this.size = size.copy();
+        this.color = uiDefaultColor;
+        this.lineColor = uiDefaultLineColor;
+        this.textColor = uiDefaultTextColor;
+        this.hoverColor = uiDefaultHoverColor;
+        this.lineWidth = uiDefaultLineWidth;
+        this.font = uiDefaultFont;
+        this.visible = true;
+        this.children = [];
+        this.parent = null;
+        //uiObjects.push(this);
+    }
+
+    addChild(child: UIObject) {
+        LittleJS.ASSERT(!child.parent && !this.children.includes(child));
+        this.children.push(child);
+        child.parent = this;
+    }
+
+    removeChild(child: UIObject) {
+        LittleJS.ASSERT(child.parent == this && this.children.includes(child));
+        this.children.splice(this.children.indexOf(child), 1);
+        child.parent = 0;
+    }
+
+    update() {
+        // track mouse input
+        const mouseWasOver = this.mouseIsOver;
+        const mouseDown = LittleJS.mouseIsDown(0);
+        if (!mouseDown || isTouchDevice) {
+            this.mouseIsOver = LittleJS.isOverlapping(this.pos, this.size, LittleJS.mousePosScreen);
+            if (!mouseDown && isTouchDevice)
+                this.mouseIsOver = false;
+            if (this.mouseIsOver && !mouseWasOver)
+                this.onEnter();
+            if (!this.mouseIsOver && mouseWasOver)
+                this.onLeave();
+        }
+        if (LittleJS.mouseWasPressed(0) && this.mouseIsOver) {
+            this.mouseIsHeld = true;
+            this.onPress();
+            if (isTouchDevice)
+                this.mouseIsOver = false;
+        }
+        else if (this.mouseIsHeld && !mouseDown) {
+            this.mouseIsHeld = false;
+            this.onRelease();
+        }
+    }
+    render() {
+        if (this.size.x && this.size.y)
+            drawUIRect(this.pos, this.size, this.color, this.lineWidth, this.lineColor);
+    }
+
+    // callback functions
+    onEnter() { }
+    onLeave() { }
+    onPress() { }
+    onRelease() { }
+    onChange() { }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class UIText extends UIObject {
+    public text;
+    public textColor: any;
+    public lineColor: any;
+
+    public font;
+    public lineWidth;
+    public pos: LittleJS.Vector2 = vec2();
+    public size: LittleJS.Vector2 = vec2();
+    public align: CanvasTextAlign = "center";
+
+    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, text: string = '', align: CanvasTextAlign = 'center', font = LittleJS.fontDefault) {
+        super(pos, size);
+
+        this.text = text;
+        this.align = align;
+        this.font = font;
+        this.lineWidth = 0;
+    }
+    render() {
+        drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class UITile extends UIObject {
+    public tileInfo: LittleJS.TileInfo;
+    public color;
+    public angle;
+    public mirror;
+    public pos: LittleJS.Vector2 = vec2();
+    public size: LittleJS.Vector2 = vec2();
+
+    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = LittleJS.WHITE, angle = 0, mirror = false) {
+        super(pos, size);
+
+        this.tileInfo = tileInfo;
+        this.color = color;
+        this.angle = angle;
+        this.mirror = mirror;
+    }
+    render() {
+        drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class UIButton extends UIObject {
+    pos: LittleJS.Vector2; //= vec2();
+    //public size: Vector2 = vec2();
+    public text: string;
+    public font: any;
+    public color;
+
+    mouseIsHeld: boolean = false;
+    mouseIsOver: boolean = false;
+    lineColor: any;
+    hoverColor: any;
+    lineWidth: any;
+    textColor: any;
+
+    align: any;
+
+
+    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, text: string) {
+        super(pos, size);
+        this.text = text;
+        this.color = uiDefaultButtonColor;
+        this.pos = pos.copy();
+        this.size = size.copy();
+    }
+    render() {
+        const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
+        const color = this.mouseIsOver ? this.hoverColor : this.color;
+
+
+        drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+        const textSize = vec2(this.size.x, this.size.y * .8);
+
+        drawUIText(this.text, this.pos, textSize,
+            this.textColor, 0, undefined, this.align, this.font);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////z
+
+class UICheckbox extends UIObject {
+    public pos: LittleJS.Vector2 = vec2();
+    public size: LittleJS.Vector2 = vec2();
+    public checked: boolean = false;
+
+    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, checked = false) {
+        super(pos, size);
+        this.checked = checked;
+    }
+    onPress() {
+        this.checked = !this.checked;
+        this.onChange();
+    }
+    render() {
+        drawUIRect(this.pos, this.size, this.color, this.lineWidth, this.lineColor);
+        if (this.checked) {
+            // draw an X if checked
+            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, -.5))), this.pos.add(this.size.multiply(vec2(.5, .5))), this.lineWidth, this.lineColor);
+            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, .5))), this.pos.add(this.size.multiply(vec2(.5, -.5))), this.lineWidth, this.lineColor);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class UIScrollbar extends UIObject {
+    public pos: LittleJS.Vector2;
+    public value: number;
+    public text: string;
+    public color;
+    public handleColor;
+
+    align: any;
+
+    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, value: number = .5, text: string = '') {
+        super(pos, size);
+        this.pos = pos.copy();
+        this.value = value;
+        this.text = text;
+        this.color = uiDefaultButtonColor;
+        this.handleColor = WHITE;
+    }
+    update() {
+        super.update();
+        if (this.mouseIsHeld) {
+            const handleSize = vec2(this.size.y);
+            const handleWidth = this.size.x - handleSize.x;
+            const p1 = this.pos.x - handleWidth / 2;
+            const p2 = this.pos.x + handleWidth / 2;
+            const oldValue = this.value;
+            this.value = LittleJS.percent(LittleJS.mousePosScreen.x, p1, p2);
+            this.value == oldValue || this.onChange();
+        }
+    }
+    render() {
+        const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
+        const color = this.mouseIsOver ? this.hoverColor : this.color;
+        drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+
+        const handleSize = vec2(this.size.y);
+        const handleWidth = this.size.x - handleSize.x;
+        const p1 = this.pos.x - handleWidth / 2;
+        const p2 = this.pos.x + handleWidth / 2;
+        const handlePos = vec2(LittleJS.lerp(this.value, p1, p2), this.pos.y);
+        const barColor = this.mouseIsHeld ? this.color : this.handleColor;
+        drawUIRect(handlePos, handleSize, barColor, this.lineWidth, this.lineColor);
+
+        const textSize = vec2(this.size.x, this.size.y * .8);
+        drawUIText(this.text, this.pos, textSize,
+            this.textColor, 0, undefined, this.align, this.font);
+    }
+}
 
 
 
@@ -1696,18 +2049,13 @@ class UI extends UIObject {
         this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
 
 
-        //this.UI_HEARTBOX = [this.UI_HEART_1]
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_1);
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_2);
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_3);
 
-        //this.UI_HEARTBOX.visible = true;
 
         this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
 
-        this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
+        this.DIALOG_BOX = new UIObject();//new UIObject(vec2(0, 0), vec2(200, 200));
 
 
         //parent & child
@@ -1724,6 +2072,7 @@ class UI extends UIObject {
 
         //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
+
         const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
 
@@ -1738,15 +2087,59 @@ class UI extends UIObject {
 
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
-        this.UI_MENU.visible = true;
+        //this.UI_MENU.visible = true;
 
         // example background
         //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
 
         //this.UI_MENU.addChild(uiBackground);
 
+
+    }
+    //external methods to toggle UI states as setter & getter functions
+
+    get MenuVisible() {
+        return this.UI_MENU.visible
+    };
+
+    set MenuVisible(visible: boolean) {
+        //window.music.sound_start.play(); // play sfx
+        this.UI_MENU.visible = visible
+    };
+
+
+    get DialogVisible() {
+
+        return this.DIALOG_BOX.visible;
+    }
+
+    set DialogVisible(visible: boolean) {
+        this.DIALOG_BOX.visible = visible;
+    }
+
+
+    heartbox(heartCount: number) {
+        /* Creates A HeartBox UI Object */
+        this.HEART_BOX = []; // Reset or initialize the heartbox array
+
+        for (let i = 0; i < heartCount; i++) {
+            // Position each heartbox horizontally spaced by 50px, starting at x = 50
+            const position = vec2(50 + i * 50, 30);
+
+            // Create a new heartbox UI tile and add it to the HEART_BOX array
+            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+
+            //this.HEART_BOX.push(heartTile);
+        }
+    }
+
+    ingameMenu() {
+        /* Creates the Ingame Menu UI Object */
+
+        console.log("Creating Ingame Menu");
         // Create Ingame Menu
         // 
+        //const dgas = drawUIText("sdfsdfsdf", vec2(50), vec2(50));
         const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
         const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
         const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
@@ -1760,8 +2153,10 @@ class UI extends UIObject {
         this.UI_MENU.addChild(Controls);
         this.UI_MENU.addChild(Quit);
 
-        // button signals
+        this.MenuVisible = true; // make menu visible
 
+
+        // button signals
         newGame.onPress = () => {
             console.log('New Game Pressed');
             window.music.sound_start.play();
@@ -1802,42 +2197,6 @@ class UI extends UIObject {
         }
 
     }
-    //external methods to toggle UI states as setter & getter functions
-
-    get MenuVisible() {
-        return this.UI_MENU.visible
-    };
-
-    set MenuVisible(visible) {
-        //window.music.sound_start.play(); // play sfx
-        this.UI_MENU.visible = visible
-    };
-
-
-    get DialogVisible() {
-
-        return this.DIALOG_BOX.visible;
-    }
-
-    set DialogVisible(visible) {
-        this.DIALOG_BOX.visible = visible;
-    }
-
-
-    heartbox(heartCount: number) {
-        /* Creates A HeartBox UI Object */
-        this.HEART_BOX = []; // Reset or initialize the heartbox array
-
-        for (let i = 0; i < heartCount; i++) {
-            // Position each heartbox horizontally spaced by 50px, starting at x = 50
-            const position = vec2(50 + i * 50, 30);
-
-            // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
-
-            //this.HEART_BOX.push(heartTile);
-        }
-    }
 }
 
 
@@ -1874,6 +2233,9 @@ declare global {
     }
 
     interface Vector2 {
+        copy(): Vector2;
+        add(arg0: any): any;
+        multiply(arg0: LittleJS.Vector2): any;
         x: number;
         y: number;
     }
@@ -1894,14 +2256,16 @@ function gameInit() {
     // setup the game
     console.log("Game Started!");
 
-
     // set touchpad visible
     touchGamepadEnable
 
 
     // UI Setup
-    // UI setup is buggy 
+    initUISystem();
+
     window.ui = new UI();
+    window.ui.ingameMenu();
+
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -2067,6 +2431,16 @@ function gameRenderPost() {
     //draw heartbox ui
     window.ui.heartbox(window.globals.health);
 
+    //const defaultText = LittleJS.drawTextScreen("sdkfsfds", vec2(0, 50), 10, LittleJS.WHITE, 5); //works
+    //const newGame = new UIButton(vec2(100, 100), vec2(50, 50), 'New Game');
+
+    //const ggg = drawUIRect(vec2(100), vec2(100), LittleJS.WHITE, 5, LittleJS.BLACK); //works
+
+    //const defaultText = drawUIText("sadfdfsdfsf", vec2(100), vec2(100), LittleJS.WHITE, 5, LittleJS.BLACK); //works
+
+    //create ingame menu
+    //window.ui.ingameMenu();
+    //LittleJS.drawTextScreen("ggdfgdg", vec2(0, 50), 10, LittleJS.WHITE);
 }
 
 

@@ -13,8 +13,8 @@ Main Game Logic
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as LittleJS from 'littlejsengine';
-import { UIObject, UIText, UIButton, drawUITile } from './uiSystem';
-const { tile, vec2, hsl, drawTile, TileInfo, Sound, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
+import { UIObject, UIText, UIButton, drawUITile, drawUIText } from './uiSystem';
+const { tile, vec2, hsl, drawTile, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 'use strict';
 // import module
@@ -257,10 +257,19 @@ class ThreeRender {
                 console.log('Scene:', gltf.scene); // The root scene object
                 console.log('Animations:', gltf.animations); // Animation clips
                 console.log('Nodes:', gltf.scene.children); // All child nodes
-                console.log('Materials:', gltf.scene.children.map(obj => obj.material)); // Materials
-                console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
+                // buggy debugs
+                //console.log('Materials:', gltf.scene.children.map(obj => obj.material )); // Materials
+                //console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
             }
-            this.cube = gltf.scene; // save scene as global pointer
+            // save scene as global pointer
+            if (gltf.scene instanceof THREE.Mesh) {
+                this.cube = gltf.scene;
+            }
+            else {
+                console.error("gltf.scene is not a Mesh");
+                this.cube = gltf.scene;
+            }
+            //this.cube = gltf.scene; // save scene as global pointer
             this.scene.add(gltf.scene); // Ensure 'this' is bound properly
         }, undefined, (error) => {
             console.error('error occurred loading the 3d model:', error);
@@ -600,7 +609,7 @@ class Inputs extends GameObject {
         // show / hide menu with mouse input once game hasnt started
         if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
             var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2);
+            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
             window.ui.MenuVisible = !menuVisible2;
         }
         // GamePad Input
@@ -1104,13 +1113,13 @@ class ParticleFX extends EngineObject {
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new LittleJS.ParticleEmitter(this.pos, 0, // pos, angle
-        this.size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
-        tile(0, 16), // tileIndex, tileSize
-        color__, color__, // colorStartA, colorStartB
-        color__.scale(0), color__.scale(0), // colorEndA, colorEndB
-        2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
-        .99, .95, 0, LittleJS.PI, // damp, angleDamp, gravity, cone
-        .1, .5, true, true // fade, randomness, collide, additive
+            this.size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
+            tile(0, 16), // tileIndex, tileSize
+            color__, color__, // colorStartA, colorStartB
+            color__.scale(0), color__.scale(0), // colorEndA, colorEndB
+            2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
+            .99, .95, 0, PI, // damp, angleDamp, gravity, cone
+            .1, .5, true, true // fade, randomness, collide, additive
         );
     }
 }
@@ -1147,11 +1156,6 @@ class UI extends UIObject {
         this.UI_ROOT = new UIObject();
         this.UI_MENU = new UIObject();
         this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
-        //this.UI_HEARTBOX = [this.UI_HEART_1]
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_1);
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_2);
-        //this.UI_HEARTBOX.addChild(this.UI_HEART_3);
-        //this.UI_HEARTBOX.visible = true;
         this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = new UIObject();
         this.UI_CONTROLS = new UIObject();
@@ -1175,13 +1179,45 @@ class UI extends UIObject {
         this.DIALOG_BOX.visible = false;
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
-        this.UI_MENU.visible = true;
+        //this.UI_MENU.visible = true;
         // example background
         //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
         //this.UI_MENU.addChild(uiBackground);
+    }
+    //external methods to toggle UI states as setter & getter functions
+    get MenuVisible() {
+        return this.UI_MENU.visible;
+    }
+    ;
+    set MenuVisible(visible) {
+        //window.music.sound_start.play(); // play sfx
+        this.UI_MENU.visible = visible;
+    }
+    ;
+    get DialogVisible() {
+        return this.DIALOG_BOX.visible;
+    }
+    set DialogVisible(visible) {
+        this.DIALOG_BOX.visible = visible;
+    }
+    heartbox(heartCount) {
+        /* Creates A HeartBox UI Object */
+        this.HEART_BOX = []; // Reset or initialize the heartbox array
+        for (let i = 0; i < heartCount; i++) {
+            // Position each heartbox horizontally spaced by 50px, starting at x = 50
+            const position = vec2(50 + i * 50, 30);
+            // Create a new heartbox UI tile and add it to the HEART_BOX array
+            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+            //this.HEART_BOX.push(heartTile);
+        }
+    }
+    ingameMenu() {
+        /* Creates the Ingame Menu UI Object */
+        console.log("Creating Ingame Menu");
         // Create Ingame Menu
         // 
-        const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+
+        const newGame = new UIButton(vec2(0, 0), vec2(50, 50), 'New Game');
         const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
         const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
         const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
@@ -1192,6 +1228,7 @@ class UI extends UIObject {
         this.UI_MENU.addChild(Comics);
         this.UI_MENU.addChild(Controls);
         this.UI_MENU.addChild(Quit);
+        this.MenuVisible = true; // make menu visible
         // button signals
         newGame.onPress = () => {
             console.log('New Game Pressed');
@@ -1224,33 +1261,6 @@ class UI extends UIObject {
             window.THREE_RENDER.showThreeLayer();
         };
     }
-    //external methods to toggle UI states as setter & getter functions
-    get MenuVisible() {
-        return this.UI_MENU.visible;
-    }
-    ;
-    set MenuVisible(visible) {
-        //window.music.sound_start.play(); // play sfx
-        this.UI_MENU.visible = visible;
-    }
-    ;
-    get DialogVisible() {
-        return this.DIALOG_BOX.visible;
-    }
-    set DialogVisible(visible) {
-        this.DIALOG_BOX.visible = visible;
-    }
-    heartbox(heartCount) {
-        /* Creates A HeartBox UI Object */
-        this.HEART_BOX = []; // Reset or initialize the heartbox array
-        for (let i = 0; i < heartCount; i++) {
-            // Position each heartbox horizontally spaced by 50px, starting at x = 50
-            const position = vec2(50 + i * 50, 30);
-            // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
-            //this.HEART_BOX.push(heartTile);
-        }
-    }
 }
 class OverWorld extends GameObject {
     /*
@@ -1273,6 +1283,8 @@ function gameInit() {
     // UI Setup
     // UI setup is buggy 
     window.ui = new UI();
+    //create ingame menu
+    window.ui.ingameMenu();
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
     /* Create 3D Scenes And Objects*/
@@ -1316,6 +1328,7 @@ function gameInit() {
     // convert dystopia logo to a font file
     //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
     //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
+
 }
 function gameUpdate() {
     // called every frame at 60 frames per second
@@ -1388,6 +1401,9 @@ function gameRenderPost() {
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
     //draw heartbox ui
     window.ui.heartbox(window.globals.health);
+
+    const dgas = new UIText("sdfsdfsdf", vec2(50, 150), vec2(50));
+
 }
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays

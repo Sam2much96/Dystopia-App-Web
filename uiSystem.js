@@ -175,8 +175,6 @@ class UITile extends UIObject {
 class UIButton extends UIObject {
     constructor(pos, size, text) {
         super(pos, size);
-        this.pos = vec2();
-        this.size = vec2();
         this.mouseIsHeld = false;
         this.mouseIsOver = false;
         this.text = text;
@@ -190,7 +188,7 @@ class UIButton extends UIObject {
         drawUIText(this.text, this.pos, textSize, this.textColor, 0, undefined, this.align, this.font);
     }
 }
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class UICheckbox extends UIObject {
     constructor(pos, size, checked = false) {
         super(pos, size);
