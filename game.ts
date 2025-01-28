@@ -60,7 +60,7 @@ class Music {
     */
 
     public ENABLE: boolean;
-    lastPlayedTrack: string | null;
+    lastPlayedTrack: string = "";
     sound_shoot: LittleJS.Sound;
     zelda_powerup: LittleJS.Sound;
     sound_start: LittleJS.Sound;
@@ -77,7 +77,7 @@ class Music {
     current_track: string | null;
     next_track: string | null;
     counter: number;
-    randomTrack: string | null;
+    randomTrack: string;
     sfx_playlist: Map<number, LittleJS.Sound>;
     default_playlist: string[];
 
@@ -88,7 +88,7 @@ class Music {
         // Initialize the LittleJS Sound System
 
         this.ENABLE = false; // turning off music singleton for bandwidth saving
-        this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
+        this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
 
@@ -110,7 +110,7 @@ class Music {
         this.current_track = null;//"track placeholder";
         this.next_track = null;
         this.counter = 0;
-        this.randomTrack = null;
+        this.randomTrack = "";
 
         // Map sounds to different sound effects and play them via an enumerator/global script
         //required for a music shuffler
@@ -712,7 +712,7 @@ class Inputs extends GameObject {
     public input_state: Map<string, number>;
     public state: number | undefined; // holds the current input state asides the input buffer
     public WALKING: number;
-    public pos: Vector2;
+
 
     constructor() {
         super();
@@ -2066,7 +2066,7 @@ function gameRenderPost() {
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
 
     //draw heartbox ui
-    //window.ui.heartbox(window.globals.health);
+    window.ui.heartbox(window.globals.health);
 
 }
 

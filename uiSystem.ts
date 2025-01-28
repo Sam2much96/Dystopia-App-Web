@@ -15,7 +15,7 @@ import {
     WHITE, BLACK, hsl, vec2, engineAddPlugin,
     overlayContext, ASSERT, fontDefault, Vector2,
     mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, TileInfo,
-    drawTile, isTouchDevice, mousePosScreen,
+    drawTile, isTouchDevice, mousePosScreen, percent, lerp
 } from 'littlejsengine';
 
 // ui defaults
@@ -88,7 +88,16 @@ export function drawUITile(pos: Vector2, size: Vector2, tileInfo: TileInfo, colo
     drawTile(pos, size, tileInfo, color, angle, mirror, BLACK, false, true, uiContext);
 }
 
-export function drawUIText(text: string, pos: Vector2, size: Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor, align = 'center', font = uiDefaultFont) {
+export function drawUIText(
+    text: string,
+    pos: Vector2,
+    size: Vector2,
+    color = uiDefaultColor,
+    lineWidth = uiDefaultLineWidth,
+    lineColor = uiDefaultLineColor,
+    align: CanvasTextAlign = 'center',
+    font = uiDefaultFont,
+) {
     drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
 }
 
@@ -98,9 +107,9 @@ export function drawUIText(text: string, pos: Vector2, size: Vector2, color = ui
 
 class UIObject {
 
-    public localPos;
-    public pos;
-    public size;
+    public localPos: Vector2;
+    public pos: Vector2;
+    public size: Vector2;
     public color;
     public lineColor;
     public textColor;
@@ -114,7 +123,7 @@ class UIObject {
     mouseIsHeld: boolean = false;
 
 
-    constructor(localPos = vec2(), size = vec2()) {
+    constructor(localPos: Vector2 = vec2(), size: Vector2 = vec2()) {
         this.localPos = localPos.copy();
         this.pos = localPos.copy();
         this.size = size.copy();
@@ -185,14 +194,14 @@ class UIText extends UIObject {
     public text;
     public textColor: any;
     public lineColor: any;
-    public align;
+
     public font;
     public lineWidth;
     public pos: Vector2 = vec2();
     public size: Vector2 = vec2();
+    public align: CanvasTextAlign = "center";
 
-
-    constructor(pos: Vector2, size: Vector2, text = '', align = 'center', font = fontDefault) {
+    constructor(pos: Vector2, size: Vector2, text: string = '', align: CanvasTextAlign = 'center', font = fontDefault) {
         super(pos, size);
 
         this.text = text;
@@ -243,6 +252,7 @@ class UIButton extends UIObject {
     hoverColor: any;
     lineWidth: any;
     textColor: any;
+
     align: any;
 
 
@@ -266,7 +276,11 @@ class UIButton extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UICheckbox extends UIObject {
-    constructor(pos, size, checked = false) {
+    public pos: Vector2 = vec2();
+    public size: Vector2 = vec2();
+    public checked: boolean = false;
+
+    constructor(pos: Vector2, size: Vector2, checked = false) {
         super(pos, size);
         this.checked = checked;
     }
@@ -287,7 +301,15 @@ class UICheckbox extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIScrollbar extends UIObject {
-    constructor(pos, size, value = .5, text = '') {
+    public pos: Vector2 = vec2();
+    public value: number;
+    public text: string;
+    public color;
+    public handleColor;
+
+    align: any;
+
+    constructor(pos: Vector2, size: Vector2, value: number = .5, text: string = '') {
         super(pos, size);
         this.value = value;
         this.text = text;

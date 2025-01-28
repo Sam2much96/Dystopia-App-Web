@@ -8,7 +8,7 @@
  */
 'use strict';
 ///////////////////////////////////////////////////////////////////////////////
-import { WHITE, BLACK, hsl, vec2, engineAddPlugin, overlayContext, ASSERT, fontDefault, mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, drawTile, isTouchDevice, mousePosScreen, } from 'littlejsengine';
+import { WHITE, BLACK, hsl, vec2, engineAddPlugin, overlayContext, ASSERT, fontDefault, mouseIsDown, isOverlapping, mouseWasPressed, drawTextScreen, drawTile, isTouchDevice, mousePosScreen, percent, lerp } from 'littlejsengine';
 // ui defaults
 // customise later
 let uiDefaultColor = WHITE;
@@ -146,6 +146,7 @@ class UIText extends UIObject {
         super(pos, size);
         this.pos = vec2();
         this.size = vec2();
+        this.align = "center";
         this.text = text;
         this.align = align;
         this.font = font;
@@ -193,6 +194,9 @@ class UIButton extends UIObject {
 class UICheckbox extends UIObject {
     constructor(pos, size, checked = false) {
         super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
+        this.checked = false;
         this.checked = checked;
     }
     onPress() {
@@ -212,6 +216,7 @@ class UICheckbox extends UIObject {
 class UIScrollbar extends UIObject {
     constructor(pos, size, value = .5, text = '') {
         super(pos, size);
+        this.pos = vec2();
         this.value = value;
         this.text = text;
         this.color = uiDefaultButtonColor;

@@ -24,10 +24,11 @@ LittleJS.setShowSplashScreen(true);
 //LittleJS.touchGamepadEnable = true;
 class Music {
     constructor() {
+        this.lastPlayedTrack = "";
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
         this.ENABLE = false; // turning off music singleton for bandwidth saving
-        this.lastPlayedTrack = null; // Variable for keeping track of the music shuffler & prevents repeating tracks
+        this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
         this.zelda_powerup = new LittleJS.Sound([1.5, , 214, .05, .19, .3, 1, .1, , , 167, .05, .09, , , , .11, .8, .15, .22]); // Powerup 9// Powerup 9
         // sound effects
@@ -45,7 +46,7 @@ class Music {
         this.current_track = null; //"track placeholder";
         this.next_track = null;
         this.counter = 0;
-        this.randomTrack = null;
+        this.randomTrack = "";
         // Map sounds to different sound effects and play them via an enumerator/global script
         //required for a music shuffler
         this.sfx_playlist = new Map([
@@ -1369,7 +1370,7 @@ function gameRenderPost() {
         */
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
     //draw heartbox ui
-    //window.ui.heartbox(window.globals.health);
+    window.ui.heartbox(window.globals.health);
 }
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
