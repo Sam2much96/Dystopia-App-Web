@@ -41,13 +41,6 @@ export default defineConfig({
                     var: "zzfx",
                     path: "https://littlejs-static.vercel.app/js/zzfx/ZzFX.js"
                 },
-                {
-                    name: "littlejsengine/plugins/uiSystem",
-                    var: "plugin",
-                    path: "https://littlejs-static.vercel.app/js/plugins/uiSystem.js"
-
-                }
-
             ]
         }),
 
