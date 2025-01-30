@@ -22,7 +22,7 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, drawTextOverlay, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
+const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -854,9 +854,9 @@ class Inputs extends GameObject {
         if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
 
             var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
+            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
 
-            window.ui.MenuVisible = false;//!menuVisible2;
+            window.ui.MenuVisible = !menuVisible2;
         }
 
         // GamePad Input
@@ -1674,42 +1674,15 @@ let uiDefaultFont = 'arial';
 
 // ui system
 let uiObjects: Array<UIObject> = [];
-let uiContext: any;
 
-function initUISystem(context = LittleJS.overlayContext) {
-    console.log("Initialising UI System");
 
-    uiContext = context;
-    LittleJS.engineAddPlugin(uiUpdate, uiRender);
+function initUISystem() {
+    console.log("Initialising UI System is depreciated");
 
-    // setup recursive update and render
-    function uiUpdate() {
-        function updateObject(o: any) {
-            if (!o.visible)
-                return;
-            if (o.parent)
-                o.pos = o.localPos.add(o.parent.pos);
-            o.update();
-            for (const c of o.children)
-                updateObject(c);
-        }
-        uiObjects.forEach(o => o.parent || updateObject(o));
-    }
-    function uiRender() {
-        function renderObject(o: any) {
-            if (!o.visible)
-                return;
-            if (o.parent)
-                o.pos = o.localPos.add(o.parent.pos);
-            o.render();
-            for (const c of o.children)
-                renderObject(c);
-        }
-        uiObjects.forEach(o => o.parent || renderObject(o));
-    }
 }
 
 function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
+    let uiContext = LittleJS.overlayContext;
     uiContext.fillStyle = color.toString();
     uiContext.beginPath();
     uiContext.rect(pos.x - size.x / 2, pos.y - size.y / 2, size.x, size.y);
@@ -1722,6 +1695,7 @@ function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDef
 }
 
 function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
+    let uiContext = LittleJS.overlayContext;
     uiContext.strokeStyle = color.toString();
     uiContext.lineWidth = thickness;
     uiContext.beginPath();
@@ -1731,6 +1705,7 @@ function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = 
 }
 
 function drawUITile(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
+    let uiContext = LittleJS.overlayContext;
     drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
 }
 
@@ -1744,11 +1719,16 @@ function drawUIText(
     align: CanvasTextAlign = 'center',
     font = uiDefaultFont,
 ) {
+    let uiContext = LittleJS.overlayContext;
     LittleJS.drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
 }
 
 
 class UIObject extends EngineObject {
+    /**
+     * Every Class Extension From UI Object extends their own custom render and update scripts
+     * This class constains the shared interacctivity like hover and press functions by all UI Object sub classes
+     */
     public localPos: LittleJS.Vector2;
     public pos: LittleJS.Vector2;
     public size: LittleJS.Vector2;
@@ -1758,18 +1738,12 @@ class UIObject extends EngineObject {
     public hoverColor;
     public lineWidth;
     public font;
-    public visible;
+    public visible: boolean;
     public children: Array<UIObject>;
     public parent: any;
     mouseIsOver: boolean = false;
     mouseIsHeld: boolean = false;
-    //uiDefaultColor = LittleJS.WHITE;
-    //uiDefaultLineColor = LittleJS.BLACK;
-    //uiDefaultTextColor = LittleJS.RED;
-    //uiDefaultHoverColor = LittleJS.GREEN;
-    //uiDefaultLineWidth = 5;
-    //uiDefaultFont = "arial"
-    //uiObjects = []
+
 
     constructor(localPos: LittleJS.Vector2 = vec2(), size: LittleJS.Vector2 = vec2()) {
         super();
@@ -1785,7 +1759,7 @@ class UIObject extends EngineObject {
         this.visible = true;
         this.children = [];
         this.parent = null;
-        //uiObjects.push(this);
+        uiObjects.push(this); // create global pointer to self
     }
 
     addChild(child: UIObject) {
@@ -1801,6 +1775,8 @@ class UIObject extends EngineObject {
     }
 
     update() {
+        // hover & UI Interraction (Works)
+
         // track mouse input
         const mouseWasOver = this.mouseIsOver;
         const mouseDown = LittleJS.mouseIsDown(0);
@@ -1823,11 +1799,26 @@ class UIObject extends EngineObject {
             this.mouseIsHeld = false;
             this.onRelease();
         }
+
     }
-    render() {
-        if (this.size.x && this.size.y)
-            drawUIRect(this.pos, this.size, this.color, this.lineWidth, this.lineColor);
+
+    hide() {
+        this.visible = false;
+
+        for (const child of this.children) {
+            child.visible = false;
+        }
     }
+
+    show() {
+        this.visible = true;
+
+        for (const child of this.children) {
+            child.visible = true;
+        }
+    }
+
+
 
     // callback functions
     onEnter() { }
@@ -1859,7 +1850,9 @@ class UIText extends UIObject {
         this.lineWidth = 0;
     }
     render() {
-        drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
+        if (this.visible) {
+            drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
+        }
     }
 }
 
@@ -1882,7 +1875,9 @@ class UITile extends UIObject {
         this.mirror = mirror;
     }
     render() {
-        drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
+        if (this.visible) {
+            drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
+        }
     }
 }
 
@@ -1913,15 +1908,19 @@ class UIButton extends UIObject {
         this.size = size.copy();
     }
     render() {
-        const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
-        const color = this.mouseIsOver ? this.hoverColor : this.color;
+
+        // toggles buttons visibility on / off
+        if (this.visible == true) {
+            const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
+            const color = this.mouseIsOver ? this.hoverColor : this.color;
 
 
-        drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
-        const textSize = vec2(this.size.x, this.size.y * .8);
+            drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+            const textSize = vec2(this.size.x, this.size.y * .8);
 
-        drawUIText(this.text, this.pos, textSize,
-            this.textColor, 0, undefined, this.align, this.font);
+            drawUIText(this.text, this.pos, textSize,
+                this.textColor, 0, undefined, this.align, this.font);
+        }
     }
 }
 
@@ -2032,6 +2031,15 @@ class UI extends UIObject {
     public UI_CONTROLS: UIObject;
     public DIALOG_BOX: UIObject;
 
+    // UI Buttons
+
+    newGame: UIButton | null = null;
+    contGame: UIButton | null = null;
+    Comics: UIButton | null = null;
+    Controls: UIButton | null = null;
+    Wallet: UIButton | null = null;
+    Quit: UIButton | null = null;
+
     constructor() {
 
         super();
@@ -2102,16 +2110,36 @@ class UI extends UIObject {
         return this.UI_MENU.visible
     };
 
-    set MenuVisible(visible: boolean) {
+    set MenuVisible(visible_: boolean) {
+        // unumplemented method
         //window.music.sound_start.play(); // play sfx
-        this.UI_MENU.visible = visible;
-        console.log("Unfinished turn off implementations");
 
-        for (let i = 0; i < this.UI_MENU.children.length; i++) {
-            //this.UI_MENU.children.get(i) = visible
-
-            //turn all children nodes visible
+        if (visible_ == false) {
+            this.UI_MENU.hide();
         }
+        else if (visible_ == true) {
+            this.UI_MENU.show();
+        }
+        //this.UI_ROOT.visible = visible_;
+
+
+        //this.Quit!.visible = false;
+
+        // get button pointers and turn them off
+        //if (this.newGame) {
+        //    this.UI_MENU.removeChild(this.newGame!);
+        //    this.newGame = null;
+        //}
+
+
+
+        console.log("Unfinished turn off implementations: ", visible_, "/", uiObjects);
+
+        //for (let i = 0; i < this.UI_MENU.children.length; i++) {
+        //this.UI_MENU.children.get(i) = visible
+
+        //turn all children nodes visible
+        //}
 
     };
 
@@ -2147,65 +2175,71 @@ class UI extends UIObject {
         console.log("Creating Ingame Menu");
         // Create Ingame Menu
         // 
-        //const dgas = drawUIText("sdfsdfsdf", vec2(50), vec2(50));
-        const newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
-        const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-        const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
-        const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
-        const Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
-
-        // parent button objects        
-        this.UI_MENU.addChild(newGame);
-        this.UI_MENU.addChild(contGame);
-        this.UI_MENU.addChild(Comics);
-        this.UI_MENU.addChild(Controls);
-        this.UI_MENU.addChild(Quit);
-
-        this.MenuVisible = true; // make menu visible
+        if (!this.newGame) { // checker to create menu only once
+            //const newGame = new UIButton(vec2(0, 20), vec2(250, 50), 'sdfasdf');
+            this.newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+            this.contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+            this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
+            this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
+            this.Quit = new UIButton(vec2(0, 300), vec2(250, 50), 'Quit');
 
 
-        // button signals
-        newGame.onPress = () => {
-            console.log('New Game Pressed');
-            window.music.sound_start.play();
-            //this.UI_MENU.visible = false;
+            // parent button objects        
+            this.UI_MENU.addChild(this.newGame);
+            this.UI_MENU.addChild(this.contGame);
+            this.UI_MENU.addChild(this.Comics);
+            this.UI_MENU.addChild(this.Controls);
+            this.UI_MENU.addChild(this.Quit);
 
-            // turn menu invisible
-            this.UI_MENU.visible = false;
-
-            // apply gravity to 3d model to trigger game start
-            const anim = new Simulation();
+            //this.MenuVisible = true; // make menu visible
 
 
+            // button signals
+            this.newGame.onPress = () => {
+                console.log('New Game Pressed');
+                window.music.sound_start.play();
 
+
+                // apply gravity to 3d model to trigger game start
+                const anim = new Simulation();
+
+
+
+            }
+
+            this.contGame.onPress = () => {
+                console.log('Continue Pressed');
+                window.music.sound_start.play();
+            }
+
+            this.Comics.onPress = () => {
+                // open comics website in new tab
+                console.log('Comics Pressed');
+                //this.sound_ui.play();
+                window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
+            }
+
+            this.Controls.onPress = () => {
+                console.log('Controls Pressed');
+                window.music.sound_start.play();
+            }
+
+            this.Quit.onPress = () => {
+                // (1) delete player
+                // (2) show 3d layer
+                console.log('Quit Pressed');
+                window.music.sound_start.play();
+
+                window.THREE_RENDER.showThreeLayer()
+            }
+
+            // Wallet Connection
         }
-
-        contGame.onPress = () => {
-            console.log('Continue Pressed');
-            window.music.sound_start.play();
-        }
-        Comics.onPress = () => {
-            // open comics website in new tab
-            console.log('Comics Pressed');
-            //this.sound_ui.play();
-            window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
-        }
-        Controls.onPress = () => {
-            console.log('Controls Pressed');
-            window.music.sound_start.play();
-        }
-
-        Quit.onPress = () => {
-            // (1) delete player
-            // (2) show 3d layer
-            console.log('Quit Pressed');
-            window.music.sound_start.play();
-
-            window.THREE_RENDER.showThreeLayer()
-        }
-
     }
+
+
 }
+
 
 
 
@@ -2213,13 +2247,24 @@ class OverWorld extends GameObject {
     /*
         The Overworld Scene + Objects as children
     */
-
+    TEMPLE_EXTERIOR: any;
+    TREE_1: any;
+    TREE_2: any;
     constructor() {
         super();
 
         // create temple object from tempple object layer png's using draw tile method
-        const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
-        console.log("Creating Temple sprite: ", TEMPLE);
+        //const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
+        console.log("Creating Overworld Scene ");
+
+
+        // Overworld Render
+        // triggers srart of game loop from simulation singleton
+        this.TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
+
+        this.TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        this.TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+
     }
 }
 
@@ -2238,6 +2283,7 @@ declare global {
         input: Inputs,
         player: Player | null,
         enemyspawner: EnemySpawner;
+        overworld: boolean;
     }
 
     interface Vector2 {
@@ -2269,11 +2315,11 @@ function gameInit() {
 
 
     // UI Setup
-    initUISystem();
 
     window.ui = new UI();
-    window.ui.ingameMenu();
 
+    // Create & Show Ingame Menu
+    window.ui.ingameMenu();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -2299,7 +2345,6 @@ function gameInit() {
     //make global
     //window.music = music;
 
-    window.input = new Inputs(); //Global Input Class extends gameObject
 
 
 
@@ -2350,6 +2395,12 @@ function gameUpdate() {
     // called every frame at 60 frames per second
     // handle input and update the game state
 
+
+
+    if (!window.input) {
+        window.input = new Inputs(); //Global Input Class extends gameObject
+
+    }
 }
 
 function gameUpdatePost() {
@@ -2369,24 +2420,25 @@ function gameRender() {
     // triggers the LittleJS renderer
     // called before objects are rendered
     // draw any background effects that appear behind objects
+    // handles what gets rendered and what doesn't get rendered
     //const y = new glContext;
 
     //drawRect(cameraPos, vec2(100), new Color(.5, .5, .5)); // draw background
+
+
+
+    // triggers srart of game loop from simulation singleton
 
     //The third tile parameter constrols which tile object to draw
     //draw tile allows for better object scalling
     if (window.globals.GAME_START) {
 
-
-        //turn menu invisible
-        window.ui.MenuVisible = false;
-
-
-        // triggers srart of game loop from simulation singleton
         const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
 
         const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
         const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+
+
 
         //create global player object
         if (!window.player) {
@@ -2435,20 +2487,12 @@ function gameRenderPost() {
     
         */
     //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
+    //initUISystem();
 
-    //draw heartbox ui
+    //draw heartbox ui every frame
     window.ui.heartbox(window.globals.health);
 
-    //const defaultText = LittleJS.drawTextScreen("sdkfsfds", vec2(0, 50), 10, LittleJS.WHITE, 5); //works
-    //const newGame = new UIButton(vec2(100, 100), vec2(50, 50), 'New Game');
 
-    //const ggg = drawUIRect(vec2(100), vec2(100), LittleJS.WHITE, 5, LittleJS.BLACK); //works
-
-    //const defaultText = drawUIText("sadfdfsdfsf", vec2(100), vec2(100), LittleJS.WHITE, 5, LittleJS.BLACK); //works
-
-    //create ingame menu
-    //window.ui.ingameMenu();
-    //LittleJS.drawTextScreen("ggdfgdg", vec2(0, 50), 10, LittleJS.WHITE);
 }
 
 
