@@ -819,25 +819,22 @@ class Inputs extends GameObject {
 
         // show/hide menu
         // press enter to start game
-        if (LittleJS.keyWasPressed('Enter') && window.ui) {
-            var menuVisible = window.ui.MenuVisible;
-            console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-            //window.ui.MenuVisible = !menuVisible;
+        //if (LittleJS.keyWasPressed('Enter') && window.ui) {
+        //    var menuVisible = window.ui.MenuVisible;
+        //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
 
-            console.log('New Game Started');
-            window.music.sound_start.play();
-            //this.UI_MENU.visible = false;
+        //    console.log('New Game Started');
+        //    window.music.sound_start.play();
 
 
-            // apply gravity to 3d model to trigger game start
-            const anim = new Simulation();
-        }
+
 
         //show / hide dialogue
         if (LittleJS.keyWasPressed('KeyE') && window.ui) {
             var diagVisible = window.ui.DialogVisible;
             console.log("Key E was Pressed, Dialog toggle: ", diagVisible);
-            window.ui.DialogVisible = !diagVisible;
+            //window.ui.DialogVisible = !diagVisible;
+            window.ui.dialogueBox(); //dialogue box testing
 
             // Run a 3-second timer
             // To DO :
@@ -850,8 +847,8 @@ class Inputs extends GameObject {
 
         // show / hide dialogue box
 
-        // show / hide menu with mouse input once game hasnt started
-        if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
+        // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
+        if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
 
             var menuVisible2 = window.ui.MenuVisible;
             console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
@@ -1671,15 +1668,21 @@ let uiDefaultButtonColor = hsl(0, 0, .5);
 let uiDefaultHoverColor = hsl(0, 0, .7);
 let uiDefaultLineWidth = 4;
 let uiDefaultFont = 'arial';
-
+let uiDefaultPosition = vec2();
+let uiDefaultSize = vec2();
 // ui system
 let uiObjects: Array<UIObject> = [];
 
-
-function initUISystem() {
-    console.log("Initialising UI System is depreciated");
-
-}
+/**
+ * Creates Temporarily UI Objects via functions that are quicky deleted
+ * Helper functions for UI Object class
+ * 
+ * @param pos 
+ * @param size 
+ * @param color 
+ * @param lineWidth 
+ * @param lineColor 
+ */
 
 function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
     let uiContext = LittleJS.overlayContext;
@@ -1692,6 +1695,9 @@ function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDef
         uiContext.lineWidth = lineWidth;
         uiContext.stroke();
     }
+
+    //pass the context to LittlejS
+    LittleJS.drawRect(pos, size, color, 0, false, true, uiContext);
 }
 
 function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
@@ -1706,7 +1712,7 @@ function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = 
 
 function drawUITile(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
     let uiContext = LittleJS.overlayContext;
-    drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
+    LittleJS.drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
 }
 
 function drawUIText(
@@ -1726,12 +1732,14 @@ function drawUIText(
 
 class UIObject extends EngineObject {
     /**
+     * Creates Permanent UI Objects
+     * 
      * Every Class Extension From UI Object extends their own custom render and update scripts
      * This class constains the shared interacctivity like hover and press functions by all UI Object sub classes
      */
-    public localPos: LittleJS.Vector2;
-    public pos: LittleJS.Vector2;
-    public size: LittleJS.Vector2;
+    public localPos: LittleJS.Vector2 = vec2();
+    public pos: LittleJS.Vector2 = vec2();
+    public size: LittleJS.Vector2 = vec2();
     public color;
     public lineColor;
     public textColor;
@@ -1745,11 +1753,19 @@ class UIObject extends EngineObject {
     mouseIsHeld: boolean = false;
 
 
-    constructor(localPos: LittleJS.Vector2 = vec2(), size: LittleJS.Vector2 = vec2()) {
+    constructor(localPos: LittleJS.Vector2 | undefined = uiDefaultPosition, size: LittleJS.Vector2 | undefined) {
         super();
         this.localPos = localPos.copy();
-        this.pos = localPos.copy();
-        this.size = size.copy();
+
+        if (!size) {
+            size = uiDefaultSize;
+            this.size = size.copy();
+        }
+
+        if (size) {
+            this.size = size.copy();
+        }
+
         this.color = uiDefaultColor;
         this.lineColor = uiDefaultLineColor;
         this.textColor = uiDefaultTextColor;
@@ -1863,19 +1879,22 @@ class UITile extends UIObject {
     public color;
     public angle;
     public mirror;
-    public pos: LittleJS.Vector2 = vec2();
-    public size: LittleJS.Vector2 = vec2();
+    public pos: LittleJS.Vector2;//= vec2();
+    public size: LittleJS.Vector2;//= vec2();
 
     constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = LittleJS.WHITE, angle = 0, mirror = false) {
         super(pos, size);
-
+        this.pos = pos;
+        this.size = size;
         this.tileInfo = tileInfo;
         this.color = color;
         this.angle = angle;
         this.mirror = mirror;
     }
     render() {
+
         if (this.visible) {
+
             drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
         }
     }
@@ -2025,11 +2044,11 @@ class UI extends UIObject {
     // UI components
     public UI_ROOT: UIObject;
     public UI_MENU: UIObject;
-    public UI_GAME_HUD: UIObject;
+    public UI_GAMEHUD: UIObject;
     public HEART_BOX: Array<UIObject>;
     public UI_STATS: UIObject;
     public UI_CONTROLS: UIObject;
-    public DIALOG_BOX: UIObject;
+    public DIALOG_BOX: UIObject | null = null;
 
     // UI Buttons
 
@@ -2040,9 +2059,15 @@ class UI extends UIObject {
     Wallet: UIButton | null = null;
     Quit: UIButton | null = null;
 
+    DEFAULT_SIZE: LittleJS.Vector2 = vec2();
+    DEFAULT_POS: LittleJS.Vector2 = vec2();
+
+    // TImer Nodes
+    timer: LittleJS.Timer = new Timer();
+    public SHOW_DIALOGUE: boolean = false
     constructor() {
 
-        super();
+        super(vec2(), vec2());
 
         //initialise the UI Plugin system
         //LittleJS.initUISystem();
@@ -2052,22 +2077,23 @@ class UI extends UIObject {
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = new UIObject();
-        this.UI_MENU = new UIObject();
-        this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
+        this.UI_ROOT = new UIObject(vec2(), vec2());
+        this.UI_MENU = new UIObject(vec2(), vec2());
+        this.UI_GAMEHUD = new UIObject(vec2(), vec2()); // contains all game hud buttons
 
 
 
 
         this.HEART_BOX = []; //created with the heartbox function
-        this.UI_STATS = new UIObject();
-        this.UI_CONTROLS = new UIObject();
+        this.UI_STATS = new UIObject(vec2(), vec2()); // stats and inventory
+        this.UI_CONTROLS = new UIObject(vec2(), vec2());
 
-        this.DIALOG_BOX = new UIObject();//new UIObject(vec2(0, 0), vec2(200, 200));
+        this.DIALOG_BOX = new UIObject(vec2(), vec2(50));
 
 
-        //parent & child
+        //parent & child all Ingame UI Objects
         this.UI_ROOT.addChild(this.UI_MENU);
+        this.UI_ROOT.addChild(this.UI_STATS); // player status & inventory
         this.UI_ROOT.addChild(this.DIALOG_BOX);
         //this.UI_ROOT.addChild(this.UI_HEARTBOX);
 
@@ -2081,17 +2107,7 @@ class UI extends UIObject {
         //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
 
-        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70),
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
 
-        uiInfo.textColor = LittleJS.WHITE;
-        uiInfo.lineWidth = 8;
-
-        this.DIALOG_BOX.addChild(uiInfo);
-
-        //hide dialog box temporarily
-        // until dialog box ui has been fully setup
-        this.DIALOG_BOX.visible = false;
 
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
@@ -2111,8 +2127,12 @@ class UI extends UIObject {
     };
 
     set MenuVisible(visible_: boolean) {
-        // unumplemented method
-        //window.music.sound_start.play(); // play sfx
+        // Toggles Menu Visibility
+
+        // play toggle sfx
+        if (window.music) {
+            window.music.sound_start.play(); // play sfx
+        }
 
         if (visible_ == false) {
             this.UI_MENU.hide();
@@ -2120,55 +2140,98 @@ class UI extends UIObject {
         else if (visible_ == true) {
             this.UI_MENU.show();
         }
-        //this.UI_ROOT.visible = visible_;
 
-
-        //this.Quit!.visible = false;
-
-        // get button pointers and turn them off
-        //if (this.newGame) {
-        //    this.UI_MENU.removeChild(this.newGame!);
-        //    this.newGame = null;
-        //}
-
-
-
-        console.log("Unfinished turn off implementations: ", visible_, "/", uiObjects);
-
-        //for (let i = 0; i < this.UI_MENU.children.length; i++) {
-        //this.UI_MENU.children.get(i) = visible
-
-        //turn all children nodes visible
-        //}
 
     };
 
 
     get DialogVisible() {
 
-        return this.DIALOG_BOX.visible;
+        return this.DIALOG_BOX!.visible;
     }
 
     set DialogVisible(visible: boolean) {
-        this.DIALOG_BOX.visible = visible;
+        this.DIALOG_BOX!.visible = visible;
     }
 
+    update() {
+        // dialogue box functionality
+        // (1) Pop up and disappear functionality using Context manipulation and function calls
+        // as opposed to creating new objects
 
-    heartbox(heartCount: number) {
-        /* Creates A HeartBox UI Object */
-        this.HEART_BOX = []; // Reset or initialize the heartbox array
+        // called every frame
+        //used to debug Ui Dialogue Timer
 
-        for (let i = 0; i < heartCount; i++) {
-            // Position each heartbox horizontally spaced by 50px, starting at x = 50
-            const position = vec2(50 + i * 50, 30);
+        //console.log(this.timer.get());
+        if (this.timer.elapsed()) {
+            //console.log("Timer Elapsed");
+            this.DIALOG_BOX!.visible = false;
+            this.SHOW_DIALOGUE = false;
+        }
 
-            // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
+        //dialogue box timeout
+        if (!this.timer.elapsed() && this.timer.get() != 0 && this.SHOW_DIALOGUE == true) {
+            //console.log(" Recursively draw rect");
+            //recursively draw rect
+            const p = drawUIRect(vec2(250, 50), vec2(250, 100), LittleJS.WHITE)//new UIObject(vec2(0), vec2(5));// drawUIRect(vec2(250, 50), vec2(150), LittleJS.WHITE);
+            const ipsum = 'Lorem ipsum dolor sit amet, \n consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus'
 
-            //this.HEART_BOX.push(heartTile);
+            const uiInfo = drawUIText(ipsum, vec2(250, 50),
+                vec2(180, 40), LittleJS.WHITE, 8, LittleJS.BLACK, "center", "arial");
+
+
+
+            this.DIALOG_BOX!.visible = true;
         }
     }
 
+    dialogueBox() {
+
+        console.log("Creating Dialgoue Box Instance");
+        //this.DIALOG_BOX!.visible = true;
+
+        //create permanent UI Objects with objects classese.g. //new UIObject(vec2(0), vec2(5));
+
+        // Create a timer that runs for 5 seconds
+        this.timer.set(5);
+        this.SHOW_DIALOGUE = true;
+
+        // dialogue box and text are renderered in the update function
+
+
+
+        this.DIALOG_BOX!.visible = true;
+
+
+    }
+
+    stats() {
+
+        // Triggers stats ui
+        if (window.inventory) {
+            // fetch inventory items and show them in ui dashboard
+        }
+    }
+
+    heartbox(heartCount: number) {
+        /* Creates A HeartBox UI Object */
+        //this.HEART_BOX = []; // Reset or initialize the heartbox array
+
+        if (this.HEART_BOX.length != heartCount) {
+            console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
+            for (let i = 0; i < heartCount; i++) {
+                // Position each heartbox horizontally spaced by 50px, starting at x = 50
+                const position = vec2(50 + i * 50, 30); // should adjust width using heart count parameter
+
+                // Create a new heartbox UI tile and add it to the HEART_BOX array
+                //const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // draws UI tile using function
+
+                const heartTile = new UITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // uses UI tile function to draw hearbox
+                this.HEART_BOX.push(heartTile!);
+            }
+            console.log("FinishedDrawing Heartbox", this.HEART_BOX.length, "/", heartCount);
+        }
+    }
     ingameMenu() {
         /* Creates the Ingame Menu UI Object */
 
@@ -2181,7 +2244,7 @@ class UI extends UIObject {
             this.contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
             this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
             this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
-            this.Quit = new UIButton(vec2(0, 300), vec2(250, 50), 'Quit');
+            this.Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
 
 
             // parent button objects        
@@ -2191,7 +2254,7 @@ class UI extends UIObject {
             this.UI_MENU.addChild(this.Controls);
             this.UI_MENU.addChild(this.Quit);
 
-            //this.MenuVisible = true; // make menu visible
+            this.MenuVisible = false; // make menu invisible temporarily until mouse input is registered from input singleton
 
 
             // button signals
@@ -2232,6 +2295,7 @@ class UI extends UIObject {
 
                 window.THREE_RENDER.showThreeLayer()
             }
+
 
             // Wallet Connection
         }
@@ -2283,7 +2347,7 @@ declare global {
         input: Inputs,
         player: Player | null,
         enemyspawner: EnemySpawner;
-        overworld: boolean;
+
     }
 
     interface Vector2 {
@@ -2318,8 +2382,11 @@ function gameInit() {
 
     window.ui = new UI();
 
-    // Create & Show Ingame Menu
+    // Create & hide Ingame Menu
     window.ui.ingameMenu();
+
+    //testing Dialogue box / Stats UI
+    //window.ui.dialogueBox();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -2330,7 +2397,7 @@ function gameInit() {
 
     /* Create Global Singletons & Run System Tests */
 
-
+    window.input = new Inputs(); //Global Input Class extends gameObject
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -2396,11 +2463,6 @@ function gameUpdate() {
     // handle input and update the game state
 
 
-
-    if (!window.input) {
-        window.input = new Inputs(); //Global Input Class extends gameObject
-
-    }
 }
 
 function gameUpdatePost() {
@@ -2433,6 +2495,7 @@ function gameRender() {
     //draw tile allows for better object scalling
     if (window.globals.GAME_START) {
 
+        // draw overworld tiles
         const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
 
         const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
@@ -2465,34 +2528,12 @@ function gameRenderPost() {
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
-    // docs: https://killedbyapixel.github.io/LittleJS/docs/Draw.html#.drawTile
-    // docs 2 : https://github.com/KilledByAPixel/LittleJS/blob/e967368c21147235ad8d216243fea32b834bed58/FAQ.md#L9
-    //
-    // To DO: 
-    // (1) Draw hud to overlay canvas/ offset it from the camera in world space, or use screen coords
-    /** 
-        const heart1 = drawTile(
-            vec2(5, 5),
-            vec2(1),
-            tile(-5, 32, 0, 0.2),
-            RED,
-            0,
-            false
-    
-        ); // draws a heartbox 32x32 sprite
-        const heart2 = drawTile(vec2(4, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-        const heart3 = drawTile(vec2(3, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-    
-        const heartbox = [heart1, heart2, heart3];
-    
-        */
-    //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
-    //initUISystem();
 
-    //draw heartbox ui every frame
+
+    //update & draw heartbox ui every frame
     window.ui.heartbox(window.globals.health);
 
-
+    //window.ui.dialogueBox(); // create dialog box
 }
 
 
