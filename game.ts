@@ -808,12 +808,14 @@ class Inputs extends GameObject {
 
 
 
-        // Inventory Debug
+        // Inventory & Stats
         if (LittleJS.keyWasPressed('KeyI') && window.inventory) {
 
             //Debug Inventory
             // TO DO :
             // (1) Inventory UI
+
+            window.ui.stats(); // Trigger the Stats UI
             console.log("key I was pressed: ", window.inventory.getAllItems());
         }
 
@@ -1659,6 +1661,7 @@ class Globals {
     }
 }
 
+// ALL UI & UI Objects Implementation
 // ui defaults
 // customise later
 let uiDefaultColor = LittleJS.WHITE;
@@ -2018,6 +2021,55 @@ class UIScrollbar extends UIObject {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+
+class UITextureButton extends UIObject {
+    // Untested
+    // TO DO : Add button and tile render properties to this class
+    public tileInfo: LittleJS.TileInfo;
+    pos: LittleJS.Vector2; //= vec2();
+    //public size: Vector2 = vec2();
+    //public text: string;
+    public font: any;
+    public color;
+
+    mouseIsHeld: boolean = false;
+    mouseIsOver: boolean = false;
+    lineColor: any;
+    hoverColor: any;
+    lineWidth: any;
+    textColor: any;
+
+    align: any;
+
+
+    constructor(tileInfo: LittleJS.TileInfo, pos: LittleJS.Vector2, size: LittleJS.Vector2) {
+        super(pos, size);
+        this.tileInfo = tileInfo;
+        this.color = uiDefaultButtonColor;
+        this.pos = pos.copy();
+        this.size = size.copy();
+    }
+    render() {
+
+        // toggles buttons visibility on / off
+        if (this.visible == true) {
+            const lineColor = this.mouseIsHeld ? this.color : this.lineColor; // unimplemented hover function
+            const color = this.mouseIsOver ? this.hoverColor : this.color; //unimplemented hover function
+
+
+            //drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+            //const textSize = vec2(this.size.x, this.size.y * .8);
+
+            drawUITile(this.pos, this.size, this.tileInfo, color, this.angle, this.mirror);
+            //drawUIText(this.text, this.pos, textSize,
+            //    this.textColor, 0, undefined, this.align, this.font);
+        }
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 
 class UI extends UIObject {
@@ -2027,17 +2079,19 @@ class UI extends UIObject {
     Docs: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/uiSystem/game.js 
 
     To DO:
-    (1) in-game menu
+    (1) in-game menu (1/2)
     (2) Controls Menu
     (3) Game HUD 
-        -inventory ui
+        -inventory ui (1/3)
         -quest ui
         -mini-map ui
     (4) Dialogs Box
         -map dialogue text to dialog box boundaries
         
-    (5) Heartbox
-    (6) Should Play UI sounds from singleton class
+    (5) Heartbox (1/2)
+    (6) Should Play UI sounds from singleton class (1/2)
+
+    (7) Separate Each Object into class extensions
     */
 
 
@@ -2051,13 +2105,20 @@ class UI extends UIObject {
     public DIALOG_BOX: UIObject | null = null;
 
     // UI Buttons
-
+    // menu buttons
     newGame: UIButton | null = null;
     contGame: UIButton | null = null;
     Comics: UIButton | null = null;
     Controls: UIButton | null = null;
     Wallet: UIButton | null = null;
     Quit: UIButton | null = null;
+
+    //HUD Texture Buttons
+    statsButton: UITextureButton | null = null; // button triggered from input via stats() method
+    dialogButton: UITextureButton | null = null;
+    comicsButton: UITextureButton | null = null;
+    menuButton: UITextureButton | null = null;
+
 
     DEFAULT_SIZE: LittleJS.Vector2 = vec2();
     DEFAULT_POS: LittleJS.Vector2 = vec2();
@@ -2160,6 +2221,10 @@ class UI extends UIObject {
         // as opposed to creating new objects
 
         // called every frame
+
+
+        // Dialogue Box Implementation
+        // TO DO: Create as separate object with own update function calls
         //used to debug Ui Dialogue Timer
 
         //console.log(this.timer.get());
@@ -2186,7 +2251,7 @@ class UI extends UIObject {
     }
 
     dialogueBox() {
-
+        // Triggered by Pressing Key E; function called from the Input SIngleton 
         console.log("Creating Dialgoue Box Instance");
         //this.DIALOG_BOX!.visible = true;
 
@@ -2206,15 +2271,58 @@ class UI extends UIObject {
     }
 
     stats() {
-
+        // Testing
+        console.log("Triggering Stats UI");
         // Triggers stats ui
-        if (window.inventory) {
-            // fetch inventory items and show them in ui dashboard
+        //if (window.inventory) {
+        // fetch inventory items and show them in ui dashboard
+        // create dashboard with text buttons
+        //
+        // }
+        // to do :
+        // (1) on & off
+        // (2) game pause
+        // (3) UI text fix
+        // (4) Drag and Drop Items
+        // (5) Status UI Buttons (dialogue, comics, menu, stats)
+        // (6) Game Menu Shouldn't trigger once stats is showing
+        // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
+        const b = new UIObject(vec2(10), vec2(6));
+
+        // create a texture button for each item in inventory if the parent array is empty 
+        const j = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
+
+        //b.addChild(j);
+        //create a text for amount
+        //UI text is buggy
+        const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
+
+        j.onPress = () => {
+
+            //button action
+            console.log("stats button pressed, Use Inventory item");
         }
+        // (1) Create / Show New UI Board
+        // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
+        // (3) Inventory Item Call Example is in Input under I Press
+    }
+
+    gameHUD() {
+        /*  Spawns The Game HUD Buttons and Connects 
+            Their SIgnals on start of the game 
+        */
+
+        this.statsButton = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
+        this.dialogButton = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
+
     }
 
     heartbox(heartCount: number) {
         /* Creates A HeartBox UI Object */
+        // To DO:
+        // (1) Create into a Separate Object extending UIObject class
+        // (2) Add Animations
+        // (3) Update Logic for heartbox algorithm
         //this.HEART_BOX = []; // Reset or initialize the heartbox array
 
         if (this.HEART_BOX.length != heartCount) {
@@ -2242,8 +2350,8 @@ class UI extends UIObject {
             //const newGame = new UIButton(vec2(0, 20), vec2(250, 50), 'sdfasdf');
             this.newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
             this.contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-            this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
-            this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
+            this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics'); // rename to wallet connect?
+            this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls'); //map music controls & other settings to ui
             this.Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
 
 
@@ -2259,27 +2367,35 @@ class UI extends UIObject {
 
             // button signals
             this.newGame.onPress = () => {
-                console.log('New Game Pressed');
-                window.music.sound_start.play();
+                if (this.visible) {
+                    console.log('New Game Pressed');
+                    window.music.sound_start.play();
 
 
-                // apply gravity to 3d model to trigger game start
-                const anim = new Simulation();
+                    // apply gravity to 3d model to trigger game start
+                    const anim = new Simulation();
 
-
+                }
 
             }
 
             this.contGame.onPress = () => {
-                console.log('Continue Pressed');
-                window.music.sound_start.play();
+                if (this.visible) {
+                    console.log('Continue Pressed');
+                    window.music.sound_start.play();
+                }
             }
 
             this.Comics.onPress = () => {
-                // open comics website in new tab
-                console.log('Comics Pressed');
-                //this.sound_ui.play();
-                window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
+
+                if (this.visible) {
+                    // open comics website in new tab
+                    console.log('Comics Pressed');
+                    //this.sound_ui.play();
+                    // TO DO:
+                    // redraw comics chapters with gif animation & boondocks anime style
+                    window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
+                }
             }
 
             this.Controls.onPress = () => {
