@@ -808,56 +808,6 @@ class Inputs extends GameObject {
 
 
 
-        // Inventory & Stats
-        if (LittleJS.keyWasPressed('KeyI') && window.inventory) {
-
-            //Debug Inventory
-            // TO DO :
-            // (1) Inventory UI
-
-            window.ui.stats(); // Trigger the Stats UI
-            console.log("key I was pressed: ", window.inventory.getAllItems());
-        }
-
-        // show/hide menu
-        // press enter to start game
-        //if (LittleJS.keyWasPressed('Enter') && window.ui) {
-        //    var menuVisible = window.ui.MenuVisible;
-        //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-
-        //    console.log('New Game Started');
-        //    window.music.sound_start.play();
-
-
-
-
-        //show / hide dialogue
-        if (LittleJS.keyWasPressed('KeyE') && window.ui) {
-            var diagVisible = window.ui.DialogVisible;
-            console.log("Key E was Pressed, Dialog toggle: ", diagVisible);
-            //window.ui.DialogVisible = !diagVisible;
-            window.ui.dialogueBox(); //dialogue box testing
-
-            // Run a 3-second timer
-            // To DO :
-            // (1) Use GLobal Input Timer as 
-            //new Timer(3, () => {
-            //    window.ui.DialogVisible = false;
-            //   console.log("Dialog hidden after 3 seconds.");
-            //});
-        }
-
-        // show / hide dialogue box
-
-        // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
-        if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
-
-            var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
-
-            window.ui.MenuVisible = !menuVisible2;
-        }
-
         // GamePad Input
         let stk = LittleJS.gamepadStick(0, 0); // capture gamestik
         if (stk.x < 0) {
@@ -2297,6 +2247,8 @@ class UI extends UIObject {
         //UI text is buggy
         const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
 
+        // fetch all inventory items
+        console.log("key I was pressed: ", window.inventory.getAllItems());
         j.onPress = () => {
 
             //button action
@@ -2312,8 +2264,77 @@ class UI extends UIObject {
             Their SIgnals on start of the game 
         */
 
-        this.statsButton = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
-        this.dialogButton = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
+        //create Heartboxes
+        //update & draw heartbox ui every frame
+        this.heartbox(3); //create 3 hearboxes
+        console.log("Creating Game HUD Buttons");
+        this.statsButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 30), vec2(50)); //works
+        this.dialogButton = new UITextureButton(tile(0, 64, 7, 0), vec2(950, 80), vec2(50)); //works
+        this.menuButton = new UITextureButton(tile(vec2(0, 0), 64, 6, 0), vec2(80, 80), vec2(50));
+
+        // Game HUD Signals
+        // connect signals here
+        this.menuButton.onPress = () => {
+            // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
+            //if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
+
+            var menuVisible2 = this.MenuVisible;
+            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
+
+            // turn menu on/off
+            this.MenuVisible = !menuVisible2;
+
+            console.log("Menu Button Pressed")
+
+        };
+
+        // Stats Button
+        this.statsButton.onPress = () => {
+
+            // sfx
+            window.music.sound_start.play();
+            // Inventory & Stats
+            if (window.inventory) {
+
+                //Debug Inventory
+                // TO DO :
+                // (1) Inventory UI
+
+                this.stats(); // Trigger the Stats UI
+
+            }
+
+            // show/hide menu
+            // press enter to start game
+            //if (LittleJS.keyWasPressed('Enter') && window.ui) {
+            //    var menuVisible = window.ui.MenuVisible;
+            //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
+
+            //    console.log('New Game Started');
+            //    window.music.sound_start.play();
+
+
+
+
+        }
+
+        // Dialogue Button
+        this.dialogButton.onPress = () => {
+
+            //sfx
+            window.music.sound_start.play();
+
+
+
+            //show / hide dialogue
+            var diagVisible = this.DialogVisible;
+            console.log(" Dialog toggle: ", diagVisible);
+            this.dialogueBox(); //dialogue box testing
+
+            // Run a 3-second timer
+
+
+        }
 
     }
 
@@ -2500,6 +2521,7 @@ function gameInit() {
 
     // Create & hide Ingame Menu
     window.ui.ingameMenu();
+    window.ui.gameHUD();
 
     //testing Dialogue box / Stats UI
     //window.ui.dialogueBox();
@@ -2646,8 +2668,7 @@ function gameRenderPost() {
     // draw to overlay canvas for hud rendering
 
 
-    //update & draw heartbox ui every frame
-    window.ui.heartbox(window.globals.health);
+
 
     //window.ui.dialogueBox(); // create dialog box
 }
@@ -2657,6 +2678,6 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png"]);
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png"]);
 
 

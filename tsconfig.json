@@ -23,9 +23,6 @@
             "littlejsengine/*": [
                 "node_modules/littlejsengine/*"
             ],
-            "./uiSystem": [
-                "uiSystem.js"
-            ]
         },
     }
 }
