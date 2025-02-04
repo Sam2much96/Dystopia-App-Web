@@ -13,8 +13,8 @@ Main Game Logic
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as LittleJS from 'littlejsengine';
-import { UIObject, UIText, UIButton, drawUITile, drawUIText } from './uiSystem';
-const { tile, vec2, hsl, drawTile, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, setShowSplashScreen } = LittleJS;
+//import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
+const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 'use strict';
 // import module
@@ -573,45 +573,6 @@ class Inputs extends GameObject {
             console.log("key L as pressed! ");
             console.log("Input Buffer: ", this.get_Buffer());
         }
-        // Inventory Debug
-        if (LittleJS.keyWasPressed('KeyI') && window.inventory) {
-            //Debug Inventory
-            // TO DO :
-            // (1) Inventory UI
-            console.log("key I was pressed: ", window.inventory.getAllItems());
-        }
-        // show/hide menu
-        // press enter to start game
-        if (LittleJS.keyWasPressed('Enter') && window.ui) {
-            var menuVisible = window.ui.MenuVisible;
-            console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-            //window.ui.MenuVisible = !menuVisible;
-            console.log('New Game Started');
-            window.music.sound_start.play();
-            //this.UI_MENU.visible = false;
-            // apply gravity to 3d model to trigger game start
-            const anim = new Simulation();
-        }
-        //show / hide dialogue
-        if (LittleJS.keyWasPressed('KeyE') && window.ui) {
-            var diagVisible = window.ui.DialogVisible;
-            console.log("Key E was Pressed, Dialog toggle: ", diagVisible);
-            window.ui.DialogVisible = !diagVisible;
-            // Run a 3-second timer
-            // To DO :
-            // (1) Use GLobal Input Timer as 
-            //new Timer(3, () => {
-            //    window.ui.DialogVisible = false;
-            //   console.log("Dialog hidden after 3 seconds.");
-            //});
-        }
-        // show / hide dialogue box
-        // show / hide menu with mouse input once game hasnt started
-        if (!(window.player) && window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START) {
-            var menuVisible2 = window.ui.MenuVisible;
-            console.log("Mouse was Pressed, Menu toggle: ", menuVisible2, "/", window.ui.UI_MENU.children);
-            window.ui.MenuVisible = !menuVisible2;
-        }
         // GamePad Input
         let stk = LittleJS.gamepadStick(0, 0); // capture gamestik
         if (stk.x < 0) {
@@ -1113,13 +1074,13 @@ class ParticleFX extends EngineObject {
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new LittleJS.ParticleEmitter(this.pos, 0, // pos, angle
-            this.size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
-            tile(0, 16), // tileIndex, tileSize
-            color__, color__, // colorStartA, colorStartB
-            color__.scale(0), color__.scale(0), // colorEndA, colorEndB
-            2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
-            .99, .95, 0, PI, // damp, angleDamp, gravity, cone
-            .1, .5, true, true // fade, randomness, collide, additive
+        this.size, 0, 80, LittleJS.PI, // emitSize, emitTime, emitRate, emiteCone
+        tile(0, 16), // tileIndex, tileSize
+        color__, color__, // colorStartA, colorStartB
+        color__.scale(0), color__.scale(0), // colorEndA, colorEndB
+        2, .4, 1, .001, .05, // time, sizeStart, sizeEnd, speed, angleSpeed
+        .99, .95, 0, PI, // damp, angleDamp, gravity, cone
+        .1, .5, true, true // fade, randomness, collide, additive
         );
     }
 }
@@ -1146,22 +1107,325 @@ class Globals {
         this.GAME_START = false; // for triggering the main game loop logic in other scenes
     }
 }
+// ALL UI & UI Objects Implementation
+// ui defaults
+// customise later
+let uiDefaultColor = LittleJS.WHITE;
+let uiDefaultLineColor = LittleJS.BLACK;
+let uiDefaultTextColor = LittleJS.BLACK;
+let uiDefaultButtonColor = hsl(0, 0, .5);
+let uiDefaultHoverColor = hsl(0, 0, .7);
+let uiDefaultLineWidth = 4;
+let uiDefaultFont = 'arial';
+let uiDefaultPosition = vec2();
+let uiDefaultSize = vec2();
+// ui system
+let uiObjects = [];
+/**
+ * Creates Temporarily UI Objects via functions that are quicky deleted
+ * Helper functions for UI Object class
+ *
+ * @param pos
+ * @param size
+ * @param color
+ * @param lineWidth
+ * @param lineColor
+ */
+function drawUIRect(pos, size, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
+    let uiContext = LittleJS.overlayContext;
+    uiContext.fillStyle = color.toString();
+    uiContext.beginPath();
+    uiContext.rect(pos.x - size.x / 2, pos.y - size.y / 2, size.x, size.y);
+    uiContext.fill();
+    if (lineWidth) {
+        uiContext.strokeStyle = lineColor.toString();
+        uiContext.lineWidth = lineWidth;
+        uiContext.stroke();
+    }
+    //pass the context to LittlejS
+    LittleJS.drawRect(pos, size, color, 0, false, true, uiContext);
+}
+function drawUILine(posA, posB, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
+    let uiContext = LittleJS.overlayContext;
+    uiContext.strokeStyle = color.toString();
+    uiContext.lineWidth = thickness;
+    uiContext.beginPath();
+    uiContext.lineTo(posA.x, posA.y);
+    uiContext.lineTo(posB.x, posB.y);
+    uiContext.stroke();
+}
+function drawUITile(pos, size, tileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
+    let uiContext = LittleJS.overlayContext;
+    LittleJS.drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
+}
+function drawUIText(text, pos, size, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor, align = 'center', font = uiDefaultFont) {
+    let uiContext = LittleJS.overlayContext;
+    LittleJS.drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
+}
+class UIObject extends EngineObject {
+    constructor(localPos = uiDefaultPosition, size) {
+        super();
+        /**
+         * Creates Permanent UI Objects
+         *
+         * Every Class Extension From UI Object extends their own custom render and update scripts
+         * This class constains the shared interacctivity like hover and press functions by all UI Object sub classes
+         */
+        this.localPos = vec2();
+        this.pos = vec2();
+        this.size = vec2();
+        this.mouseIsOver = false;
+        this.mouseIsHeld = false;
+        this.localPos = localPos.copy();
+        if (!size) {
+            size = uiDefaultSize;
+            this.size = size.copy();
+        }
+        if (size) {
+            this.size = size.copy();
+        }
+        this.color = uiDefaultColor;
+        this.lineColor = uiDefaultLineColor;
+        this.textColor = uiDefaultTextColor;
+        this.hoverColor = uiDefaultHoverColor;
+        this.lineWidth = uiDefaultLineWidth;
+        this.font = uiDefaultFont;
+        this.visible = true;
+        this.children = [];
+        this.parent = null;
+        uiObjects.push(this); // create global pointer to self
+    }
+    addChild(child) {
+        LittleJS.ASSERT(!child.parent && !this.children.includes(child));
+        this.children.push(child);
+        child.parent = this;
+    }
+    removeChild(child) {
+        LittleJS.ASSERT(child.parent == this && this.children.includes(child));
+        this.children.splice(this.children.indexOf(child), 1);
+        child.parent = 0;
+    }
+    update() {
+        // hover & UI Interraction (Works)
+        // track mouse input
+        const mouseWasOver = this.mouseIsOver;
+        const mouseDown = LittleJS.mouseIsDown(0);
+        if (!mouseDown || isTouchDevice) {
+            this.mouseIsOver = LittleJS.isOverlapping(this.pos, this.size, LittleJS.mousePosScreen);
+            if (!mouseDown && isTouchDevice)
+                this.mouseIsOver = false;
+            if (this.mouseIsOver && !mouseWasOver)
+                this.onEnter();
+            if (!this.mouseIsOver && mouseWasOver)
+                this.onLeave();
+        }
+        if (LittleJS.mouseWasPressed(0) && this.mouseIsOver) {
+            this.mouseIsHeld = true;
+            this.onPress();
+            if (isTouchDevice)
+                this.mouseIsOver = false;
+        }
+        else if (this.mouseIsHeld && !mouseDown) {
+            this.mouseIsHeld = false;
+            this.onRelease();
+        }
+    }
+    hide() {
+        this.visible = false;
+        for (const child of this.children) {
+            child.visible = false;
+        }
+    }
+    show() {
+        this.visible = true;
+        for (const child of this.children) {
+            child.visible = true;
+        }
+    }
+    // callback functions
+    onEnter() { }
+    onLeave() { }
+    onPress() { }
+    onRelease() { }
+    onChange() { }
+}
+///////////////////////////////////////////////////////////////////////////////
+class UIText extends UIObject {
+    constructor(pos, size, text = '', align = 'center', font = LittleJS.fontDefault) {
+        super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
+        this.align = "center";
+        this.text = text;
+        this.align = align;
+        this.font = font;
+        this.lineWidth = 0;
+    }
+    render() {
+        if (this.visible) {
+            drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////////
+class UITile extends UIObject {
+    constructor(pos, size, tileInfo, color = LittleJS.WHITE, angle = 0, mirror = false) {
+        super(pos, size);
+        this.pos = pos;
+        this.size = size;
+        this.tileInfo = tileInfo;
+        this.color = color;
+        this.angle = angle;
+        this.mirror = mirror;
+    }
+    render() {
+        if (this.visible) {
+            drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////////
+class UIButton extends UIObject {
+    constructor(pos, size, text) {
+        super(pos, size);
+        this.mouseIsHeld = false;
+        this.mouseIsOver = false;
+        this.text = text;
+        this.color = uiDefaultButtonColor;
+        this.pos = pos.copy();
+        this.size = size.copy();
+    }
+    render() {
+        // toggles buttons visibility on / off
+        if (this.visible == true) {
+            const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
+            const color = this.mouseIsOver ? this.hoverColor : this.color;
+            drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+            const textSize = vec2(this.size.x, this.size.y * .8);
+            drawUIText(this.text, this.pos, textSize, this.textColor, 0, undefined, this.align, this.font);
+        }
+    }
+}
+////////////////////////////////////////////////////////////////////////////////z
+class UICheckbox extends UIObject {
+    constructor(pos, size, checked = false) {
+        super(pos, size);
+        this.pos = vec2();
+        this.size = vec2();
+        this.checked = false;
+        this.checked = checked;
+    }
+    onPress() {
+        this.checked = !this.checked;
+        this.onChange();
+    }
+    render() {
+        drawUIRect(this.pos, this.size, this.color, this.lineWidth, this.lineColor);
+        if (this.checked) {
+            // draw an X if checked
+            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, -.5))), this.pos.add(this.size.multiply(vec2(.5, .5))), this.lineWidth, this.lineColor);
+            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, .5))), this.pos.add(this.size.multiply(vec2(.5, -.5))), this.lineWidth, this.lineColor);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////////
+class UIScrollbar extends UIObject {
+    constructor(pos, size, value = .5, text = '') {
+        super(pos, size);
+        this.pos = pos.copy();
+        this.value = value;
+        this.text = text;
+        this.color = uiDefaultButtonColor;
+        this.handleColor = WHITE;
+    }
+    update() {
+        super.update();
+        if (this.mouseIsHeld) {
+            const handleSize = vec2(this.size.y);
+            const handleWidth = this.size.x - handleSize.x;
+            const p1 = this.pos.x - handleWidth / 2;
+            const p2 = this.pos.x + handleWidth / 2;
+            const oldValue = this.value;
+            this.value = LittleJS.percent(LittleJS.mousePosScreen.x, p1, p2);
+            this.value == oldValue || this.onChange();
+        }
+    }
+    render() {
+        const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
+        const color = this.mouseIsOver ? this.hoverColor : this.color;
+        drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+        const handleSize = vec2(this.size.y);
+        const handleWidth = this.size.x - handleSize.x;
+        const p1 = this.pos.x - handleWidth / 2;
+        const p2 = this.pos.x + handleWidth / 2;
+        const handlePos = vec2(LittleJS.lerp(this.value, p1, p2), this.pos.y);
+        const barColor = this.mouseIsHeld ? this.color : this.handleColor;
+        drawUIRect(handlePos, handleSize, barColor, this.lineWidth, this.lineColor);
+        const textSize = vec2(this.size.x, this.size.y * .8);
+        drawUIText(this.text, this.pos, textSize, this.textColor, 0, undefined, this.align, this.font);
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////
+class UITextureButton extends UIObject {
+    constructor(tileInfo, pos, size) {
+        super(pos, size);
+        this.mouseIsHeld = false;
+        this.mouseIsOver = false;
+        this.tileInfo = tileInfo;
+        this.color = uiDefaultButtonColor;
+        this.pos = pos.copy();
+        this.size = size.copy();
+    }
+    render() {
+        // toggles buttons visibility on / off
+        if (this.visible == true) {
+            const lineColor = this.mouseIsHeld ? this.color : this.lineColor; // unimplemented hover function
+            const color = this.mouseIsOver ? this.hoverColor : this.color; //unimplemented hover function
+            //drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
+            //const textSize = vec2(this.size.x, this.size.y * .8);
+            drawUITile(this.pos, this.size, this.tileInfo, color, this.angle, this.mirror);
+            //drawUIText(this.text, this.pos, textSize,
+            //    this.textColor, 0, undefined, this.align, this.font);
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
 class UI extends UIObject {
     constructor() {
-        super();
+        super(vec2(), vec2());
+        this.DIALOG_BOX = null;
+        // UI Buttons
+        // menu buttons
+        this.newGame = null;
+        this.contGame = null;
+        this.Comics = null;
+        this.Controls = null;
+        this.Wallet = null;
+        this.Quit = null;
+        //HUD Texture Buttons
+        this.statsButton = null; // button triggered from input via stats() method
+        this.dialogButton = null;
+        this.comicsButton = null;
+        this.menuButton = null;
+        this.DEFAULT_SIZE = vec2();
+        this.DEFAULT_POS = vec2();
+        // TImer Nodes
+        this.timer = new Timer();
+        this.SHOW_DIALOGUE = false;
         //initialise the UI Plugin system
         //LittleJS.initUISystem();
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = new UIObject();
-        this.UI_MENU = new UIObject();
-        this.UI_GAME_HUD = new UIObject(); // contains all game hud buttons
+        this.UI_ROOT = new UIObject(vec2(), vec2());
+        this.UI_MENU = new UIObject(vec2(), vec2());
+        this.UI_GAMEHUD = new UIObject(vec2(), vec2()); // contains all game hud buttons
         this.HEART_BOX = []; //created with the heartbox function
-        this.UI_STATS = new UIObject();
-        this.UI_CONTROLS = new UIObject();
-        this.DIALOG_BOX = new UIObject(vec2(0, 0), vec2(200, 400));
-        //parent & child
+        this.UI_STATS = new UIObject(vec2(), vec2()); // stats and inventory
+        this.UI_CONTROLS = new UIObject(vec2(), vec2());
+        this.DIALOG_BOX = new UIObject(vec2(), vec2(50));
+        //parent & child all Ingame UI Objects
         this.UI_ROOT.addChild(this.UI_MENU);
+        this.UI_ROOT.addChild(this.UI_STATS); // player status & inventory
         this.UI_ROOT.addChild(this.DIALOG_BOX);
         //this.UI_ROOT.addChild(this.UI_HEARTBOX);
         //center UI root
@@ -1170,13 +1434,6 @@ class UI extends UIObject {
         //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
         //this.UI_MENU.addChild(scrollbar);
         //can be used for title screen/ stroy intro
-        const uiInfo = new UIText(vec2(0, 50), vec2(1e3, 70), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus');
-        uiInfo.textColor = LittleJS.WHITE;
-        uiInfo.lineWidth = 8;
-        this.DIALOG_BOX.addChild(uiInfo);
-        //hide dialog box temporarily
-        // until dialog box ui has been fully setup
-        this.DIALOG_BOX.visible = false;
         //hide game menu temporarily
         //trigger it with button click if there's no player instance
         //this.UI_MENU.visible = true;
@@ -1189,9 +1446,18 @@ class UI extends UIObject {
         return this.UI_MENU.visible;
     }
     ;
-    set MenuVisible(visible) {
-        //window.music.sound_start.play(); // play sfx
-        this.UI_MENU.visible = visible;
+    set MenuVisible(visible_) {
+        // Toggles Menu Visibility
+        // play toggle sfx
+        if (window.music) {
+            window.music.sound_start.play(); // play sfx
+        }
+        if (visible_ == false) {
+            this.UI_MENU.hide();
+        }
+        else if (visible_ == true) {
+            this.UI_MENU.show();
+        }
     }
     ;
     get DialogVisible() {
@@ -1200,15 +1466,145 @@ class UI extends UIObject {
     set DialogVisible(visible) {
         this.DIALOG_BOX.visible = visible;
     }
+    update() {
+        // dialogue box functionality
+        // (1) Pop up and disappear functionality using Context manipulation and function calls
+        // as opposed to creating new objects
+        // called every frame
+        // Dialogue Box Implementation
+        // TO DO: Create as separate object with own update function calls
+        //used to debug Ui Dialogue Timer
+        //console.log(this.timer.get());
+        if (this.timer.elapsed()) {
+            //console.log("Timer Elapsed");
+            this.DIALOG_BOX.visible = false;
+            this.SHOW_DIALOGUE = false;
+        }
+        //dialogue box timeout
+        if (!this.timer.elapsed() && this.timer.get() != 0 && this.SHOW_DIALOGUE == true) {
+            //console.log(" Recursively draw rect");
+            //recursively draw rect
+            const p = drawUIRect(vec2(250, 50), vec2(250, 100), LittleJS.WHITE); //new UIObject(vec2(0), vec2(5));// drawUIRect(vec2(250, 50), vec2(150), LittleJS.WHITE);
+            const ipsum = 'Lorem ipsum dolor sit amet, \n consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus';
+            const uiInfo = drawUIText(ipsum, vec2(250, 50), vec2(180, 40), LittleJS.WHITE, 8, LittleJS.BLACK, "center", "arial");
+            this.DIALOG_BOX.visible = true;
+        }
+    }
+    dialogueBox() {
+        // Triggered by Pressing Key E; function called from the Input SIngleton 
+        console.log("Creating Dialgoue Box Instance");
+        //this.DIALOG_BOX!.visible = true;
+        //create permanent UI Objects with objects classese.g. //new UIObject(vec2(0), vec2(5));
+        // Create a timer that runs for 5 seconds
+        this.timer.set(5);
+        this.SHOW_DIALOGUE = true;
+        // dialogue box and text are renderered in the update function
+        this.DIALOG_BOX.visible = true;
+    }
+    stats() {
+        // Testing
+        console.log("Triggering Stats UI");
+        // Triggers stats ui
+        //if (window.inventory) {
+        // fetch inventory items and show them in ui dashboard
+        // create dashboard with text buttons
+        //
+        // }
+        // to do :
+        // (1) on & off
+        // (2) game pause
+        // (3) UI text fix
+        // (4) Drag and Drop Items
+        // (5) Status UI Buttons (dialogue, comics, menu, stats)
+        // (6) Game Menu Shouldn't trigger once stats is showing
+        // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
+        const b = new UIObject(vec2(10), vec2(6));
+        // create a texture button for each item in inventory if the parent array is empty 
+        const j = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
+        //b.addChild(j);
+        //create a text for amount
+        //UI text is buggy
+        const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
+        // fetch all inventory items
+        console.log("key I was pressed: ", window.inventory.getAllItems());
+        j.onPress = () => {
+            //button action
+            console.log("stats button pressed, Use Inventory item");
+        };
+        // (1) Create / Show New UI Board
+        // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
+        // (3) Inventory Item Call Example is in Input under I Press
+    }
+    gameHUD() {
+        /*  Spawns The Game HUD Buttons and Connects
+            Their SIgnals on start of the game
+        */
+        //create Heartboxes
+        //update & draw heartbox ui every frame
+        this.heartbox(3); //create 3 hearboxes
+        console.log("Creating Game HUD Buttons");
+        this.statsButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 30), vec2(50)); //works
+        this.dialogButton = new UITextureButton(tile(0, 64, 7, 0), vec2(950, 80), vec2(50)); //works
+        this.menuButton = new UITextureButton(tile(vec2(0, 0), 64, 6, 0), vec2(80, 80), vec2(50));
+        // Game HUD Signals
+        // connect signals here
+        this.menuButton.onPress = () => {
+            // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
+            //if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
+            var menuVisible2 = this.MenuVisible;
+            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
+            // turn menu on/off
+            this.MenuVisible = !menuVisible2;
+            console.log("Menu Button Pressed");
+        };
+        // Stats Button
+        this.statsButton.onPress = () => {
+            // sfx
+            window.music.sound_start.play();
+            // Inventory & Stats
+            if (window.inventory) {
+                //Debug Inventory
+                // TO DO :
+                // (1) Inventory UI
+                this.stats(); // Trigger the Stats UI
+            }
+            // show/hide menu
+            // press enter to start game
+            //if (LittleJS.keyWasPressed('Enter') && window.ui) {
+            //    var menuVisible = window.ui.MenuVisible;
+            //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
+            //    console.log('New Game Started');
+            //    window.music.sound_start.play();
+        };
+        // Dialogue Button
+        this.dialogButton.onPress = () => {
+            //sfx
+            window.music.sound_start.play();
+            //show / hide dialogue
+            var diagVisible = this.DialogVisible;
+            console.log(" Dialog toggle: ", diagVisible);
+            this.dialogueBox(); //dialogue box testing
+            // Run a 3-second timer
+        };
+    }
     heartbox(heartCount) {
         /* Creates A HeartBox UI Object */
-        this.HEART_BOX = []; // Reset or initialize the heartbox array
-        for (let i = 0; i < heartCount; i++) {
-            // Position each heartbox horizontally spaced by 50px, starting at x = 50
-            const position = vec2(50 + i * 50, 30);
-            // Create a new heartbox UI tile and add it to the HEART_BOX array
-            const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0));
-            //this.HEART_BOX.push(heartTile);
+        // To DO:
+        // (1) Create into a Separate Object extending UIObject class
+        // (2) Add Animations
+        // (3) Update Logic for heartbox algorithm
+        //this.HEART_BOX = []; // Reset or initialize the heartbox array
+        if (this.HEART_BOX.length != heartCount) {
+            console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
+            for (let i = 0; i < heartCount; i++) {
+                // Position each heartbox horizontally spaced by 50px, starting at x = 50
+                const position = vec2(50 + i * 50, 30); // should adjust width using heart count parameter
+                // Create a new heartbox UI tile and add it to the HEART_BOX array
+                //const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // draws UI tile using function
+                const heartTile = new UITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // uses UI tile function to draw hearbox
+                this.HEART_BOX.push(heartTile);
+            }
+            console.log("FinishedDrawing Heartbox", this.HEART_BOX.length, "/", heartCount);
         }
     }
     ingameMenu() {
@@ -1216,61 +1612,71 @@ class UI extends UIObject {
         console.log("Creating Ingame Menu");
         // Create Ingame Menu
         // 
-
-        const newGame = new UIButton(vec2(0, 0), vec2(50, 50), 'New Game');
-        const contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-        const Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics');
-        const Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls');
-        const Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
-        // parent button objects        
-        this.UI_MENU.addChild(newGame);
-        this.UI_MENU.addChild(contGame);
-        this.UI_MENU.addChild(Comics);
-        this.UI_MENU.addChild(Controls);
-        this.UI_MENU.addChild(Quit);
-        this.MenuVisible = true; // make menu visible
-        // button signals
-        newGame.onPress = () => {
-            console.log('New Game Pressed');
-            window.music.sound_start.play();
-            //this.UI_MENU.visible = false;
-            // turn menu invisible
-            this.UI_MENU.visible = false;
-            // apply gravity to 3d model to trigger game start
-            const anim = new Simulation();
-        };
-        contGame.onPress = () => {
-            console.log('Continue Pressed');
-            window.music.sound_start.play();
-        };
-        Comics.onPress = () => {
-            // open comics website in new tab
-            console.log('Comics Pressed');
-            //this.sound_ui.play();
-            window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
-        };
-        Controls.onPress = () => {
-            console.log('Controls Pressed');
-            window.music.sound_start.play();
-        };
-        Quit.onPress = () => {
-            // (1) delete player
-            // (2) show 3d layer
-            console.log('Quit Pressed');
-            window.music.sound_start.play();
-            window.THREE_RENDER.showThreeLayer();
-        };
+        if (!this.newGame) { // checker to create menu only once
+            //const newGame = new UIButton(vec2(0, 20), vec2(250, 50), 'sdfasdf');
+            this.newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
+            this.contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
+            this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics'); // rename to wallet connect?
+            this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls'); //map music controls & other settings to ui
+            this.Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+            // parent button objects        
+            this.UI_MENU.addChild(this.newGame);
+            this.UI_MENU.addChild(this.contGame);
+            this.UI_MENU.addChild(this.Comics);
+            this.UI_MENU.addChild(this.Controls);
+            this.UI_MENU.addChild(this.Quit);
+            this.MenuVisible = false; // make menu invisible temporarily until mouse input is registered from input singleton
+            // button signals
+            this.newGame.onPress = () => {
+                if (this.visible) {
+                    console.log('New Game Pressed');
+                    window.music.sound_start.play();
+                    // apply gravity to 3d model to trigger game start
+                    const anim = new Simulation();
+                }
+            };
+            this.contGame.onPress = () => {
+                if (this.visible) {
+                    console.log('Continue Pressed');
+                    window.music.sound_start.play();
+                }
+            };
+            this.Comics.onPress = () => {
+                if (this.visible) {
+                    // open comics website in new tab
+                    console.log('Comics Pressed');
+                    //this.sound_ui.play();
+                    // TO DO:
+                    // redraw comics chapters with gif animation & boondocks anime style
+                    window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
+                }
+            };
+            this.Controls.onPress = () => {
+                console.log('Controls Pressed');
+                window.music.sound_start.play();
+            };
+            this.Quit.onPress = () => {
+                // (1) delete player
+                // (2) show 3d layer
+                console.log('Quit Pressed');
+                window.music.sound_start.play();
+                window.THREE_RENDER.showThreeLayer();
+            };
+            // Wallet Connection
+        }
     }
 }
 class OverWorld extends GameObject {
-    /*
-        The Overworld Scene + Objects as children
-    */
     constructor() {
         super();
         // create temple object from tempple object layer png's using draw tile method
-        const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
-        console.log("Creating Temple sprite: ", TEMPLE);
+        //const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
+        console.log("Creating Overworld Scene ");
+        // Overworld Render
+        // triggers srart of game loop from simulation singleton
+        this.TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
+        this.TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        this.TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
     }
 }
 /* LittleJS Main Loop*/
@@ -1281,15 +1687,18 @@ function gameInit() {
     // set touchpad visible
     touchGamepadEnable;
     // UI Setup
-    // UI setup is buggy 
     window.ui = new UI();
-    //create ingame menu
+    // Create & hide Ingame Menu
     window.ui.ingameMenu();
+    window.ui.gameHUD();
+    //testing Dialogue box / Stats UI
+    //window.ui.dialogueBox();
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
     /* Create 3D Scenes And Objects*/
     window.THREE_RENDER = new ThreeRender();
     /* Create Global Singletons & Run System Tests */
+    window.input = new Inputs(); //Global Input Class extends gameObject
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -1300,7 +1709,6 @@ function gameInit() {
     window.music.play_track(); //works, disabled to save bandwidth
     //make global
     //window.music = music;
-    window.input = new Inputs(); //Global Input Class extends gameObject
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
     window.inventory.set("apple", 5);
@@ -1328,7 +1736,6 @@ function gameInit() {
     // convert dystopia logo to a font file
     //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
     //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
-
 }
 function gameUpdate() {
     // called every frame at 60 frames per second
@@ -1348,14 +1755,14 @@ function gameRender() {
     // triggers the LittleJS renderer
     // called before objects are rendered
     // draw any background effects that appear behind objects
+    // handles what gets rendered and what doesn't get rendered
     //const y = new glContext;
     //drawRect(cameraPos, vec2(100), new Color(.5, .5, .5)); // draw background
+    // triggers srart of game loop from simulation singleton
     //The third tile parameter constrols which tile object to draw
     //draw tile allows for better object scalling
     if (window.globals.GAME_START) {
-        //turn menu invisible
-        window.ui.MenuVisible = false;
-        // triggers srart of game loop from simulation singleton
+        // draw overworld tiles
         const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
         const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
         const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
@@ -1377,35 +1784,9 @@ function gameRenderPost() {
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
-    // docs: https://killedbyapixel.github.io/LittleJS/docs/Draw.html#.drawTile
-    // docs 2 : https://github.com/KilledByAPixel/LittleJS/blob/e967368c21147235ad8d216243fea32b834bed58/FAQ.md#L9
-    //
-    // To DO: 
-    // (1) Draw hud to overlay canvas/ offset it from the camera in world space, or use screen coords
-    /**
-        const heart1 = drawTile(
-            vec2(5, 5),
-            vec2(1),
-            tile(-5, 32, 0, 0.2),
-            RED,
-            0,
-            false
-    
-        ); // draws a heartbox 32x32 sprite
-        const heart2 = drawTile(vec2(4, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-        const heart3 = drawTile(vec2(3, 5), vec2(1), tile(-5, 32, 0, 0.2)); // draws a heartbox 32x32 sprite
-    
-        const heartbox = [heart1, heart2, heart3];
-    
-        */
-    //const heart4 = drawUITile(vec2(100, 100), vec2(50, 50), tile(0, 32, 0, 0));
-    //draw heartbox ui
-    window.ui.heartbox(window.globals.health);
-
-    const dgas = new UIText("sdfsdfsdf", vec2(50, 150), vec2(50));
-
+    //window.ui.dialogueBox(); // create dialog box
 }
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png"]);
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png"]);

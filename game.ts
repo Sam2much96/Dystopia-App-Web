@@ -859,7 +859,6 @@ class Inputs extends GameObject {
             this.input_buffer.length = 0; // Clears the array
         }
 
-        //this.pos.scale(timeDelta);//hmm
     }
 
     attack() {
@@ -950,8 +949,6 @@ class Player extends GameObject {
     (1) Base Class for all plyer types, 3d, platformer, and top down
 
 
-    You can use the isOverlapping function to check the object against the camera. For culling you maybe want to enlarge th…
-    if (!isOverlapping(this.pos, this.size, cameraPos, renderWindowSize)) 
     */
 
     // Constants
@@ -962,17 +959,13 @@ class Player extends GameObject {
     private pushback: number = 5000;
 
     // Properties
-    private input: any; // Update this type if there's a defined Input class
-    //public pos: Vector2;
-    //public size: Vector2;
+    private input: Inputs;
     private hitpoints: number;
     private linear_vel = LittleJS.vec2(0, 0);
     private roll_direction = LittleJS.vec2(0, 1);
     private StateBuffer: any[] = [];
     private item_equip: string = ""; // Unused Item Equip Variant
 
-    // Signals
-    //private health_signal: Signal;
 
     // State Machines
     private state_machine: Map<string, number>;
@@ -1008,7 +1001,6 @@ class Player extends GameObject {
         // store player object in global array
         window.globals.players.push(this);
 
-        //this.color = randColor();//RED; // make random colour
 
         // Player Logic Variables 
         this.WALK_SPEED = 500; // pixels per second 
@@ -1023,9 +1015,6 @@ class Player extends GameObject {
         this.StateBuffer = [];
         this.item_equip = ""; //Unused Item Equip Variant
 
-        // player signal class
-        // signal class implementation is buggy
-        //this.health_signal = //new Signal();
 
         // player GUI
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
@@ -1050,13 +1039,6 @@ class Player extends GameObject {
         // Connect Heart box signals
         // check if signal is connected
         // temporarily debugging signal implementation
-        //if (!this.local_heart_box) {
-
-        // connect health changed method to global class signal
-        //this.health_signal.connect(health_changed);
-        //this.health_signal.connect(healthDebug);
-
-        //}
 
         // Set initial player health
         health_changed(this.hitpoints);
@@ -1109,7 +1091,6 @@ class Player extends GameObject {
         // use tileInfo frame function to play animations
         this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
 
-        //this.color = new Color(1, 0, 0, 0); // transparent white
     }
 
 
@@ -1211,7 +1192,7 @@ class Enemy extends GameObject {
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
 
-        //this.color = RED; // make red colour
+
 
         this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
 
@@ -1832,8 +1813,8 @@ class UITile extends UIObject {
     public color;
     public angle;
     public mirror;
-    public pos: LittleJS.Vector2;//= vec2();
-    public size: LittleJS.Vector2;//= vec2();
+    public pos: LittleJS.Vector2;
+    public size: LittleJS.Vector2;
 
     constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = LittleJS.WHITE, angle = 0, mirror = false) {
         super(pos, size);
@@ -1856,8 +1837,7 @@ class UITile extends UIObject {
 ///////////////////////////////////////////////////////////////////////////////
 
 class UIButton extends UIObject {
-    pos: LittleJS.Vector2; //= vec2();
-    //public size: Vector2 = vec2();
+    pos: LittleJS.Vector2;
     public text: string;
     public font: any;
     public color;
@@ -1974,12 +1954,9 @@ class UIScrollbar extends UIObject {
 //////////////////////////////////////////////////////////////////////////////////////
 
 class UITextureButton extends UIObject {
-    // Untested
-    // TO DO : Add button and tile render properties to this class
+
     public tileInfo: LittleJS.TileInfo;
-    pos: LittleJS.Vector2; //= vec2();
-    //public size: Vector2 = vec2();
-    //public text: string;
+    pos: LittleJS.Vector2;
     public font: any;
     public color;
 
@@ -2008,12 +1985,8 @@ class UITextureButton extends UIObject {
             const color = this.mouseIsOver ? this.hoverColor : this.color; //unimplemented hover function
 
 
-            //drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
-            //const textSize = vec2(this.size.x, this.size.y * .8);
-
             drawUITile(this.pos, this.size, this.tileInfo, color, this.angle, this.mirror);
-            //drawUIText(this.text, this.pos, textSize,
-            //    this.textColor, 0, undefined, this.align, this.font);
+
         }
     }
 }
@@ -2035,7 +2008,7 @@ class UI extends UIObject {
         -inventory ui (1/3)
         -quest ui
         -mini-map ui
-    (4) Dialogs Box
+    (4) Dialogs Box (1/3)
         -map dialogue text to dialog box boundaries
         
     (5) Heartbox (1/2)
@@ -2080,11 +2053,6 @@ class UI extends UIObject {
 
         super(vec2(), vec2());
 
-        //initialise the UI Plugin system
-        //LittleJS.initUISystem();
-
-
-
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
@@ -2114,20 +2082,6 @@ class UI extends UIObject {
 
         // example horizontal scrollbar
         //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
-
-        //this.UI_MENU.addChild(scrollbar);
-        //can be used for title screen/ stroy intro
-
-
-
-        //hide game menu temporarily
-        //trigger it with button click if there's no player instance
-        //this.UI_MENU.visible = true;
-
-        // example background
-        //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
-
-        //this.UI_MENU.addChild(uiBackground);
 
 
     }
@@ -2212,9 +2166,6 @@ class UI extends UIObject {
         this.SHOW_DIALOGUE = true;
 
         // dialogue box and text are renderered in the update function
-
-
-
         this.DIALOG_BOX!.visible = true;
 
 
@@ -2248,7 +2199,7 @@ class UI extends UIObject {
         const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
 
         // fetch all inventory items
-        console.log("key I was pressed: ", window.inventory.getAllItems());
+        console.log("Inventory Items", window.inventory.getAllItems());
         j.onPress = () => {
 
             //button action
@@ -2276,7 +2227,7 @@ class UI extends UIObject {
         // connect signals here
         this.menuButton.onPress = () => {
             // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
-            //if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
+            //
 
             var menuVisible2 = this.MenuVisible;
             console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
@@ -2304,18 +2255,6 @@ class UI extends UIObject {
 
             }
 
-            // show/hide menu
-            // press enter to start game
-            //if (LittleJS.keyWasPressed('Enter') && window.ui) {
-            //    var menuVisible = window.ui.MenuVisible;
-            //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-
-            //    console.log('New Game Started');
-            //    window.music.sound_start.play();
-
-
-
-
         }
 
         // Dialogue Button
@@ -2331,7 +2270,7 @@ class UI extends UIObject {
             console.log(" Dialog toggle: ", diagVisible);
             this.dialogueBox(); //dialogue box testing
 
-            // Run a 3-second timer
+
 
 
         }
@@ -2344,17 +2283,16 @@ class UI extends UIObject {
         // (1) Create into a Separate Object extending UIObject class
         // (2) Add Animations
         // (3) Update Logic for heartbox algorithm
-        //this.HEART_BOX = []; // Reset or initialize the heartbox array
-
+        //
         if (this.HEART_BOX.length != heartCount) {
             console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
             for (let i = 0; i < heartCount; i++) {
+
                 // Position each heartbox horizontally spaced by 50px, starting at x = 50
-                const position = vec2(50 + i * 50, 30); // should adjust width using heart count parameter
+                // should adjust width using heart count parameter
+                const position = vec2(50 + i * 50, 30);
 
                 // Create a new heartbox UI tile and add it to the HEART_BOX array
-                //const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // draws UI tile using function
-
                 const heartTile = new UITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // uses UI tile function to draw hearbox
                 this.HEART_BOX.push(heartTile!);
             }
@@ -2446,6 +2384,7 @@ class UI extends UIObject {
 
 class OverWorld extends GameObject {
     /*
+        Unused 
         The Overworld Scene + Objects as children
     */
     TEMPLE_EXTERIOR: any;
@@ -2523,8 +2462,6 @@ function gameInit() {
     window.ui.ingameMenu();
     window.ui.gameHUD();
 
-    //testing Dialogue box / Stats UI
-    //window.ui.dialogueBox();
 
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
@@ -2533,9 +2470,8 @@ function gameInit() {
     window.THREE_RENDER = new ThreeRender();
 
 
-    /* Create Global Singletons & Run System Tests */
-
-    window.input = new Inputs(); //Global Input Class extends gameObject
+    /* Create Global Singletons*/
+    window.input = new Inputs();
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -2547,10 +2483,6 @@ function gameInit() {
     // Play Randomised Playlist With howler JS
     window.music.play_track(); //works, disabled to save bandwidth
 
-    //make global
-    //window.music = music;
-
-
 
 
     // Add  Inventory Items
@@ -2559,19 +2491,7 @@ function gameInit() {
     window.inventory.set("banana", 3);
 
 
-    //const TwoDCanvas = document.getElementById('littlejs-2d-layer')
-
-
-    //Debug music fx
-    //works
-
-
-    //console.log("Music Debug 2: ", window.music.zelda_powerup);
-    //console.log("Music Debug 2: ", window.music.current_track);
-
     //Initialise 3d scene render
-    // (1) Create 2 Cubes
-
     // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
     window.THREE_RENDER.LoadModel();
     //window.THREE_RENDER.Cube();
@@ -2621,16 +2541,9 @@ function gameRender() {
     // called before objects are rendered
     // draw any background effects that appear behind objects
     // handles what gets rendered and what doesn't get rendered
-    //const y = new glContext;
-
-    //drawRect(cameraPos, vec2(100), new Color(.5, .5, .5)); // draw background
-
-
-
     // triggers srart of game loop from simulation singleton
-
-    //The third tile parameter constrols which tile object to draw
-    //draw tile allows for better object scalling
+    // The third tile parameter constrols which tile object to draw
+    // draw tile allows for better object scalling
     if (window.globals.GAME_START) {
 
         // draw overworld tiles
@@ -2645,7 +2558,6 @@ function gameRender() {
         if (!window.player) {
             window.player = new Player();
 
-            //const overworld_ = new OverWorld();
         }
 
         //Spawn Enemy Object
@@ -2667,10 +2579,6 @@ function gameRenderPost() {
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
 
-
-
-
-    //window.ui.dialogueBox(); // create dialog box
 }
 
 
