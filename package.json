@@ -22,6 +22,8 @@
     "vite-plugin-cdn-import": "^1.0.1"
   },
   "dependencies": {
+    "@perawallet/connect": "^1.4.1",
+    "buffer": "^6.0.3",
     "howler": "^2.2.4",
     "littlejsengine": "^1.11.2",
     "three": "^0.172.0"

@@ -11,6 +11,12 @@ export default defineConfig({
         port: 3000 // or any desired port
     },
     resolve: {
-        extensions: ['.ts', '.js'] // Ensure .ts files are resolved
+        extensions: ['.ts', '.js'], // Ensure .ts files are resolved
+        alias: {
+            buffer: 'buffer', // 👈 Ensures buffer works in the browser
+        }
+    },
+    define: {
+        global: 'window' // 👈 Fixes the "global is not defined" error
     },
 });

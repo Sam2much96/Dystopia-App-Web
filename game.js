@@ -16,6 +16,7 @@ import * as LittleJS from 'littlejsengine';
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
+import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 'use strict';
 // import module
 // show the LittleJS splash screen
@@ -108,6 +109,44 @@ class Music {
         if (!this.ENABLE) {
             return 1;
         }
+    }
+}
+/**
+
+const network: Map<string, number> = new Map([
+    ["MainNet", 416001],
+    ["TestNet", 416002],
+    ["BetaNet", 416003],
+    ["All Networks", 4160]
+]);
+
+interface PeraWalletConnectOptions {
+    shouldShowSignTxnToast?: boolean;
+    chainId?: 4160;
+}
+ */
+class Wallet {
+    /*
+     * Implements all Wallet functionality in one class
+     *
+     * Features:
+     * (1) Wallet Connect Pera
+     *
+     * To Do:
+     * (1) Wallet Connect Defly
+     *
+     */
+    //public network: Map<string, number>;
+    constructor() {
+        console.log("Testing Wallet Integration");
+        // initialise wallet connect and save player address
+        const peraWallet = new PeraWalletConnect({
+            shouldShowSignTxnToast: true,
+        });
+        //log the connected wallet address
+        alert("Wallet Address: " + peraWallet);
+        //use algokit sdk to construct transactions
+        // fetch the assets held my this address
     }
 }
 /*
@@ -612,15 +651,14 @@ class Inputs extends GameObject {
         if (this.input_buffer.length > 12) {
             this.input_buffer.length = 0; // Clears the array
         }
-        //this.pos.scale(timeDelta);//hmm
     }
     attack() {
-        var _a;
+        var _e;
         // Attack State
         // for debug purposes only
         console.log(" Attack Pressed");
         //update input buffer
-        this.input_buffer.push((_a = this.input_state.get("ATTACK")) !== null && _a !== void 0 ? _a : 4);
+        this.input_buffer.push((_e = this.input_state.get("ATTACK")) !== null && _e !== void 0 ? _e : 4);
         // update current state
         this.state = this.input_state.get("ATTACK");
     }
@@ -630,9 +668,9 @@ class Inputs extends GameObject {
     }
     up() {
         //console.log("key W as pressed! ");
-        var _a;
+        var _e;
         // update input buffer
-        this.input_buffer.push((_a = this.input_state.get("UP")) !== null && _a !== void 0 ? _a : 0);
+        this.input_buffer.push((_e = this.input_state.get("UP")) !== null && _e !== void 0 ? _e : 0);
         // update current state
         this.state = this.input_state.get("UP");
         // move up
@@ -641,9 +679,9 @@ class Inputs extends GameObject {
     }
     down() {
         //console.log("key S as pressed! ");
-        var _a;
+        var _e;
         // update input buffer
-        this.input_buffer.push((_a = this.input_state.get("DOWN")) !== null && _a !== void 0 ? _a : 1);
+        this.input_buffer.push((_e = this.input_state.get("DOWN")) !== null && _e !== void 0 ? _e : 1);
         // update current state
         this.state = this.input_state.get("DOWN");
         // move down
@@ -652,9 +690,9 @@ class Inputs extends GameObject {
     right() {
         //move right
         //console.log("key D as pressed! ");
-        var _a;
+        var _e;
         //update input buffer
-        this.input_buffer.push((_a = this.input_state.get("RIGHT")) !== null && _a !== void 0 ? _a : 3);
+        this.input_buffer.push((_e = this.input_state.get("RIGHT")) !== null && _e !== void 0 ? _e : 3);
         // update current state
         this.state = this.input_state.get("RIGHT");
         // move right
@@ -663,9 +701,9 @@ class Inputs extends GameObject {
     left() {
         // move left
         //console.log("key A as pressed! ");
-        var _a;
+        var _e;
         //update input buffer
-        this.input_buffer.push((_a = this.input_state.get("LEFT")) !== null && _a !== void 0 ? _a : 2);
+        this.input_buffer.push((_e = this.input_state.get("LEFT")) !== null && _e !== void 0 ? _e : 2);
         // update current state
         this.state = this.input_state.get("LEFT");
         // move left
@@ -682,8 +720,6 @@ class Player extends GameObject {
         (1) Base Class for all plyer types, 3d, platformer, and top down
     
     
-        You can use the isOverlapping function to check the object against the camera. For culling you maybe want to enlarge th…
-        if (!isOverlapping(this.pos, this.size, cameraPos, renderWindowSize))
         */
         // Constants
         this.WALK_SPEED = 500; // pixels per second
@@ -709,7 +745,6 @@ class Player extends GameObject {
         // create a pointer to the Particle fx class
         // store player object in global array
         window.globals.players.push(this);
-        //this.color = randColor();//RED; // make random colour
         // Player Logic Variables 
         this.WALK_SPEED = 500; // pixels per second 
         this.ROLL_SPEED = 1000; // pixels per second
@@ -721,9 +756,6 @@ class Player extends GameObject {
         this.roll_direction = LittleJS.vec2(0, 1); //Vector2.DOWN
         this.StateBuffer = [];
         this.item_equip = ""; //Unused Item Equip Variant
-        // player signal class
-        // signal class implementation is buggy
-        //this.health_signal = //new Signal();
         // player GUI
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
         function health_changed(new_hp) {
@@ -742,11 +774,6 @@ class Player extends GameObject {
         // Connect Heart box signals
         // check if signal is connected
         // temporarily debugging signal implementation
-        //if (!this.local_heart_box) {
-        // connect health changed method to global class signal
-        //this.health_signal.connect(health_changed);
-        //this.health_signal.connect(healthDebug);
-        //}
         // Set initial player health
         health_changed(this.hitpoints);
         // player state machine
@@ -788,7 +815,6 @@ class Player extends GameObject {
         // player sprite
         // use tileInfo frame function to play animations
         this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
-        //this.color = new Color(1, 0, 0, 0); // transparent white
     }
     hurt() {
         //use a timer to flash the player object colour from orig  -> white -> orig
@@ -842,7 +868,6 @@ class Enemy extends GameObject {
         super();
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
-        //this.color = RED; // make red colour
         this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
         // set enemy position from the initialisation script
         //this.pos = pos.copy();
@@ -1263,6 +1288,7 @@ class UIText extends UIObject {
     }
     render() {
         if (this.visible) {
+            //console.log("Drawing UI Text debug");
             drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
         }
     }
@@ -1381,11 +1407,7 @@ class UITextureButton extends UIObject {
         if (this.visible == true) {
             const lineColor = this.mouseIsHeld ? this.color : this.lineColor; // unimplemented hover function
             const color = this.mouseIsOver ? this.hoverColor : this.color; //unimplemented hover function
-            //drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
-            //const textSize = vec2(this.size.x, this.size.y * .8);
             drawUITile(this.pos, this.size, this.tileInfo, color, this.angle, this.mirror);
-            //drawUIText(this.text, this.pos, textSize,
-            //    this.textColor, 0, undefined, this.align, this.font);
         }
     }
 }
@@ -1407,13 +1429,12 @@ class UI extends UIObject {
         this.dialogButton = null;
         this.comicsButton = null;
         this.menuButton = null;
+        this.walletButton = null;
         this.DEFAULT_SIZE = vec2();
         this.DEFAULT_POS = vec2();
         // TImer Nodes
         this.timer = new Timer();
         this.SHOW_DIALOGUE = false;
-        //initialise the UI Plugin system
-        //LittleJS.initUISystem();
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
         this.UI_ROOT = new UIObject(vec2(), vec2());
@@ -1432,14 +1453,6 @@ class UI extends UIObject {
         this.UI_ROOT.pos.x = LittleJS.mainCanvasSize.x / 2;
         // example horizontal scrollbar
         //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
-        //this.UI_MENU.addChild(scrollbar);
-        //can be used for title screen/ stroy intro
-        //hide game menu temporarily
-        //trigger it with button click if there's no player instance
-        //this.UI_MENU.visible = true;
-        // example background
-        //const uiBackground = new UIObject(vec2(0, 0), vec2(450, 580));
-        //this.UI_MENU.addChild(uiBackground);
     }
     //external methods to toggle UI states as setter & getter functions
     get MenuVisible() {
@@ -1480,6 +1493,7 @@ class UI extends UIObject {
             this.DIALOG_BOX.visible = false;
             this.SHOW_DIALOGUE = false;
         }
+        // Draws Dialogue Box to screen
         //dialogue box timeout
         if (!this.timer.elapsed() && this.timer.get() != 0 && this.SHOW_DIALOGUE == true) {
             //console.log(" Recursively draw rect");
@@ -1526,7 +1540,7 @@ class UI extends UIObject {
         //UI text is buggy
         const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
         // fetch all inventory items
-        console.log("key I was pressed: ", window.inventory.getAllItems());
+        console.log("Inventory Items", window.inventory.getAllItems());
         j.onPress = () => {
             //button action
             console.log("stats button pressed, Use Inventory item");
@@ -1544,13 +1558,14 @@ class UI extends UIObject {
         this.heartbox(3); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
         this.statsButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 30), vec2(50)); //works
+        this.walletButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 130), vec2(50));
         this.dialogButton = new UITextureButton(tile(0, 64, 7, 0), vec2(950, 80), vec2(50)); //works
         this.menuButton = new UITextureButton(tile(vec2(0, 0), 64, 6, 0), vec2(80, 80), vec2(50));
         // Game HUD Signals
         // connect signals here
         this.menuButton.onPress = () => {
             // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
-            //if (window.ui && LittleJS.mouseWasPressed(0) && !window.globals.GAME_START && !(window.player)) { // &&
+            //
             var menuVisible2 = this.MenuVisible;
             console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
             // turn menu on/off
@@ -1568,13 +1583,6 @@ class UI extends UIObject {
                 // (1) Inventory UI
                 this.stats(); // Trigger the Stats UI
             }
-            // show/hide menu
-            // press enter to start game
-            //if (LittleJS.keyWasPressed('Enter') && window.ui) {
-            //    var menuVisible = window.ui.MenuVisible;
-            //    console.log("Escape was Pressed, Menu toggle: ", menuVisible);
-            //    console.log('New Game Started');
-            //    window.music.sound_start.play();
         };
         // Dialogue Button
         this.dialogButton.onPress = () => {
@@ -1584,7 +1592,12 @@ class UI extends UIObject {
             var diagVisible = this.DialogVisible;
             console.log(" Dialog toggle: ", diagVisible);
             this.dialogueBox(); //dialogue box testing
-            // Run a 3-second timer
+        };
+        //Wallet Button
+        this.walletButton.onPress = () => {
+            //sfx
+            window.music.sound_start.play();
+            const y = new Wallet(); // create wallet connect txn
         };
     }
     heartbox(heartCount) {
@@ -1593,14 +1606,14 @@ class UI extends UIObject {
         // (1) Create into a Separate Object extending UIObject class
         // (2) Add Animations
         // (3) Update Logic for heartbox algorithm
-        //this.HEART_BOX = []; // Reset or initialize the heartbox array
+        //
         if (this.HEART_BOX.length != heartCount) {
             console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
             for (let i = 0; i < heartCount; i++) {
                 // Position each heartbox horizontally spaced by 50px, starting at x = 50
-                const position = vec2(50 + i * 50, 30); // should adjust width using heart count parameter
+                // should adjust width using heart count parameter
+                const position = vec2(50 + i * 50, 30);
                 // Create a new heartbox UI tile and add it to the HEART_BOX array
-                //const heartTile = drawUITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // draws UI tile using function
                 const heartTile = new UITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // uses UI tile function to draw hearbox
                 this.HEART_BOX.push(heartTile);
             }
@@ -1691,14 +1704,12 @@ function gameInit() {
     // Create & hide Ingame Menu
     window.ui.ingameMenu();
     window.ui.gameHUD();
-    //testing Dialogue box / Stats UI
-    //window.ui.dialogueBox();
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
     /* Create 3D Scenes And Objects*/
     window.THREE_RENDER = new ThreeRender();
-    /* Create Global Singletons & Run System Tests */
-    window.input = new Inputs(); //Global Input Class extends gameObject
+    /* Create Global Singletons*/
+    window.input = new Inputs();
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -1707,19 +1718,11 @@ function gameInit() {
     window.utils.detectBrowser();
     // Play Randomised Playlist With howler JS
     window.music.play_track(); //works, disabled to save bandwidth
-    //make global
-    //window.music = music;
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
     window.inventory.set("apple", 5);
     window.inventory.set("banana", 3);
-    //const TwoDCanvas = document.getElementById('littlejs-2d-layer')
-    //Debug music fx
-    //works
-    //console.log("Music Debug 2: ", window.music.zelda_powerup);
-    //console.log("Music Debug 2: ", window.music.current_track);
     //Initialise 3d scene render
-    // (1) Create 2 Cubes
     // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
     window.THREE_RENDER.LoadModel();
     //window.THREE_RENDER.Cube();
@@ -1756,11 +1759,9 @@ function gameRender() {
     // called before objects are rendered
     // draw any background effects that appear behind objects
     // handles what gets rendered and what doesn't get rendered
-    //const y = new glContext;
-    //drawRect(cameraPos, vec2(100), new Color(.5, .5, .5)); // draw background
     // triggers srart of game loop from simulation singleton
-    //The third tile parameter constrols which tile object to draw
-    //draw tile allows for better object scalling
+    // The third tile parameter constrols which tile object to draw
+    // draw tile allows for better object scalling
     if (window.globals.GAME_START) {
         // draw overworld tiles
         const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
@@ -1769,7 +1770,6 @@ function gameRender() {
         //create global player object
         if (!window.player) {
             window.player = new Player();
-            //const overworld_ = new OverWorld();
         }
         //Spawn Enemy Object
         if (!window.enemyspawner) {
@@ -1784,7 +1784,6 @@ function gameRenderPost() {
     // called after objects are rendered
     // draw effects or hud that appear above all objects
     // draw to overlay canvas for hud rendering
-    //window.ui.dialogueBox(); // create dialog box
 }
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays

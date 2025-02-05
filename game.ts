@@ -26,6 +26,9 @@ const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, E
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
+import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
+
+
 'use strict';
 
 
@@ -194,19 +197,91 @@ class Music {
 
 
 }
+/**
+
+
+interface PeraWalletConnectOptions {
+    shouldShowSignTxnToast?: boolean;
+    chainId?: 4160;
+}
+ */
+
+class Wallet {
+    /*
+     * Implements all Wallet functionality in one class
+     *
+     * Features:
+     * (1) Wallet Connect Pera
+     * 
+     * To Do:
+     * (1) Wallet Connect Defly
+     * 
+     */
+    public network: Map<string, number> = new Map([
+        ["MainNet", 416001],
+        ["TestNet", 416002],
+        ["BetaNet", 416003],
+        ["All Networks", 4160]
+    ]);
+
+    public peraWallet: any | null = null;
+
+    constructor() {
+
+        console.log("Testing Wallet Integration");
+
+        // initialise wallet connect and save player address
+        this.peraWallet = new PeraWalletConnect({
+            chainId: 4160, // All Net
+            shouldShowSignTxnToast: true,
+        });
+
+        //testing 
+        const connectToPeraWallet = async () => {
+            try {
+                const accounts = await this.peraWallet.connect();
+                this.peraWallet.connector?.on('disconnect', handleDisconnectWallet);
+                const accountAddress = accounts[0];
+                console.log(accountAddress);
+                // Use the accountAddress as needed
+            } catch (error) {
+                //if (error?.data?.type !== 'CONNECT_MODAL_CLOSED') {
+                console.error('Error connecting to Pera Wallet:', error);
+            }
+        };
+
+        connectToPeraWallet();
+    }
+
+    //use algokit sdk to construct transactions
+
+    // fetch the assets held my this address
+
+
+    //function handleDisconnectWallet() {
+    //    this.peraWallet.disconnect();
+    // Clear any stored account information as needed
+    //}
 
 
 
-/*
-Inventory Singleton
+}
 
 
-Functions
-(1) Handles All Player Inventory
-(2) 
 
-*/
+
 class Inventory {
+
+    /*
+    Inventory Singleton
+    
+    
+    Functions
+    (1) Handles All Player Inventory
+    (2) 
+    
+    */
+
     private items: Record<string, number>; // Dictionary to store inventory items
 
     constructor() {
@@ -1801,7 +1876,7 @@ class UIText extends UIObject {
     }
     render() {
         if (this.visible) {
-            console.log("Drawing UI Text debug");
+            //console.log("Drawing UI Text debug");
             drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
         }
     }
@@ -2042,6 +2117,7 @@ class UI extends UIObject {
     dialogButton: UITextureButton | null = null;
     comicsButton: UITextureButton | null = null;
     menuButton: UITextureButton | null = null;
+    walletButton: UITextureButton | null = null;
 
 
     DEFAULT_SIZE: LittleJS.Vector2 = vec2();
@@ -2222,6 +2298,7 @@ class UI extends UIObject {
         this.heartbox(3); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
         this.statsButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 30), vec2(50)); //works
+        this.walletButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 130), vec2(50));
         this.dialogButton = new UITextureButton(tile(0, 64, 7, 0), vec2(950, 80), vec2(50)); //works
         this.menuButton = new UITextureButton(tile(vec2(0, 0), 64, 6, 0), vec2(80, 80), vec2(50));
 
@@ -2274,6 +2351,16 @@ class UI extends UIObject {
 
 
 
+
+        }
+
+        //Wallet Button
+        this.walletButton.onPress = () => {
+
+            //sfx
+            window.music.sound_start.play();
+
+            const y = new Wallet(); // create wallet connect txn
 
         }
 
@@ -2590,4 +2677,8 @@ function gameRenderPost() {
 // i can also convert tile data to json from tiled editor and parse that instead
 LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png"]);
 
+
+function handleDisconnectWallet(error: Error | null, payload: any): void {
+    throw new Error('Function not implemented.');
+}
 
