@@ -215,7 +215,8 @@ class Wallet {
      * 
      * To Do:
      * (1) Wallet Connect Defly
-     * 
+     * (2) Create Wallet on game start & only trigger connect with button press 
+     * (3) Implement Algod Client & Smart Contract Factory
      */
     public network: Map<string, number> = new Map([
         ["MainNet", 416001],
@@ -236,11 +237,12 @@ class Wallet {
             shouldShowSignTxnToast: true,
         });
 
-        //testing 
+
+        //works
         const connectToPeraWallet = async () => {
             try {
                 const accounts = await this.peraWallet.connect();
-                this.peraWallet.connector?.on('disconnect', handleDisconnectWallet);
+                this.peraWallet.connector?.on('disconnect', this.handleDisconnectWallet);
                 const accountAddress = accounts[0];
                 console.log(accountAddress);
                 // Use the accountAddress as needed
@@ -253,16 +255,23 @@ class Wallet {
         connectToPeraWallet();
     }
 
+
+    handleDisconnectWallet(error: Error | null, payload: any): void {
+        this.peraWallet.disconnect();
+        throw new Error('Function not implemented.');
+    }
     //use algokit sdk to construct transactions
 
     // fetch the assets held my this address
 
+    async signTransaction() {
 
-    //function handleDisconnectWallet() {
-    //    this.peraWallet.disconnect();
-    // Clear any stored account information as needed
-    //}
+        let txn = {}; //placeholder transaction
+        const signedTxn = await this.peraWallet.signTransaction([[{ txn }]]);
 
+        //const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
+        //console.log('Transaction sent with ID:', txId);
+    }
 
 
 }
@@ -2678,7 +2687,4 @@ function gameRenderPost() {
 LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png"]);
 
 
-function handleDisconnectWallet(error: Error | null, payload: any): void {
-    throw new Error('Function not implemented.');
-}
 
