@@ -1801,6 +1801,7 @@ class UIText extends UIObject {
     }
     render() {
         if (this.visible) {
+            console.log("Drawing UI Text debug");
             drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
         }
     }
@@ -2138,6 +2139,7 @@ class UI extends UIObject {
             this.SHOW_DIALOGUE = false;
         }
 
+        // Draws Dialogue Box to screen
         //dialogue box timeout
         if (!this.timer.elapsed() && this.timer.get() != 0 && this.SHOW_DIALOGUE == true) {
             //console.log(" Recursively draw rect");
