@@ -28,7 +28,12 @@ import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
 import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
-import * as algosdk from "algosdk"; // AlgoSDK
+//import * as algosdk from "algosdk"; // AlgoSDK
+
+import * as tiled from "@kayahr/tiled";
+import overMap from "./overworld.json";
+//
+// import {overworld} from "./overworld.js"; //level data from tiled editor
 
 'use strict';
 
@@ -245,8 +250,8 @@ class Wallet {
     public accountInfo: any | null = null;
     public Connected: boolean;
 
-    constructor() {
-
+    constructor(client: boolean) {
+        //turning off algod client init for performance optimization
         //console.log("Testing Wallet Integration");
 
         // initialise wallet connect and save player address
@@ -255,14 +260,14 @@ class Wallet {
             shouldShowSignTxnToast: true,
         });
 
+        if (client == true) {
+            this.algorand = AlgorandClient.mainNet(); //connect to mainnet
 
-        this.algorand = AlgorandClient.mainNet(); //connect to mainnet
-
-        // get algod parameters
-        this.algodClient = this.algorand.client.algod;
-        this.indexerClient = this.algorand.client.indexer;
-        //this.kmdClient = this.algorand.client.kmd;
-
+            // get algod parameters
+            this.algodClient = this.algorand.client.algod;
+            this.indexerClient = this.algorand.client.indexer;
+            //this.kmdClient = this.algorand.client.kmd;
+        }
         //check if session is connected
         this.Connected = this.peraWallet.isConnected;
 
@@ -1186,8 +1191,12 @@ class Player extends GameObject {
     constructor() {
 
         super();
-        console.log("Creating Player Sprite");
 
+        //centalise player pos to tilemap
+        this.pos = vec2(16, 9);
+
+        console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
+        //this.pos = ;
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
 
@@ -1310,7 +1319,7 @@ class Player extends GameObject {
 
             this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
             //-this.pos.scale(timeDelta);//hmm
-
+            //console.log(this.pos);
         }
 
         // player hit collision detection
@@ -2600,30 +2609,149 @@ class UI extends UIObject {
 
 
 
-class OverWorld extends GameObject {
+class OverWorld extends LittleJS.TileLayer {
     /*
         Unused 
         The Overworld Scene + Objects as children
-    */
-    TEMPLE_EXTERIOR: any;
-    TREE_1: any;
-    TREE_2: any;
+
+        Example: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/platformer/gameLevel.js
+        Example 2:  https://github.com/eoinmcg/gator/blob/main/src/levels/loader.js
+        */
+    //LOADED: boolean = false;
+    tileLookup: any;
+    tileLayer: LittleJS.TileLayer | null = null;
+    LevelSize: LittleJS.Vector2 | null = null;
+    layerCount: number = 0;
+    tileData: Array<any>;
+    ENABLE: boolean = true;
     constructor() {
         super();
 
         // create temple object from tempple object layer png's using draw tile method
         //const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
-        console.log("Creating Overworld Scene ");
+        //console.log("Creating Overworld Scene ");
 
+        //this.TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        //this.TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        // create table for tiles in the level tilemap
+        //this is needed for extra collision logic, drawing collision items, coins etc et al
+        // this is used to create object instead of tile
+        this.tileLookup =
+        {
+            null: 0,
+            grass: 1,
+            desert: 2,
+            bones: 3,
+            tree_1: 4,
+            tree_2: 5,
+            tree_3: 6,
+            tree_4: 7
+        }
 
-        // Overworld Render
-        // triggers srart of game loop from simulation singleton
-        this.TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
+        this.LevelSize = vec2(overMap.width, overMap.height);
+        this.layerCount = overMap.layers.length; // would be 1 cuz only 1 leve's made
 
-        this.TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        this.TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
+        this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
+
+        //this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize); //tile(this.tileLookup.bones, 16, 8, 0)
+        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 8, 0));
+
+        // duplicate code
+        this.tileData.forEach((row: any, y: any) => {
+            row.forEach((val: any, x: any) => {
+                val = parseInt(val, 10);
+                if (val) {
+                    //console.log("Val Debug: ", val); //works
+                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+
+                }
+
+            })
+        })
+
+        this.tileLayer.redraw();
 
     }
+
+
+
+
+    chunkArray(array: Array<number>, chunkSize: number) {
+        // algorithm helps loading the level data array as chunks
+        const numberOfChunks = Math.ceil(array.length / chunkSize)
+
+        return [...Array(numberOfChunks)]
+            .map((value, index) => {
+                return array.slice(index * chunkSize, (index + 1) * chunkSize)
+            })
+    }
+
+    drawMapTile(pos: LittleJS.Vector2, i = 80, layer: LittleJS.TileLayer, collision = 1) {
+        const tileIndex = i;
+        const data = new LittleJS.TileLayerData(tileIndex);
+        layer.setData(pos, data);
+
+        //if (collision) {
+        //    LittleJS.setTileCollisionData(pos, collision);
+        //}
+    }
+
+    loadlevel(level = 0) {
+        // load level data from an exported Tiled js file
+        // loaded as OverMap
+        console.log("Loading level");
+        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!);
+
+
+        //this.tileInfo = tile(tileLookup.bones, 16, 8, 0); //works
+
+        // loop through all the timemap layers
+        for (let layer = this.layerCount; layer--;) {
+
+            const layerData = overMap.layers[layer].data; //get layer data
+            //console.log("Layer Data debug: ", layerData);
+            //loop through the map width
+            for (let x = this.LevelSize!.x; x--;) {
+
+                //loop through the map height
+                for (let y = this.LevelSize!.y; y--;) {
+
+
+                    //get the current position
+                    const pos = vec2(x, this.LevelSize!.y - 1 - y);
+
+                    //get the current tile to draw
+                    const tile_ = layerData[y * this.LevelSize!.x + x];
+
+                    this.tileLayer.renderOrder = -1e3 + layer;
+
+                    //console.log("Tilemap tile debug", tile_);
+
+                    if (tile_ == 0) {
+                        drawTile(pos, vec2(16), tile(this.tileLookup.bones, 16, 8, 0));
+                    }
+                }
+            }
+        }
+
+        console.log("Finished Loading Level");
+
+        //draw layer data
+
+
+
+
+    }
+
+    //update() {
+    //    if (!window.globals.GAME_START) {
+    //console.log("Drawing Overowlrd");
+    //drawTile(vec2(150), vec2(16), tile(this.tileLookup.bones, 16, 8, 0));
+    //        this.tileInfo = tile(this.tileLookup.bones, 16, 8, 0); //bad code
+    //    }
+    //}
+
+
 }
 
 /* Declare Global Singletons
@@ -2642,6 +2770,7 @@ declare global {
         player: Player | null,
         enemyspawner: EnemySpawner,
         wallet: Wallet;
+        map: OverWorld;
 
     }
 
@@ -2696,7 +2825,7 @@ function gameInit() {
     window.globals = new Globals;
     window.utils = new Utils;
     window.music = new Music;
-    window.wallet = new Wallet();
+    window.wallet = new Wallet(false);
 
     //get device browser type/ platform
     window.utils.detectBrowser();
@@ -2735,6 +2864,12 @@ function gameInit() {
     // convert dystopia logo to a font file
     //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
     //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
+
+    window.map = new OverWorld();
+
+
+
+
 }
 
 function gameUpdate() {
@@ -2767,17 +2902,13 @@ function gameRender() {
     // draw tile allows for better object scalling
     if (window.globals.GAME_START) {
 
-        // draw overworld tiles
-        const TEMPLE_EXTERIOR = drawTile(vec2(0, 0), vec2(15, 15), tile(0, 64, 3, 0), LittleJS.WHITE);
-
-        const TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        const TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
 
 
 
         //create global player object
         if (!window.player) {
             window.player = new Player();
+
 
         }
 
@@ -2807,7 +2938,7 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png"]);
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png", "dungeon_1_tilemap.png"]);
 
 
 

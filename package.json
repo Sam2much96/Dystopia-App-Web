@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-utils": "^8.1.0",
+    "@kayahr/tiled": "^0.0.1",
     "@perawallet/connect": "^1.4.1",
     "algosdk": "^3.1.0",
     "buffer": "^6.0.3",
