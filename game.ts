@@ -226,7 +226,8 @@ class Wallet {
      * (7) Map Wallet Stats to Inventory & Stats UI
      * (8) Port Escrow Smart Contract to Algokit
      * (9) Test Tokenized Asset UI/UX for Bow Item
-     * (10) Test Save / Load game Mechanics using local state save
+     * (10) Test Save / Load game Mechanics using local state save, web cache
+     *      - Save Account Address
      */
     //public network: Map<string, number> = new Map([
     //    ["MainNet", 416001],
@@ -235,17 +236,18 @@ class Wallet {
     //    ["All Networks", 4160]
     //]);
 
-    public peraWallet: any | null = null;
+    public peraWallet: PeraWalletConnect | null = null;
     public algorand: any | null = null;
     public algodClient: any | null = null;
     public indexerClient: any | null = null;
     public kmdClient: any | null = null;
     public accountAddress: string | null = null;
     public accountInfo: any | null = null;
+    public Connected: boolean;
 
     constructor() {
 
-        console.log("Testing Wallet Integration");
+        //console.log("Testing Wallet Integration");
 
         // initialise wallet connect and save player address
         this.peraWallet = new PeraWalletConnect({
@@ -259,16 +261,23 @@ class Wallet {
         // get algod parameters
         this.algodClient = this.algorand.client.algod;
         this.indexerClient = this.algorand.client.indexer;
-        this.kmdClient = this.algorand.client.kmd;
+        //this.kmdClient = this.algorand.client.kmd;
 
+        //check if session is connected
+        this.Connected = this.peraWallet.isConnected;
 
+        console.log("Pera Connected Session: ", this.Connected);
 
         //works
         /**
         const connectToPeraWallet = async () => {
             try {
-                const accounts = await this.peraWallet.connect();
-                this.peraWallet.connector?.on('disconnect', this.handleDisconnectWallet);
+                //const t = await this.peraWallet?.isConnected;
+                //console.log(t);
+                await this.peraWallet!.disconnect();
+
+                const accounts = await this.peraWallet!.connect();
+                this.peraWallet!.connector?.on('disconnect', this.handleDisconnectWallet);
 
                 this.accountAddress = accounts[0];
 
@@ -286,41 +295,56 @@ class Wallet {
                 console.error('Error connecting to Pera Wallet:', error);
             }
         };
+
+
+        connectToPeraWallet();
         */
-
-        //connectToPeraWallet();
-
     }
 
-    async connectToPeraWallet() {
-        try {
-            const accounts = await this.peraWallet.connect();
-            this.peraWallet.connector?.on('disconnect', this.handleDisconnectWallet);
+    async __connectToPeraWallet() { //doesn't work
+        if (this.Connected == false) {
 
-            this.accountAddress = accounts[0];
+            //disconnect wallet session error catcher
+            await this.peraWallet!.disconnect();
 
-            console.log("Account Address: ", this.accountAddress);
+            try {
+                //create new connected session
+                const accounts = await this.peraWallet!.connect();
 
+                //this.peraWallet!.connector?.on('disconnect', this.handleDisconnectWallet);
 
+                this.accountAddress = accounts[0];
 
-            // Use the accountAddress as needed
-        } catch (error) {
-            console.error('Error connecting to Pera Wallet:', error);
+                console.log("Account Address: ", this.accountAddress);
+
+                //fetch account info
+                this.fetchAccountInfo();
+                this.fetchWalletAssets();
+
+                // Use the accountAddress as needed
+            } catch (error) {
+                console.error('Error connecting to Pera Wallet:', error);
+            }
         }
 
     }
 
     // fetch the assets held my this address
+    // doesn't produce useable information
     async fetchWalletAssets() {
         // Fetch account Asset Info
         // Get account asset info
         const accountAssets = await this.indexerClient.lookupAccountAssets(this.accountAddress);
 
-        console.log(accountAssets);
+        console.log("Account Assets: ", accountAssets);
+    }
+
+    async fetchSudHoldings() {
+        // probably using vestigefi api, check for the sud holdings of this particular address
     }
 
     handleDisconnectWallet(error: Error | null, payload: any): void {
-        this.peraWallet.disconnect();
+        this.peraWallet!.disconnect();
         throw new Error('Function not implemented.');
     }
 
@@ -330,11 +354,11 @@ class Wallet {
     // sign a transaction
     async signTransaction() {
 
-        let txn = {}; //placeholder transaction
-        const signedTxn = await this.peraWallet.signTransaction([[{ txn }]]);
+        //let txn = {}; //placeholder transaction
+        //const signedTxn = await this.peraWallet!.signTransaction([[{ txn }]]);
 
-        const { txId } = await this.algodClient.sendRawTransaction(signedTxn).do();
-        console.log('Transaction sent with ID:', txId);
+        //const { txId } = await this.algodClient.sendRawTransaction(signedTxn).do();
+        //console.log('Transaction sent with ID:', txId);
     }
 
     async fetchAccountInfo(accountAddress: string = this.accountAddress!) {
@@ -2454,12 +2478,15 @@ class UI extends UIObject {
             //sfx
             window.music.sound_start.play();
 
-            // create wallet connect txn
-            window.wallet.connectToPeraWallet();
+            //const t = async () => {  // create wallet connect txn
+            window.wallet.__connectToPeraWallet();
+            //};
+
+            //t;
 
             // fetch onchain info
-            window.wallet.fetchAccountInfo();
-            window.wallet.fetchWalletAssets();
+            //window.wallet.fetchAccountInfo();
+            //window.wallet.fetchWalletAssets();
         }
 
     }
