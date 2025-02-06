@@ -331,6 +331,7 @@ class Wallet {
 
     // fetch the assets held my this address
     // doesn't produce useable information
+    // can only get sud balance after successfully bonding
     async fetchWalletAssets() {
         // Fetch account Asset Info
         // Get account asset info
@@ -382,6 +383,9 @@ class Wallet {
         }); 
 
      */
+
+    // make asset payment
+    // sud asset id : 2717482658
 
 }
 
