@@ -22,7 +22,9 @@
     "vite-plugin-cdn-import": "^1.0.1"
   },
   "dependencies": {
+    "@algorandfoundation/algokit-utils": "^8.1.0",
     "@perawallet/connect": "^1.4.1",
+    "algosdk": "^3.1.0",
     "buffer": "^6.0.3",
     "howler": "^2.2.4",
     "littlejsengine": "^1.11.2",
