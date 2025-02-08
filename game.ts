@@ -2431,7 +2431,7 @@ class UI extends UIObject {
         console.log("Creating Game HUD Buttons");
         // 7 is the sprite for UI 64x64 pixels
         this.statsButton = new UITextureButton(tile(1, 64, 4, 0), vec2(950, 30), vec2(50)); //works
-        this.walletButton = new UITextureButton(tile(2, 64, 4, -1), vec2(950, 130), vec2(50));
+        this.walletButton = new UITextureButton(tile(2, 64, 4, 0), vec2(950, 130), vec2(50));
         this.dialogButton = new UITextureButton(tile(0, 64, 4, 0), vec2(950, 80), vec2(50)); //works
         this.menuButton = new UITextureButton(tile(3, 64, 4, 0), vec2(80, 80), vec2(50));
 
