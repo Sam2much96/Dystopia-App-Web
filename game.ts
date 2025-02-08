@@ -22,7 +22,8 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen } = LittleJS;
+const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen, // do not use pixelated rendering
+    setCanvasPixelated, setTilesPixelated } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -2428,10 +2429,11 @@ class UI extends UIObject {
         //update & draw heartbox ui every frame
         this.heartbox(3); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
-        this.statsButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 30), vec2(50)); //works
-        this.walletButton = new UITextureButton(tile(vec2(0, 0), 64, 5, 0), vec2(950, 130), vec2(50));
-        this.dialogButton = new UITextureButton(tile(0, 64, 7, 0), vec2(950, 80), vec2(50)); //works
-        this.menuButton = new UITextureButton(tile(vec2(0, 0), 64, 6, 0), vec2(80, 80), vec2(50));
+        // 7 is the sprite for UI 64x64 pixels
+        this.statsButton = new UITextureButton(tile(1, 64, 4, 0), vec2(950, 30), vec2(50)); //works
+        this.walletButton = new UITextureButton(tile(2, 64, 4, -1), vec2(950, 130), vec2(50));
+        this.dialogButton = new UITextureButton(tile(0, 64, 4, 0), vec2(950, 80), vec2(50)); //works
+        this.menuButton = new UITextureButton(tile(3, 64, 4, 0), vec2(80, 80), vec2(50));
 
         // Game HUD Signals
         // connect signals here
@@ -2654,7 +2656,11 @@ class OverWorld extends LittleJS.TileLayer {
         this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
 
         //this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize); //tile(this.tileLookup.bones, 16, 8, 0)
-        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 8, 0));
+        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 5, 0));
+
+        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible; //make invisible
+
+        //this.pos = vec2(500);
 
         // duplicate code
         this.tileData.forEach((row: any, y: any) => {
@@ -2699,40 +2705,7 @@ class OverWorld extends LittleJS.TileLayer {
     loadlevel(level = 0) {
         // load level data from an exported Tiled js file
         // loaded as OverMap
-        console.log("Loading level");
-        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!);
 
-
-        //this.tileInfo = tile(tileLookup.bones, 16, 8, 0); //works
-
-        // loop through all the timemap layers
-        for (let layer = this.layerCount; layer--;) {
-
-            const layerData = overMap.layers[layer].data; //get layer data
-            //console.log("Layer Data debug: ", layerData);
-            //loop through the map width
-            for (let x = this.LevelSize!.x; x--;) {
-
-                //loop through the map height
-                for (let y = this.LevelSize!.y; y--;) {
-
-
-                    //get the current position
-                    const pos = vec2(x, this.LevelSize!.y - 1 - y);
-
-                    //get the current tile to draw
-                    const tile_ = layerData[y * this.LevelSize!.x + x];
-
-                    this.tileLayer.renderOrder = -1e3 + layer;
-
-                    //console.log("Tilemap tile debug", tile_);
-
-                    if (tile_ == 0) {
-                        drawTile(pos, vec2(16), tile(this.tileLookup.bones, 16, 8, 0));
-                    }
-                }
-            }
-        }
 
         console.log("Finished Loading Level");
 
@@ -2802,7 +2775,9 @@ function gameInit() {
     touchGamepadEnable
 
 
-
+    // use pixelated rendering
+    setCanvasPixelated(true);
+    setTilesPixelated(true);
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
 
@@ -2865,7 +2840,7 @@ function gameInit() {
     //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
     //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
 
-    window.map = new OverWorld();
+
 
 
 
@@ -2893,6 +2868,7 @@ function gameUpdatePost() {
 }
 
 function gameRender() {
+    // Temporary Game Manger + simulations
     // triggers the LittleJS renderer
     // called before objects are rendered
     // draw any background effects that appear behind objects
@@ -2903,7 +2879,10 @@ function gameRender() {
     if (window.globals.GAME_START) {
 
 
-
+        //create overworld map
+        if (!window.map) {
+            window.map = new OverWorld();
+        }
 
         //create global player object
         if (!window.player) {
@@ -2934,11 +2913,8 @@ function gameRenderPost() {
 }
 
 
-
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "trees.png", "stats.png", "menu.png", "interract.png", "dungeon_1_tilemap.png"]);
-
-
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "UI_1_tilemap_64x64.png", "dungeon_1_tilemap.png"]);
 
