@@ -22,7 +22,7 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, drawTextOverlay, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen, // do not use pixelated rendering
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture, overlayCanvas, mainContext, glCanvas, mainCanvas, glContext, glEnable, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen, // do not use pixelated rendering
     setCanvasPixelated, setTilesPixelated } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
@@ -204,14 +204,7 @@ class Music {
 
 
 }
-/**
 
-
-interface PeraWalletConnectOptions {
-    shouldShowSignTxnToast?: boolean;
-    chainId?: 4160;
-}
- */
 
 class Wallet {
     /*
@@ -947,6 +940,7 @@ class Inputs extends GameObject {
             ['RIGHT', 3],
             ['ATTACK', 4],
             ['ROLL', 5],
+            ["IDLE", 6],
         ]);
 
 
@@ -962,14 +956,24 @@ class Inputs extends GameObject {
     }
 
     update() {
+        /**
+         * 
+         * Features:
+         * (1) Maps Key Presses To Input States And Appends Them to The input buffer
+         * 
+         * To DO:
+         * (1) Implement Button releases
+         */
+
 
         // mouse and TouchScreen Input
+        // use for minimap inputs 
         //this.pos = mousePos;
 
-        // Maps Key Presses To Input States And Appends Them to The input buffer
+        // 
         //
         // Move UP
-        //console.log("Testing Input Singleton");
+        //
         if (LittleJS.keyIsDown('ArrowUp')) {
             this.up()
         }
@@ -1186,16 +1190,19 @@ class Player extends GameObject {
 
     // Player attributes
     public mass: number = this.GRAVITY;
-    public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
-
-
+    //public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
+    public animationTimer: LittleJS.Timer = new Timer();
+    public currentFrame: number = 0;
+    public previousFrame: number = 0;
+    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
+    public mirror_: number = 0; //false
     constructor() {
 
         super();
 
         //centalise player pos to tilemap
         this.pos = vec2(16, 9);
-
+        //this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
         console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
         //this.pos = ;
         // Fetch Player Health From Globals Singleton
@@ -1227,17 +1234,8 @@ class Player extends GameObject {
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
 
 
-        function health_changed(new_hp: number) {
-            console.log("Health Changed Debug: ", 3); //this.hitpoints
-            //this.health_signal.emit(new_hp)
-            return 0;
-        }
 
-        function healthDebug(hp: number) {
-            //placeholder helath debug method for testing signAL CLASS
-            // remove later
-            console.log("Health Debug 2: ", hp);
-        }
+
 
         // TO DO:
         // (1) Connect to Mini Map UI
@@ -1248,7 +1246,7 @@ class Player extends GameObject {
         // temporarily debugging signal implementation
 
         // Set initial player health
-        health_changed(this.hitpoints);
+
 
         // player state machine
         this.state_machine = new Map([
@@ -1294,9 +1292,8 @@ class Player extends GameObject {
         // player collision & mass
         this.mass = this.GRAVITY; // make object have static physics
 
-        // player sprite
-        // use tileInfo frame function to play animations
-        this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
+        //add state machine logic
+
 
     }
 
@@ -1312,15 +1309,94 @@ class Player extends GameObject {
         console.log("Player hit: ", this.hitpoints);
     }
 
+    runAnim() {
+        //this.frameCounter += this.deltaTime;
+        this.animationTimer.set(3);
+
+        //this.tileInfo.pos.x = 4;
+
+        let tileCycle = [4, 5, 8]; // Define cycle tiles
+        let currentIndex = 0; // Track the current tile index
+
+        //currentIndex = (currentIndex + 1) % tileCycle.length; // Cycle between 4, 5, 8
+
+        if (this.animationTimer.elapsed() == false) {
+            console.log(tileCycle[currentIndex]);
+            currentIndex = (currentIndex + 1) % tileCycle.length; // Cycle through the indices
+
+            this.tileInfo = tile(tileCycle[currentIndex], 32, 1, 0); // Update tile
+        }
+
+    }
+
+
     update() {
+
+
+        // player sprite
+        // use tileInfo frame function to play animations
+        //this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
+        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
         if (this.input) {
             // for debugging
             // update sprite position to input singleton position
 
-            this.pos = this.input.pos; //mousePos; //player movement logic, should ideally lerp btw 2 positions
-            //-this.pos.scale(timeDelta);//hmm
-            //console.log(this.pos);
+            this.pos.x = this.input.pos.x;
+            this.pos.y = this.input.pos.y;
+
+
+        }
+
+        // Simple State Machine Logic
+        if (this.input.state == this.input.input_state.get("UP")) {
+            this.mirror_ = 0;
+            //this.currentFrame = 5;
+            //0.5 seconds animation loop
+            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+
+                //loop animation function
+                this.currentFrame = this.animate(this.currentFrame, [6, 7, 8]);
+
+                this.frameCounter = 0; // Reset timer
+            }
+        }
+
+        if (this.input.state == this.input.input_state.get("DOWN")) {
+            this.mirror_ = 0;
+
+            //this.currentFrame = 6;
+            //0.5 seconds animation loop
+            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+
+                //loop animation function
+                this.currentFrame = this.animate(this.currentFrame, [0, 1, 2]);
+
+                this.frameCounter = 0; // Reset timer
+            }
+
+        }
+
+        if (this.input.state == this.input.input_state.get("LEFT")) {
+            this.mirror_ = 0;
+
+            //0.5 seconds animation loop
+            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+
+                //loop animation function
+                this.currentFrame = this.animate(this.currentFrame, [3, 4, 5]);
+
+                this.frameCounter = 0; // Reset timer
+            }
+        }
+        if (this.input.state == this.input.input_state.get("RIGHT")) { //add button releases and idle state to input class
+
+            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+
+                this.currentFrame = this.animate(this.currentFrame, [9, 10, 11]);
+                this.frameCounter = 0; //resert timer
+            }
+
         }
 
         // player hit collision detection
@@ -1347,6 +1423,13 @@ class Player extends GameObject {
 
     }
 
+    render() {
+
+        //this.tileInfo = tile(this.currentFrame, 32, 1, 0); // set player's sprite from tile info
+
+        drawTile(this.pos, this.size, tile(this.currentFrame, 32, 1, 0), this.color);
+    }
+
     despawn() {
         // (1) Play Despawn Animation
         if (this.hitpoints <= 0) {
@@ -1367,6 +1450,23 @@ class Player extends GameObject {
         return 0;
     }
 
+    animate(currentFrame: number, sequence: number[]): number {
+        /** 
+         * Animation Function
+         * 
+         * Features:
+         * 
+         * (1) Loops through an array sequence and return this current frame
+         * (2) Plays animation loops
+         *
+         *  Usage Examples:
+            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+        */
+        const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+        return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+    }
 }
 
 class Enemy extends GameObject {
@@ -1618,7 +1718,11 @@ class Simulation extends GameObject {
     public cubePosition: Vector3 | null = null;
     public groundLevel: number;
     public color: any | null;
-    private timer: any;
+    public tick: number | null = null;
+    public lastTick: number = 0;
+    public deltaTime: number | null = null;
+
+    public Enabled: boolean = false;
 
     constructor() {
         super();
@@ -1626,7 +1730,7 @@ class Simulation extends GameObject {
         //this.cubePosition = null; // for storing the cube geometry 3d position 
         this.groundLevel = -4; // ground position for stopping Gravity on Cube 
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
-        this.timer = new Timer(); //timer necessary for running the simulation timer loop
+        //this.timer = new Timer(); //timer necessary for running the simulation timer loop
 
         //return 0;
     };
@@ -1634,13 +1738,15 @@ class Simulation extends GameObject {
 
     update() {
 
-        // fetching mouse position ever loop is a performance hag, instead, fetch mouse position from 
-        // input singleton and interpolate positional data
-        // sets Player Sprite Position to Mouse Position
-        //this.pos = mousePos;
+
+        //get delta time via ticks
+        this.tick = window.performance.now();
+        this.deltaTime = (this.tick - this.lastTick) / 1000;
+        this.lastTick = this.tick;
+
+        //console.log("Delta time debug:", this.deltaTime); //works
 
         // update cube 3d position
-        //if (window.THREE_RENDER.cube) {
         this.cubePosition = window.THREE_RENDER.getCubePosition();
 
         if (this.cubePosition) {
@@ -2430,10 +2536,10 @@ class UI extends UIObject {
         this.heartbox(3); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
         // 7 is the sprite for UI 64x64 pixels
-        this.statsButton = new UITextureButton(tile(1, 64, 4, 0), vec2(950, 30), vec2(50)); //works
-        this.walletButton = new UITextureButton(tile(2, 64, 4, 0), vec2(950, 130), vec2(50));
-        this.dialogButton = new UITextureButton(tile(0, 64, 4, 0), vec2(950, 80), vec2(50)); //works
-        this.menuButton = new UITextureButton(tile(3, 64, 4, 0), vec2(80, 80), vec2(50));
+        this.statsButton = new UITextureButton(tile(1, 64, 3, 0), vec2(950, 30), vec2(50)); //works
+        this.walletButton = new UITextureButton(tile(2, 64, 3, 0), vec2(950, 130), vec2(50));
+        this.dialogButton = new UITextureButton(tile(0, 64, 3, 0), vec2(950, 80), vec2(50)); //works
+        this.menuButton = new UITextureButton(tile(3, 64, 3, 0), vec2(80, 80), vec2(50));
 
         // Game HUD Signals
         // connect signals here
@@ -2561,7 +2667,7 @@ class UI extends UIObject {
 
 
                     // apply gravity to 3d model to trigger game start
-                    const anim = new Simulation();
+                    window.simulation = new Simulation();
 
                 }
 
@@ -2629,13 +2735,7 @@ class OverWorld extends LittleJS.TileLayer {
     constructor() {
         super();
 
-        // create temple object from tempple object layer png's using draw tile method
-        //const TEMPLE = drawTile(vec2(0, 0), vec2(17, 17), tile(3, 17)); // size : 896 * 720 for temple sprites
-        //console.log("Creating Overworld Scene ");
 
-        //this.TREE_1 = drawTile(vec2(13, 0), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        //this.TREE_2 = drawTile(vec2(13, 10), vec2(10, 10), tile(0, 64, 4, 0)); //64X64 pixels
-        // create table for tiles in the level tilemap
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
         this.tileLookup =
@@ -2655,8 +2755,7 @@ class OverWorld extends LittleJS.TileLayer {
 
         this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
 
-        //this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize); //tile(this.tileLookup.bones, 16, 8, 0)
-        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 5, 0));
+        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 4, 0));
 
         //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible; //make invisible
 
@@ -2716,16 +2815,13 @@ class OverWorld extends LittleJS.TileLayer {
 
     }
 
-    //update() {
-    //    if (!window.globals.GAME_START) {
-    //console.log("Drawing Overowlrd");
-    //drawTile(vec2(150), vec2(16), tile(this.tileLookup.bones, 16, 8, 0));
-    //        this.tileInfo = tile(this.tileLookup.bones, 16, 8, 0); //bad code
-    //    }
-    //}
+
 
 
 }
+
+
+
 
 /* Declare Global Singletons
 
@@ -2744,6 +2840,7 @@ declare global {
         enemyspawner: EnemySpawner,
         wallet: Wallet;
         map: OverWorld;
+        simulation: Simulation;
 
     }
 
@@ -2776,8 +2873,10 @@ function gameInit() {
 
 
     // use pixelated rendering
-    setCanvasPixelated(true);
-    setTilesPixelated(true);
+    setCanvasPixelated(false);
+    setTilesPixelated(false);
+
+
     //Camera Distance Constants
     const CAMERA_DISTANCE = 16;
 
@@ -2916,5 +3015,5 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "temple.png", "UI_1_tilemap_64x64.png", "dungeon_1_tilemap.png"]);
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "UI_1_tilemap_64x64.png", "dungeon_1_tilemap.png"]);
 
