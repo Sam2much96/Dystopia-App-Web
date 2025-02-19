@@ -33,8 +33,7 @@ import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Al
 
 import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
-//
-// import {overworld} from "./overworld.js"; //level data from tiled editor
+
 
 'use strict';
 
@@ -43,6 +42,7 @@ import overMap from "./overworld.json";
 
 // show the LittleJS splash screen
 setShowSplashScreen(true);
+
 
 // Show Game Pad on Mobile Devices
 //LittleJS.touchGamepadEnable = true;
@@ -97,7 +97,7 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = false; // turning off music singleton for bandwidth saving
+        this.ENABLE = true; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
@@ -2821,6 +2821,12 @@ class OverWorld extends LittleJS.TileLayer {
 }
 
 
+///////////////////////////////////
+// TV SHader
+
+
+
+/////////////////////////////////
 
 
 /* Declare Global Singletons
