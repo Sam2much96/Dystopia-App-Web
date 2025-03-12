@@ -97,7 +97,7 @@ class Music {
         console.log("Creating Music Node");
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = true; // turning off music singleton for bandwidth saving
+        this.ENABLE = false; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
@@ -404,10 +404,39 @@ class Inventory {
     */
 
     private items: Record<string, number>; // Dictionary to store inventory items
-
+    public inventoryUI: HTMLElement | null = null;
     constructor() {
         console.log("Loading Inventory Singleton");
         this.items = {};
+    }
+
+    render(): void {
+
+
+        this.inventoryUI = document.getElementById("inventory-container");
+
+        this.inventoryUI!!.innerHTML = ""; // clear UI
+
+        const items = window.inventory.getAllItems(); // Get inventory items
+
+
+        // Inner html manipulation to spawn this Inventory Items
+        // map this to loop throug getItems function
+        Object.entries(items).forEach(([itemName, itemCount]) => {
+            this.inventoryUI!!.innerHTML += `
+            <div class="inventory-item">
+                <button class="item-button" onclick="useItem('${itemName}')">
+                    <img src="assets/images/${itemName}.png" alt="${itemName}" class="item-image">
+                    <div class="item-name">${itemName}</div>
+                    <div class="item-description">Amount: ${itemCount} </div>
+                </button>
+            </div>
+        `;
+
+
+        });
+
+
     }
 
     /**
@@ -2315,6 +2344,9 @@ class UI extends UIObject {
     
     Docs: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/uiSystem/game.js 
 
+    The UI uses html objects, html elements and WebGL objects to 
+    render the games different UI elements
+
     To DO:
     (1) in-game menu (1/2)
     (2) Controls Menu
@@ -2329,6 +2361,8 @@ class UI extends UIObject {
     (6) Should Play UI sounds from singleton class (1/2)
 
     (7) Separate Each Object into class extensions
+    
+    
     */
 
 
@@ -2343,12 +2377,13 @@ class UI extends UIObject {
 
     // UI Buttons
     // menu buttons
-    newGame: UIButton | null = null;
-    contGame: UIButton | null = null;
-    Comics: UIButton | null = null;
-    Controls: UIButton | null = null;
-    Wallet: UIButton | null = null;
-    Quit: UIButton | null = null;
+    menuContainer: HTMLElement | null;
+    newGame: HTMLAnchorElement | null = null;
+    contGame: HTMLAnchorElement | null = null;
+    Comics: HTMLAnchorElement | null = null;
+    Controls: HTMLAnchorElement | null = null;
+    Wallet: HTMLAnchorElement | null = null;
+    Quit: HTMLAnchorElement | null = null;
 
     //HUD Texture Buttons
     statsButton: UITextureButton | null = null; // button triggered from input via stats() method
@@ -2363,7 +2398,8 @@ class UI extends UIObject {
 
     // TImer Nodes
     timer: LittleJS.Timer = new Timer();
-    public SHOW_DIALOGUE: boolean = false
+    public SHOW_DIALOGUE: boolean = false;
+    public SHOW_MENU: boolean = true;
     constructor() {
 
         super(vec2(), vec2());
@@ -2391,23 +2427,25 @@ class UI extends UIObject {
         this.UI_ROOT.addChild(this.DIALOG_BOX);
         //this.UI_ROOT.addChild(this.UI_HEARTBOX);
 
+        // turn menu invisible by default
+        this.menuContainer = document.getElementById("menu-container");
+
+
+        console.log("Menu Debug 1: ", this.menuContainer);
 
         //center UI root
         this.UI_ROOT.pos.x = LittleJS.mainCanvasSize.x / 2;
-
-        // example horizontal scrollbar
-        //const scrollbar = new UIScrollbar(vec2(0, 60), vec2(350, 50));
-
 
     }
     //external methods to toggle UI states as setter & getter functions
 
     get MenuVisible() {
-        return this.UI_MENU.visible
+        return this.SHOW_MENU; // Show the carousel
     };
 
     set MenuVisible(visible_: boolean) {
         // Toggles Menu Visibility
+        this.SHOW_MENU = visible_;
 
         // play toggle sfx
         if (window.music) {
@@ -2415,10 +2453,12 @@ class UI extends UIObject {
         }
 
         if (visible_ == false) {
-            this.UI_MENU.hide();
+            this.menuContainer!.classList.add("hidden");
+
         }
         else if (visible_ == true) {
-            this.UI_MENU.show();
+
+            this.menuContainer!.classList.remove("hidden");
         }
 
 
@@ -2434,6 +2474,23 @@ class UI extends UIObject {
         this.DIALOG_BOX!.visible = visible;
     }
 
+    /*
+*  
+* Toggles Visibility On /Off Each Dom Element
+* 
+* Depreciated for class function instead
+*/
+
+    setDOMObjectVisibility(object: string, isVisible: boolean) {
+        // toggles the visibility of the carousel
+        if (isVisible == true) {
+            document.getElementById(object)?.classList.remove("hidden"); // Show the carousel
+        } else {
+            document.getElementById(object)?.classList.add("hidden"); // Hide the carousel
+        }
+    }
+
+    //depreciated
     update() {
         // dialogue box functionality
         // (1) Pop up and disappear functionality using Context manipulation and function calls
@@ -2491,39 +2548,28 @@ class UI extends UIObject {
         // Testing
         console.log("Triggering Stats UI");
         // Triggers stats ui
-        //if (window.inventory) {
-        // fetch inventory items and show them in ui dashboard
-        // create dashboard with text buttons
-        //
-        // }
+
         // to do :
         // (1) on & off
         // (2) game pause
         // (3) UI text fix
         // (4) Drag and Drop Items
-        // (5) Status UI Buttons (dialogue, comics, menu, stats)
+        // (5) Status UI Buttons (dialogue, comics, menu, stats) (Done)
         // (6) Game Menu Shouldn't trigger once stats is showing
         // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
-        const b = new UIObject(vec2(10), vec2(6));
-
-        // create a texture button for each item in inventory if the parent array is empty 
-        const j = new UITextureButton(tile(0, 64, 4, 0), vec2(50), vec2(50)); //works
-
-        //b.addChild(j);
-        //create a text for amount
-        //UI text is buggy
-        const p = new UIText(vec2(50, 250), vec2(50), "x5sdfafgasgsfgsdfgs0"); // doesn't work
 
         // fetch all inventory items
-        console.log("Inventory Items", window.inventory.getAllItems());
-        j.onPress = () => {
+        //console.log("Inventory Items", window.inventory.getAllItems());
 
-            //button action
-            console.log("stats button pressed, Use Inventory item");
-        }
+
+        //button action
+        console.log("stats button pressed, Use Inventory item");
+        //}
         // (1) Create / Show New UI Board
         // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
         // (3) Inventory Item Call Example is in Input under I Press
+        window.inventory.render();
+
     }
 
     gameHUD() {
@@ -2640,75 +2686,70 @@ class UI extends UIObject {
         console.log("Creating Ingame Menu");
         // Create Ingame Menu
         // 
-        if (!this.newGame) { // checker to create menu only once
-            //const newGame = new UIButton(vec2(0, 20), vec2(250, 50), 'sdfasdf');
-            this.newGame = new UIButton(vec2(0, 50), vec2(250, 50), 'New Game');
-            this.contGame = new UIButton(vec2(0, 120), vec2(250, 50), 'Continue');
-            this.Comics = new UIButton(vec2(0, 190), vec2(250, 50), 'Comics'); // rename to wallet connect?
-            this.Controls = new UIButton(vec2(0, 260), vec2(250, 50), 'Controls'); //map music controls & other settings to ui
-            this.Quit = new UIButton(vec2(0, 330), vec2(250, 50), 'Quit');
+        if (!this.newGame) {
 
 
-            // parent button objects        
-            this.UI_MENU.addChild(this.newGame);
-            this.UI_MENU.addChild(this.contGame);
-            this.UI_MENU.addChild(this.Comics);
-            this.UI_MENU.addChild(this.Controls);
-            this.UI_MENU.addChild(this.Quit);
+            this.newGame = this.createMenuOption("New Game", "newgame.html", () => {
 
-            this.MenuVisible = false; // make menu invisible temporarily until mouse input is registered from input singleton
+                console.log('New Game Pressed');
+                window.music.sound_start.play();
 
 
-            // button signals
-            this.newGame.onPress = () => {
-                if (this.visible) {
-                    console.log('New Game Pressed');
-                    window.music.sound_start.play();
+                // apply gravity to 3d model to trigger game start
+                window.simulation = new Simulation();
+
+            });
+
+            this.contGame = this.createMenuOption("Continue", "continue.html", () => {
+                console.log("Continue Game Pressed");
+                window.music.sound_start.play();
+            });
 
 
-                    // apply gravity to 3d model to trigger game start
-                    window.simulation = new Simulation();
 
-                }
-
-            }
-
-            this.contGame.onPress = () => {
-                if (this.visible) {
-                    console.log('Continue Pressed');
-                    window.music.sound_start.play();
-                }
-            }
-
-            this.Comics.onPress = () => {
+            this.Comics = this.createMenuOption("Continue", "continue.html", () => {
 
                 if (this.visible) {
                     // open comics website in new tab
                     console.log('Comics Pressed');
-                    //this.sound_ui.play();
-                    // TO DO:
-                    // redraw comics chapters with gif animation & boondocks anime style
-                    window.open('https://dystopia-app-manga.vercel.app/manga.html', '_blank');
+                    window.open('https://dystopia-app.site', '_blank');
                 }
-            }
+            });
 
-            this.Controls.onPress = () => {
+
+
+            this.Controls = this.createMenuOption("Controls", "controls.html", () => {
                 console.log('Controls Pressed');
                 window.music.sound_start.play();
-            }
+            });
 
-            this.Quit.onPress = () => {
+            this.Quit = this.createMenuOption("Quit", "quit.html", () => {
                 // (1) delete player
                 // (2) show 3d layer
                 console.log('Quit Pressed');
                 window.music.sound_start.play();
 
                 window.THREE_RENDER.showThreeLayer()
-            }
+            });
 
 
-            // Wallet Connection
+            // Append options to menu
+            this.menuContainer!.append(this.newGame, this.contGame, this.Controls, this.Quit);
         }
+    }
+
+    private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement {
+        const option = document.createElement("a");
+        option.href = href;
+        option.className = "menu-option";
+        option.innerText = text;
+        option.onclick = (event) => {
+            event.preventDefault(); // Prevent navigation
+            if (this.menuContainer!.style.display !== "none") {
+                onPress();
+            }
+        };
+        return option;
     }
 
 
@@ -2747,7 +2788,8 @@ class OverWorld extends LittleJS.TileLayer {
             tree_1: 4,
             tree_2: 5,
             tree_3: 6,
-            tree_4: 7
+            tree_4: 7,
+            signpost: 8,
         }
 
         this.LevelSize = vec2(overMap.width, overMap.height);
