@@ -973,7 +973,7 @@ class Inputs extends GameObject {
         ]);
 
 
-        this.WALKING = 0.06;
+        this.WALKING = 0.03; // walking speed
         // Testing Input Enumeration
         //console.log("Input Debug 1: ", this.input_state.get("UP"));
         //console.log("Input Debug 2: ",input_state.get("ATTACK");
@@ -999,7 +999,8 @@ class Inputs extends GameObject {
         // use for minimap inputs 
         //this.pos = mousePos;
 
-        // 
+        // Keyboard Input Controller
+
         //
         // Move UP
         //
@@ -1044,7 +1045,7 @@ class Inputs extends GameObject {
 
 
 
-        // GamePad Input
+        // Virtual GamePad Input for mobiles
         let stk = LittleJS.gamepadStick(0, 0); // capture gamestik
         if (stk.x < 0) {
             // move left
@@ -1067,7 +1068,7 @@ class Inputs extends GameObject {
 
 
 
-
+        // Virtual Gamepad Controller
         if (LittleJS.gamepadIsDown(1)) {
             console.log("Game Pad Was Pressed, Test Successfull: ");
             //return 0;
@@ -1097,10 +1098,18 @@ class Inputs extends GameObject {
 
     }
 
+    /**
+     * Updates the Input buffer for global objects
+     * Using functions
+     */
+
+    idle(){
+        console.log(" Idle State");
+    }
+
     attack() {
         // Attack State
-        // for debug purposes only
-        console.log(" Attack Pressed");
+        //console.log(" Attack Pressed");
 
         //update input buffer
         this.input_buffer.push(this.input_state.get("ATTACK") ?? 4);
@@ -1174,6 +1183,7 @@ class Inputs extends GameObject {
         this.pos.x -= this.WALKING;
     }
 
+
 }
 
 
@@ -1219,21 +1229,25 @@ class Player extends GameObject {
 
     // Player attributes
     public mass: number = this.GRAVITY;
+    //public size: Vector2 = vec2(1);
     //public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
     public animationTimer: LittleJS.Timer = new Timer();
     public currentFrame: number = 0;
     public previousFrame: number = 0;
     public frameCounter: number = 0; // for timing frame changes to 1 sec or less
-    public mirror_: number = 0; //false
+    public mirror_: boolean = false; //false
+    public animationCounter : number = 0.1 // 0.1 seconds
+
     constructor() {
 
         super();
 
         //centalise player pos to tilemap
         this.pos = vec2(16, 9);
-        //this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
+        this.size = vec2(0.8);
+
         console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
-        //this.pos = ;
+        
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
 
@@ -1338,9 +1352,9 @@ class Player extends GameObject {
         console.log("Player hit: ", this.hitpoints);
     }
 
+    /** 
     runAnim() {
         //this.frameCounter += this.deltaTime;
-        this.animationTimer.set(3);
 
         //this.tileInfo.pos.x = 4;
 
@@ -1357,10 +1371,21 @@ class Player extends GameObject {
         }
 
     }
-
+*/
 
     update() {
+        /**
+         * Features
+         * 
+         * (1) Fetches the input state from the global buffer
+         * (2) Maps the input state buffer to the particular player's animation
+         */
 
+        //
+        // To DO:
+        // (1) Idle animation
+        // (2) Attack animation
+        // (3) Dance animation
 
         // player sprite
         // use tileInfo frame function to play animations
@@ -1379,27 +1404,24 @@ class Player extends GameObject {
 
         // Simple State Machine Logic
         if (this.input.state == this.input.input_state.get("UP")) {
-            this.mirror_ = 0;
-            //this.currentFrame = 5;
-            //0.5 seconds animation loop
-            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+            this.mirror_ = false;
+
+            if (this.frameCounter >= this.animationCounter) {
 
                 //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [6, 7, 8]);
+                this.currentFrame = this.animate(this.currentFrame, [3, 4, 5, 6,7,8]);
 
                 this.frameCounter = 0; // Reset timer
             }
         }
 
         if (this.input.state == this.input.input_state.get("DOWN")) {
-            this.mirror_ = 0;
+            this.mirror_ = false;
 
-            //this.currentFrame = 6;
-            //0.5 seconds animation loop
-            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
 
                 //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [0, 1, 2]);
+                this.currentFrame = this.animate(this.currentFrame, [9, 10, 11, 12, 13, 14, 15]);
 
                 this.frameCounter = 0; // Reset timer
             }
@@ -1407,27 +1429,30 @@ class Player extends GameObject {
         }
 
         if (this.input.state == this.input.input_state.get("LEFT")) {
-            this.mirror_ = 0;
+            this.mirror_ = true;
 
             //0.5 seconds animation loop
-            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
 
                 //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [3, 4, 5]);
+                this.currentFrame = this.animate(this.currentFrame, [17, 18, 19, 20, 21, 22]);
 
                 this.frameCounter = 0; // Reset timer
             }
         }
         if (this.input.state == this.input.input_state.get("RIGHT")) { //add button releases and idle state to input class
+            this.mirror_ = false;
 
-            if (this.frameCounter >= 0.4) { // 0.5 second elapsed
+            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
 
-                this.currentFrame = this.animate(this.currentFrame, [9, 10, 11]);
+                this.currentFrame = this.animate(this.currentFrame, [17, 18, 19, 20, 21, 22]);
                 this.frameCounter = 0; //resert timer
             }
 
         }
 
+        // TO DO: 
+        // (1) Move to simulation singleton
         // player hit collision detection
         // detects collision between any enemy in the global enemies pool
         for (let i = 0; i < window.globals.enemies.length; i++) {
@@ -1454,9 +1479,9 @@ class Player extends GameObject {
 
     render() {
 
-        //this.tileInfo = tile(this.currentFrame, 32, 1, 0); // set player's sprite from tile info
+        //// set player's sprite from tile info and animation frames
 
-        drawTile(this.pos, this.size, tile(this.currentFrame, 32, 1, 0), this.color);
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror_);
     }
 
     despawn() {
@@ -1530,7 +1555,7 @@ class Enemy extends GameObject {
 
 
 
-        this.tileInfo = tile(0, 32, 2, 0); // set player's sprite from tile info
+        this.tileInfo = tile(0, 128, 2, 0); // set player's sprite from tile info
 
         // set enemy position from the initialisation script
         //this.pos = pos.copy();
@@ -1689,6 +1714,8 @@ class Enemy extends GameObject {
         // player leaves enemy detection raycast
         return 0;
     }
+
+    render(){}
 
 }
 class EnemySpawner extends GameObject {
@@ -2765,13 +2792,18 @@ class OverWorld extends LittleJS.TileLayer {
 
         Example: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/platformer/gameLevel.js
         Example 2:  https://github.com/eoinmcg/gator/blob/main/src/levels/loader.js
+        
+        Bugs:
+        (1) Doesn't account for tiled 0.11 data type with chunk layers
+        (2) Needs more json debug to recursively adjust logic
         */
     //LOADED: boolean = false;
     tileLookup: any;
     tileLayer: LittleJS.TileLayer | null = null;
     LevelSize: LittleJS.Vector2 | null = null;
     layerCount: number = 0;
-    tileData: Array<any>;
+    //tileData: Array<any>;
+    ground_layer: number[][] = []; // matrix data type
     ENABLE: boolean = true;
     constructor() {
         super();
@@ -2779,31 +2811,72 @@ class OverWorld extends LittleJS.TileLayer {
 
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
+        // bug : redo for godot 128x tileset 
         this.tileLookup =
         {
-            null: 0,
-            grass: 1,
+            coins: 0,
+            bomb: 1,
             desert: 2,
             bones: 3,
             tree_1: 4,
             tree_2: 5,
-            tree_3: 6,
-            tree_4: 7,
+            three_d_dune_1: 6,
+            three_d_dune_2: 7,
             signpost: 8,
+            ring: 9,
+            extra_life: 10,
+            grass: 11,
+            flowers: 12,
+            big_boulder: 13,
+            small_boulder: 14,
+            spaceship: 15,
+            exit: 16, // doors
         }
 
+        
+        // TO DO:
+        // (1) Organise debug for logic arrangement
+        // (2) Recusively handle data chunks with the appropriate algorithm
         this.LevelSize = vec2(overMap.width, overMap.height);
         this.layerCount = overMap.layers.length; // would be 1 cuz only 1 leve's made
+        
+        console.log("Layer count:", this.layerCount);
+        console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
-        this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
+        // initialise empty array for the ground layer
+        //this.ground_layer = [];
+        // chunk data debug
+        // ground layer details
+      
+        // read each layer data from Overworld.json
+        const groundObject = overMap.layers[0].chunks[0];
+        const temple_ext_object = overMap.layers[2].chunks[0];
+        const treen_n_objects = overMap.layers[1].chunks[0];
+        //console.log("Data debug (ground): %s", groundObject.name);
 
-        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 16, 4, 0));
+        
+
+        // code uses a chunk array function to load the data in chunks
+        this.ground_layer =[...this.chunkArray(groundObject.data, groundObject.width).reverse()];
+        const trees_and_objects = this.chunkArray(treen_n_objects.data, overMap.width).reverse();
+        const temple_exterior = this.chunkArray(temple_ext_object.data, temple_ext_object.width).reverse() ; //.reverse();
+      
+        console.log("Ground Layer debug: ", this.ground_layer);
+
+        //temple exterior data debug
+        console.log("Temple ext Layer debug: ", temple_exterior);
+
+        // tile data doesnt account for multiple layers
+        //this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
+
+        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 128, 4, 0));
 
         //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible; //make invisible
 
         //this.pos = vec2(500);
 
         // duplicate code
+        /** 
         this.tileData.forEach((row: any, y: any) => {
             row.forEach((val: any, x: any) => {
                 val = parseInt(val, 10);
@@ -2815,6 +2888,52 @@ class OverWorld extends LittleJS.TileLayer {
 
             })
         })
+        */
+        // Functions:
+        // (1) takes in a 2 dimensional array type:  number [][]
+        // (2) iterates through the rows and columns
+        // (3) Draws a tilemap for each layer
+        this.ground_layer.forEach((row: number[], y: number, array: number[][]) => {
+            row.forEach((column: number, x: number, array : number[]) => {
+                //val = parseInt(val, 10); // convert any string to integer //should be depreciated if passing the correct data type
+                if (column) {
+                    console.log("Val Debug: ", column); //works
+                    
+                    //calls a class function to draw to the tilemap
+                    this.drawMapTile(vec2(x, y), column - 1, this.tileLayer!, 1);
+
+                }
+
+            })
+        });
+        
+
+        trees_and_objects.forEach((row: any, y: any) => {
+            row.forEach((val: any, x: any) => {
+                val = parseInt(val, 10);
+                if (val) {
+                    //console.log("Val Debug: ", val); //works
+                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+
+                }
+
+            })
+        })
+
+
+        
+        temple_exterior.forEach((row: any, y: any) => {
+            row.forEach((val: any, x: any) => {
+                val = parseInt(val, 10);
+                if (val) {
+                    //console.log("Val Debug: ", val); //works
+                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+
+                }
+
+            })
+        })
+        
 
         this.tileLayer.redraw();
 
@@ -2823,7 +2942,16 @@ class OverWorld extends LittleJS.TileLayer {
 
 
 
-    chunkArray(array: Array<number>, chunkSize: number) {
+    chunkArray(array: number[], chunkSize: number) {
+        /*
+         * The function chunkArray takes an array of numbers & 
+         * splits it into smaller chunks of a specified size.
+         * 
+         * It separates arrays into 30 size matrices as number[][]
+         * each representing a different x and y dimentsion on the tilemap 
+         */
+
+        
         // algorithm helps loading the level data array as chunks
         const numberOfChunks = Math.ceil(array.length / chunkSize)
 
@@ -3009,7 +3137,7 @@ function gameUpdatePost() {
         // Track player
         // set camera position to player position
         LittleJS.setCameraPos(window.player.pos);
-        LittleJS.setCameraScale(64);  // zoom camera to 64 pixels per world unit
+        LittleJS.setCameraScale(128);  // zoom camera to 64 pixels per world unit
     }
 
 }
@@ -3063,5 +3191,5 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player.png", "pj.png", "UI_1_tilemap_64x64.png", "dungeon_1_tilemap.png"]);
+LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.png", "UI_1_tilemap_64x64.png", "godot_128x_dungeon_tileset.png"]);
 
