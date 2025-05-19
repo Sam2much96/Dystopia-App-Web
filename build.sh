@@ -1,1 +1,0 @@
-tsc --build && npm run build

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     build: {
         ssr: false, // Ensure no server-side rendering
-        outDir: 'build',
+        outDir: 'dist',
         rollupOptions: {
             external: [], //'three', 'littlejs','howler'
         },

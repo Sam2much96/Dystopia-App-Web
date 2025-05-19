@@ -22,8 +22,8 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture, overlayCanvas, mainContext, glCanvas, mainCanvas, glContext, glEnable, overlayContext, WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setShowSplashScreen, // do not use pixelated rendering
-    setCanvasPixelated, setTilesPixelated } = LittleJS;
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
+setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -31,8 +31,9 @@ import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connectio
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
 //import * as algosdk from "algosdk"; // AlgoSDK
 
-import * as tiled from "@kayahr/tiled";
+//import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
+//import { styleText } from 'util';
 
 
 'use strict';
@@ -44,11 +45,18 @@ import overMap from "./overworld.json";
 setShowSplashScreen(true);
 
 
-// Show Game Pad on Mobile Devices
-//LittleJS.touchGamepadEnable = true;
+// Game Pad on Mobile Devices Settings
+setTouchGamepadEnable(true);
+setTouchGamepadSize(99);
+setTouchGamepadAlpha(0.3);
 
 
+//Audio Control settings
+setSoundVolume(0.3);
+setSoundEnable(true);
 
+// side scrolling settings
+setGravity(0);
 
 class Music {
 
@@ -974,9 +982,7 @@ class Inputs extends GameObject {
 
 
         this.WALKING = 0.03; // walking speed
-        // Testing Input Enumeration
-        //console.log("Input Debug 1: ", this.input_state.get("UP"));
-        //console.log("Input Debug 2: ",input_state.get("ATTACK");
+
     }
 
     // Returns The Input Buffer as An Array
@@ -1008,15 +1014,29 @@ class Inputs extends GameObject {
             this.up()
         }
 
+        if (LittleJS.keyWasReleased("ArrowUp")){
+            this.idle()
+        }
+
         // Move Down
         if (LittleJS.keyIsDown('ArrowDown')) {
             this.down()
         }
 
+        if (LittleJS.keyWasReleased("ArrowDown")){
+            this.idle()
+        }
+
+
         // Move Left
         if (LittleJS.keyIsDown('ArrowLeft')) {
             this.left()
         }
+
+        if (LittleJS.keyWasReleased("ArrowLeft")){
+            this.idle()
+        }
+
 
         // Move Right
         if (LittleJS.keyIsDown('ArrowRight')) {
@@ -1024,16 +1044,24 @@ class Inputs extends GameObject {
 
         }
 
+        if (LittleJS.keyWasReleased("ArrowRight")){
+            this.idle()
+        }
+
         // Attack
         if (LittleJS.keyIsDown('KeyX')) {
             this.attack()
 
         }
+        
+        if (LittleJS.keyWasReleased("KeyX")){
+            this.idle()
+        }
 
 
         // Dash
         if (LittleJS.keyIsDown('Space')) {
-            console.log("Space pressed, Player Dash");
+            this.dash();
 
         }
 
@@ -1065,6 +1093,12 @@ class Inputs extends GameObject {
             // move up
             this.up();
         }
+
+        if (stk.x == 0 && stk.y == 0) {
+            // idle
+            this.idle();
+        }
+
 
 
 
@@ -1322,6 +1356,8 @@ class Player extends GameObject {
         //this.health_signal.disconnect(healthDebug);
 
         //PLAYER'S PARTICLE AND SOUND FX POINTERS
+        // TO DO:
+        // (1) Player's particle fx
         this.blood = null;
         this.despawn_particles = null;
         this.die_sfx = null;
@@ -1348,6 +1384,7 @@ class Player extends GameObject {
         //(1) Play Hurt Animation
         //(2) Trigger kickback
         //(3) Update Player health
+        // (4) Emit blood fx particle fx
         this.hitpoints -= 1;
         console.log("Player hit: ", this.hitpoints);
     }
@@ -2363,7 +2400,7 @@ class UITextureButton extends UIObject {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-
+// TO DO: Depreciate all this UI code for css
 
 class UI extends UIObject {
     /* 
@@ -2991,12 +3028,7 @@ class OverWorld extends LittleJS.TileLayer {
 }
 
 
-///////////////////////////////////
-// TV SHader
 
-
-
-/////////////////////////////////
 
 
 /* Declare Global Singletons
@@ -3045,15 +3077,16 @@ function gameInit() {
     console.log("Game Started!");
 
     // set touchpad visible
-    touchGamepadEnable
-
+    //
+    //touchGamepadEnable = true;
+    //showSplashScreen = true;
 
     // use pixelated rendering
-    setCanvasPixelated(false);
+    setCanvasPixelated(true);
     setTilesPixelated(false);
 
 
-    //Camera Distance Constants
+    //3d Camera Distance Constants
     const CAMERA_DISTANCE = 16;
 
     /* Create 3D Scenes And Objects*/
