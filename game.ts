@@ -47,7 +47,7 @@ setShowSplashScreen(true);
 
 // Game Pad on Mobile Devices Settings
 setTouchGamepadEnable(true);
-setTouchGamepadSize(99);
+setTouchGamepadSize(128);
 setTouchGamepadAlpha(0.3);
 
 
@@ -2426,7 +2426,8 @@ class UI extends UIObject {
 
     (7) Separate Each Object into class extensions
     
-    
+    (8) UI upscalling for mobile browsers
+    (9) Better UI graphics
     */
 
 
@@ -2457,7 +2458,7 @@ class UI extends UIObject {
     walletButton: UITextureButton | null = null;
 
 
-    DEFAULT_SIZE: LittleJS.Vector2 = vec2();
+    DEFAULT_SIZE: LittleJS.Vector2 = vec2(128);
     DEFAULT_POS: LittleJS.Vector2 = vec2();
 
     // TImer Nodes
@@ -3144,11 +3145,7 @@ function gameInit() {
 
     //draw title screen
     // TO DO :
-    // convert dystopia logo to a font file
-    //drawTile(vec2(21, 5), vec2(4.5), tile(3, 128));
-    //const title = drawUITile(vec2(150, 30), vec2(50, 50), tile(0, 32, 3, 0))
-
-
+    // (1) draw dystopia logo with css
 
 
 
