@@ -241,7 +241,7 @@ class Wallet {
     //    ["TestNet", 416002],
     //    ["BetaNet", 416003],
     //    ["All Networks", 4160]
-    //]);
+    //]) ;
 
     public peraWallet: PeraWalletConnect | null = null;
     public algorand: any | null = null;
