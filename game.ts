@@ -22,8 +22,8 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, timeDelta, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity } = LittleJS;
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
+setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -55,8 +55,7 @@ setTouchGamepadAlpha(0.3);
 setSoundVolume(0.3);
 setSoundEnable(true);
 
-// side scrolling settings
-setGravity(0);
+
 
 class Music {
 
@@ -883,9 +882,14 @@ class Utils {
     Features: 
     (1)  Contains All Game Math Logic in One Script
     (2) Extends Static Functions to Other Scenes For Handing Maths, and Logical Caculations asides Simulation Logic
+    (3) Detects which type of device the game is running on for platform specific optimization
     */
 
+    public browser : string = "unknown";
+    public platform : string = "unknown";
 
+    public  screenOrientation : number | undefined;
+    public viewport_size : Vector2 | undefined;
     enemyMob() {
         //enemy mob logic in pure javascript
         return 0;
@@ -896,35 +900,58 @@ class Utils {
 
     detectBrowser() {
         const userAgent = navigator.userAgent.toLowerCase();
-        let browser = 'unknown';
-        let platform = 'unknown';
+        //let browser = 'unknown';
+        //let platform = 'unknown';
 
         // Detect browser
         if (userAgent.includes('chrome')) {
-            browser = 'Chrome';
+            this.browser = 'Chrome';
         } else if (userAgent.includes('firefox')) {
-            browser = 'Firefox';
+            this.browser = 'Firefox';
         } else if (userAgent.includes('safari')) {
-            browser = 'Safari';
+            this.browser = 'Safari';
         } else if (userAgent.includes('edge')) {
-            browser = 'Edge';
+            this.browser = 'Edge';
         } else if (userAgent.includes('opera') || userAgent.includes('opr')) {
-            browser = 'Opera';
+            this.browser = 'Opera';
         }
 
         // Detect platform
         if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)) {
-            platform = 'Mobile';
+            this.platform = 'Mobile';
         } else {
-            platform = 'Desktop';
+            this.platform = 'Desktop';
         }
 
-        console.log(`Browser: ${browser}, Platform: ${platform}`);
-        return { browser, platform };
+        console.log(`Browser: ${this.browser}, Platform: ${this.platform}`);
+        //return { this.browser, this.platform };
     }
+
+    
 }
 
+class Screen extends EngineObject {
+// screen class extension
 
+    constructor(){
+    super();
+    console.log("Screen Optimisation Logic run >>");
+    this.color = new Color(0, 0, 0, 0); // make object invisible
+}
+
+update(){
+
+    
+    if (window.player) {
+
+        // Track player
+        // set camera position to player position
+        setCameraPos(window.player.pos);
+        setCameraScale(128);  // zoom camera to 64 pixels per world unit
+    }
+
+    }
+}
 
 class GameObject extends EngineObject {
     // Base Class for All Game Objects
@@ -1138,7 +1165,8 @@ class Inputs extends GameObject {
      */
 
     idle(){
-        console.log(" Idle State");
+        //console.log(" Idle State");
+        return 0;
     }
 
     attack() {
@@ -1248,8 +1276,8 @@ class Player extends GameObject {
 
 
     // State Machines
-    private state_machine: Map<string, number>;
-    private facing_state_machine: Map<string, number>;
+    private TOP_DOWN: Map<string, number>;
+    private FACING: Map<string, number>;
     private state: number | undefined;
     private facing: number | undefined;
 
@@ -1326,7 +1354,7 @@ class Player extends GameObject {
 
 
         // player state machine
-        this.state_machine = new Map([
+        this.TOP_DOWN = new Map([
             ['STATE_BLOCKED', 0],
             ['STATE_IDLE', 1],
             ['STATE_WALKING', 2],
@@ -1338,7 +1366,7 @@ class Player extends GameObject {
         ]);
 
         // PLAYER'S FACING
-        this.facing_state_machine = new Map([
+        this.FACING = new Map([
             ['UP', 0],
             ['DOWN', 1],
             ['LEFT', 2],
@@ -1346,8 +1374,8 @@ class Player extends GameObject {
         ]);
 
         // set initial player's default state
-        this.state = this.state_machine.get("STATE_IDLE");
-        this.facing = this.facing_state_machine.get("DOWN");
+        this.state = this.TOP_DOWN.get("STATE_IDLE");
+        this.facing = this.FACING.get("DOWN");
 
         //TO DO: player's camera pointer (1) Camer should follow/ track the player's position
         //TO DO: player's animation node pointer
@@ -1373,6 +1401,7 @@ class Player extends GameObject {
 
         //add state machine logic
 
+        //little js camera pointer
 
     }
 
@@ -1789,6 +1818,8 @@ class EnemySpawner extends GameObject {
     }
 }
 
+// For Simulation singleton multiplayer logic
+//type PlayerInfoDictionary = { [id: number]: player_info };
 
 class Simulation extends GameObject {
     /*
@@ -1808,30 +1839,89 @@ class Simulation extends GameObject {
     // Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
     // Expantd Timer Functionality for animations via global singleton
 
+    // get the cube object from threejs
     public cubePosition: Vector3 | null = null;
-    public groundLevel: number;
+    public groundLevel: number = -4; // ground position for stopping Gravity on Cube 
     public color: any | null;
-    public tick: number | null = null;
+    public tick: number = 0;
     public lastTick: number = 0;
     public deltaTime: number | null = null;
 
     public Enabled: boolean = false;
 
+    public state : Map<string, number>;    // state machine
+    public gravity : number = 3500; // to do: connect to little js gravity config
+    public frame_counter : number = 0;
+    public last_update : number =  -1;
+
+
+    //Multiplayer config dictionary
+    public player_info : { [id: number]: player_info } = {};
+
+    //type PlayerInfoDictionary = { [id: number]: player_info };
+
+    // Input Buffer decoded from player info updates
+    public _input_buffer_decoded: Array<number> = [];
+    public _state_buffer_decoded : Array<number> = [];
+
+    // temporarily disabling
+    //public rainFX = new RainFX(vec2(), vec2()); //pointer to rain fx particle
+    //public smokeFX = new SmokeFX(vec2(), vec2()); // pointer to smoke fx particle
+
+    public local_3d_engine = window.THREE_RENDER; // safe pointer to threejs
+    
     constructor() {
         super();
-        console.log("Simulation Singleton Created")
+        console.log("Simulation Singleton Created");
         //this.cubePosition = null; // for storing the cube geometry 3d position 
-        this.groundLevel = -4; // ground position for stopping Gravity on Cube 
+        //this.groundLevel = -4; // ground position for stopping Gravity on Cube 
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         //this.timer = new Timer(); //timer necessary for running the simulation timer loop
 
         //return 0;
-    };
+
+        // side scrolling settings
+        setGravity(0);
+
+        //simulation singleton state machine
+        this.state = new Map([
+            ['SIMULATING', 0],
+            ['NON_SIMULATING', 1]
+        ]);
+
+            
+
+        // multiplayer
+        // server's data serialization of current player's info
+        
+        this.player_info[0] = {0:{            
+            posi: vec2(0),
+            vel:vec2(0),
+            fr:0,
+            in:0,
+            hp:3,
+            st:0,
+            rd:vec2(0),
+            dx:0,
+            up:0,
+            wa:"",
+            ai:0,
+            sc:0,
+            kc:0,
+            inv:"",
+            rt:60,
+            hash:""}
+        };
+        
+    }
+
+    
 
 
     update() {
-
-
+        
+        // Delta Calculation
+        //needed for animation logic
         //get delta time via ticks
         this.tick = window.performance.now();
         this.deltaTime = (this.tick - this.lastTick) / 1000;
@@ -1840,29 +1930,124 @@ class Simulation extends GameObject {
         //console.log("Delta time debug:", this.deltaTime); //works
 
         // update cube 3d position
-        this.cubePosition = window.THREE_RENDER.getCubePosition();
+        let cubePosition = this.local_3d_engine.getCubePosition();
 
-        if (this.cubePosition) {
+
+        //update frame counter
+        this.frame_counter +=1;
+
+
+        //Frame Counter Reset Logic
+        if (this.frame_counter >= 1_000){
+            this.frame_counter = 0;
+        }
+
+
+
+        
+        // Start Game Sequence
+        // It modifies the threejs positions
+
+        if (cubePosition) {
 
 
             // add gravity to cube
-            if (this.cubePosition.y > this.groundLevel) {
-                window.THREE_RENDER.setCubePosition(this.cubePosition.x, this.cubePosition.y -= 0.03, this.cubePosition.z);
+            if (cubePosition.y > this.groundLevel) {
+                this.local_3d_engine.setCubePosition(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
             }
 
 
             // hide threejs layer once game starts
-            if (this.cubePosition.y < this.groundLevel) {
-                window.THREE_RENDER.hideThreeLayer();
+            // is always true once game has started
+            // todo: does code account for game quiting?
+            if (cubePosition.y < this.groundLevel) {
+                this.local_3d_engine.hideThreeLayer();
 
                 // save to global conditional for rendering game backgrounds and starting core game loop
                 window.globals.GAME_START = true;
+
             }
         }
 
+
+
+    }
+
+    get_frame_counter(): number{
+        return this.frame_counter;
     }
 
 
+    // Multiplayer Code
+
+    /** 
+    "Player Info"
+    # Features: 
+    # (1) should store Non-threathening Crypto and Multiplayerinfo too
+    # (2) Data Integrity can be checked using hash
+    # (3) Stores Data FOr Synchronizing Player Data Among Multiple Peers
+    # (4) converted to poolbyte array before sent over Network
+    # (5) synchronizes game states across player network mesh
+    """
+    REGISTERS PLAYERS INITIALLY
+    """
+    */
+   
+    async register_player(id : number){
+        //return this class's registered player data
+        //should ideally return an error type for html
+        // player info could also be null. code should account for that
+        this.player_info[id] ={0:{
+            posi: vec2(0),
+            vel: vec2(0),
+            fr: this.get_frame_counter(),
+            in: 0,
+            hp: 3,
+            st: 0,
+            rd: vec2(0),
+            dx: 0,
+            up: 0,
+            wa: "",
+            ai: 0,
+            sc: 0,
+            kc: 0,
+            inv: "",
+            rt: 0,
+            hash: ""
+
+        }};
+
+        // append the hash to the player data
+
+        this.player_info[id][0].hash = await this.getPlayerHash(this.player_info[id][0])
+            
+    }
+    
+    
+    async getPlayerHash(playerInfo: any): Promise<string> {
+        // code for hashing the player info data 
+
+        // Step 1: Convert the object to a stable JSON string
+        const json = JSON.stringify(playerInfo);
+
+        // Step 2: Encode it as a Uint8Array
+        const encoder = new TextEncoder();
+        const data = encoder.encode(json);
+
+        // Step 3: Hash it using SHA-256
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+        // Step 4: Convert buffer to hex string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // Step 5: Return first 5 characters
+        return hashHex.slice(0, 5);
+        }
+
+        
+    
+        
 
 }
 
@@ -1921,6 +2106,13 @@ class Items extends GameObject {
     }
 }
 
+/**
+ * Particle FX
+ * 
+ * (1) Blood_splatter_fx
+ * (2) DespawnFx
+ */
+
 
 class ParticleFX extends EngineObject {
     /**
@@ -1959,16 +2151,36 @@ class ParticleFX extends EngineObject {
     }
 }
 
+class Blood_splatter_fx extends ParticleFX {
+    
+
+}
+
+class DespawnFx extends ParticleFX {
+
+}
+
+class Bombexplosion extends ParticleFX{
+
+}
+
+class RainFX extends ParticleFX {
+
+}
+
+class SmokeFX extends ParticleFX {
+
+}
 
 /*
-Globals Singleton
-
-Features: 
-(1) Holds All Global Variants in one scrupt
-(2) Can Only Store Data, Cannot Manipulate Data
-
-
-
+*Globals Singleton
+*
+*Features: 
+*(1) Holds All Global Variants in one scrupt
+*(2) Can Only Store Data, Cannot Manipulate Data
+*
+*
+*
 */
 
 class Globals {
@@ -1997,6 +2209,93 @@ class Globals {
         this.GAME_START = false;// for triggering the main game loop logic in other scenes
     }
 }
+
+/**
+ * Android Singleton
+ * 
+ * Features:
+ * (1) All optimizations for mobile browser in a single class
+ */
+
+class Android {
+
+    public _is_android : boolean = false;
+
+    // Lifetime OPtimizations for CPU Particle FX
+    public Long_lifetime : number = 6;
+    public Short_lifetime : number = 3
+    public MINUMUM_FPS : number = 25;
+
+
+    // pointers to touch interface and gamehud objects
+    // needed for UI calling on mobile browsers
+    // to do : ui class should store pointers to each of these elements
+    public TouchInterface = null; 
+    public GameHUD_ = null; 
+    public ingameMenu = null;
+    
+    // screen orientation storage
+    public local_screen_orientation : number = 0;
+
+    private _simulation = window.simulation; //simulation singleton pointer
+
+    private _globals = window.global;
+
+    constructor(){
+
+    // check & save if browser type is mobile
+    if (window.utils.platform == "Mobile"){
+
+        this._is_android = true;
+
+        this.ads();
+
+    }
+
+    }
+
+
+    //unimplemented function to run browser ads optimised for mobiles
+    ads(){}
+    ads_video(){}
+    _no_ads(){}
+
+
+    //external class function to check if platform is mobile browser
+    is_android() : boolean {
+        return this._is_android;
+    }
+
+    // handle rain simulation fx for shorter lifetimes on mobile in update() function
+
+    /**
+     * Screen Orientation & Scaling Algorithm
+     * 
+     */
+    //kkkkkkk
+
+}
+
+
+/**
+ * Debug Class
+ *  
+ * For properly debugging elements in littlejs
+ * by attaching debug variables to the ljs inengine debugger
+ * 
+ * Currently unimplemented
+ * Would require refactoring each singleton to reference this class
+ * would require syncing with mobile build syntax per object
+ * Should replace console.log debugging
+ * 
+ */
+
+class Debug {
+
+}
+
+
+
 
 // ALL UI & UI Objects Implementation
 // ui defaults
@@ -2076,6 +2375,9 @@ class UIObject extends EngineObject {
      * 
      * Every Class Extension From UI Object extends their own custom render and update scripts
      * This class constains the shared interacctivity like hover and press functions by all UI Object sub classes
+     * 
+     * TO DO :
+     * (1) Depreciate in favour of Kenny UI elements and CSS
      */
     public localPos: LittleJS.Vector2 = vec2();
     public pos: LittleJS.Vector2 = vec2();
@@ -2411,6 +2713,8 @@ class UI extends UIObject {
     The UI uses html objects, html elements and WebGL objects to 
     render the games different UI elements
 
+    Each UI setup is sepatated into diffferent functions
+
     To DO:
     (1) in-game menu (1/2)
     (2) Controls Menu
@@ -2428,6 +2732,7 @@ class UI extends UIObject {
     
     (8) UI upscalling for mobile browsers
     (9) Better UI graphics
+    (10) Separate each Ui element type into different classes with global pointers
     */
 
 
@@ -2485,7 +2790,7 @@ class UI extends UIObject {
 
         this.DIALOG_BOX = new UIObject(vec2(), vec2(50));
 
-
+        //depreciated for css and inner html setup
         //parent & child all Ingame UI Objects
         this.UI_ROOT.addChild(this.UI_MENU);
         this.UI_ROOT.addChild(this.UI_STATS); // player status & inventory
@@ -2502,7 +2807,13 @@ class UI extends UIObject {
         this.UI_ROOT.pos.x = LittleJS.mainCanvasSize.x / 2;
 
     }
-    //external methods to toggle UI states as setter & getter functions
+
+    /**
+     * UI visibility Toggles
+     * 
+     * Features:
+     * (1) external methods to toggle UI states as setter & getter functions
+     */
 
     get MenuVisible() {
         return this.SHOW_MENU; // Show the carousel
@@ -2666,6 +2977,8 @@ class UI extends UIObject {
 
             console.log("Menu Button Pressed")
 
+
+
         };
 
         // Stats Button
@@ -2729,7 +3042,7 @@ class UI extends UIObject {
         // (1) Create into a Separate Object extending UIObject class
         // (2) Add Animations
         // (3) Update Logic for heartbox algorithm
-        //
+        // (4) Add sprite to UI sprites
         if (this.HEART_BOX.length != heartCount) {
             console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
             for (let i = 0; i < heartCount; i++) {
@@ -2746,7 +3059,13 @@ class UI extends UIObject {
         }
     }
     ingameMenu() {
-        /* Creates the Ingame Menu UI Object */
+        /*
+        * Creates the Ingame Menu UI Object
+        *
+        * To Do:
+        * (1) ingame menu scaling via android singletons
+        * (2) menu translations
+        */
 
         console.log("Creating Ingame Menu");
         // Create Ingame Menu
@@ -3066,9 +3385,39 @@ declare global {
         y: number;
         z: number;
     }
+
+    interface player_info { 0 :{ //server peer id
+        posi:Vector2, // position
+        vel:Vector2, // velocity
+        fr:number, // frame data
+        in:number, // input buffer from input singleton
+        hp:number,
+        st:number, // roll back networking state predictions
+        rd:Vector2, // roll direction
+        dx:number,
+        up:number, //persistent update id across client peers
+        wa:string, //Wallet address
+        ai:number, //Asset ID
+        sc:number, //Dapp ID
+        kc:number, //Client Kill Count
+        inv:string, // Client inventory items
+        rt:number, // respawn timer
+        hash:string, //hash splice for data integrity
+
+    }
+
+    
+
+}
 }
 
-/* LittleJS Main Loop*/
+
+
+
+/*
+* LittleJS Main Loop
+* 
+*/
 
 
 
@@ -3162,13 +3511,6 @@ function gameUpdate() {
 function gameUpdatePost() {
     // called after physics and objects are updated
     // setup camera and prepare for render
-    if (window.player) {
-
-        // Track player
-        // set camera position to player position
-        LittleJS.setCameraPos(window.player.pos);
-        LittleJS.setCameraScale(128);  // zoom camera to 64 pixels per world unit
-    }
 
 }
 
@@ -3192,6 +3534,12 @@ function gameRender() {
         //create global player object
         if (!window.player) {
             window.player = new Player();
+
+            // setup the screen and camera
+            const y = new Screen();
+
+            //turn game menu invisibke
+            window.ui.MenuVisible = false;
 
 
         }
