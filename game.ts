@@ -23,7 +23,7 @@ import * as LittleJS from 'littlejsengine';
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
 const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale } = LittleJS;
+setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
 
 import { Howl } from 'howler'; // Ensure you have Howler installed and imported
 
@@ -2849,6 +2849,8 @@ class UI extends UIObject {
     (8) UI upscalling for mobile browsers
     (9) Better UI graphics
     (10) Separate each Ui element type into different classes with global pointers
+        - game menu, game hud, 
+    (11) organise heartbox into 64x UI tileset
     */
 
 
@@ -2879,8 +2881,8 @@ class UI extends UIObject {
     walletButton: UITextureButton | null = null;
 
 
-    DEFAULT_SIZE: LittleJS.Vector2 = vec2(128);
-    DEFAULT_POS: LittleJS.Vector2 = vec2();
+    DEFAULT_SIZE: Vector2 = vec2(128);
+    DEFAULT_POS: Vector2 = vec2();
 
     // TImer Nodes
     timer: LittleJS.Timer = new Timer();
@@ -2913,11 +2915,17 @@ class UI extends UIObject {
         this.UI_ROOT.addChild(this.DIALOG_BOX);
         //this.UI_ROOT.addChild(this.UI_HEARTBOX);
 
+        //create menu with inner html script
+        // bugs
+        // (1) game menu small scale on mobile
+        // (2) game menu buttons doesn't click with mobile touch
+
+        // connects to menu container div in index.html ln 59.
         // turn menu invisible by default
         this.menuContainer = document.getElementById("menu-container");
 
 
-        console.log("Menu Debug 1: ", this.menuContainer);
+        //console.log("Menu Debug 1: ", this.menuContainer);
 
         //center UI root
         this.UI_ROOT.pos.x = LittleJS.mainCanvasSize.x / 2;
@@ -3243,12 +3251,27 @@ class UI extends UIObject {
         option.href = href;
         option.className = "menu-option";
         option.innerText = text;
-        option.onclick = (event) => {
+        
+        const handler = (event: Event) => {
             event.preventDefault(); // Prevent navigation
             if (this.menuContainer!.style.display !== "none") {
-                onPress();
+             onPress();
             }
         };
+        
+        //option.onclick = (event) => {
+        //    event.preventDefault(); // Prevent navigation
+        //    if (this.menuContainer!.style.display !== "none") {
+        //        onPress();
+        //    }
+        //};
+
+        // Use pointerdown for broad device compatibility
+        option.addEventListener("pointerdown", handler);
+
+        // Optionally add click as a fallback
+        option.addEventListener("click", handler);
+        
         return option;
     }
 
@@ -3685,5 +3708,5 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.png", "UI_1_tilemap_64x64.png", "godot_128x_dungeon_tileset.png"]);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.png", "UI_1_tilemap_64x64.png", "godot_128x_dungeon_tileset.png"]);
 
