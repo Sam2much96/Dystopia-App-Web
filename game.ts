@@ -7,6 +7,12 @@ Main Game Logic
 (3) Using ZzFx for Sound Fx
 (4) Using HowlerJS for Audio Playback
 
+
+Bugs
+
+(1) Overworld load times on mobile browsers is long
+(2) Buttons aren't interractive, add sfx
+(3) Input is terrible on mobile browsers
 */
 
 //teplorarily disabling for ads testing -"use strict"
@@ -47,9 +53,11 @@ setShowSplashScreen(true);
 
 // Game Pad on Mobile Devices Settings
 setTouchGamepadEnable(true);
-setTouchGamepadSize(128);
+setTouchGamepadSize(256);
 setTouchGamepadAlpha(0.3);
 
+// testing dpad configuration on mobile browsers 
+LittleJS.setTouchGamepadAnalog(false);
 
 //Audio Control settings
 setSoundVolume(0.3);
