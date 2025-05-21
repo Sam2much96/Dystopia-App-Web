@@ -933,6 +933,8 @@ class Utils {
 class Screen extends EngineObject {
 // screen class extension
 
+
+
     constructor(){
     super();
     console.log("Screen Optimisation Logic run >>");
@@ -947,7 +949,7 @@ update(){
         // Track player
         // set camera position to player position
         setCameraPos(window.player.pos);
-        setCameraScale(128);  // zoom camera to 64 pixels per world unit
+        setCameraScale(128);  // zoom camera to 128 pixels per world unit
     }
 
     }
@@ -986,7 +988,7 @@ class Inputs extends GameObject {
     public color: LittleJS.Color;
     public input_buffer: number[];
     public input_state: Map<string, number>;
-    public state: number | undefined; // holds the current input state asides the input buffer
+    public state: number = 0; // holds the current input state asides the input buffer
     public WALKING: number;
 
 
@@ -1088,7 +1090,7 @@ class Inputs extends GameObject {
 
         // Dash
         if (LittleJS.keyIsDown('Space')) {
-            this.dash();
+            this.roll();
 
         }
 
@@ -1122,8 +1124,8 @@ class Inputs extends GameObject {
         }
 
         if (stk.x == 0 && stk.y == 0) {
-            // idle
-            this.idle();
+            // idle state
+            //this.idle();
         }
 
 
@@ -1133,7 +1135,7 @@ class Inputs extends GameObject {
         if (LittleJS.gamepadIsDown(1)) {
             console.log("Game Pad Was Pressed, Test Successfull: ");
             //return 0;
-            this.dash();
+            this.roll();
         }
 
         if (LittleJS.gamepadIsDown(2)) {
@@ -1166,7 +1168,12 @@ class Inputs extends GameObject {
 
     idle(){
         //console.log(" Idle State");
-        return 0;
+        
+        //update input buffer
+        this.input_buffer.push(this.input_state.get("IDLE") ?? 6);
+
+        // update current state
+        this.state = this.input_state.get("IDLE")!;
     }
 
     attack() {
@@ -1177,13 +1184,19 @@ class Inputs extends GameObject {
         this.input_buffer.push(this.input_state.get("ATTACK") ?? 4);
 
         // update current state
-        this.state = this.input_state.get("ATTACK");
+        this.state = this.input_state.get("ATTACK")!;
     }
 
-    dash() {
+    roll() {
 
         // dash state
-        console.log(" Dash Pressed");
+       // console.log(" Dash Pressed");
+
+               //update input buffer
+        this.input_buffer.push(this.input_state.get("ROLL") ?? 5);
+
+        // update current state
+        this.state = this.input_state.get("ROLL")!;
     }
 
     up() {
@@ -1193,7 +1206,7 @@ class Inputs extends GameObject {
         this.input_buffer.push(this.input_state.get("UP") ?? 0);
 
         // update current state
-        this.state = this.input_state.get("UP");
+        this.state = this.input_state.get("UP")!;
 
         // move up
         this.pos.y += this.WALKING;
@@ -1207,7 +1220,7 @@ class Inputs extends GameObject {
         this.input_buffer.push(this.input_state.get("DOWN") ?? 1);
 
         // update current state
-        this.state = this.input_state.get("DOWN");
+        this.state = this.input_state.get("DOWN")!;
 
         // move down
         this.pos.y -= this.WALKING;
@@ -1222,7 +1235,7 @@ class Inputs extends GameObject {
         this.input_buffer.push(this.input_state.get("RIGHT") ?? 3);
 
         // update current state
-        this.state = this.input_state.get("RIGHT");
+        this.state = this.input_state.get("RIGHT")!;
 
         // move right
         this.pos.x += this.WALKING;
@@ -1239,7 +1252,7 @@ class Inputs extends GameObject {
 
 
         // update current state
-        this.state = this.input_state.get("LEFT");
+        this.state = this.input_state.get("LEFT")!;
 
         // move left
         this.pos.x -= this.WALKING;
@@ -1252,17 +1265,27 @@ class Inputs extends GameObject {
 class Player extends GameObject {
     /*
     PLAYER CLASS
-    
-    Features:
-    (1) Base Class for all plyer types, 3d, platformer, and top down
 
+    # THe Core Player Script
+    #
+    # Features
+    # (1) THe world's camera
+    # (2) Player hitboxes
+    # (3) It's a class and stores variables to the UI, Globals singleton, PlayersSave Files, and the Debug SIngleton
+    # (4) Extend input from Global Input Singleton
+    # (5) Extends to Top DOwn and SideScrolling Player Scripts
+    # (6) Player & Enemy SFX is handled by simulation singleton
+    # (7) Connects Dialog Signals From Dialogs Singleton
+    # (8) Collision detectin is done from simulation singleton
+    # (9) The current frame is the sprite id that would be rendered in the render() function
 
+    # to do: (1) set player's initial state to idle down not run up
     */
 
     // Constants
     private WALK_SPEED: number = 500; // pixels per second
     private ROLL_SPEED: number = 1000; // pixels per second
-    private GRAVITY: number = 0; // For Platforming Levels
+    //private GRAVITY: number = 0; // For Platforming Levels
     private ATTACK: number = 1; // For Item Equip
     private pushback: number = 5000;
 
@@ -1275,11 +1298,14 @@ class Player extends GameObject {
     private item_equip: string = ""; // Unused Item Equip Variant
 
 
-    // State Machines
+    // State Machines Enumerations
     private TOP_DOWN: Map<string, number>;
     private FACING: Map<string, number>;
-    private state: number | undefined;
-    private facing: number | undefined;
+    
+    // State Machines Actions
+    public state: Record<string, () => void>;
+    public facing: Record<number, () => void>;
+    public facingPos : number = 0; // for storing the current facing positoin
 
     // References
     private local_heart_box: any; // Update type to match UI class
@@ -1290,7 +1316,7 @@ class Player extends GameObject {
     private music_singleton_: any = null;
 
     // Player attributes
-    public mass: number = this.GRAVITY;
+    public mass: number = window.simulation.gravity;//this.GRAVITY;
     //public size: Vector2 = vec2(1);
     //public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
     public animationTimer: LittleJS.Timer = new Timer();
@@ -1298,7 +1324,23 @@ class Player extends GameObject {
     public previousFrame: number = 0;
     public frameCounter: number = 0; // for timing frame changes to 1 sec or less
     public mirror_: boolean = false; //false
-    public animationCounter : number = 0.1 // 0.1 seconds
+    public animationCounter : number = 0.1 // 0.1 seconds for each animation
+
+    // Player Animation frame data sorted as arrays
+    private RunUp : Array<number> =[3, 4, 5, 6, 7, 8];
+    private RunDown : Array<number> =[9, 10, 11, 12, 13, 14, 15];
+    private RunLeft : Array<number> =[17, 18, 19, 20, 21, 22];
+    private RunRight : Array<number> =[17, 18, 19, 20, 21, 22];
+    private IdleUp : Array<number> =[0];
+    private IdleDown : Array<number> =[0];
+    private IdleLeft : Array<number> =[0];
+    private IdleRight : Array<number> =[0];
+    private Roll : Array<number> =[0];
+    private AttackUp : Array<number> =[0];
+    private AttackDown : Array<number> =[0];
+    private AttackLeft : Array<number> =[0];
+    private AttackRight : Array<number> =[0];
+    private Despawn : Array<number> =[0];
 
     constructor() {
 
@@ -1324,7 +1366,7 @@ class Player extends GameObject {
         // Player Logic Variables 
         this.WALK_SPEED = 500; // pixels per second 
         this.ROLL_SPEED = 1000; // pixels per second
-        this.GRAVITY = 0; // For Platforming Levels
+        //this.GRAVITY = 0; // For Platforming Levels // used simulation gravity instead
         this.ATTACK = 1; // For Item Equip
         this.hitpoints = window.globals.health; // global hp singleton 
         this.pushback = 5000;
@@ -1374,8 +1416,9 @@ class Player extends GameObject {
         ]);
 
         // set initial player's default state
-        this.state = this.TOP_DOWN.get("STATE_IDLE");
-        this.facing = this.FACING.get("DOWN");
+        this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
+        this.facing = this.matchInputs(); // the input state machine / facing logic  //= this.FACING.get("DOWN")!;
+        
 
         //TO DO: player's camera pointer (1) Camer should follow/ track the player's position
         //TO DO: player's animation node pointer
@@ -1397,7 +1440,7 @@ class Player extends GameObject {
         this.music_singleton_ = null;
 
         // player collision & mass
-        this.mass = this.GRAVITY; // make object have static physics
+        //this.mass = this.GRAVITY; // make object have static physics
 
         //add state machine logic
 
@@ -1418,26 +1461,119 @@ class Player extends GameObject {
         console.log("Player hit: ", this.hitpoints);
     }
 
-    /** 
-    runAnim() {
-        //this.frameCounter += this.deltaTime;
+    matchInputs(): Record<number, () => void>  {
+            
 
-        //this.tileInfo.pos.x = 4;
 
-        let tileCycle = [4, 5, 8]; // Define cycle tiles
-        let currentIndex = 0; // Track the current tile index
+            /**
+             * Maps input singleton states to the player's state machine
+             * 
+             *
+            */
+            // to do : attack and death
+        
+            // match facing animation
+           // ['UP', 0],
+           // ['DOWN', 1],
+           // ['LEFT', 2],
+        //  ['RIGHT', 3],
+        return {
+            0 : () => {
 
-        //currentIndex = (currentIndex + 1) % tileCycle.length; // Cycle between 4, 5, 8
+                // apply walking physics
+                this.state["STATE_WALKING"]()
 
-        if (this.animationTimer.elapsed() == false) {
-            console.log(tileCycle[currentIndex]);
-            currentIndex = (currentIndex + 1) % tileCycle.length; // Cycle through the indices
+                this.mirror_ = false;
 
-            this.tileInfo = tile(tileCycle[currentIndex], 32, 1, 0); // Update tile
+                // play the animation for 0.1 seconds
+                this.playAnim(this.RunUp);
+                
+                //save previous facing data for idle state
+                this.facingPos = 0;
+                
+
+            },
+            1 : () => {
+                this.state["STATE_WALKING"]()
+
+                this.playAnim(this.RunDown);
+
+                //save previous facing data for idle state
+                this.facingPos = 1;
+            },
+            2 : () => {
+                this.state["STATE_WALKING"]()
+
+                this.mirror_ = true;
+                this.playAnim(this.RunLeft);
+
+                //save previous facing data for idle state
+                this.facingPos = 2;
+            },
+            3 : () => {
+                this.state["STATE_WALKING"]()
+                
+                this.mirror_ =  false;
+                this.playAnim(this.RunRight);
+
+                //save previous facing data for idle state
+                this.facingPos = 3;
+            },
+            6 : () => {
+                // idle state
+                // use the previous facing position 
+                // to play the corresponding idle animation
+
+                if (this.facingPos == 0){this.currentFrame = 2}
+                else if (this.facingPos == 1){ this.currentFrame = 0}
+                else if (this.facingPos == 2){ this.currentFrame = 1; this.mirror_ = true}
+                else if (this.facingPos == 3){ this.currentFrame = 1; this.mirror_ = false}
+            }
+
+        };
+    };
+    // input states
+
+    //['UP', 0],
+    //['DOWN', 1],
+    //['LEFT', 2],
+    //['RIGHT', 3],
+    //['ATTACK', 4],
+    //['ROLL', 5],
+    //["IDLE", 6],
+
+
+    // player states
+    // ['STATE_BLOCKED', 0],
+    // ['STATE_IDLE', 1],
+    // ['STATE_WALKING', 2],
+    // ['STATE_ATTACK', 3],
+    // ['STATE_ROLL', 4],
+    // ['STATE_DIE', 5],
+    // ['STATE_HURT', 6],
+    // ['STATE_DANCE', 7]
+
+    // stores complex player states
+    matchState(): Record<string, () => void>  {
+
+        return {
+            "STATE_BLOCKED" : () => {
+
+            },
+
+            "STATE_IDLE" : () => {
+
+            },
+
+            "STATE_WALKING" : () => {
+                // walking state
+                this.pos.x = this.input.pos.x;
+                this.pos.y = this.input.pos.y;
+
+            },
         }
-
     }
-*/
+
 
     update() {
         /**
@@ -1453,69 +1589,36 @@ class Player extends GameObject {
         // (2) Attack animation
         // (3) Dance animation
 
-        // player sprite
-        // use tileInfo frame function to play animations
-        //this.tileInfo = tile(0, 32, 1, 0); // set player's sprite from tile info
+        /**
+         * Delta Time Calculation
+         */
+
+        //Gets Delta Time calculation from Simulation singleton
         this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
-        if (this.input) {
-            // for debugging
-            // update sprite position to input singleton position
-
-            this.pos.x = this.input.pos.x;
-            this.pos.y = this.input.pos.y;
-
-
-        }
-
+        /**
+         * Simple State Machine
+         * 
+         * Features:
+         * 
+         * (1) Plays the player animation
+         * (2) Manages & Stores the Player's state
+         * 
+         */
         // Simple State Machine Logic
-        if (this.input.state == this.input.input_state.get("UP")) {
-            this.mirror_ = false;
+        // triggers the state machine logic
+        // feeds the input state into the state machine logics
+        // match inputs and match state
 
-            if (this.frameCounter >= this.animationCounter) {
+        let sstate : number = this.input.state!
+        
+        //console.log("stae debug 1 : ", sstate);
+        
+        // gets the input state from the singleton
+        // passes it as a parameter to the state machine logic
+        this.facing[sstate]();
+        
 
-                //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [3, 4, 5, 6,7,8]);
-
-                this.frameCounter = 0; // Reset timer
-            }
-        }
-
-        if (this.input.state == this.input.input_state.get("DOWN")) {
-            this.mirror_ = false;
-
-            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
-
-                //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [9, 10, 11, 12, 13, 14, 15]);
-
-                this.frameCounter = 0; // Reset timer
-            }
-
-        }
-
-        if (this.input.state == this.input.input_state.get("LEFT")) {
-            this.mirror_ = true;
-
-            //0.5 seconds animation loop
-            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
-
-                //loop animation function
-                this.currentFrame = this.animate(this.currentFrame, [17, 18, 19, 20, 21, 22]);
-
-                this.frameCounter = 0; // Reset timer
-            }
-        }
-        if (this.input.state == this.input.input_state.get("RIGHT")) { //add button releases and idle state to input class
-            this.mirror_ = false;
-
-            if (this.frameCounter >= this.animationCounter) { // 0.5 second elapsed
-
-                this.currentFrame = this.animate(this.currentFrame, [17, 18, 19, 20, 21, 22]);
-                this.frameCounter = 0; //resert timer
-            }
-
-        }
 
         // TO DO: 
         // (1) Move to simulation singleton
@@ -1586,6 +1689,19 @@ class Player extends GameObject {
         */
         const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
         return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+    }
+
+    playAnim(anim: Array<number>){
+
+        // play the animation for 0.1 seconds
+        if (this.frameCounter >= this.animationCounter) {
+
+            //loop animation function
+            this.currentFrame = this.animate(this.currentFrame, anim);
+
+            this.frameCounter = 0; // Reset timer
+                    
+        }
     }
 }
 
