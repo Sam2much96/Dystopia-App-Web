@@ -5,7 +5,8 @@ Main Game Logic
 (1) Using LittleJS As A Module for 3d Logic, 2d rendering, 2d logic
 (2) Using Threejs for 3d geometry rendering
 (3) Using ZzFx for Sound Fx
-(4) Using HowlerJS for Audio Playback
+(4) Using HowlerJS for Audio Playback -depreciated
+(5) Using ZzFxM for Music instead of howlerjs
 
 
 Bugs
@@ -28,10 +29,19 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,setSoundVolume,setSoundEnable, setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, Sound, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
+setTouchGamepadAlpha,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
 
-import { Howl } from 'howler'; // Ensure you have Howler installed and imported
+
+//howler js is depreciated
+//import { Howl } from 'howler'; // Ensure you have Howler installed and imported
+
+
+
+//export * from './audio/zzfx.js'; // adjust the path as needed
+
+import { zzfxM } from './audio/zzfxm';
+import {zzfxP, zzfxX} from  "./audio/zzfx";
 
 import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
@@ -39,6 +49,7 @@ import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Al
 
 //import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
+
 //import { styleText } from 'util';
 
 
@@ -56,10 +67,11 @@ setTouchGamepadEnable(true);
 setTouchGamepadSize(256);
 setTouchGamepadAlpha(0.3);
 
-// testing dpad configuration on mobile browsers 
-LittleJS.setTouchGamepadAnalog(false);
+// set dpad configuration on mobile browsers 
+setTouchGamepadAnalog(false);
 
 //Audio Control settings
+// to do : map to a control ui / control class
 setSoundVolume(0.3);
 setSoundEnable(true);
 
@@ -84,8 +96,95 @@ class Music {
     (2) Most Browsers Refuse Audio music play by default unless the player / user enters an input gesture
     */
 
-    public ENABLE: boolean;
-    lastPlayedTrack: string = "";
+    //public ENABLE: boolean; //depreciated
+
+
+    public music_on : boolean = true;
+    public sfx_on : boolean = true ;
+    
+    public volume : number = 99; // todo : (1) link to zzfxm audio context class 
+
+    
+    //music track variables
+    public play_back_position : number | undefined;
+    public track_length : number | undefined;
+
+    public music_track : string = '';
+
+    public lastPlayedTrack: string = "";
+    
+    // to do:
+    // (1) track the new beats in Zzfxm tools
+    public default_playlist: Record<number,string> =  {
+            0:`./audio/songs/sanxion.js`,
+            1:"./audio/songs/cuddly.js",
+            2:"./audio/songs/depp.js",
+            3:"./audio/songs/iamback.js"
+
+    };
+    
+    // Zzfx synth sounds
+    // define each of the required sfx and organise them into dictionaries
+    public ui_sfx_1 : LittleJS.Sound = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]);
+    public ui_Sfx_2 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,-1,,,.65,.17,,-806]);
+    public ui_robot_sfx = new Sound([1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]);
+
+    // to do: 
+    // (1) create more sfx for each array object with Zzfx
+    public comic_sfx : Array<string> | undefined;
+    
+    
+    public ui_sfx : Record<number, LittleJS.Sound> = {
+        0: this.ui_sfx_1,
+        1: this.ui_Sfx_2,
+        2: this.ui_robot_sfx
+    };
+
+    
+    public blood_sfx : Array<string> | undefined;
+    
+    
+    public punch_Sfx = new Sound([2.8,,389,.03,.01,.21,1,2.6,,,,,,1.7,,.2,,.85,.09,,-1977]); 
+    public punch_sfx_2 = new Sound([2,,166,.02,.01,.19,4,2.8,8,10,,,,1.5,7,.2,.1,.45,.08]);
+    public punch_sfx_3 = new Sound([1.1,,231,.01,.04,.13,4,3.5,,,,,,1.8,8.9,.2,,.56,.05]); 
+
+
+    public hit_sfx : Record <number, LittleJS.Sound> = {
+        0 : this.punch_Sfx,
+        1 : this.punch_sfx_2,
+        2 : this.punch_sfx_3
+    };
+    
+    public grass_sfx : Array<string> | undefined;
+
+
+    public wind_fx = new Sound([,,174,.43,.48,.01,4,4.3,-92,57,,,,,36,,,.91,.43,.13]);
+
+    public wind_sfx : Array<string> | undefined;
+    public sword_sfx : Array<string> | undefined;
+    public nokia_pack_sfx : Array<string> | undefined;
+    
+
+    // class debug variable for mobile browser debug
+    
+
+    // track debug variables 
+    public stream : AudioBufferSourceNode | undefined;
+    public stream_length : number = 0;
+    public Playback_position : number = 0;
+    public track : string = "";
+    public buffer : number[][] | undefined;
+
+    // sound fx placeholder
+    private Fx : Record<number, string> = {
+        0: "AMPLIFY",
+        1: "BAND_LIMIT_FILTER"
+    }
+
+
+
+    // to do:
+    // (1) sort sfx variabes into dictionaries
     sound_shoot: LittleJS.Sound;
     zelda_powerup: LittleJS.Sound;
     sound_start: LittleJS.Sound;
@@ -104,32 +203,64 @@ class Music {
     counter: number;
     randomTrack: string;
     sfx_playlist: Map<number, LittleJS.Sound>;
-    default_playlist: string[];
+    
 
+  
 
     constructor() {
 
-        console.log("Creating Music Node");
+        console.log("Music on Settings: ", this.music_on );
+
+        
         // Initialize the LittleJS Sound System
 
-        this.ENABLE = false; // turning off music singleton for bandwidth saving
+        //this.ENABLE = false; // turning off music singleton for bandwidth saving
         this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
-        this.sound_shoot = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
+        this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
+
+      
+        //drum
+        const drum = new Sound([,,129,.01,,.15,,,,,,,,5]); // Loaded Sound 68
+
+        this.zelda_powerup = new Sound([1.5,0,214,.05,.19,.3,3,.1,,,150,.05,.09,,,,.11,.8,.15,.22]); // Powerup 9// Powerup 9
+
+        const extra_heart = new Sound([,,537,.02,.02,.22,1,1.59,-6.98,4.97]); // Loaded Sound 66
 
 
-        this.zelda_powerup = new LittleJS.Sound([1.5, , 214, .05, .19, .3, 1, .1, , , 167, .05, .09, , , , .11, .8, .15, .22]); // Powerup 9// Powerup 9
+        const dash_sfx = new Sound([1.5,0,214,.05,.19,.3,3,.1,,,150,.05,.09,,-1,,.11,.8,.15,.22]);
+        const dash_2_sfx = new Sound([,,63,.04,.19,.58,,3.9,-2,-8,,,.23,.6,,.2,,.37,.18,.27]); 
+        const dash_3 = new Sound([1.4,,420,.19,.01,.21,2,.3,,,314,.18,,,7.8,,.05,.67,.01]); // Random 60
+        
+        
+
+        const dungeon_sfx_1 = new Sound([.5,,103,.21,.27,.27,3,.6,,,-6,.2,,,31,,,.61,.01,,-1477]);
+
+        const disco = new Sound([,,361,.08,.19,.3,2,2.1,3,,-120,.1,,,102,,,.72,.05]);
+        const disco_2 = new Sound([.4,,39,.44,.1,.15,2,1.8,,-54,,,,,12,,,.97,.02,,325]); // Random 45
+
+        const hurt_Sfx = new Sound([,,377,.02,.05,.16,,3,,-13,,,,,,.1,,.72,.07]); // hurt sfx
+        const death_sfx = new Sound([,,416,.02,.07,.14,1,.6,-7,,,,.06,,,.1,,.69,.04,,220]); // Pickup 49
+
+
+        const explosion_sfx_bass = new Sound([1.1,,31,.08,.21,.74,2,3.2,,,,,,.7,,.7,,.48,.13,,99]); // Explosion 22
+        const explosion_vibration_sfx = new Sound([2,0,65.40639,.03,.96,.43,1,.3,,,,,.13,.3,,.1,.04,.85,.19,.28]); 
+        const explosion_3 = new Sound([,,9,,.05,.45,4,4.4,,,8,.04,,,,.4,,.52,.42,.33]); // Random 33
+
+        const electricity = new Sound([1.1,,10,.09,,.02,3,3.6,,,,.33,.02,,,,.37,.93,.3,,-1404]); // Random 38
 
         // sound effects
-        this.sound_start = new LittleJS.Sound([, 0, 500, , .04, .3, 1, 2, , , 570, .02, .02, , , , .04]);
-        this.sound_break = new LittleJS.Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
-        this.sound_bounce = new LittleJS.Sound([, , 1e3, , .03, .02, 1, 2, , , 940, .03, , , , , .2, .6, , .06]);
-        this.sound_mosquito_flys = new LittleJS.Sound([, , 269, .36, .01, .01, 2, 2.6, , 4, , , .07, , , , , .62]); // Random 30
-        this.souund_mosquito_dies = new LittleJS.Sound([1.3, , 328, .03, .34, .02, 2, 1.3, , , -27, .14, , , .6, , .01, .54, .19]); // Random 31
-        this.sound_zapp = new LittleJS.Sound([1.2, , 678, .19, .49, .02, 1, 4.1, -75, 9, -263, .43, , .3, 3, , .09, .66, .41, .06, 381]); // Random 24
-        this.sound_call = new LittleJS.Sound([1.9, , 66, .05, .48, .009, , 3.1, -38, 20, , , .13, , .5, .7, .1, .58, .19, .14, -1495]); // Random 26
-        this.sound_boing = new LittleJS.Sound([1.4, , 286, , .19, .009, , 2.7, , -9, 363, .33, , , 61, , .22, .96, .14, .18, -1176]); // Random 29
-        this.sound_tv_static = new LittleJS.Sound([.7, , 187, .01, , .01, 4, 4.8, 2, 72, , , , .1, , , , , .41, , 102]); // Random 32
-        this.sound_metal_gong = new LittleJS.Sound([.7, , 286, .08, , .46, 3, 3.9, , , -76, .57, , , 15, , .07, .65, .08, , 204]); // Random 33
+        this.sound_start = new Sound([, 0, 500, , .04, .3, 1, 2, , , 570, .02, .02, , , , .04]);
+        this.sound_break = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
+        this.sound_bounce = new Sound([, , 1e3, , .03, .02, 1, 2, , , 940, .03, , , , , .2, .6, , .06]);
+        this.sound_mosquito_flys = new Sound([, , 269, .36, .01, .01, 2, 2.6, , 4, , , .07, , , , , .62]); // Random 30
+        this.souund_mosquito_dies = new Sound([1.3, , 328, .03, .34, .02, 2, 1.3, , , -27, .14, , , .6, , .01, .54, .19]); // Random 31
+        this.sound_zapp = new Sound([1.2, , 678, .19, .49, .02, 1, 4.1, -75, 9, -263, .43, , .3, 3, , .09, .66, .41, .06, 381]); // Random 24
+        this.sound_call = new Sound([1.9, , 66, .05, .48, .009, , 3.1, -38, 20, , , .13, , .5, .7, .1, .58, .19, .14, -1495]); // Random 26
+        this.sound_boing = new Sound([1.4, , 286, , .19, .009, , 2.7, , -9, 363, .33, , , 61, , .22, .96, .14, .18, -1176]); // Random 29
+        this.sound_tv_static = new Sound([.7, , 187, .01, , .01, 4, 4.8, 2, 72, , , , .1, , , , , .41, , 102]); // Random 32
+        this.sound_metal_gong = new Sound([.7, , 286, .08, , .46, 3, 3.9, , , -76, .57, , , 15, , .07, .65, .08, , 204]); // Random 33
+        
+        
         this.zelda = null;
 
         this.current_track = null;//"track placeholder";
@@ -144,80 +275,129 @@ class Music {
         ])
 
         // Music tracks Url's
-        this.default_playlist = [
-            "https://music-files.vercel.app/music/fairy-fountain.ogg",
-            "https://music-files.vercel.app/music/310-world-map-loop.ogg",
-            "https://music-files.vercel.app/music/Astrolife chike san.ogg",
-            "https://music-files.vercel.app/music/captured_land.ogg",
-            "https://music-files.vercel.app/music/chike san afro 1.ogg",
-            "https://music-files.vercel.app/music/chike san afro 2.ogg",
-            "https://music-files.vercel.app/music/chike san afro 3.ogg",
-            "https://music-files.vercel.app/music/Gregorian-Chant(chosic.com).ogg",
-            "https://music-files.vercel.app/music/hard_won_nobility.ogg",
-            "https://music-files.vercel.app/music/here_comes_trouble.ogg",
-            "https://music-files.vercel.app/music/here_comes_trouble.ogg",
-            "https://music-files.vercel.app/music/Inhumanity Game Track 3.ogg",
-            "https://music-files.vercel.app/music/Marble Tower 4.ogg",
-            "https://music-files.vercel.app/music/paranoia.ogg",
-            "https://music-files.vercel.app/music/Spooky-Chike-san song.ogg",
-            "https://music-files.vercel.app/music/The Road Warrior.ogg",
-            "https://music-files.vercel.app/music/Track 1-1.ogg",
-            "https://music-files.vercel.app/music/zelda2.ogg"
-        ];
+        //this.default_playlist 
+
+
 
     }
 
-    shuffle() {
 
-        var track = this.default_playlist;
 
+    shuffle(playlist: Record<number, string>) : string {
+
+        //var track = this.default_playlist;
+
+        // port godot random shuffle code for this implementation
         // Filter out the last played track and pick a random one from the remaining tracks
-        var availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
-        this.randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+        //var availableTracks = this.default_playlist.filter(track => track !== this.lastPlayedTrack);
+        //this.randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
 
 
         // Log the selected track
-        console.log("Selected Track: ", this.randomTrack, "/", this.counter);
+        //console.log("Selected Track: ", this.randomTrack, "/", this.counter);
+
+        // Shuffle function ported
+        const keys = Object.keys(playlist).map(Number);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        return playlist[randomKey];
 
     }
 
-    play_track() {
+    
+    play_sfx(){}
 
-        if (this.ENABLE) {
-            this.shuffle();
+    async play(){
 
-            var sound = new Howl({
-                src: [this.randomTrack],
-                format: ['ogg'], // Specify the format(s) of your audio file
-                volume: 0.5,
-                autoplay: true, // Whether to autoplay (optional)
-                loop: true,     // Loop playback (optional)
-                preload: true,   // Preload the audio (default is true)
+        console.log("Initialising song player 2", this.counter);
+        // bug:
+        // (1) loops and plays song twice
+        // zzfx song initialization
+        //use zzfxm synthesiser for music
+         
+        //error catcher for double music plays
+        if (this.counter == 0){
+    
 
-                onend: function () {
-                    console.log("Finished Playing Music");
-                    // play randomised track again
-                    // should stop current track, delete the sound object and create a new one
-                    //window.music.play_track();
+        //let buffer : number[][];
+        //let node :  AudioBufferSourceNode;
 
-                }
+        // Loads a song
+        const load = async ()  => {
+            this.track = this.shuffle(this.default_playlist); // get a random track
+
+            console.log ("track debug : ", this.track);
+            const res = await fetch(this.track);
+            const src = await res.text();
+            return parse(src);
+        };
+
+        // As we're downloading the song as a string, we need to convert it to JSON
+        // before we can play it.
+        //
+        // This step isn't required when embedding a song directly into your
+        // production.
+        const parse = (str: string) => {
+
+            // regex process the song files
+            str = str.replace(/\[,/g,'[null,')
+            .replace(/,,\]/g,',null]')
+            .replace(/,\s*(?=[,\]])/g,',null')
+            .replace(/([\[,]-?)(?=\.)/g,'$10')
+            .replace(/-\./g,'-0.')
+            .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
+
+            // console.log("song debug: ",str);
+
+            return JSON.parse(str, (key, value) => {
+            if (value === null) {
+                return undefined;
+            }
+            return value;
             });
+        };
 
-            // Update the last played track
-            this.lastPlayedTrack = this.randomTrack;
 
-            sound.play();
+        
 
-            // counter for logging how many loops the Music singleton has player through
-            this.counter += 1;
+          // Renders the song. ZzFXM blocks the main thread so defer execution for a few
+         // ms so that any status message change can be repainted.
+          const render = (song : any[]) : Promise<number[][]> => {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
+            });
         }
 
-        if (!this.ENABLE) {
-            return 1;
+        
+        console.log("playing song: ", this.counter);
+        const song = await load();
+         
+         
+         this.buffer = await render(song);
+         
+         //zzfxM([.9, 0, 143, , , .35, 3], [], []);
+         // play the tune
+         this.stream = zzfxP(this.buffer[0], this.buffer[1]);
+         
+        this.stream.loop = true;
+        this.counter += 1;
+         
+        await zzfxX.resume();
+
+         // stop it
+         //node.stop();
+            
         }
+
     }
 
 
+    clear(){
+
+        if (this.stream){
+            // stop playing song
+            this.stream.stop();
+            }
+        }
 }
 
 
@@ -988,9 +1168,14 @@ class Inputs extends GameObject {
     (2) Stores Input to An Input Buffer
     (3) Handles creation and Destruction of Game HUD as a child
     (4) Maps Player Input Action To A Global Enum
+    (5) Contains pointers to the game hud ui, stats hud ui, status text ui, and the virtual pad touch hud
     
     TO DO:
     (1) Map and Test Gamepad implementation in the wild
+
+    Bugs:
+    (1) Input buffer spamming
+    (2) Stuck idle bug - temprarily disabling idle state for input buffer spamming fix
     */
 
     public color: LittleJS.Color;
@@ -999,6 +1184,8 @@ class Inputs extends GameObject {
     public state: number = 0; // holds the current input state asides the input buffer
     public WALKING: number;
 
+    //input buffer conditional
+    public saveBuffer : boolean = false;
 
     constructor() {
         super();
@@ -1034,7 +1221,7 @@ class Inputs extends GameObject {
          * (1) Maps Key Presses To Input States And Appends Them to The input buffer
          * 
          * To DO:
-         * (1) Implement Button releases
+         * (1) FIx idle state stuck bug
          */
 
 
@@ -1048,11 +1235,13 @@ class Inputs extends GameObject {
         // Move UP
         //
         if (LittleJS.keyIsDown('ArrowUp')) {
+            //console.log("key up pressed");
             this.up()
         }
 
         if (LittleJS.keyWasReleased("ArrowUp")){
-            this.idle()
+                
+        //this.idle();
         }
 
         // Move Down
@@ -1061,17 +1250,18 @@ class Inputs extends GameObject {
         }
 
         if (LittleJS.keyWasReleased("ArrowDown")){
-            this.idle()
+            //this.idle()
         }
 
 
         // Move Left
         if (LittleJS.keyIsDown('ArrowLeft')) {
+            //console.log("key left pressed");
             this.left()
         }
 
         if (LittleJS.keyWasReleased("ArrowLeft")){
-            this.idle()
+            //this.idle()
         }
 
 
@@ -1082,7 +1272,7 @@ class Inputs extends GameObject {
         }
 
         if (LittleJS.keyWasReleased("ArrowRight")){
-            this.idle()
+            //this.idle()
         }
 
         // Attack
@@ -1092,7 +1282,7 @@ class Inputs extends GameObject {
         }
         
         if (LittleJS.keyWasReleased("KeyX")){
-            this.idle()
+            //this.idle()
         }
 
 
@@ -1163,22 +1353,31 @@ class Inputs extends GameObject {
         }
 
         // Prevents Buffer/ Mem Overflow for Input Buffer
-        if (this.input_buffer.length > 12) {
+        if (this.input_buffer.length > 24) {
             this.input_buffer.length = 0; // Clears the array
         }
 
     }
 
     /**
-     * Updates the Input buffer for global objects
+     * 
+     * INPUT STATES AS FUNCTIONS
+     * 
+     * Features:
+     * 
+     * (1) Updates the Input buffer for global objects
      * Using functions
      */
 
     idle(){
         //console.log(" Idle State");
         
+        // to do : 
+        // (1) fix input buffer spammer; temporarily turning off
         //update input buffer
-        this.input_buffer.push(this.input_state.get("IDLE") ?? 6);
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("IDLE") ?? 6);}
+        
+        
 
         // update current state
         this.state = this.input_state.get("IDLE")!;
@@ -1189,58 +1388,76 @@ class Inputs extends GameObject {
         //console.log(" Attack Pressed");
 
         //update input buffer
-        this.input_buffer.push(this.input_state.get("ATTACK") ?? 4);
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("ATTACK") ?? 4);}
 
         // update current state
         this.state = this.input_state.get("ATTACK")!;
+
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
     roll() {
 
         // dash state
-       // console.log(" Dash Pressed");
+        // console.log(" Dash Pressed");
 
-               //update input buffer
-        this.input_buffer.push(this.input_state.get("ROLL") ?? 5);
+        //update input buffer
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("ROLL") ?? 5);}
 
         // update current state
         this.state = this.input_state.get("ROLL")!;
+
+
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
     up() {
-        //console.log("key W as pressed! ");
+        console.log("key up was pressed! ");
 
         // update input buffer
-        this.input_buffer.push(this.input_state.get("UP") ?? 0);
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("UP") ?? 0);}
 
+        let y = this.input_state.get("UP")!
+        console.log("state debug 3:", y);
+        
         // update current state
-        this.state = this.input_state.get("UP")!;
+        this.state = y;
+
+        console.log("state debug 1: ", this.state);
 
         // move up
         this.pos.y += this.WALKING;
         //console.log("Position debug 1: ", this.pos.x);
+
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
     down() {
-        //console.log("key S as pressed! ");
+        console.log("key down as pressed! ");
 
         // update input buffer
-        this.input_buffer.push(this.input_state.get("DOWN") ?? 1);
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("DOWN") ?? 1);}
 
         // update current state
         this.state = this.input_state.get("DOWN")!;
 
         // move down
         this.pos.y -= this.WALKING;
+
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
     right() {
 
         //move right
-        //console.log("key D as pressed! ");
+        console.log("key right was pressed! ");
 
         //update input buffer
-        this.input_buffer.push(this.input_state.get("RIGHT") ?? 3);
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("RIGHT") ?? 3);}
 
         // update current state
         this.state = this.input_state.get("RIGHT")!;
@@ -1248,15 +1465,19 @@ class Inputs extends GameObject {
         // move right
         this.pos.x += this.WALKING;
 
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
     left() {
 
         // move left
-        //console.log("key A as pressed! ");
+        console.log("key left was pressed! ");
 
         //update input buffer
-        this.input_buffer.push(this.input_state.get("LEFT") ?? 2);
+        // to do
+        // (1) fix input buffer spammer
+        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("LEFT") ?? 2);}
 
 
         // update current state
@@ -1264,8 +1485,14 @@ class Inputs extends GameObject {
 
         // move left
         this.pos.x -= this.WALKING;
+
+        // Little JS vibrate for 100 ms
+        vibrate(40);
     }
 
+    getState() : number {
+        return this.state;
+    }
 
 }
 
@@ -1528,6 +1755,9 @@ class Player extends GameObject {
                 this.facingPos = 3;
             },
             6 : () => {
+
+                //temporarily adding for testing
+                //this.state["STATE_WALKING"]()
                 // idle state
                 // use the previous facing position 
                 // to play the corresponding idle animation
@@ -1617,10 +1847,12 @@ class Player extends GameObject {
         // triggers the state machine logic
         // feeds the input state into the state machine logics
         // match inputs and match state
-
-        let sstate : number = this.input.state!
+        // bug:
+        // (1) theres a time lag between the button pressed and button released causing a stuck idle bug
+        let sstate : number = this.input.getState();
         
-        //console.log("stae debug 1 : ", sstate);
+        // to do: (1) fix stuck idle state bug and input buffer spammer
+        //console.log("stae debug 12: ", sstate, "/", this.input.get_Buffer());
         
         // gets the input state from the singleton
         // passes it as a parameter to the state machine logic
@@ -1916,11 +2148,12 @@ class EnemySpawner extends GameObject {
     //spawn an enemy count at specific posisitons
     constructor() {
         super();
-        console.log("Enemy Spawner Instanced");
 
         this.ENABLE = true;
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         this.COUNTER = 0; // counter for calculatin how much enemies been spawned
+        console.log("Enemy Spawner Instanced: ", this.ENABLE);
+
     }
 
     update() {
@@ -2896,6 +3129,11 @@ class UI extends UIObject {
     timer: LittleJS.Timer = new Timer();
     public SHOW_DIALOGUE: boolean = false;
     public SHOW_MENU: boolean = true;
+
+
+    // safe pointer to the music global singleton
+    private local_music_singleton = window.music;
+
     constructor() {
 
         super(vec2(), vec2());
@@ -2951,15 +3189,20 @@ class UI extends UIObject {
         return this.SHOW_MENU; // Show the carousel
     };
 
+    /**
+     *  In Game Menu Visibility controls & settings
+     * 
+     */
     set MenuVisible(visible_: boolean) {
         // Toggles Menu Visibility
         this.SHOW_MENU = visible_;
 
         // play toggle sfx
-        if (window.music) {
-            window.music.sound_start.play(); // play sfx
+        if (this.local_music_singleton) {
+            this.local_music_singleton.ui_sfx[2].play(); // play robotic sfx
         }
 
+        // game menu visibility
         if (visible_ == false) {
             this.menuContainer!.classList.add("hidden");
 
@@ -3095,6 +3338,11 @@ class UI extends UIObject {
         this.dialogButton = new UITextureButton(tile(0, 64, 3, 0), vec2(950, 80), vec2(50)); //works
         this.menuButton = new UITextureButton(tile(3, 64, 3, 0), vec2(80, 80), vec2(50));
 
+        /**
+         * 
+         * HUD Button Signal connections
+         * 
+         */
         // Game HUD Signals
         // connect signals here
         this.menuButton.onPress = () => {
@@ -3108,7 +3356,7 @@ class UI extends UIObject {
             this.MenuVisible = !menuVisible2;
 
             console.log("Menu Button Pressed")
-
+          
 
 
         };
@@ -3208,8 +3456,11 @@ class UI extends UIObject {
             this.newGame = this.createMenuOption("New Game", "newgame.html", () => {
 
                 console.log('New Game Pressed');
+                
                 window.music.sound_start.play();
 
+                // Play Randomised Playlist With Zzfxm optimmised for bandwidth
+                window.music.play(); //works
 
                 // apply gravity to 3d model to trigger game start
                 window.simulation = new Simulation();
@@ -3267,12 +3518,6 @@ class UI extends UIObject {
             }
         };
         
-        //option.onclick = (event) => {
-        //    event.preventDefault(); // Prevent navigation
-        //    if (this.menuContainer!.style.display !== "none") {
-        //        onPress();
-        //    }
-        //};
 
         // Use pointerdown for broad device compatibility
         option.addEventListener("pointerdown", handler);
@@ -3605,13 +3850,15 @@ function gameInit() {
     window.globals = new Globals;
     window.utils = new Utils;
     window.music = new Music;
+
+  
+
     window.wallet = new Wallet(false);
 
     //get device browser type/ platform
     window.utils.detectBrowser();
 
-    // Play Randomised Playlist With howler JS
-    window.music.play_track(); //works, disabled to save bandwidth
+
 
 
 
@@ -3687,6 +3934,7 @@ function gameRender() {
 
             //turn game menu invisibke
             window.ui.MenuVisible = false;
+
 
 
         }
