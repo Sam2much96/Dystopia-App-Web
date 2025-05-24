@@ -40,8 +40,8 @@ setTouchGamepadAlpha,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrat
 
 //export * from './audio/zzfx.js'; // adjust the path as needed
 
-import { zzfxM } from './audio/zzfxm.mjs';
-import {zzfxP, zzfxX} from  "./audio/zzfx.mjs";
+import { zzfxM } from './audio/zzfxm';
+import {zzfxP, zzfxX} from  "./audio/zzfx";
 
 import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
@@ -317,9 +317,6 @@ class Music {
         //error catcher for double music plays
         if (this.counter == 0){
     
-
-        //let buffer : number[][];
-        //let node :  AudioBufferSourceNode;
 
         // Loads a song
         const load = async ()  => {
@@ -1179,6 +1176,7 @@ class Inputs extends GameObject {
     Bugs:
     (1) Input buffer spamming
     (2) Stuck idle bug - temprarily disabling idle state for input buffer spamming fix
+    (3) Vibration spamming bug on mobile
     */
 
     public color: LittleJS.Color;
@@ -1190,6 +1188,12 @@ class Inputs extends GameObject {
     //input buffer conditional
     public saveBuffer : boolean = false;
 
+    //private local_global_singleton = window.globals;//safe pointer to global singleton for game settings
+    
+    // game controls & settings
+    public vibrate : boolean = false; // game vibration on mobile temporarily turned for for state machine refactor
+
+    
     constructor() {
         super();
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
@@ -1224,7 +1228,8 @@ class Inputs extends GameObject {
          * (1) Maps Key Presses To Input States And Appends Them to The input buffer
          * 
          * To DO:
-         * (1) FIx idle state stuck bug
+         * (1) FIx idle state stuck bug by rewriting state machine logic like the player state machine.
+         *   - less ifs 
          */
 
 
@@ -1355,8 +1360,13 @@ class Inputs extends GameObject {
             return 0;
         }
 
+        /**
+         * 
+         * Input Buffer cache management
+         * 
+         */
         // Prevents Buffer/ Mem Overflow for Input Buffer
-        if (this.input_buffer.length > 24) {
+        if ( this.saveBuffer && this.input_buffer.length > 12) {
             this.input_buffer.length = 0; // Clears the array
         }
 
@@ -1396,8 +1406,13 @@ class Inputs extends GameObject {
         // update current state
         this.state = this.input_state.get("ATTACK")!;
 
+        if (this.vibrate == true){
+
+        // to do : 
+        // (1) fix vibrate duration on mobile with a delay timer 
         // Little JS vibrate for 100 ms
         vibrate(40);
+        }
     }
 
     roll() {
@@ -1413,7 +1428,7 @@ class Inputs extends GameObject {
 
 
         // Little JS vibrate for 100 ms
-        vibrate(40);
+        if (this.vibrate == true){vibrate(40);}
     }
 
     up() {
@@ -1435,7 +1450,7 @@ class Inputs extends GameObject {
         //console.log("Position debug 1: ", this.pos.x);
 
         // Little JS vibrate for 100 ms
-        vibrate(40);
+        if (this.vibrate == true){vibrate(40);}
     }
 
     down() {
@@ -1451,7 +1466,7 @@ class Inputs extends GameObject {
         this.pos.y -= this.WALKING;
 
         // Little JS vibrate for 100 ms
-        vibrate(40);
+        if (this.vibrate == true){vibrate(40);}
     }
 
     right() {
@@ -1469,7 +1484,7 @@ class Inputs extends GameObject {
         this.pos.x += this.WALKING;
 
         // Little JS vibrate for 100 ms
-        vibrate(40);
+        if (this.vibrate == true){vibrate(40);}
     }
 
     left() {
@@ -1490,7 +1505,7 @@ class Inputs extends GameObject {
         this.pos.x -= this.WALKING;
 
         // Little JS vibrate for 100 ms
-        vibrate(40);
+        if (this.vibrate == true){vibrate(40);}
     }
 
     getState() : number {
@@ -2553,6 +2568,8 @@ class Globals {
     public score: number;
     public kill_count: number;
     public GAME_START: boolean;
+
+    
 
     constructor() {
 

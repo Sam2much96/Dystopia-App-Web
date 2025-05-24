@@ -5,4 +5,5 @@ kenny ui-pack/
 game.js
 dist/
 file-structure.txt
+*.d.ts
 
