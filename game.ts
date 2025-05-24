@@ -339,6 +339,8 @@ class Music {
         const parse = (str: string) => {
 
             // regex process the song files
+            // bug :
+            // (1) regex logic creates whitespace bug when parsing json
             str = str.replace(/\[,/g,'[null,')
             .replace(/,,\]/g,',null]')
             .replace(/,\s*(?=[,\]])/g,',null')
@@ -346,7 +348,8 @@ class Music {
             .replace(/-\./g,'-0.')
             .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
 
-            // console.log("song debug: ",str);
+            
+            console.log("song debug: ",str);
 
             return JSON.parse(str, (key, value) => {
             if (value === null) {
