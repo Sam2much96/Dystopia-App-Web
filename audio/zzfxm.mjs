@@ -30,7 +30,7 @@
  * @returns {Array.<Array.<Number>>} Left and right channel sample data.
  */
 
-import {zzfxR,zzfxG} from "./zzfx";
+import {zzfxR,zzfxG} from "./zzfx.mjs";
 
 export const zzfxM = (instruments, patterns, sequence, BPM = 125) => {
   let instrumentParameters;

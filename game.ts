@@ -40,8 +40,8 @@ setTouchGamepadAlpha,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrat
 
 //export * from './audio/zzfx.js'; // adjust the path as needed
 
-import { zzfxM } from './audio/zzfxm';
-import {zzfxP, zzfxX} from  "./audio/zzfx";
+import { zzfxM } from './audio/zzfxm.mjs';
+import {zzfxP, zzfxX} from  "./audio/zzfx.mjs";
 
 import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
