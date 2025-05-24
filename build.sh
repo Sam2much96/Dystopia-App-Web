@@ -27,6 +27,7 @@ cd dist/ &&
 
 
 echo "dist debug: " &&
+
 # List all files
 ls -al 
 
