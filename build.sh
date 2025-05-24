@@ -7,6 +7,10 @@
 
 #!/bin/bash
 
+set -euo pipefail
+
+echo "🔧 Building the project with Vite..." &&
+
 # Build the project with Vite
 npx vite build && 
 
@@ -17,6 +21,7 @@ echo "dir debug: " &&
 ls -al &&
 
 
+echo "📁 Changing to dist directory..."
 # Change to the dist directory and debug all files in there
 cd dist/ &&
 
