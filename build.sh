@@ -10,24 +10,22 @@
 # Build the project with Vite
 vite build & \
 
-# Change to the dist directory
-cd dist & \
+
+# Debug the Home Directory
+echo "dir debug: " & \
+
+ls -al & \
 
 
-echo "dist debug: " &\
+# Change to the dist directory and debug all files in there
+cd dist/ & \
+
+
+echo "dist debug: " & \
 # List all files
 ls -al & \
 
 
-# copies out the build assets to the public directory and check
-# Copy index.html and assets to ../public/
-cp -R index.html ./assets ../public/ & \
 
-# Change to the public directory
-cd ../public & \
 
-echo "public debug: " & \
-
-# List all files in public
-ls -al
 
