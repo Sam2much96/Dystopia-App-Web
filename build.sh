@@ -8,22 +8,22 @@
 #!/bin/bash
 
 # Build the project with Vite
-vite build & \
+npx vite build && 
 
 
 # Debug the Home Directory
-echo "dir debug: " & \
+echo "dir debug: " && 
 
-ls -al & \
+ls -al &&
 
 
 # Change to the dist directory and debug all files in there
-cd dist/ & \
+cd dist/ &&
 
 
-echo "dist debug: " & \
+echo "dist debug: " &&
 # List all files
-ls -al & \
+ls -al 
 
 
 
