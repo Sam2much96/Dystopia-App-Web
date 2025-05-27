@@ -26,7 +26,7 @@ ls -al &&
 
 
 # copy audio files
-cp -r audio dist/ &&
+#cp -r audio dist/ &&
 
 # copy enemy tileset
 cp enemy_tileset_128x128.png /dist &&

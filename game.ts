@@ -14,10 +14,17 @@ Bugs
 (1) Overworld load times on mobile browsers is long
 (2) Buttons aren't interractive, add sfx
 (3) Input is terrible on mobile browsers
+
+
+To Do:
+(1) import only the modules you need for faster load time
+(2) Implement yandex ads services
+(3) Create global sprite atlas for each tileset in game init
+
 */
 
 //teplorarily disabling for ads testing -"use strict"
-// TO DO: import only the modules you need for faster load time
+// TO DO: 
 
 
 
@@ -345,8 +352,8 @@ class Music {
             .replace(/-\./g,'-0.')
             .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
 
-            
-            console.log("song debug: ",str);
+            //
+            //console.log("song debug: ",str);
 
             return JSON.parse(str, (key, value) => {
             if (value === null) {
@@ -1116,6 +1123,27 @@ class Utils {
     }
 
     
+      // Math functions
+    static directionTo(from: LittleJS.Vector2, to: LittleJS.Vector2): LittleJS.Vector2 {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    return length === 0 ? vec2(0, 0) : vec2(dx / length, dy / length);
+    }
+
+    static restaVectores(v1 : LittleJS.Vector2, v2 : LittleJS.Vector2) : LittleJS.Vector2{ //vector substraction
+        return vec2(v1.x - v2.x, v1.y - v2.y)
+        }
+
+    static sumaVectores(v1 : LittleJS.Vector2, v2 : LittleJS.Vector2) : LittleJS.Vector2 { //vector sum
+        return vec2(v1.x + v2.x, v1.y + v2.y)}
+    
+    static round(value : number, precision :number) { // round up numbers
+         var multiplier = Math.pow(10, precision || 0);
+        return Math.round(value * multiplier) / multiplier;
+    }
+    
+    
 }
 
 class Screen extends EngineObject {
@@ -1144,7 +1172,20 @@ update(){
 }
 
 class GameObject extends EngineObject {
-    // Base Class for All Game Objects
+    /**
+     * Base Class for All Game Objects
+     * 
+     * Features
+     * (1) Animation functions
+     * (2) Destroy functions
+     * 
+     */
+    // 
+    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
+    public mirror_: boolean = false; //false
+    public animationCounter : number = 0.1 // 0.1 seconds for each animation
+    public currentFrame : number = 0;
+
     constructor() {
         super();
         console.log("Loading Utils Singleton");
@@ -1156,6 +1197,9 @@ class GameObject extends EngineObject {
         // Logic for general object destruction
         console.log("GameObject destroyed");
     }
+
+
+
 }
 
 
@@ -1432,18 +1476,18 @@ class Inputs extends GameObject {
     }
 
     up() {
-        console.log("key up was pressed! ");
+        //console.log("key up was pressed! ");
 
         // update input buffer
         if (this.saveBuffer){this.input_buffer.push(this.input_state.get("UP") ?? 0);}
 
         let y = this.input_state.get("UP")!
-        console.log("state debug 3:", y);
+        //console.log("state debug 3:", y);
         
         // update current state
         this.state = y;
 
-        console.log("state debug 1: ", this.state);
+        //console.log("state debug 1: ", this.state);
 
         // move up
         this.pos.y += this.WALKING;
@@ -1454,7 +1498,7 @@ class Inputs extends GameObject {
     }
 
     down() {
-        console.log("key down as pressed! ");
+        //console.log("key down as pressed! ");
 
         // update input buffer
         if (this.saveBuffer){this.input_buffer.push(this.input_state.get("DOWN") ?? 1);}
@@ -1472,7 +1516,7 @@ class Inputs extends GameObject {
     right() {
 
         //move right
-        console.log("key right was pressed! ");
+        //console.log("key right was pressed! ");
 
         //update input buffer
         if (this.saveBuffer){this.input_buffer.push(this.input_state.get("RIGHT") ?? 3);}
@@ -1490,7 +1534,7 @@ class Inputs extends GameObject {
     left() {
 
         // move left
-        console.log("key left was pressed! ");
+        //console.log("key left was pressed! ");
 
         //update input buffer
         // to do
@@ -1543,7 +1587,7 @@ class Player extends GameObject {
     private pushback: number = 5000;
 
     // Properties
-    private input: Inputs;
+    private input: Inputs = window.input;
     private hitpoints: number;
     private linear_vel = LittleJS.vec2(0, 0);
     private roll_direction = LittleJS.vec2(0, 1);
@@ -1552,8 +1596,23 @@ class Player extends GameObject {
 
 
     // State Machines Enumerations
-    private TOP_DOWN: Map<string, number>;
-    private FACING: Map<string, number>;
+    private TOP_DOWN: Map<string, number> = new Map([
+            ['STATE_BLOCKED', 0],
+            ['STATE_IDLE', 1],
+            ['STATE_WALKING', 2],
+            ['STATE_ATTACK', 3],
+            ['STATE_ROLL', 4],
+            ['STATE_DIE', 5],
+            ['STATE_HURT', 6],
+            ['STATE_DANCE', 7]
+        ]);
+    ;
+    private FACING: Map<string, number> = new Map([
+            ['UP', 0],
+            ['DOWN', 1],
+            ['LEFT', 2],
+            ['RIGHT', 3],
+        ]);
     
     // State Machines Actions
     public state: Record<string, () => void>;
@@ -1562,9 +1621,9 @@ class Player extends GameObject {
 
     // References
     private local_heart_box: any; // Update type to match UI class
-    private blood: any = null;
-    private despawn_particles: any = null;
-    private die_sfx: any = null;
+    private blood: any | undefined;
+    private despawn_particles: any  | undefined;
+    private die_sfx: any | undefined;
     private hurt_sfx: any = null;
     private music_singleton_: any = null;
 
@@ -1575,25 +1634,23 @@ class Player extends GameObject {
     public animationTimer: LittleJS.Timer = new Timer();
     public currentFrame: number = 0;
     public previousFrame: number = 0;
-    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
-    public mirror_: boolean = false; //false
-    public animationCounter : number = 0.1 // 0.1 seconds for each animation
 
     // Player Animation frame data sorted as arrays
     private RunUp : Array<number> =[3, 4, 5, 6, 7, 8];
     private RunDown : Array<number> =[9, 10, 11, 12, 13, 14, 15];
     private RunLeft : Array<number> =[17, 18, 19, 20, 21, 22];
     private RunRight : Array<number> =[17, 18, 19, 20, 21, 22];
-    private IdleUp : Array<number> =[0];
+    private IdleUp : Array<number> =[2];
     private IdleDown : Array<number> =[0];
-    private IdleLeft : Array<number> =[0];
-    private IdleRight : Array<number> =[0];
+    private IdleLeft : Array<number> =[1];
+    private IdleRight : Array<number> =[1];
     private Roll : Array<number> =[0];
-    private AttackUp : Array<number> =[0];
-    private AttackDown : Array<number> =[0];
-    private AttackLeft : Array<number> =[0];
-    private AttackRight : Array<number> =[0];
-    private Despawn : Array<number> =[0];
+    private AttackUp : Array<number> =[36,37,38,39,40,41,42];
+    private AttackDown : Array<number> =[23,24,25,26,27,28];
+    private AttackLeft : Array<number> =[29,30,31,32,33,34,35]; 
+    private AttackRight : Array<number> =[29,30,31,32,33,34,35]; // duplicate of right animatoin with mirror
+    private Despawn : Array<number> =[43,44];
+    private Dance : Array<number> = [47,48];
 
     constructor() {
 
@@ -1608,7 +1665,7 @@ class Player extends GameObject {
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
 
-        this.input = window.input; // global input singleton
+        //this.input = window.input; // global input singleton
 
         // create a pointer to the Particle fx class
 
@@ -1617,7 +1674,7 @@ class Player extends GameObject {
 
 
         // Player Logic Variables 
-        this.WALK_SPEED = 500; // pixels per second 
+        this.WALK_SPEED = 1.65; // pixels per second 
         this.ROLL_SPEED = 1000; // pixels per second
         //this.GRAVITY = 0; // For Platforming Levels // used simulation gravity instead
         this.ATTACK = 1; // For Item Equip
@@ -1649,24 +1706,9 @@ class Player extends GameObject {
 
 
         // player state machine
-        this.TOP_DOWN = new Map([
-            ['STATE_BLOCKED', 0],
-            ['STATE_IDLE', 1],
-            ['STATE_WALKING', 2],
-            ['STATE_ATTACK', 3],
-            ['STATE_ROLL', 4],
-            ['STATE_DIE', 5],
-            ['STATE_HURT', 6],
-            ['STATE_DANCE', 7]
-        ]);
+
 
         // PLAYER'S FACING
-        this.FACING = new Map([
-            ['UP', 0],
-            ['DOWN', 1],
-            ['LEFT', 2],
-            ['RIGHT', 3],
-        ]);
 
         // set initial player's default state
         this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
@@ -1822,14 +1864,65 @@ class Player extends GameObject {
             },
 
             "STATE_WALKING" : () => {
-                // walking state
-                this.pos.x = this.input.pos.x;
-                this.pos.y = this.input.pos.y;
 
+                const delta = window.simulation.deltaTime!;
+                // walking state
+                // ice level walking stage?
+                //this.pos.x += this.input.pos.x * this.WALK_SPEED * delta ;
+                //this.pos.y += this.input.pos.y * this.WALK_SPEED  * delta;
+
+
+                this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
+                this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
             },
         }
     }
 
+    animate(currentFrame: number, sequence: number[]): number {
+        /** 
+         * Animation Function
+         * 
+         * Features:
+         * 
+         * (1) Loops through an array sequence and return this current frame
+         * (2) Plays animation loops
+         *
+         *  Usage Examples:
+            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+
+        * Bugs :
+        * (1) Doesn't work with enemy run up animation frames 
+        */
+       
+        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+        const index = sequence.indexOf(currentFrame);
+        
+        if (index === -1) {
+            // Not found in the sequence — maybe default to the first frame or throw an error
+            //console.warn(`Frame ${currentFrame} not in sequence`, sequence);
+            //console.trace("Trace of who called me");
+            return sequence[0]; // or throw new Error("Invalid currentFrame")
+        }
+
+        return sequence[(index + 1) % sequence.length];
+        
+    }
+
+    playAnim(anim: Array<number>){
+
+        // play the animation for 0.1 seconds
+        if (this.frameCounter >= this.animationCounter) {
+            
+            //loop animation function
+            this.currentFrame = this.animate(this.currentFrame, anim);
+
+            this.frameCounter = 0; // Reset timer
+                    
+        }
+    }
 
     update() {
         /**
@@ -1918,7 +2011,7 @@ class Player extends GameObject {
             this.destroy();
 
             // set the global player to null
-            window.player = null;
+            //window.player = null;
         }
     }
 
@@ -1931,36 +2024,7 @@ class Player extends GameObject {
         return 0;
     }
 
-    animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-        */
-        const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-    }
 
-    playAnim(anim: Array<number>){
-
-        // play the animation for 0.1 seconds
-        if (this.frameCounter >= this.animationCounter) {
-
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-
-            this.frameCounter = 0; // Reset timer
-                    
-        }
-    }
 }
 
 class Enemy extends GameObject {
@@ -1969,33 +2033,75 @@ class Enemy extends GameObject {
     // (2) Enemy Mob logic using Utils functions
     // (3) Enemy State Machine
     // (4) Enemy Collisions
-    // (5) Enemy Animations (1/2)
+    // (5) Enemy Animations (2/2)
 
-    //private pos: Vector2 = vec2();
-    //public size: Vector2;
-    public tileInfo: any;
-    public hitpoints: number;
-    public speed: number;
+
+    public hitpoints: number = 3;
+    public speed: number = 3;
     public detectionRange: number;
     public minDistance: number;
     public wanderCooldown: number;
     private targetPos: Vector2;
-    private enemy_type: Map<string, number>;
-    private state_machine: Map<string, number>;
-    private IDIOT_FRAME_RATE: number;
-    private SLOW_FRAME_RATE: number;
-    private AVERAGE_FRAME_RATE: number;
-    private FAST_FRAME_RATE: number;
+    
+    private enemy_type: Map<string, number> = new Map([
+            ['EASY', 0],
+            ['INTERMEDIATE', 1],
+            ['HARD', 2]
+    ]);
+    
+
+    
+    //private facing : Map<string, number> = new Map ([
+    //    ["up",0],
+    //    ["down",1],
+    //    ["left", 2],
+    //    ["right",3]
+    //]);
+
+    private facing_ : number = 1; // stores the current facing direction
+
+    // Match Frame Rate to Both Enemy TIme And Engine FPS
+    private IDIOT_FRAME_RATE: number = 60;
+    private SLOW_FRAME_RATE: number = 30;
+    private AVERAGE_FRAME_RATE: number = 15;
+    private FAST_FRAME_RATE: number = 5;
     private despawn_timer: any;
+
+    //Animation variables
+    //public currentFrame : number = 0;
+    
+    // animation frames
+    private RunUp : Array<number> =[28,29,30,31];
+    private RunDown : Array<number> =[20,21,22,23];
+    private RunLeft : Array<number> =[24,25,26,27];
+    private RunRight : Array<number> =[24,25,26,27];
+    private AttackUp : Array<number> = [6,7,8];
+    private AttackDown : Array<number> = [0,1,2];
+    private AttackLeft : Array<number> = [3,4,5];
+    private AttackRight : Array<number> = [3,4,5];
+    private Roll : Array<number> = [15,16,17,18,19];
+
+    // state machine variables
+
+    public state: Record<string, () => void>;
+    public facing: Record<number, () => void>;
+    public X : number = 0;
+    public Y : number  = 0; // used for facing animation calculations
+
+    // Enemy AI variables
+    public local_player_object : Player = window.player;
+    public direction : Vector2 = vec2(0);
+    public length : number = 0;
+    public delta : any;
 
     constructor(pos: Vector2) {
         super();
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
 
+        console.log("creating enemy object");
 
-
-        this.tileInfo = tile(0, 128, 2, 0); // set player's sprite from tile info
+        this.size = vec2(0.8);
 
         // set enemy position from the initialisation script
         //this.pos = pos.copy();
@@ -2003,48 +2109,30 @@ class Enemy extends GameObject {
         // store object to global pointer for object pooling
         window.globals.enemies.push(this);
 
-        this.hitpoints = 1; //set a default enemy hp
 
         // store player object in global array
-        //window.globals.enemies.push(this);
+        window.globals.enemies.push(this);
 
-        // Enemy Type Enum
-        this.enemy_type = new Map([
-            ['EASY', 0],
-            ['INTERMEDIATE', 1],
-            ['HARD', 2]
-        ])
 
-        // Match Frame Rate to Both Enemy TIme And Engine FPS
-        this.IDIOT_FRAME_RATE = 60
-        this.SLOW_FRAME_RATE = 30
-        this.AVERAGE_FRAME_RATE = 15
-        this.FAST_FRAME_RATE = 5
-
+        // Enemy State Machine initialisation
+        this.state = this.State();
+        this.facing = this.Facing();
 
         //Input State Machine Enumeration
-        this.state_machine = new Map([
-            ['UP', 0],
-            ['DOWN', 1],
-            ['LEFT', 2],
-            ['RIGHT', 3],
-            ['ATTACK', 4],
-            ['ROLL', 5],
-            ['MOB', 6],
-        ]);
+        //this.state_machine = 
 
         // Enemy Movement Logic
         //this.velocity = vec2(0, 0); // default temp velocity
 
         // Testing Enemy Type Enumeration
-        console.log("Input Debug 1: ", this.enemy_type.get("EASY"));
+        console.log("Input Debug 1: ", this.enemy_type.get("EASY"), "/ player debug 3: ", this.local_player_object);
 
         // Enemy collision & mass
         //this.setCollision(true, true); // make object collide
         //this.mass = 0; // make object have static physics
 
         //enemy AI variables
-        this.speed = 1.5// Movement speed
+        //this.speed = 150 ;// Movement speed
         //this.size = 20; // Enemy size for collision
         this.detectionRange = 200; // Range to detect the player
         this.minDistance = 30; // Minimum distance from player to stop following
@@ -2059,29 +2147,31 @@ class Enemy extends GameObject {
 
 
     }
+    render(){
+        // draw the enemy tiles
+        //console.log(this.currentFrame); // frame positioning doesnt start from 0
+        //down : 17,18,19,20
+        // bug: enemy tileset cuts off the last frame row
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror_);
+
+    }
     update() {
 
-        if (window.player) {
-            // enemy AI
+        this.frameCounter += window.simulation.deltaTime!
 
-            //calculate enemy distance to player
-            const dx = window.player.pos.x - this.pos.x;
-            const dy = window.player.pos.y - this.pos.y;
-            const distanceToPlayer = Math.sqrt(dx * dx + dy * dy);
+        if (this.local_player_object) {
 
-            const MOB = true;
-
-            if (MOB) {
+            // trigger the enemy mob state
+            this.state["STATE_MOB"]();
+            
+            this.X = Math.round(this.direction.x);
+            this.Y = Math.round(this.direction.y);
 
 
-                // Follow the player
-                // Follow the player
-
-                //console.log("following the player");
-                this.pos.x += (dx / distanceToPlayer) * this.speed * timeDelta;
-                this.pos.y += (dy / distanceToPlayer) * this.speed * timeDelta;
-            }
-
+            //console.log("x: ",this.X, " y: ",this.Y);
+            //update the facing for animation calculation
+            
+            this.update_facing(this.X, this.Y);
 
             // Enemy hit collision detection
             if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
@@ -2094,6 +2184,7 @@ class Enemy extends GameObject {
                 // TO DO: 
                 // (1) Trigger Kickback Logic
                 // (2) Add Raycast for detection
+                return 0;
             }
 
         }
@@ -2114,6 +2205,16 @@ class Enemy extends GameObject {
         /////    this.destroy();
         //}
 
+    }
+
+    moveAndSlide(velocity: LittleJS.Vector2): void {
+    //this.pos.x = this.pos.x + velocity.x;
+     //this.pos.y = this.pos.y + velocity.y;
+    this.velocity = (Utils.sumaVectores(this.velocity, velocity));
+    
+    this.pos = this.velocity;
+    //this.pos.x = Utils.round(this.velocity.x,6);
+    //this.pos.y = Utils.round((this.velocity.y),6);
     }
 
     _get_player() {
@@ -2155,7 +2256,176 @@ class Enemy extends GameObject {
         return 0;
     }
 
-    render(){}
+    update_facing(X : number, Y : number){
+        // Updates the enemy object's facing parameter for animation
+        //
+        //cheat sheet:
+        //["up",0],
+        //["down",1],
+        //["left", 2],
+        //["right",3]
+        //console.log("Updating facing");
+        
+        if (X == 0 && Y == 1){
+            //console.log("facing up"); // up
+            this.facing[0]();
+            //this.playAnim(this.RunUp);
+
+            //this.facing_ = this.facing.get("down") ?? 1;
+        }
+
+        if (X == 1 && Y == 0){
+            //console.log("facing right");
+            this.facing[3]();
+            //this.facing_ = this.facing.get("right") ?? 3;
+        }
+        if (X == -1 && Y == 0){
+            //console.log("facing left");
+            this.facing[2]();
+            //this.facing_ = this.facing.get("left") ?? 2;
+        }
+        if (X == 0 && Y == -1){
+            //console.log("facing down"); //down
+            this.facing[1]();
+            //this.facing_ = this.facing.get("up") ?? 0;
+        }
+        }
+
+
+    // State Machines
+    // enemy state machine
+    // describes each states and is assigned to a class variable in the consstructor
+    State(): Record<string, () => void>  {
+
+        return {
+            "STATE_BLOCKED" : () => {
+
+            },
+
+            "STATE_MOB" : () => {
+
+                // enemy mob ai
+
+                /**
+                * Enemy Mob AI
+                * 
+                * Features:
+                * 
+                * (1) Compute the direction from AI to player.
+                * (2) Normalize that direction.
+                * (3) Multiply by AI speed × deltaTime to get movement.
+                * (4) Add that movement to the AI's position.
+                *  
+                */
+                this.delta = window.simulation.deltaTime!;
+
+                // get initial direction to player
+                this.direction = Utils.restaVectores(this.local_player_object.pos, this.pos);
+
+                // get length to player
+                // to do: i can use the direction to calculate the facing and play the appropriate
+                this.length = Math.hypot(this.direction.x, this.direction.y);
+
+                // if it's more than 1 pixel, normalize the direction
+                // less than a pixel bugs out the calculation
+                // to do:  use this logic to map out player detectoin range logic
+                if (this.length > 10.0) { // bugs out if the length is too low
+                        this.direction.x /= this.length;
+                        this.direction.y /= this.length;
+                    }
+
+                
+
+                
+                            
+                // Add movement to ai position
+                this.pos.x += this.direction.x * this.speed * this.delta;
+                this.pos.y += this.direction.y * this.speed * this.delta;
+
+            },
+        }
+    }
+
+    //cheatsheet
+    //["up",0],
+    //["down",1],
+    //["left", 2],
+    //["right",3]
+
+    Facing(): Record < number, () =>void>{
+        return{
+        0 : () => {
+
+            // facing up
+            this.mirror_ = false;
+            //console.log("playing run up anims: ", this.RunUpp);
+            this.playAnim(this.RunUp);
+        },
+        1 : () => {
+            // facing down
+            this.mirror_ = false;
+            this.playAnim(this.RunDown);
+
+        },
+        2 : () => {
+            //facing left
+            this.mirror_ = true;
+            this.playAnim(this.RunLeft);
+        },
+        3 : () => {
+            //facing right
+            this.mirror_ = false;
+            this.playAnim(this.RunRight);
+        }
+     }
+    }
+
+    animate(currentFrame: number, sequence: number[]): number {
+        /** 
+         * Animation Function
+         * 
+         * Features:
+         * 
+         * (1) Loops through an array sequence and return this current frame
+         * (2) Plays animation loops
+         *
+         *  Usage Examples:
+            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+
+        * Bugs :
+        * (1) Doesn't work with enemy run up animation frames 
+        */
+       
+        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+        let index = sequence.indexOf(currentFrame);
+        
+        if (index === -1) {
+            // Not found in the sequence — maybe default to the first frame or throw an error
+            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
+            //console.trace("Trace of who called me");
+            //return sequence[0]; // or throw new Error("Invalid currentFrame")
+            index = sequence[0];
+        }
+
+        return sequence[(index + 1) % sequence.length];
+        
+    }
+
+    playAnim(anim: Array<number>){
+
+        // play the animation for 0.1 seconds
+        if (this.frameCounter >= this.animationCounter) {
+            
+            //loop animation function
+            this.currentFrame = this.animate(this.currentFrame, anim);
+            //console.log(this.currentFrame);
+            this.frameCounter = 0; // Reset timer
+                    
+        }
+    }
 
 }
 class EnemySpawner extends GameObject {
@@ -3480,7 +3750,7 @@ class UI extends UIObject {
                 window.music.sound_start.play();
 
                 // Play Randomised Playlist With Zzfxm optimmised for bandwidth
-                window.music.play(); //works
+                //window.music.play(); //works
 
                 // apply gravity to 3d model to trigger game start
                 window.simulation = new Simulation();
@@ -3776,8 +4046,8 @@ declare global {
         utils: Utils,
         music: Music,
         input: Inputs,
-        player: Player | null,
-        enemyspawner: EnemySpawner,
+        player: Player,
+        enemy: Enemy,
         wallet: Wallet;
         map: OverWorld;
         simulation: Simulation;
@@ -3785,11 +4055,14 @@ declare global {
     }
 
     interface Vector2 {
-        copy(): Vector2;
-        add(arg0: any): any;
-        multiply(arg0: LittleJS.Vector2): any;
         x: number;
         y: number;
+        copy(): Vector2;
+        add(arg0: Vector2): Vector2;
+        multiply(arg0: Vector2): Vector2;
+        //directionTo(arg0: Vector2, arg1: Vector2): Vector2;
+
+
     }
 
     interface Vector3 {
@@ -3822,6 +4095,7 @@ declare global {
 
 }
 }
+
 
 
 
@@ -3890,6 +4164,9 @@ function gameInit() {
 
     //Initialise 3d scene render
     // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
+
+    // Bug:
+    // (1) there's a bug, if model is not loaded, game startup logic is broken 
     window.THREE_RENDER.LoadModel();
     //window.THREE_RENDER.Cube();
 
@@ -3902,9 +4179,13 @@ function gameInit() {
     window.THREE_RENDER.animate();
 
     //Ads
+    // to do: 
+    // (1) port ads mediator to yandex
     //buggy & performance hog
     //const ads = new Adsense();
     //ads.loadAdSense();
+
+
 
     //draw title screen
     // TO DO :
@@ -3942,13 +4223,19 @@ function gameRender() {
 
         //create overworld map
         if (!window.map) {
+
+            window.music.play(); //works
             window.map = new OverWorld();
         }
 
+
+   
         //create global player object
         if (!window.player) {
             window.player = new Player();
-
+            
+            // enemy teseting
+            window.enemy = new Enemy(vec2(5, 10));
             // setup the screen and camera
             const y = new Screen();
 
@@ -3959,14 +4246,7 @@ function gameRender() {
 
         }
 
-        //Spawn Enemy Object
-        if (!window.enemyspawner) {
-            window.enemyspawner = new EnemySpawner();
 
-            //window.enemy2 = new Enemy(vec2(5, 10), vec2(2, 2));
-
-            //window.enemy3 = new Enemy(vec2(5, 5), vec2(2, 2));
-        }
     }
 }
 
