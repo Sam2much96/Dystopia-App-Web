@@ -3713,7 +3713,7 @@ class OverWorld extends LittleJS.TileLayer {
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
 
         this.groundLayer.redraw();
-        this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
         this.tempExtLayer.redraw();
 
     }
