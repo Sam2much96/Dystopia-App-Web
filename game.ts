@@ -97,6 +97,10 @@ class Music {
     (5) Play is called on the sfx track directly
     (6) Music Synthesizer Docs: https://keithclark.github.io/ZzFXM/
     
+    TO DO:
+    (1) All music play in this codebase, should be routed through this object via a function
+    (2) separate music and sfx plays funcitionally
+
     Notes:
     (1) The SFX and Music Use 2 Different Systems, SFX USes ZzFX a js midi engine
         whereas Music Uses Audio Tags written into the index.html file and called by Element ID
@@ -353,7 +357,7 @@ class Music {
             .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
 
             //
-            console.log("song debug: ",str);
+            //console.log("song debug: ",str);
 
             return JSON.parse(str, (key, value) => {
             if (value === null) {
@@ -368,9 +372,11 @@ class Music {
 
           // Renders the song. ZzFXM blocks the main thread so defer execution for a few
          // ms so that any status message change can be repainted.
-          const render = (song : any[]) : Promise<number[][]> => {
-        return new Promise(resolve => {
-            setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
+         // to do:
+        // (1) fix audio balancing on headphones
+        const render = (song : any[]) : Promise<number[][]> => {
+            return new Promise(resolve => {
+                setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
             });
         }
 
@@ -614,6 +620,7 @@ class Inventory {
 
     render(): void {
 
+        console.log("rendering inventory UI database");
 
         this.inventoryUI = document.getElementById("inventory-container");
 
@@ -3218,8 +3225,8 @@ class UI  {
      * (1) external methods to toggle UI states as setter & getter functions
      */
 
-    get MenuVisible() {
-        return this.SHOW_MENU!; // Show the carousel
+    get MenuVisible() : boolean {
+        return this.SHOW_MENU;
     };
 
     /**
@@ -3249,7 +3256,7 @@ class UI  {
     };
 
 
-    get DialogVisible() {
+    get DialogVisible() : boolean {
 
         return !this.DIALOG_BOX.classList.contains("hidden");
     }
@@ -3356,7 +3363,9 @@ class UI  {
 
         // create buttons and bind their actions
         this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
-            this.stats.bind(this);
+            //this.stats.bind(this);
+            console.log("stats button pressed");
+            this.stats();
             window.music.ui_sfx[1].play();
         });
         this.walletButton = this.createTextureButton("./btn-stats.png","ui-button", () => {
@@ -3444,12 +3453,12 @@ class UI  {
      * @param onClick 
      * @returns 
      */
-    private createTextureButton(imgSrc: string, className: string, onClick: () => void): HTMLButtonElement {
+    private createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement {
         const btn = document.createElement("button");
         
         //btn.textContent = text;
         btn.className = className;
-        btn.addEventListener("pointerdown", onClick);
+        btn.addEventListener("pointerdown", onPress);
         const img = document.createElement("img");
         img.src = imgSrc;
         img.style.width = "100%";
