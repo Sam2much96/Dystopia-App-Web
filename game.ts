@@ -3712,9 +3712,6 @@ class OverWorld extends LittleJS.TileLayer {
         const templeChunk = overMap.layers[2].chunks[0];
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
 
-    }
-
-    ready(){
 
         this.groundLayer.redraw();
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
@@ -3886,8 +3883,7 @@ function gameInit() {
     window.utils = new Utils;
     window.music = new Music;
 
-    // preload overworld
-    window.map = new OverWorld();
+
   
 
     window.wallet = new Wallet(false);
@@ -3965,7 +3961,11 @@ function gameRender() {
     // draw tile allows for better object scalling
     if (window.globals.GAME_START) {
 
-
+        if (!window.map){
+            // preload overworld
+            window.map = new OverWorld();
+            console.log("map debug: ", window.map);
+        }
 
    
         //create global player object
@@ -3976,7 +3976,7 @@ function gameRender() {
             window.enemy = new Enemy(vec2(5, 10));
             
             //blood fx testing
-            //const q = new Blood_splatter_fx(vec2(0),vec2(5));
+            const q = new Blood_splatter_fx(vec2(0),vec2(5));
             
             
             // setup the screen and camera
@@ -3993,7 +3993,7 @@ function gameRender() {
         
             window.music.play(); //works
             
-            window.map.ready();
+            
         
 
         }
