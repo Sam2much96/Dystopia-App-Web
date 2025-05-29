@@ -353,7 +353,7 @@ class Music {
             .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
 
             //
-            //console.log("song debug: ",str);
+            console.log("song debug: ",str);
 
             return JSON.parse(str, (key, value) => {
             if (value === null) {
@@ -3422,7 +3422,7 @@ class UI  {
 
         this.Quit = this.createMenuOption("Quit", "#", () => {
             window.music.sound_start.play();
-            window.THREE_RENDER.showThreeLayer();
+            window.THREE_RENDER.showThreeLayer();// doesn;t work
         });
 
         // append buttons to menu container
