@@ -3702,14 +3702,14 @@ class OverWorld  {
         };
 
         // Extract and draw ground layer (7 chunks)
-        const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        drawChunks(groundChunks, groundChunks[0].width, this.groundLayer);
-        this.groundLayer.redraw();
+        //const groundChunks = overMap.layers[0].chunks.slice(0, 6);
+        //drawChunks(groundChunks, groundChunks[0].width, this.groundLayer);
+        //this.groundLayer.redraw();
 
         // Extract and draw tree/object layer (6 chunks)
-        const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        drawChunks(objectChunks, overMap.width, this.treesObjectLayer);
-        this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+        //const objectChunks = overMap.layers[1].chunks.slice(0, 5);
+        //drawChunks(objectChunks, overMap.width, this.treesObjectLayer);
+        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
