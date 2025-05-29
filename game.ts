@@ -3717,7 +3717,7 @@ class OverWorld extends LittleJS.TileLayer {
     ready(){
 
         this.groundLayer.redraw();
-        this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
         this.tempExtLayer.redraw();
     }
 
@@ -3973,7 +3973,7 @@ function gameRender() {
             window.enemy = new Enemy(vec2(5, 10));
             
             //blood fx testing
-            const q = new Blood_splatter_fx(vec2(0),vec2(5));
+            //const q = new Blood_splatter_fx(vec2(0),vec2(5));
             
             
             // setup the screen and camera
