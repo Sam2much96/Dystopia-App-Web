@@ -3641,8 +3641,8 @@ class OverWorld extends LittleJS.TileLayer {
     //to do:
     // (1) sort out the positioning and size of each tile layer
     groundLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), vec2(48), tile(2, 128, 4, 0));
-    treesObjectLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(10,15), this.LevelSize!, tile(2, 128, 4, 0));
-    tempExtLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), vec2(16), tile(2, 128, 4, 0));
+    treesObjectLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(10,15), this.LevelSize, tile(2, 128, 4, 0));
+    tempExtLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 4, 0));
 
     layerCount: number = overMap.layers.length;
     //tileData: Array<any>;
