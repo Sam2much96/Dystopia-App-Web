@@ -36,7 +36,7 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, Sound, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, Sound, ParticleEmitter, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
 setTouchGamepadAlpha,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
 
 
@@ -1085,6 +1085,8 @@ class Utils {
 
     public  screenOrientation : number | undefined;
     public viewport_size : Vector2 | undefined;
+
+
     enemyMob() {
         //enemy mob logic in pure javascript
         return 0;
@@ -1122,27 +1124,108 @@ class Utils {
         //return { this.browser, this.platform };
     }
 
+    /**
+     * Simulation A.I. Behaviour Logic for Enemies
+     */
+
+    static proximity_attack_simulation(
+        hitpoints : number, 
+        player : Player, 
+        player_pos : Vector2, 
+        _position : Vector2,
+        _enemy : Enemy,
+        enemy_type : String,
+        state : string, // the enemy state machine in typesript is string based
+        enemy_distance_to_player: number,
+        center : Vector2
     
-      // Math functions
+    ): string {
+
+        
+
+        if (hitpoints < 0){
+            state = "STATE_DIE" ;
+        }
+
+        if (player == null){
+            state = "STATE_WALKING";
+        }
+
+        if (enemy_distance_to_player < 81){
+            //state = 0; // set the enemy to attack state
+            state = "STATE_ATTACK"
+        }
+
+        if (enemy_distance_to_player > 81){
+            if (enemy_type == "Hard"){
+                state = "STATE_ROLL"
+            }
+            if (enemy_type == "Intermediate"){
+                state = "STATE_ROLL"
+            }
+            if (enemy_type == "Easy"){
+                state = "STATE_ROLL"
+            }
+        }
+
+        return state
+    }
+
+    // To Do:
+    // (1) rework player and enemy state machine to use global enumerated numbers
+
+    static hit_collision_detected(
+        state : number,
+        hitpoints : number,
+        pushback_directoin : Vector2,
+        _body : Enemy,
+        _global_position : Vector2,
+        kick_back_distance : number
+    ){
+
+        /**
+         * Features:
+         * 
+         * (1) Hit detection
+         * (2) Hit registration
+         * (3) RPC calls for multiplayer mesh (to do)
+         */
+
+        
+        // play hit sfx
+        window.music.hit_sfx[2].play();
+
+
+    }
+
+
+    
+        // Math functions
     static directionTo(from: LittleJS.Vector2, to: LittleJS.Vector2): LittleJS.Vector2 {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const length = Math.sqrt(dx * dx + dy * dy);
-    return length === 0 ? vec2(0, 0) : vec2(dx / length, dy / length);
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+     return length === 0 ? vec2(0, 0) : vec2(dx / length, dy / length);
     }
 
     static restaVectores(v1 : LittleJS.Vector2, v2 : LittleJS.Vector2) : LittleJS.Vector2{ //vector substraction
         return vec2(v1.x - v2.x, v1.y - v2.y)
-        }
+    }
 
     static sumaVectores(v1 : LittleJS.Vector2, v2 : LittleJS.Vector2) : LittleJS.Vector2 { //vector sum
-        return vec2(v1.x + v2.x, v1.y + v2.y)}
+        return vec2(v1.x + v2.x, v1.y + v2.y)
+    }
     
     static round(value : number, precision :number) { // round up numbers
          var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
     }
     
+
+    static calcRandNumber(): number {
+        const rando: number = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
+    return rando;
+}
     
 }
 
@@ -1198,6 +1281,54 @@ class GameObject extends EngineObject {
         console.log("GameObject destroyed");
     }
 
+
+
+    animate(currentFrame: number, sequence: number[]): number {
+        /** 
+         * Animation Function
+         * 
+         * Features:
+         * 
+         * (1) Loops through an array sequence and return this current frame
+         * (2) Plays animation loops
+         *
+         *  Usage Examples:
+            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+
+        * Bugs :
+        * (1) Doesn't work with enemy run up animation frames 
+        */
+       
+        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+        let index = sequence.indexOf(currentFrame);
+        
+        if (index === -1) {
+            // Not found in the sequence — maybe default to the first frame or throw an error
+            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
+            //console.trace("Trace of who called me");
+            //return sequence[0]; // or throw new Error("Invalid currentFrame")
+            index = sequence[0];
+        }
+
+        return sequence[(index + 1) % sequence.length];
+        
+    }
+
+    playAnim(anim: Array<number>){
+
+        // play the animation for 0.1 seconds
+        if (this.frameCounter >= this.animationCounter) {
+            
+            //loop animation function
+            this.currentFrame = this.animate(this.currentFrame, anim);
+            //console.log(this.currentFrame);
+            this.frameCounter = 0; // Reset timer
+                    
+        }
+    }
 
 
 }
@@ -1878,51 +2009,6 @@ class Player extends GameObject {
         }
     }
 
-    animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-
-        * Bugs :
-        * (1) Doesn't work with enemy run up animation frames 
-        */
-       
-        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-        const index = sequence.indexOf(currentFrame);
-        
-        if (index === -1) {
-            // Not found in the sequence — maybe default to the first frame or throw an error
-            //console.warn(`Frame ${currentFrame} not in sequence`, sequence);
-            //console.trace("Trace of who called me");
-            return sequence[0]; // or throw new Error("Invalid currentFrame")
-        }
-
-        return sequence[(index + 1) % sequence.length];
-        
-    }
-
-    playAnim(anim: Array<number>){
-
-        // play the animation for 0.1 seconds
-        if (this.frameCounter >= this.animationCounter) {
-            
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-
-            this.frameCounter = 0; // Reset timer
-                    
-        }
-    }
 
     update() {
         /**
@@ -1960,14 +2046,14 @@ class Player extends GameObject {
         // match inputs and match state
         // bug:
         // (1) theres a time lag between the button pressed and button released causing a stuck idle bug
-        let sstate : number = this.input.getState();
+        let inputState : number = this.input.getState();
         
         // to do: (1) fix stuck idle state bug and input buffer spammer
         //console.log("stae debug 12: ", sstate, "/", this.input.get_Buffer());
         
         // gets the input state from the singleton
         // passes it as a parameter to the state machine logic
-        this.facing[sstate]();
+        this.facing[inputState]();
         
 
 
@@ -2031,10 +2117,11 @@ class Enemy extends GameObject {
     // To DO :
     // (1) Enemy spawner
     // (2) Enemy Mob logic using Utils functions
-    // (3) Enemy State Machine
+    // (3) Enemy State Machine (1/2)
     // (4) Enemy Collisions
     // (5) Enemy Animations (2/2)
-
+    // (6) Synchronize enemy and player state machine enumerations
+    // (7) Connect to Utils hit collision detection system
 
     public hitpoints: number = 3;
     public speed: number = 3;
@@ -2043,21 +2130,36 @@ class Enemy extends GameObject {
     public wanderCooldown: number;
     private targetPos: Vector2;
     
-    private enemy_type: Map<string, number> = new Map([
+    private type_enum: Map<string, number> = new Map([
             ['EASY', 0],
             ['INTERMEDIATE', 1],
             ['HARD', 2]
     ]);
     
+    public facing_enum : Map<string, number> = new Map([
+        ["up",0],
+        ["down",1],
+        ["left", 2],
+        ["right",3]
+    ]);
 
-    
-    //private facing : Map<string, number> = new Map ([
-    //    ["up",0],
-    //    ["down",1],
-    //    ["left", 2],
-    //    ["right",3]
-    //]);
+    public enum: Map<string, number> = new Map([
+            ['STATE_IDLE', 0],
+            ['STATE_WALKING', 1],
+            ['STATE_ATTACK', 2],
+            ["STATE_ROLL", 3],
+            ["STATE_DIE", 4],
+            ["STATE_HURT", 5],
+            ["STATE_MOB", 6],
+            ["STATE_PROJECTILE", 7],
+            ["STATE_PLAYER_SIGHTED", 8],
+            ["STATE_PLAYER_HIDDEN", 9],
+            ["STATE_NAVIGATION_AI", 10]
+    ]);
 
+
+
+    private kick_back_distance : number = 0;
     private facing_ : number = 1; // stores the current facing direction
 
     // Match Frame Rate to Both Enemy TIme And Engine FPS
@@ -2082,8 +2184,9 @@ class Enemy extends GameObject {
     private Roll : Array<number> = [15,16,17,18,19];
 
     // state machine variables
+    public state : number = this.enum.get("STATE_IDLE")!;
 
-    public state: Record<string, () => void>;
+    public stateMachine: Record<string, () => void>;
     public facing: Record<number, () => void>;
     public X : number = 0;
     public Y : number  = 0; // used for facing animation calculations
@@ -2092,7 +2195,12 @@ class Enemy extends GameObject {
     public local_player_object : Player = window.player;
     public direction : Vector2 = vec2(0);
     public length : number = 0;
-    public delta : any;
+    private delta : number = 0;
+    private random_walk_direction : Vector2 = vec2(100);
+
+
+    // Enemy FX
+    // todo:
 
     constructor(pos: Vector2) {
         super();
@@ -2115,7 +2223,7 @@ class Enemy extends GameObject {
 
 
         // Enemy State Machine initialisation
-        this.state = this.State();
+        this.stateMachine = this.StateMachine();
         this.facing = this.Facing();
 
         //Input State Machine Enumeration
@@ -2125,15 +2233,15 @@ class Enemy extends GameObject {
         //this.velocity = vec2(0, 0); // default temp velocity
 
         // Testing Enemy Type Enumeration
-        console.log("Input Debug 1: ", this.enemy_type.get("EASY"), "/ player debug 3: ", this.local_player_object);
+        //console.log("Input Debug 1: ", this.enemy_type.get("EASY"), "/ player debug 3: ", this.local_player_object);
 
         // Enemy collision & mass
         //this.setCollision(true, true); // make object collide
         //this.mass = 0; // make object have static physics
 
         //enemy AI variables
-        //this.speed = 150 ;// Movement speed
-        //this.size = 20; // Enemy size for collision
+
+
         this.detectionRange = 200; // Range to detect the player
         this.minDistance = 30; // Minimum distance from player to stop following
         this.targetPos = vec2(0, 0); // Random wandering target
@@ -2144,6 +2252,7 @@ class Enemy extends GameObject {
         //this.blood_fx = null
         // Timer to destroy the ParticleFX object after 5 seconds
         this.despawn_timer = new Timer;    // creates a timer that is not set
+        this.kick_back_distance = Utils.calcRandNumber();
 
 
     }
@@ -2162,7 +2271,8 @@ class Enemy extends GameObject {
         if (this.local_player_object) {
 
             // trigger the enemy mob state
-            this.state["STATE_MOB"]();
+            this.state = this.enum.get("STATE_MOB")!;
+            this.stateMachine[this.state]();
             
             this.X = Math.round(this.direction.x);
             this.Y = Math.round(this.direction.y);
@@ -2174,6 +2284,8 @@ class Enemy extends GameObject {
             this.update_facing(this.X, this.Y);
 
             // Enemy hit collision detection
+            // todo : 
+            // (1) connect both player and enemy state machines to simulation collision detection
             if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 //console.log("ENemy Hit Collision Detection Triggered: ", distanceToPlayer);
 
@@ -2189,7 +2301,18 @@ class Enemy extends GameObject {
 
         }
 
+        if (!this.local_player_object){
+            // trigger the enemy idle state
+            // to do:
+            // (1) implement state enumeration logic for the state machine here (done)
+            // (2)
+            this.state = this.enum.get("STATE_IDLE")!;
 
+            this.stateMachine[this.state]();
+        }
+
+        // to do:
+        // (1) logic is ported to simulation singleton
 
         // Despawn logic
         if (this.hitpoints <= 0) {
@@ -2207,15 +2330,7 @@ class Enemy extends GameObject {
 
     }
 
-    moveAndSlide(velocity: LittleJS.Vector2): void {
-    //this.pos.x = this.pos.x + velocity.x;
-     //this.pos.y = this.pos.y + velocity.y;
-    this.velocity = (Utils.sumaVectores(this.velocity, velocity));
-    
-    this.pos = this.velocity;
-    //this.pos.x = Utils.round(this.velocity.x,6);
-    //this.pos.y = Utils.round((this.velocity.y),6);
-    }
+
 
     _get_player() {
 
@@ -2259,35 +2374,36 @@ class Enemy extends GameObject {
     update_facing(X : number, Y : number){
         // Updates the enemy object's facing parameter for animation
         //
-        //cheat sheet:
-        //["up",0],
-        //["down",1],
-        //["left", 2],
-        //["right",3]
         //console.log("Updating facing");
         
         if (X == 0 && Y == 1){
             //console.log("facing up"); // up
-            this.facing[0]();
-            //this.playAnim(this.RunUp);
+            
+            const y = this.facing_enum.get("up")!;
+            this.facing[y]();
+            
 
-            //this.facing_ = this.facing.get("down") ?? 1;
+            
         }
 
         if (X == 1 && Y == 0){
             //console.log("facing right");
-            this.facing[3]();
-            //this.facing_ = this.facing.get("right") ?? 3;
+
+            const x = this.facing_enum.get("right")!;
+            this.facing[x]();
+            
         }
         if (X == -1 && Y == 0){
             //console.log("facing left");
-            this.facing[2]();
-            //this.facing_ = this.facing.get("left") ?? 2;
+            const a = this.facing_enum.get("left")!;
+            this.facing[a]();
+            
         }
         if (X == 0 && Y == -1){
             //console.log("facing down"); //down
-            this.facing[1]();
-            //this.facing_ = this.facing.get("up") ?? 0;
+            const b = this.facing_enum.get("down")!;
+            this.facing[b]();
+            
         }
         }
 
@@ -2295,16 +2411,31 @@ class Enemy extends GameObject {
     // State Machines
     // enemy state machine
     // describes each states and is assigned to a class variable in the consstructor
-    State(): Record<string, () => void>  {
+    StateMachine(): Record<number, () => void>  {
+
+        // cheat sheet for statemachine enum
+        //['STATE_IDLE', 0],
+        //['STATE_WALKING', 1],
+        //['STATE_ATTACK', 2],
+        //["STATE_ROLL", 3],
+        //["STATE_DIE", 4],
+        //["STATE_HURT", 5],
+        //["STATE_MOB", 6],
+        //["STATE_PROJECTILE", 7],
+        //["STATE_PLAYER_SIGHTED", 8],
+        //["STATE_PLAYER_HIDDEN", 9],
+        //["STATE_NAVIGATION_AI", 10]
+
 
         return {
-            "STATE_BLOCKED" : () => {
+            0 : () => { // idle state
+                //console.log("idle state triggered");
+            },
+            1: () =>{
 
             },
 
-            "STATE_MOB" : () => {
-
-                // enemy mob ai
+            6 : () => {  // enemy mob ai
 
                 /**
                 * Enemy Mob AI
@@ -2343,6 +2474,22 @@ class Enemy extends GameObject {
                 this.pos.y += this.direction.y * this.speed * this.delta;
 
             },
+
+            7 : () => {
+
+            },
+            8 : () => {
+
+            },
+            9 : () => {
+
+            },
+            10 : () => {
+
+            },
+            11 : () => {
+
+            }
         }
     }
 
@@ -2380,52 +2527,6 @@ class Enemy extends GameObject {
      }
     }
 
-    animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-
-        * Bugs :
-        * (1) Doesn't work with enemy run up animation frames 
-        */
-       
-        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-        let index = sequence.indexOf(currentFrame);
-        
-        if (index === -1) {
-            // Not found in the sequence — maybe default to the first frame or throw an error
-            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
-            //console.trace("Trace of who called me");
-            //return sequence[0]; // or throw new Error("Invalid currentFrame")
-            index = sequence[0];
-        }
-
-        return sequence[(index + 1) % sequence.length];
-        
-    }
-
-    playAnim(anim: Array<number>){
-
-        // play the animation for 0.1 seconds
-        if (this.frameCounter >= this.animationCounter) {
-            
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-            //console.log(this.currentFrame);
-            this.frameCounter = 0; // Reset timer
-                    
-        }
-    }
 
 }
 class EnemySpawner extends GameObject {
@@ -2575,6 +2676,8 @@ class Simulation extends GameObject {
         //console.log("Delta time debug:", this.deltaTime); //works
 
         // update cube 3d position
+        // bug:
+        // (1) 3d level doesn't load model fast on low latency internet
         let cubePosition = this.local_3d_engine.getCubePosition();
 
 
@@ -2592,6 +2695,8 @@ class Simulation extends GameObject {
         
         // Start Game Sequence
         // It modifies the threejs positions
+        // bug:
+        // (1) doesn't account for if cube doesn't load
 
         if (cubePosition) {
 
@@ -2614,6 +2719,14 @@ class Simulation extends GameObject {
             }
         }
 
+        // to do :
+        // (1) for this logic,add a cube debug to check if the 3d model is loaded initially
+        //if (cubePosition!){ // redundancy code for low latency browsers
+
+            // save to global conditional for rendering game backgrounds and starting core game loop
+        //    window.globals.GAME_START = true;
+
+        //}
 
 
     }
@@ -2774,8 +2887,9 @@ class ParticleFX extends EngineObject {
 
 
     public color: any;
-    private trailEffect: any;
+    public trailEffect: any;
 
+    /** */
     constructor(pos: Vector2, size: Vector2) {
         super();
         this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
@@ -2797,7 +2911,27 @@ class ParticleFX extends EngineObject {
 }
 
 class Blood_splatter_fx extends ParticleFX {
-    
+     public color: any;
+    //private trailEffect: any;
+
+    constructor(pos: Vector2, size: Vector2) {
+        super(vec2(),vec2());
+        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+
+        const color__ = hsl(0, 0, .2);
+        this.trailEffect = new ParticleEmitter(
+            this.pos, 0,                          // pos, angle
+            this.size, 0, 8, PI,                 // emitSize, emitTime, emitRate, emiteCone
+            tile(25, 128, 4, 0),                          // tileIndex, tileSize
+            color__.scale(1), color__.scale(10),                         // colorStartA, colorStartB
+            color__.scale(5), color__.scale(10),       // colorEndA, colorEndB
+            2, .4, 1, .001, .05,// time, sizeStart, sizeEnd, speed, angleSpeed
+            .99, .95, 0, PI,    // damp, angleDamp, gravity, cone
+            .1, .5, false, false        // fade, randomness, collide, additive
+        );
+
+    }
+
 
 }
 
@@ -2944,414 +3078,8 @@ class Debug {
 
 
 
-// ALL UI & UI Objects Implementation
-// ui defaults
-// customise later
-let uiDefaultColor = LittleJS.WHITE;
-let uiDefaultLineColor = LittleJS.BLACK;
-let uiDefaultTextColor = LittleJS.BLACK;
-let uiDefaultButtonColor = hsl(0, 0, .5);
-let uiDefaultHoverColor = hsl(0, 0, .7);
-let uiDefaultLineWidth = 4;
-let uiDefaultFont = 'arial';
-let uiDefaultPosition = vec2();
-let uiDefaultSize = vec2();
-// ui system
-let uiObjects: Array<UIObject> = [];
 
-/**
- * Creates Temporarily UI Objects via functions that are quicky deleted
- * Helper functions for UI Object class
- * 
- * @param pos 
- * @param size 
- * @param color 
- * @param lineWidth 
- * @param lineColor 
- */
-
-function drawUIRect(pos: LittleJS.Vector2, size: LittleJS.Vector2, color = uiDefaultColor, lineWidth = uiDefaultLineWidth, lineColor = uiDefaultLineColor) {
-    let uiContext = LittleJS.overlayContext;
-    uiContext.fillStyle = color.toString();
-    uiContext.beginPath();
-    uiContext.rect(pos.x - size.x / 2, pos.y - size.y / 2, size.x, size.y);
-    uiContext.fill();
-    if (lineWidth) {
-        uiContext.strokeStyle = lineColor.toString();
-        uiContext.lineWidth = lineWidth;
-        uiContext.stroke();
-    }
-
-    //pass the context to LittlejS
-    LittleJS.drawRect(pos, size, color, 0, false, true, uiContext);
-}
-
-function drawUILine(posA: LittleJS.Vector2, posB: LittleJS.Vector2, thickness = uiDefaultLineWidth, color = uiDefaultLineColor) {
-    let uiContext = LittleJS.overlayContext;
-    uiContext.strokeStyle = color.toString();
-    uiContext.lineWidth = thickness;
-    uiContext.beginPath();
-    uiContext.lineTo(posA.x, posA.y);
-    uiContext.lineTo(posB.x, posB.y);
-    uiContext.stroke();
-}
-
-function drawUITile(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = uiDefaultColor, angle = 0, mirror = false) {
-    let uiContext = LittleJS.overlayContext;
-    LittleJS.drawTile(pos, size, tileInfo, color, angle, mirror, LittleJS.BLACK, false, true, uiContext);
-}
-
-function drawUIText(
-    text: string,
-    pos: LittleJS.Vector2,
-    size: LittleJS.Vector2,
-    color = uiDefaultColor,
-    lineWidth = uiDefaultLineWidth,
-    lineColor = uiDefaultLineColor,
-    align: CanvasTextAlign = 'center',
-    font = uiDefaultFont,
-) {
-    let uiContext = LittleJS.overlayContext;
-    LittleJS.drawTextScreen(text, pos, size.y, color, lineWidth, lineColor, align, font, size.x, uiContext);
-}
-
-
-class UIObject extends EngineObject {
-    /**
-     * Creates Permanent UI Objects
-     * 
-     * Every Class Extension From UI Object extends their own custom render and update scripts
-     * This class constains the shared interacctivity like hover and press functions by all UI Object sub classes
-     * 
-     * TO DO :
-     * (1) Depreciate in favour of Kenny UI elements and CSS
-     */
-    public localPos: LittleJS.Vector2 = vec2();
-    public pos: LittleJS.Vector2 = vec2();
-    public size: LittleJS.Vector2 = vec2();
-    public color;
-    public lineColor;
-    public textColor;
-    public hoverColor;
-    public lineWidth;
-    public font;
-    public visible: boolean;
-    public children: Array<UIObject>;
-    public parent: any;
-    mouseIsOver: boolean = false;
-    mouseIsHeld: boolean = false;
-
-
-    constructor(localPos: LittleJS.Vector2 | undefined = uiDefaultPosition, size: LittleJS.Vector2 | undefined) {
-        super();
-        this.localPos = localPos.copy();
-
-        if (!size) {
-            size = uiDefaultSize;
-            this.size = size.copy();
-        }
-
-        if (size) {
-            this.size = size.copy();
-        }
-
-        this.color = uiDefaultColor;
-        this.lineColor = uiDefaultLineColor;
-        this.textColor = uiDefaultTextColor;
-        this.hoverColor = uiDefaultHoverColor;
-        this.lineWidth = uiDefaultLineWidth;
-        this.font = uiDefaultFont;
-        this.visible = true;
-        this.children = [];
-        this.parent = null;
-        uiObjects.push(this); // create global pointer to self
-    }
-
-    addChild(child: UIObject) {
-        LittleJS.ASSERT(!child.parent && !this.children.includes(child));
-        this.children.push(child);
-        child.parent = this;
-    }
-
-    removeChild(child: UIObject) {
-        LittleJS.ASSERT(child.parent == this && this.children.includes(child));
-        this.children.splice(this.children.indexOf(child), 1);
-        child.parent = 0;
-    }
-
-    update() {
-        // hover & UI Interraction (Works)
-
-        // track mouse input
-        const mouseWasOver = this.mouseIsOver;
-        const mouseDown = LittleJS.mouseIsDown(0);
-        if (!mouseDown || isTouchDevice) {
-            this.mouseIsOver = LittleJS.isOverlapping(this.pos, this.size, LittleJS.mousePosScreen);
-            if (!mouseDown && isTouchDevice)
-                this.mouseIsOver = false;
-            if (this.mouseIsOver && !mouseWasOver)
-                this.onEnter();
-            if (!this.mouseIsOver && mouseWasOver)
-                this.onLeave();
-        }
-        if (LittleJS.mouseWasPressed(0) && this.mouseIsOver) {
-            this.mouseIsHeld = true;
-            this.onPress();
-            if (isTouchDevice)
-                this.mouseIsOver = false;
-        }
-        else if (this.mouseIsHeld && !mouseDown) {
-            this.mouseIsHeld = false;
-            this.onRelease();
-        }
-
-    }
-
-    hide() {
-        this.visible = false;
-
-        for (const child of this.children) {
-            child.visible = false;
-        }
-    }
-
-    show() {
-        this.visible = true;
-
-        for (const child of this.children) {
-            child.visible = true;
-        }
-    }
-
-
-
-    // callback functions
-    onEnter() { }
-    onLeave() { }
-    onPress() { }
-    onRelease() { }
-    onChange() { }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-class UIText extends UIObject {
-    public text;
-    public textColor: any;
-    public lineColor: any;
-
-    public font;
-    public lineWidth;
-    public pos: LittleJS.Vector2 = vec2();
-    public size: LittleJS.Vector2 = vec2();
-    public align: CanvasTextAlign = "center";
-
-    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, text: string = '', align: CanvasTextAlign = 'center', font = LittleJS.fontDefault) {
-        super(pos, size);
-
-        this.text = text;
-        this.align = align;
-        this.font = font;
-        this.lineWidth = 0;
-    }
-    render() {
-        if (this.visible) {
-            //console.log("Drawing UI Text debug");
-            drawUIText(this.text, this.pos, this.size, this.textColor, this.lineWidth, this.lineColor, this.align, this.font);
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-class UITile extends UIObject {
-    public tileInfo: LittleJS.TileInfo;
-    public color;
-    public angle;
-    public mirror;
-    public pos: LittleJS.Vector2;
-    public size: LittleJS.Vector2;
-
-    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, tileInfo: LittleJS.TileInfo, color = LittleJS.WHITE, angle = 0, mirror = false) {
-        super(pos, size);
-        this.pos = pos;
-        this.size = size;
-        this.tileInfo = tileInfo;
-        this.color = color;
-        this.angle = angle;
-        this.mirror = mirror;
-    }
-    render() {
-
-        if (this.visible) {
-
-            drawUITile(this.pos, this.size, this.tileInfo, this.color, this.angle, this.mirror);
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-class UIButton extends UIObject {
-    pos: LittleJS.Vector2;
-    public text: string;
-    public font: any;
-    public color;
-
-    mouseIsHeld: boolean = false;
-    mouseIsOver: boolean = false;
-    lineColor: any;
-    hoverColor: any;
-    lineWidth: any;
-    textColor: any;
-
-    align: any;
-
-
-    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, text: string) {
-        super(pos, size);
-        this.text = text;
-        this.color = uiDefaultButtonColor;
-        this.pos = pos.copy();
-        this.size = size.copy();
-    }
-    render() {
-
-        // toggles buttons visibility on / off
-        if (this.visible == true) {
-            const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
-            const color = this.mouseIsOver ? this.hoverColor : this.color;
-
-
-            drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
-            const textSize = vec2(this.size.x, this.size.y * .8);
-
-            drawUIText(this.text, this.pos, textSize,
-                this.textColor, 0, undefined, this.align, this.font);
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////z
-
-class UICheckbox extends UIObject {
-    public pos: LittleJS.Vector2 = vec2();
-    public size: LittleJS.Vector2 = vec2();
-    public checked: boolean = false;
-
-    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, checked = false) {
-        super(pos, size);
-        this.checked = checked;
-    }
-    onPress() {
-        this.checked = !this.checked;
-        this.onChange();
-    }
-    render() {
-        drawUIRect(this.pos, this.size, this.color, this.lineWidth, this.lineColor);
-        if (this.checked) {
-            // draw an X if checked
-            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, -.5))), this.pos.add(this.size.multiply(vec2(.5, .5))), this.lineWidth, this.lineColor);
-            drawUILine(this.pos.add(this.size.multiply(vec2(-.5, .5))), this.pos.add(this.size.multiply(vec2(.5, -.5))), this.lineWidth, this.lineColor);
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-class UIScrollbar extends UIObject {
-    public pos: LittleJS.Vector2;
-    public value: number;
-    public text: string;
-    public color;
-    public handleColor;
-
-    align: any;
-
-    constructor(pos: LittleJS.Vector2, size: LittleJS.Vector2, value: number = .5, text: string = '') {
-        super(pos, size);
-        this.pos = pos.copy();
-        this.value = value;
-        this.text = text;
-        this.color = uiDefaultButtonColor;
-        this.handleColor = WHITE;
-    }
-    update() {
-        super.update();
-        if (this.mouseIsHeld) {
-            const handleSize = vec2(this.size.y);
-            const handleWidth = this.size.x - handleSize.x;
-            const p1 = this.pos.x - handleWidth / 2;
-            const p2 = this.pos.x + handleWidth / 2;
-            const oldValue = this.value;
-            this.value = LittleJS.percent(LittleJS.mousePosScreen.x, p1, p2);
-            this.value == oldValue || this.onChange();
-        }
-    }
-    render() {
-        const lineColor = this.mouseIsHeld ? this.color : this.lineColor;
-        const color = this.mouseIsOver ? this.hoverColor : this.color;
-        drawUIRect(this.pos, this.size, color, this.lineWidth, lineColor);
-
-        const handleSize = vec2(this.size.y);
-        const handleWidth = this.size.x - handleSize.x;
-        const p1 = this.pos.x - handleWidth / 2;
-        const p2 = this.pos.x + handleWidth / 2;
-        const handlePos = vec2(LittleJS.lerp(this.value, p1, p2), this.pos.y);
-        const barColor = this.mouseIsHeld ? this.color : this.handleColor;
-        drawUIRect(handlePos, handleSize, barColor, this.lineWidth, this.lineColor);
-
-        const textSize = vec2(this.size.x, this.size.y * .8);
-        drawUIText(this.text, this.pos, textSize,
-            this.textColor, 0, undefined, this.align, this.font);
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-class UITextureButton extends UIObject {
-
-    public tileInfo: LittleJS.TileInfo;
-    pos: LittleJS.Vector2;
-    public font: any;
-    public color;
-
-    mouseIsHeld: boolean = false;
-    mouseIsOver: boolean = false;
-    lineColor: any;
-    hoverColor: any;
-    lineWidth: any;
-    textColor: any;
-
-    align: any;
-
-
-    constructor(tileInfo: LittleJS.TileInfo, pos: LittleJS.Vector2, size: LittleJS.Vector2) {
-        super(pos, size);
-        this.tileInfo = tileInfo;
-        this.color = uiDefaultButtonColor;
-        this.pos = pos.copy();
-        this.size = size.copy();
-    }
-    render() {
-
-        // toggles buttons visibility on / off
-        if (this.visible == true) {
-            const lineColor = this.mouseIsHeld ? this.color : this.lineColor; // unimplemented hover function
-            const color = this.mouseIsOver ? this.hoverColor : this.color; //unimplemented hover function
-
-
-            drawUITile(this.pos, this.size, this.tileInfo, color, this.angle, this.mirror);
-
-        }
-    }
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////
-// TO DO: Depreciate all this UI code for css
-
-class UI extends UIObject {
+class UI  {
     /* 
     Game UI System
     
@@ -3382,38 +3110,43 @@ class UI extends UIObject {
     (10) Separate each Ui element type into different classes with global pointers
         - game menu, game hud, 
     (11) organise heartbox into 64x UI tileset
+    (12) rewrite UI using only html and css
     */
 
 
     // UI components
-    public UI_ROOT: UIObject;
-    public UI_MENU: UIObject;
-    public UI_GAMEHUD: UIObject;
-    public HEART_BOX: Array<UIObject>;
-    public UI_STATS: UIObject;
-    public UI_CONTROLS: UIObject;
-    public DIALOG_BOX: UIObject | null = null;
+    public UI_ROOT: HTMLDivElement;
+    public UI_MENU: HTMLDivElement;
+    public leftButtons : HTMLElement | null;
+    public TopRightUI : HTMLElement | null;
+    public UI_GAMEHUD: HTMLDivElement;
+    public HEART_BOX: Array<HTMLDivElement>;
+    public UI_STATS: HTMLDivElement;
+    public UI_CONTROLS: HTMLDivElement;
+    public DIALOG_BOX: HTMLDivElement;
 
     // UI Buttons
     // menu buttons
-    menuContainer: HTMLElement | null;
-    newGame: HTMLAnchorElement | null = null;
-    contGame: HTMLAnchorElement | null = null;
-    Comics: HTMLAnchorElement | null = null;
-    Controls: HTMLAnchorElement | null = null;
-    Wallet: HTMLAnchorElement | null = null;
-    Quit: HTMLAnchorElement | null = null;
+    public menuContainer: HTMLElement | null;
+    public inventoryContainer : HTMLElement | null;
+
+    public newGame: HTMLAnchorElement | null = null;
+    public contGame: HTMLAnchorElement | null = null;
+    public Comics: HTMLAnchorElement | null = null;
+    public Controls: HTMLAnchorElement | null = null;
+    public Wallet: HTMLAnchorElement | null = null;
+    public Quit: HTMLAnchorElement | null = null;
 
     //HUD Texture Buttons
-    statsButton: UITextureButton | null = null; // button triggered from input via stats() method
-    dialogButton: UITextureButton | null = null;
-    comicsButton: UITextureButton | null = null;
-    menuButton: UITextureButton | null = null;
-    walletButton: UITextureButton | null = null;
+    public statsButton: HTMLButtonElement | null = null; // button triggered from input via stats() method
+    public dialogButton: HTMLButtonElement | null = null;
+    public comicsButton: HTMLButtonElement | null = null;
+    public menuButton: HTMLButtonElement | null = null;
+    public walletButton: HTMLButtonElement | null = null;
 
 
-    DEFAULT_SIZE: Vector2 = vec2(128);
-    DEFAULT_POS: Vector2 = vec2();
+    //DEFAULT_SIZE: Vector2 = vec2(128);
+    //DEFAULT_POS: Vector2 = vec2();
 
     // TImer Nodes
     timer: LittleJS.Timer = new Timer();
@@ -3426,47 +3159,57 @@ class UI extends UIObject {
 
     constructor() {
 
-        super(vec2(), vec2());
-
-
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = new UIObject(vec2(), vec2());
-        this.UI_MENU = new UIObject(vec2(), vec2());
-        this.UI_GAMEHUD = new UIObject(vec2(), vec2()); // contains all game hud buttons
+        this.UI_ROOT = document.createElement("div");
+        this.UI_ROOT.id = "ui-root";
+        document.body.appendChild(this.UI_ROOT);
 
 
+        // Create UI containers
+        this.leftButtons  = document.getElementById("left-buttons");
+        //this.leftButtons.id = "left-buttons";
 
+        this.TopRightUI = document.getElementById("top-right-ui"); //document.createElement("div");
+        //this.TopRightUI.id = "top-right-ui";
 
-        this.HEART_BOX = []; //created with the heartbox function
-        this.UI_STATS = new UIObject(vec2(), vec2()); // stats and inventory
-        this.UI_CONTROLS = new UIObject(vec2(), vec2());
-
-        this.DIALOG_BOX = new UIObject(vec2(), vec2(50));
-
-        //depreciated for css and inner html setup
-        //parent & child all Ingame UI Objects
-        this.UI_ROOT.addChild(this.UI_MENU);
-        this.UI_ROOT.addChild(this.UI_STATS); // player status & inventory
-        this.UI_ROOT.addChild(this.DIALOG_BOX);
-        //this.UI_ROOT.addChild(this.UI_HEARTBOX);
-
-        //create menu with inner html script
+                //create menu with inner html script
         // bugs
         // (1) game menu small scale on mobile
         // (2) game menu buttons doesn't click with mobile touch
 
         // connects to menu container div in index.html ln 59.
         // turn menu invisible by default
+        // to do: create this div with code
         this.menuContainer = document.getElementById("menu-container");
+        //this.menuContainer.id = "menu-container";
+
+        this.inventoryContainer = document.getElementById("inventory-container");
+        //this.inventoryContainer.id = "inventory-container";
+
+        
+        this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
+        this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
+        this.HEART_BOX = []; //created with the heartbox function
+        this.UI_STATS = this.createPanel("ui-stats");// stats and inventory
+        this.UI_CONTROLS = this.createPanel("ui-controls");
+        this.DIALOG_BOX = this.createPanel("dialog-box");
+
+
+        this.UI_ROOT.append(
+                    this.UI_MENU,
+                    this.UI_GAMEHUD,
+                    this.UI_STATS,
+                    this.UI_CONTROLS,
+                    this.DIALOG_BOX
+                );
 
 
         //console.log("Menu Debug 1: ", this.menuContainer);
 
-        //center UI root
-        this.UI_ROOT.pos.x = LittleJS.mainCanvasSize.x / 2;
+        }
 
-    }
+   
 
     /**
      * UI visibility Toggles
@@ -3476,7 +3219,7 @@ class UI extends UIObject {
      */
 
     get MenuVisible() {
-        return this.SHOW_MENU; // Show the carousel
+        return this.SHOW_MENU!; // Show the carousel
     };
 
     /**
@@ -3508,28 +3251,27 @@ class UI extends UIObject {
 
     get DialogVisible() {
 
-        return this.DIALOG_BOX!.visible;
+        return !this.DIALOG_BOX.classList.contains("hidden");
     }
 
     set DialogVisible(visible: boolean) {
-        this.DIALOG_BOX!.visible = visible;
+        this.DIALOG_BOX.classList.toggle("hidden", !visible);
     }
 
     /*
-*  
-* Toggles Visibility On /Off Each Dom Element
-* 
-* Depreciated for class function instead
-*/
+    *  
+    * Toggles Visibility On /Off Each Dom Element
+    * 
+    * 
+    */
 
-    setDOMObjectVisibility(object: string, isVisible: boolean) {
-        // toggles the visibility of the carousel
-        if (isVisible == true) {
-            document.getElementById(object)?.classList.remove("hidden"); // Show the carousel
-        } else {
-            document.getElementById(object)?.classList.add("hidden"); // Hide the carousel
+    setDOMObjectVisibility(id: string, visible: boolean) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.toggle("hidden", !visible);
         }
     }
+
 
     //depreciated
     update() {
@@ -3547,42 +3289,28 @@ class UI extends UIObject {
         //console.log(this.timer.get());
         if (this.timer.elapsed()) {
             //console.log("Timer Elapsed");
-            this.DIALOG_BOX!.visible = false;
+            this.DialogVisible = false;
             this.SHOW_DIALOGUE = false;
         }
 
         // Draws Dialogue Box to screen
         //dialogue box timeout
         if (!this.timer.elapsed() && this.timer.get() != 0 && this.SHOW_DIALOGUE == true) {
-            //console.log(" Recursively draw rect");
-            //recursively draw rect
-            const p = drawUIRect(vec2(250, 50), vec2(250, 100), LittleJS.WHITE)//new UIObject(vec2(0), vec2(5));// drawUIRect(vec2(250, 50), vec2(150), LittleJS.WHITE);
-            const ipsum = 'Lorem ipsum dolor sit amet, \n consectetur adipiscing elit. Phasellus sed ultricies orci.\nAliquam tincidunt eros tempus'
-
-            const uiInfo = drawUIText(ipsum, vec2(250, 50),
-                vec2(180, 40), LittleJS.WHITE, 8, LittleJS.BLACK, "center", "arial");
-
-
-
-            this.DIALOG_BOX!.visible = true;
+            this.DIALOG_BOX.innerHTML = `
+                <div class="dialog-box-content">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            `;
+            this.DialogVisible = true;
         }
     }
 
     dialogueBox() {
         // Triggered by Pressing Key E; function called from the Input SIngleton 
         console.log("Creating Dialgoue Box Instance");
-        //this.DIALOG_BOX!.visible = true;
-
-        //create permanent UI Objects with objects classese.g. //new UIObject(vec2(0), vec2(5));
-
-        // Create a timer that runs for 5 seconds
         this.timer.set(5);
         this.SHOW_DIALOGUE = true;
-
-        // dialogue box and text are renderered in the update function
-        this.DIALOG_BOX!.visible = true;
-
-
+        this.DialogVisible = true;
     }
 
     stats() {
@@ -3614,120 +3342,55 @@ class UI extends UIObject {
     }
 
     gameHUD() {
-        /*  Spawns The Game HUD Buttons and Connects 
-            Their SIgnals on start of the game 
+        /*  
+        * Spawns The Game HUD Buttons & Connects 
+        * Their SIgnals on start of the game 
         */
 
         //create Heartboxes
         //update & draw heartbox ui every frame
         this.heartbox(3); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
-        // 7 is the sprite for UI 64x64 pixels
-        this.statsButton = new UITextureButton(tile(1, 64, 3, 0), vec2(950, 30), vec2(50)); //works
-        this.walletButton = new UITextureButton(tile(2, 64, 3, 0), vec2(950, 130), vec2(50));
-        this.dialogButton = new UITextureButton(tile(0, 64, 3, 0), vec2(950, 80), vec2(50)); //works
-        this.menuButton = new UITextureButton(tile(3, 64, 3, 0), vec2(80, 80), vec2(50));
+        
+        // create button icons images
 
-        /**
-         * 
-         * HUD Button Signal connections
-         * 
-         */
-        // Game HUD Signals
-        // connect signals here
-        this.menuButton.onPress = () => {
-            // show / hide menu with mouse clicks input once game hasnt started and player isn't instanced
-            //
+        // create buttons and bind their actions
+        this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
+            this.stats.bind(this);
+            window.music.ui_sfx[1].play();
+        });
+        this.walletButton = this.createTextureButton("./btn-stats.png","ui-button", () => {
+            window.music.ui_sfx[0].play();
+            window.wallet.__connectToPeraWallet()
+        
+        });
+        this.dialogButton = this.createTextureButton("./btn-interact.png", "ui-button",this.dialogueBox.bind(this));
+        this.menuButton = this.createTextureButton("./menu white.png", "menu-btn",() => {
+            window.music.ui_sfx[2].play();
+            this.MenuVisible = !this.MenuVisible;
+        });
 
-            var menuVisible2 = this.MenuVisible;
-            console.log("Mouse was Pressed, Menu 2 toggle: ", menuVisible2);
-
-            // turn menu on/off
-            this.MenuVisible = !menuVisible2;
-
-            console.log("Menu Button Pressed")
-          
-
-
-        };
-
-        // Stats Button
-        this.statsButton.onPress = () => {
-
-            // sfx
-            window.music.sound_start.play();
-            // Inventory & Stats
-            if (window.inventory) {
-
-                //Debug Inventory
-                // TO DO :
-                // (1) Inventory UI
-
-                this.stats(); // Trigger the Stats UI
-
-            }
-
-        }
-
-        // Dialogue Button
-        this.dialogButton.onPress = () => {
-
-            //sfx
-            window.music.sound_start.play();
-
-
-
-            //show / hide dialogue
-            var diagVisible = this.DialogVisible;
-            console.log(" Dialog toggle: ", diagVisible);
-            this.dialogueBox(); //dialogue box testing
-
-
-
-
-        }
-
-        //Wallet Button
-        this.walletButton.onPress = () => {
-
-            //sfx
-            window.music.sound_start.play();
-
-            //const t = async () => {  // create wallet connect txn
-            window.wallet.__connectToPeraWallet();
-            //};
-
-            //t;
-
-            // fetch onchain info
-            //window.wallet.fetchAccountInfo();
-            //window.wallet.fetchWalletAssets();
-        }
-
+        this.leftButtons!.append(this.statsButton, this.walletButton, this.dialogButton);
+        this.TopRightUI!.append(this.menuButton);
     }
 
     heartbox(heartCount: number) {
         /* Creates A HeartBox UI Object */
-        // To DO:
-        // (1) Create into a Separate Object extending UIObject class
-        // (2) Add Animations
-        // (3) Update Logic for heartbox algorithm
-        // (4) Add sprite to UI sprites
-        if (this.HEART_BOX.length != heartCount) {
-            console.log("Drawing Heartbox", this.HEART_BOX.length, "/", heartCount);
-            for (let i = 0; i < heartCount; i++) {
+        this.HEART_BOX.forEach(el => el.remove());
+        this.HEART_BOX = [];
 
-                // Position each heartbox horizontally spaced by 50px, starting at x = 50
-                // should adjust width using heart count parameter
-                const position = vec2(50 + i * 50, 30);
-
-                // Create a new heartbox UI tile and add it to the HEART_BOX array
-                const heartTile = new UITile(position, vec2(50, 50), tile(0, 32, 0, 0)); // uses UI tile function to draw hearbox
-                this.HEART_BOX.push(heartTile!);
-            }
-            console.log("FinishedDrawing Heartbox", this.HEART_BOX.length, "/", heartCount);
+        for (let i = 0; i < heartCount; i++) {
+            const heart = document.createElement("div");
+            heart.className = "heartbox-heart";
+            heart.style.left = `${5 + i * 40}px`;
+            
+            //this.UI_GAMEHUD.appendChild(heart);
+            this.TopRightUI!.appendChild(heart);            
+            this.HEART_BOX.push(heart);
         }
+        
     }
+
     ingameMenu() {
         /*
         * Creates the Ingame Menu UI Object
@@ -3736,64 +3399,67 @@ class UI extends UIObject {
         * (1) ingame menu scaling via android singletons
         * (2) menu translations
         */
-
+        
+        if (this.newGame) return; // guard clause
         console.log("Creating Ingame Menu");
-        // Create Ingame Menu
-        // 
-        if (!this.newGame) {
+    
+        this.newGame = this.createMenuOption("New Game", "#", () => {
+            window.music.sound_start.play();
+            window.simulation = new Simulation();
+        });
 
+        this.contGame = this.createMenuOption("Continue", "#", () => {
+                    window.music.sound_start.play();
+                });
 
-            this.newGame = this.createMenuOption("New Game", "newgame.html", () => {
+        this.Comics = this.createMenuOption("Comics", "#", () => {
+            window.open("https://dystopia-app.site", "_blank");
+        });
 
-                console.log('New Game Pressed');
-                
-                window.music.sound_start.play();
+        this.Controls = this.createMenuOption("Controls", "#", () => {
+            window.music.sound_start.play();
+        });
 
-                // Play Randomised Playlist With Zzfxm optimmised for bandwidth
-                //window.music.play(); //works
+        this.Quit = this.createMenuOption("Quit", "#", () => {
+            window.music.sound_start.play();
+            window.THREE_RENDER.showThreeLayer();
+        });
 
-                // apply gravity to 3d model to trigger game start
-                window.simulation = new Simulation();
-
-            });
-
-            this.contGame = this.createMenuOption("Continue", "continue.html", () => {
-                console.log("Continue Game Pressed");
-                window.music.sound_start.play();
-            });
-
-
-
-            this.Comics = this.createMenuOption("Continue", "continue.html", () => {
-
-                if (this.visible) {
-                    // open comics website in new tab
-                    console.log('Comics Pressed');
-                    window.open('https://dystopia-app.site', '_blank');
-                }
-            });
-
-
-
-            this.Controls = this.createMenuOption("Controls", "controls.html", () => {
-                console.log('Controls Pressed');
-                window.music.sound_start.play();
-            });
-
-            this.Quit = this.createMenuOption("Quit", "quit.html", () => {
-                // (1) delete player
-                // (2) show 3d layer
-                console.log('Quit Pressed');
-                window.music.sound_start.play();
-
-                window.THREE_RENDER.showThreeLayer()
-            });
-
-
-            // Append options to menu
-            this.menuContainer!.append(this.newGame, this.contGame, this.Controls, this.Quit);
-        }
+        // append buttons to menu container
+        
+        this.menuContainer!.append(
+                this.newGame,
+                this.contGame,
+                this.Controls,
+                this.Quit
+            );
+        
+        
     }
+
+    /**
+     * Core UI Class
+     * 
+     * @param text 
+     * @param onClick 
+     * @returns 
+     */
+    private createTextureButton(imgSrc: string, className: string, onClick: () => void): HTMLButtonElement {
+        const btn = document.createElement("button");
+        
+        //btn.textContent = text;
+        btn.className = className;
+        btn.addEventListener("pointerdown", onClick);
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";
+        btn.appendChild(img);
+        
+        return btn;
+    }
+
 
     private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement {
         const option = document.createElement("a");
@@ -3818,6 +3484,14 @@ class UI extends UIObject {
         return option;
     }
 
+
+    private createPanel(id: string): HTMLDivElement {
+        const div = document.createElement("div");
+        div.id = id;
+        div.className = "ui-panel";
+        this.UI_ROOT.appendChild(div);
+        return div;
+    }
 
 }
 
@@ -4234,8 +3908,13 @@ function gameRender() {
         if (!window.player) {
             window.player = new Player();
             
-            // enemy teseting
+            
             window.enemy = new Enemy(vec2(5, 10));
+            
+            //blood fx testing
+            const q = new Blood_splatter_fx(vec2(0),vec2(5));
+            
+            
             // setup the screen and camera
             const y = new Screen();
 
@@ -4265,4 +3944,6 @@ function gameRenderPost() {
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
 engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.png", "UI_1_tilemap_64x64.png", "godot_128x_dungeon_tileset.png"]);
+
+
 
