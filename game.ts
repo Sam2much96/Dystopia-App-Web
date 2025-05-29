@@ -1890,7 +1890,7 @@ class Player extends GameObject {
         this.pos = vec2(16, 9);
         //this.size = vec2(0.8);
 
-        console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
+        //console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
         
         // Fetch Player Health From Globals Singleton
         // Update Globals With Player Pointer
