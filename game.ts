@@ -2720,7 +2720,7 @@ class Simulation extends GameObject {
         console.log("Simulation Singleton Created");
         //this.cubePosition = null; // for storing the cube geometry 3d position 
         //this.groundLevel = -4; // ground position for stopping Gravity on Cube 
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        this.color = new Color(0, 0, 0, 0); // make object invisible
         //this.timer = new Timer(); //timer necessary for running the simulation timer loop
 
         //return 0;
@@ -3648,8 +3648,6 @@ class OverWorld extends LittleJS.TileLayer {
     //tileData: Array<any>;
     ground_layer: number[][] = []; // matrix data type
     ENABLE: boolean = true;
-
-    rendered: boolean = false;// stop check for drawing the tilelayers on mobile
     constructor() {
         super();
 
@@ -3714,22 +3712,15 @@ class OverWorld extends LittleJS.TileLayer {
         const templeChunk = overMap.layers[2].chunks[0];
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
 
-
     }
 
-    render(){
-                if (!this.rendered){
+    ready(){
+
         this.groundLayer.redraw();
         this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
         this.tempExtLayer.redraw();
-        this.rendered = true
-        }
-        
     }
 
-    update(): void {
-        
-    }
 
     chunkArray(array: number[], chunkSize: number) {
         /*
@@ -3972,13 +3963,6 @@ function gameRender() {
     if (window.globals.GAME_START) {
 
 
-        //create overworld map
-        if (!window.map) {
-
-            window.music.play(); //works
-            window.map = new OverWorld();
-        }
-
 
    
         //create global player object
@@ -4000,7 +3984,16 @@ function gameRender() {
 
 
 
+
+            //create overworld map
+        
+            window.music.play(); //works
+            window.map = new OverWorld();
+            window.map.ready();
+        
+
         }
+
 
 
     }
