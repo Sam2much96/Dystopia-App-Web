@@ -3886,6 +3886,8 @@ function gameInit() {
     window.utils = new Utils;
     window.music = new Music;
 
+    // preload overworld
+    window.map = new OverWorld();
   
 
     window.wallet = new Wallet(false);
@@ -3903,6 +3905,7 @@ function gameInit() {
     window.inventory.set("bomb", 3);
     window.inventory.set("elixir", 3);
 
+    
 
     //Initialise 3d scene render
     // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
@@ -3986,9 +3989,10 @@ function gameRender() {
 
 
             //create overworld map
+            // overworld tile renderer breaks on mobile?
         
             window.music.play(); //works
-            window.map = new OverWorld();
+            
             window.map.ready();
         
 
