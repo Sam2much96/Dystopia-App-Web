@@ -60,15 +60,16 @@ body {
 
 .inventory-container {
     z-index: 1000;
-    display: none; /* turns off & on inventory ui - grid, -none*/
+    display: flex; /* turns off & on inventory ui - grid, -none*/
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     padding: 20px;
-    background-color: #505050ba;
+    background-color: #5050509a;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 80%;
     max-width: 1000px;
+    
 }
 
 .inventory-item {
@@ -99,6 +100,40 @@ body {
     color: #555;
 }
 
+.inventory-tabs {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.inventory-tab {
+    padding: 8px 16px;
+    background: #222;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.inventory-tab.active-tab {
+    background: #444;
+    font-weight: bold;
+}
+
+.inventory-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.tab-icon {
+    margin-right: 6px;
+    width: 48px;
+    height: 48px;
+    vertical-align: middle;
+}
+
+
 
 @font-face {
     font-family: 'Comic Andy';
@@ -117,7 +152,7 @@ body {
   align-items: flex-end; /* optional: aligns buttons to the right */
   gap: 10px; /* optional: space between buttons */
   pointer-events: auto;
-  z-index: 1000; /* Higher layer */
+  z-index: 1001; /* Higher layer */
 }
 
 /* Top Right UI (hearts + menu) */
@@ -197,15 +232,16 @@ h1 {
 .ui-button {
     margin: 0;
     padding: 0;
-    pointer-events: all;
+    pointer-events: auto;
     width: 60px;   /* adjust to desired size */
     height: 60px;
     padding: 0;
     border: none;
-    background: none;
+    background: none no-repeat center center;
     margin: 0;
     cursor: pointer;
     pointer-events: auto;
+    z-index: 1000;
 
     
 }

@@ -602,13 +602,15 @@ class Wallet {
 class Inventory {
 
     /*
-    Inventory Singleton
-    
-    
-    Functions
-    (1) Handles All Player Inventory
-    (2) 
-    
+    * Inventory Singleton
+    *
+    *
+    * Functions
+    * (1) Handles All Player Inventory
+    * (2) Renders player's stats AI
+    *
+    * to do :
+    * (1) player stats render function should renderer different pages, not categories
     */
 
     private items: Record<string, number>; // Dictionary to store inventory items
@@ -619,33 +621,123 @@ class Inventory {
     }
 
     render(): void {
-
+        /**
+         * Inventory Renderer
+         * 
+         * Features:
+         * (1) renders the inventory items to a html element
+         * (2) connects to the stats ui button created in the UI class object
+         * (3) Renders stats ui by typescript + html + css manipulation of the dom
+         * 
+         * To DO: 
+         * (1) Add tabs and et al
+         */
         console.log("rendering inventory UI database");
 
+        // consider rewriting this to call a get class from the UI class object
         this.inventoryUI = document.getElementById("inventory-container");
 
-        this.inventoryUI!!.innerHTML = ""; // clear UI
+        if (!this.inventoryUI) return console.warn("debug Inventory UI");
+
+        this.inventoryUI.innerHTML = ""; // clear UI
+
+         // Inventory tab categories
+         //each maps to an inventory item icon in the home and public directory
+        
+        const categories = ["All", "Weapons", "Consumables", "Armor"];
+        let activeCategory = "All";
+
+
+        // Create tabs container 
+        // from each of the objects in the categories array
+        const tabsHTML = `
+            <div class="inventory-tabs">
+                ${categories.map(cat => `
+                    <button class="inventory-tab" data-category="${cat}">
+                    <img src="${cat.toLowerCase()}.png" class="tab-icon" alt="${cat} icon">
+                    ${cat}
+                    </button>
+                `).join("")}
+            </div>
+            <div id="inventory-items" class="inventory-items-grid"></div>
+        `;
+
+        this.inventoryUI.innerHTML = tabsHTML;
 
         const items = window.inventory.getAllItems(); // Get inventory items
 
 
-        // Inner html manipulation to spawn this Inventory Items
-        // map this to loop throug getItems function
-        Object.entries(items).forEach(([itemName, itemCount]) => {
-            this.inventoryUI!!.innerHTML += `
-            <div class="inventory-item">
-                <button class="item-button" onclick="useItem('${itemName}')">
-                    <img src="assets/images/${itemName}.png" alt="${itemName}" class="item-image">
-                    <div class="item-name">${itemName}</div>
-                    <div class="item-description">Amount: ${itemCount} </div>
-                </button>
-            </div>
-        `;
+        
+        // Render items (filtered by category)
+        // to do:
+        // (1) each category should show different stats
+        const renderItems = (category: string) => {
+            const container = document.getElementById("inventory-items");
+            if (!container) return; // guard clause
+            container.innerHTML = ""; // Clear previous
+
+            Object.entries(items).forEach(([itemName, itemCount]) => {
+                // You may replace this logic with actual item metadata category lookup
+                const itemCategory = this._getItemCategory(itemName); // Custom function
+
+                if (category === "All" || itemCategory === category) {
+                    container.innerHTML += `
+                        <div class="inventory-item">
+                            <button class="item-button" onclick="useItem('${itemName}')">
+                                <img src="assets/images/${itemName}.png" alt="${itemName}" class="item-image">
+                                <div class="item-name">${itemName}</div>
+                                <div class="item-description">Amount: ${itemCount}</div>
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        };
 
 
+        // Add click listeners to tabs
+        const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
+        
+        // to do: 
+        // (1) add icons to tab buttons
+        // (2) decouple inventory render code to render different tabs
+
+        // logic: 
+        // loops through all tab buttons
+        // add signal listener to each button press
+        // get the category name from the clicked button's data-category attribute
+        // update the variable tracking the currently selected category
+        // remove old active tab styles
+        // highlight the newly selected tab
+        // re-render the inventory items
+        tabButtons.forEach(tab_btn => {
+            tab_btn.addEventListener("click", () => {
+                const selectedCategory = tab_btn.getAttribute("data-category")!;
+                activeCategory = selectedCategory;
+
+                
+                // Remove active class from all tabs
+                tabButtons.forEach(b => b.classList.remove("active-tab"));
+                
+                tab_btn.classList.add("active-tab");
+
+                renderItems(activeCategory); // re-render the tab
+            });
         });
 
 
+        // Initial render
+        renderItems(activeCategory);
+
+
+    }
+
+    // sorts items by categories
+    _getItemCategory(itemName: string): string {
+        if (itemName.includes("sword") || itemName.includes("gun")) return "Weapons";
+        if (itemName.includes("potion") || itemName.includes("elixir")) return "Consumables";
+        if (itemName.includes("helmet") || itemName.includes("armor")) return "Armor";
+        return "Misc";
     }
 
     /**
@@ -1796,7 +1888,7 @@ class Player extends GameObject {
 
         //centalise player pos to tilemap
         this.pos = vec2(16, 9);
-        this.size = vec2(0.8);
+        //this.size = vec2(0.8);
 
         console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
         
@@ -2216,7 +2308,7 @@ class Enemy extends GameObject {
 
         console.log("creating enemy object");
 
-        this.size = vec2(0.8);
+        //this.size = vec2(0.8);
 
         // set enemy position from the initialisation script
         //this.pos = pos.copy();
@@ -3152,14 +3244,11 @@ class UI  {
     public walletButton: HTMLButtonElement | null = null;
 
 
-    //DEFAULT_SIZE: Vector2 = vec2(128);
-    //DEFAULT_POS: Vector2 = vec2();
-
-    // TImer Nodes
     timer: LittleJS.Timer = new Timer();
+
     public SHOW_DIALOGUE: boolean = false;
     public SHOW_MENU: boolean = true;
-
+    public SHOW_INVENTORY : boolean = false;
 
     // safe pointer to the music global singleton
     private local_music_singleton = window.music;
@@ -3193,7 +3282,10 @@ class UI  {
 
         this.inventoryContainer = document.getElementById("inventory-container");
         //this.inventoryContainer.id = "inventory-container";
-
+        
+        // turn off
+        this.InventoryVisible = false;
+        this.MenuVisible = false;
         
         this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
         this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
@@ -3213,7 +3305,8 @@ class UI  {
 
 
         //console.log("Menu Debug 1: ", this.menuContainer);
-
+            
+        
         }
 
    
@@ -3265,19 +3358,36 @@ class UI  {
         this.DIALOG_BOX.classList.toggle("hidden", !visible);
     }
 
-    /*
-    *  
-    * Toggles Visibility On /Off Each Dom Element
-    * 
-    * 
-    */
+    
+    get InventoryVisible() : boolean {
+        return this.SHOW_INVENTORY;
+    };
 
-    setDOMObjectVisibility(id: string, visible: boolean) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.classList.toggle("hidden", !visible);
+    /**
+     *  In Game Menu Visibility controls & settings
+     * 
+     */
+    set InventoryVisible(visible_: boolean) {
+        // Toggles Menu Visibility by editing the html element's css style
+        this.SHOW_INVENTORY = visible_;
+
+        // play toggle sfx
+        if (this.local_music_singleton) {
+            this.local_music_singleton.ui_sfx[2].play(); // play robotic sfx
         }
-    }
+
+        // game menu visibility
+        if (visible_ == false) {
+            this.inventoryContainer!.classList.add("hidden");
+
+        }
+        else if (visible_ == true) {
+
+            this.inventoryContainer!.classList.remove("hidden");
+        }
+
+
+    };
 
 
     //depreciated
@@ -3320,34 +3430,6 @@ class UI  {
         this.DialogVisible = true;
     }
 
-    stats() {
-        // Testing
-        console.log("Triggering Stats UI");
-        // Triggers stats ui
-
-        // to do :
-        // (1) on & off
-        // (2) game pause
-        // (3) UI text fix
-        // (4) Drag and Drop Items
-        // (5) Status UI Buttons (dialogue, comics, menu, stats) (Done)
-        // (6) Game Menu Shouldn't trigger once stats is showing
-        // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
-
-        // fetch all inventory items
-        //console.log("Inventory Items", window.inventory.getAllItems());
-
-
-        //button action
-        console.log("stats button pressed, Use Inventory item");
-        //}
-        // (1) Create / Show New UI Board
-        // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
-        // (3) Inventory Item Call Example is in Input under I Press
-        window.inventory.render();
-
-    }
-
     gameHUD() {
         /*  
         * Spawns The Game HUD Buttons & Connects 
@@ -3360,26 +3442,59 @@ class UI  {
         console.log("Creating Game HUD Buttons");
         
         // create button icons images
+        // to do :
+        // (1) create a panel div for the left buttons
 
         // create buttons and bind their actions
         this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
             //this.stats.bind(this);
             console.log("stats button pressed");
-            this.stats();
+            this.InventoryVisible = !this.InventoryVisible;
+            // Triggers stats ui
+            // to do :
+            // (1) on & off (done)
+            // (2) game pause
+            // (3) UI text fix
+            // (4) Drag and Drop Items
+            // (5) Status UI Buttons (dialogue, comics, menu, stats) (Done)
+            // (6) Game Menu Shouldn't trigger once stats is showing
+            // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
+
+            // fetch all inventory items
+            console.log("Inventory Items", window.inventory.getAllItems());
+
+
+            //button action
+            //console.log("stats button pressed, Use Inventory item");
+            //}
+            // (1) Create / Show New UI Board
+            // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
+            // (3) Inventory Item Call Example is in Input under I Press
+            window.inventory.render();
             window.music.ui_sfx[1].play();
         });
         this.walletButton = this.createTextureButton("./btn-stats.png","ui-button", () => {
+
             window.music.ui_sfx[0].play();
             window.wallet.__connectToPeraWallet()
         
         });
-        this.dialogButton = this.createTextureButton("./btn-interact.png", "ui-button",this.dialogueBox.bind(this));
+
+        this.dialogButton = this.createTextureButton("./btn-interact.png", "ui-button", ()=>{
+            this.dialogueBox.bind(this);
+            console.log("dialog pressed");
+        });
+        
         this.menuButton = this.createTextureButton("./menu white.png", "menu-btn",() => {
             window.music.ui_sfx[2].play();
             this.MenuVisible = !this.MenuVisible;
+            //console.log("menu pressed");
         });
 
-        this.leftButtons!.append(this.statsButton, this.walletButton, this.dialogButton);
+        // left buttons on the ui
+        this.leftButtons!.append( this.statsButton,this.walletButton, this.dialogButton);
+        
+        // this is also the centerer position of the canvas
         this.TopRightUI!.append(this.menuButton);
     }
 
@@ -3453,7 +3568,7 @@ class UI  {
      * @param onClick 
      * @returns 
      */
-    private createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement {
+    private createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement { // creates hud buttons. buggy
         const btn = document.createElement("button");
         
         //btn.textContent = text;
@@ -3464,13 +3579,14 @@ class UI  {
         img.style.width = "100%";
         img.style.height = "100%";
         img.style.objectFit = "cover";
+        img.style.pointerEvents = "auto";
         btn.appendChild(img);
         
         return btn;
     }
 
 
-    private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement {
+    private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement { // creates menu buttons
         const option = document.createElement("a");
         option.href = href;
         option.className = "menu-option";
@@ -3521,9 +3637,14 @@ class OverWorld extends LittleJS.TileLayer {
         */
     //LOADED: boolean = false;
     tileLookup: any;
-    tileLayer: LittleJS.TileLayer | null = null;
-    LevelSize: LittleJS.Vector2 | null = null;
-    layerCount: number = 0;
+    LevelSize: LittleJS.Vector2 = vec2(overMap.width, overMap.height);
+    //to do:
+    // (1) sort out the positioning and size of each tile layer
+    groundLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), vec2(48), tile(2, 128, 4, 0));
+    treesObjectLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(10,15), this.LevelSize!, tile(2, 128, 4, 0));
+    tempExtLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), vec2(16), tile(2, 128, 4, 0));
+
+    layerCount: number = overMap.layers.length;
     //tileData: Array<any>;
     ground_layer: number[][] = []; // matrix data type
     ENABLE: boolean = true;
@@ -3559,105 +3680,41 @@ class OverWorld extends LittleJS.TileLayer {
         // TO DO:
         // (1) Organise debug for logic arrangement
         // (2) Recusively handle data chunks with the appropriate algorithm
-        this.LevelSize = vec2(overMap.width, overMap.height);
-        this.layerCount = overMap.layers.length; // would be 1 cuz only 1 leve's made
+        //this.LevelSize = vec2(overMap.width, overMap.height);
+        //this.layerCount = overMap.layers.length; // would be 1 cuz only 1 leve's made
         
         console.log("Layer count:", this.layerCount);
         console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
-        // initialise empty array for the ground layer
-        //this.ground_layer = [];
-        // chunk data debug
-        // ground layer details
-      
-        // read each layer data from Overworld.json
-        const groundObject = overMap.layers[0].chunks[0];
-        const temple_ext_object = overMap.layers[2].chunks[0];
-        const treen_n_objects = overMap.layers[1].chunks[0];
-        //console.log("Data debug (ground): %s", groundObject.name);
 
-        
+        // tile drawing function
+        const drawChunks = (chunks: any[], width: number, tileLayer : LittleJS.TileLayer) => {
+            chunks.forEach(chunk => {
+                const data = this.chunkArray(chunk.data, width).reverse();
+                data.forEach((row: any, y: any) => {
+                    row.forEach((val: any, x: any) => {
+                        val = parseInt(val, 10);
+                        if (val) this.drawMapTile(vec2(x, y), val - 1, tileLayer, 1);
+                    });
+                });
+            });
+        };
 
-        // code uses a chunk array function to load the data in chunks
-        this.ground_layer =[...this.chunkArray(groundObject.data, groundObject.width).reverse()];
-        const trees_and_objects = this.chunkArray(treen_n_objects.data, overMap.width).reverse();
-        const temple_exterior = this.chunkArray(temple_ext_object.data, temple_ext_object.width).reverse() ; //.reverse();
-      
-        console.log("Ground Layer debug: ", this.ground_layer);
+        // Extract and draw ground layer (7 chunks)
+        const groundChunks = overMap.layers[0].chunks.slice(0, 6);
+        drawChunks(groundChunks, groundChunks[0].width, this.groundLayer);
 
-        //temple exterior data debug
-        console.log("Temple ext Layer debug: ", temple_exterior);
+        // Extract and draw tree/object layer (6 chunks)
+        const objectChunks = overMap.layers[1].chunks.slice(0, 5);
+        drawChunks(objectChunks, overMap.width, this.treesObjectLayer);
 
-        // tile data doesnt account for multiple layers
-        //this.tileData = this.chunkArray(overMap.layers[0].data, overMap.width).reverse();
+        // Extract and draw temple exterior (1 chunk)
+        const templeChunk = overMap.layers[2].chunks[0];
+        drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
 
-        this.tileLayer = new LittleJS.TileLayer(vec2(), this.LevelSize!, tile(2, 128, 4, 0));
-
-        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible; //make invisible
-
-        //this.pos = vec2(500);
-
-        // duplicate code
-        /** 
-        this.tileData.forEach((row: any, y: any) => {
-            row.forEach((val: any, x: any) => {
-                val = parseInt(val, 10);
-                if (val) {
-                    //console.log("Val Debug: ", val); //works
-                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
-
-                }
-
-            })
-        })
-        */
-        // Functions:
-        // (1) takes in a 2 dimensional array type:  number [][]
-        // (2) iterates through the rows and columns
-        // (3) Draws a tilemap for each layer
-        this.ground_layer.forEach((row: number[], y: number, array: number[][]) => {
-            row.forEach((column: number, x: number, array : number[]) => {
-                //val = parseInt(val, 10); // convert any string to integer //should be depreciated if passing the correct data type
-                if (column) {
-                    console.log("Val Debug: ", column); //works
-                    
-                    //calls a class function to draw to the tilemap
-                    this.drawMapTile(vec2(x, y), column - 1, this.tileLayer!, 1);
-
-                }
-
-            })
-        });
-        
-
-        trees_and_objects.forEach((row: any, y: any) => {
-            row.forEach((val: any, x: any) => {
-                val = parseInt(val, 10);
-                if (val) {
-                    //console.log("Val Debug: ", val); //works
-                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
-
-                }
-
-            })
-        })
-
-
-        
-        temple_exterior.forEach((row: any, y: any) => {
-            row.forEach((val: any, x: any) => {
-                val = parseInt(val, 10);
-                if (val) {
-                    //console.log("Val Debug: ", val); //works
-                    this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
-
-                }
-
-            })
-        })
-        
-
-        this.tileLayer.redraw();
+        this.groundLayer.redraw();
+        this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+        this.tempExtLayer.redraw();
 
     }
 
@@ -3841,8 +3898,9 @@ function gameInit() {
 
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
-    window.inventory.set("apple", 5);
-    window.inventory.set("banana", 3);
+    window.inventory.set("generic-item", 5);
+    window.inventory.set("bomb", 3);
+    window.inventory.set("elixir", 3);
 
 
     //Initialise 3d scene render
