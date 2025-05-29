@@ -3648,6 +3648,8 @@ class OverWorld extends LittleJS.TileLayer {
     //tileData: Array<any>;
     ground_layer: number[][] = []; // matrix data type
     ENABLE: boolean = true;
+
+    rendered: boolean = false;// stop check for drawing the tilelayers on mobile
     constructor() {
         super();
 
@@ -3712,14 +3714,22 @@ class OverWorld extends LittleJS.TileLayer {
         const templeChunk = overMap.layers[2].chunks[0];
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
 
-        this.groundLayer.redraw();
-        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
-        this.tempExtLayer.redraw();
 
     }
 
+    render(){
+                if (!this.rendered){
+        this.groundLayer.redraw();
+        this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+        this.tempExtLayer.redraw();
+        this.rendered = true
+        }
+        
+    }
 
-
+    update(): void {
+        
+    }
 
     chunkArray(array: number[], chunkSize: number) {
         /*
