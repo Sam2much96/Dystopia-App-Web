@@ -3702,8 +3702,8 @@ class OverWorld  {
         };
 
         // Extract and draw ground layer (7 chunks)
-        //const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        //drawChunks(groundChunks, groundChunks[0].width, this.groundLayer);
+        const groundChunks = overMap.layers[0].chunks.slice(0, 6);
+        drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer);
         //this.groundLayer.redraw();
 
         // Extract and draw tree/object layer (6 chunks)
@@ -3711,6 +3711,7 @@ class OverWorld  {
         //drawChunks(objectChunks, overMap.width, this.treesObjectLayer);
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
+        // mobiles can only draw 1 tile layer
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
