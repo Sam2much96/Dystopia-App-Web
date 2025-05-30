@@ -3317,7 +3317,7 @@ class UI  {
         
         // turn off
         this.InventoryVisible = false;
-        this.MenuVisible = false;
+        this.MenuVisible = true;
         
         this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
         this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
@@ -3783,26 +3783,8 @@ class OverWorld  {
         //}
     }
 
-    loadlevel(level = 0) {
-        // load level data from an exported Tiled js file
-        // loaded as OverMap
-
-
-        console.log("Finished Loading Level");
-
-        //draw layer data
-
-
-
-
-    }
-
-
-
 
 }
-
-
 
 
 
