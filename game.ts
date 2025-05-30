@@ -2210,7 +2210,7 @@ class Player extends GameObject {
 
 
                 //sfx
-                window.music.sound_metal_gong.play();
+                window.music.hit_sfx[2].play();
             }
 
         //}
