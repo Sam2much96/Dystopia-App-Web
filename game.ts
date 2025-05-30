@@ -644,7 +644,7 @@ class Inventory {
          // Inventory tab categories
          //each maps to an inventory item icon in the home and public directory
         
-        const categories = ["All", "Weapons", "Consumables", "Armor"];
+        const categories = ["All", "inventory", "wallet","compass" ,"quest","shield"];
         let activeCategory = "All";
 
 
@@ -654,7 +654,8 @@ class Inventory {
             <div class="inventory-tabs">
                 ${categories.map(cat => `
                     <button class="inventory-tab" data-category="${cat}">
-                    <img src="${cat.toLowerCase()}.png" class="tab-icon" alt="${cat} icon">
+                    <!-- Renders the Tab icons based on the category items -->
+                    <img src="${cat.toLowerCase()}.webp" class="tab-icon" alt="${cat} icon">
                     ${cat}
                     </button>
                 `).join("")}
@@ -672,6 +673,7 @@ class Inventory {
         // to do:
         // (1) each category should show different stats
         const renderItems = (category: string) => {
+            // gets the inventory items grid created above
             const container = document.getElementById("inventory-items");
             if (!container) return; // guard clause
             container.innerHTML = ""; // Clear previous
@@ -680,11 +682,15 @@ class Inventory {
                 // You may replace this logic with actual item metadata category lookup
                 const itemCategory = this._getItemCategory(itemName); // Custom function
 
+                // renders the item category
                 if (category === "All" || itemCategory === category) {
                     container.innerHTML += `
+                        <!-- Renders the Tab items based on the inventory items data -->
                         <div class="inventory-item">
+                            <!-- Button clicks don't work here, you'll hv to create global functions to call within this render -->
+                            <!-- Code reference : Dystopia-App-Manga Landing page code -->
                             <button class="item-button" onclick="useItem('${itemName}')">
-                                <img src="assets/images/${itemName}.png" alt="${itemName}" class="item-image">
+                                <img src="${itemName}.webp" alt="${itemName}" class="item-image">
                                 <div class="item-name">${itemName}</div>
                                 <div class="item-description">Amount: ${itemCount}</div>
                             </button>
@@ -698,6 +704,8 @@ class Inventory {
         // Add click listeners to tabs
         const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
         
+        //console.log("ui debug 2 : ", tabButtons);
+        //
         // to do: 
         // (1) add icons to tab buttons
         // (2) decouple inventory render code to render different tabs
@@ -733,10 +741,16 @@ class Inventory {
     }
 
     // sorts items by categories
+    // category cheat sheet:
+    //"inventory", "wallet","compass" ,"quest","shield"
+    // to do:
+    // (1) All inventory items should be a global class for easier referencing than strings
+    // (2) Depreciate this category class to render dirrerent ui elements for each tab button clicked 
+    //     - and only category sort on the inventory tab
     _getItemCategory(itemName: string): string {
-        if (itemName.includes("sword") || itemName.includes("gun")) return "Weapons";
-        if (itemName.includes("potion") || itemName.includes("elixir")) return "Consumables";
-        if (itemName.includes("helmet") || itemName.includes("armor")) return "Armor";
+        if (itemName.includes("bomb") || itemName.includes("bow")) return "inventory";
+        if (itemName.includes("ring") || itemName.includes("potion")) return "inventory";
+        //if (itemName.includes("helmet") || itemName.includes("armor")) return "Armor";
         return "Misc";
     }
 
@@ -1374,12 +1388,6 @@ class GameObject extends EngineObject {
 
     }
 
-    destroy(): void {
-        //this.destroy();
-        // Logic for general object destruction
-        console.log("GameObject destroyed");
-    }
-
 
 
     animate(currentFrame: number, sequence: number[]): number {
@@ -1619,19 +1627,21 @@ class Inputs extends GameObject {
         }
 
         if (LittleJS.gamepadIsDown(2)) {
-            console.log("Game Pad Was Pressed, Test Successfull 2");
+            //console.log("Game Pad Was Pressed, Test Successfull 2");
             this.attack()
         }
 
         if (LittleJS.gamepadIsDown(3)) {
-            console.log("Game Pad Was Pressed, Test Successfull 3");
-            return 0;
+            //console.log("Game Pad Was Pressed, Test Successfull 3");
+            //return 0;
+            this.attack;
         }
 
 
         if (LittleJS.gamepadIsDown(0)) {
-            console.log("Game Pad Was Pressed, Test Successfull 4");
-            return 0;
+            //console.log("Game Pad Was Pressed, Test Successfull 4");
+            //return 0;
+            this.roll();
         }
 
         /**
@@ -1690,7 +1700,8 @@ class Inputs extends GameObject {
     }
 
     roll() {
-
+        // to do:
+        // (1) write roll logic with vector maths calculations
         // dash state
         // console.log(" Dash Pressed");
 
@@ -1791,22 +1802,23 @@ class Inputs extends GameObject {
 
 class Player extends GameObject {
     /*
-    PLAYER CLASS
-
-    # THe Core Player Script
-    #
-    # Features
-    # (1) THe world's camera
-    # (2) Player hitboxes
-    # (3) It's a class and stores variables to the UI, Globals singleton, PlayersSave Files, and the Debug SIngleton
-    # (4) Extend input from Global Input Singleton
-    # (5) Extends to Top DOwn and SideScrolling Player Scripts
-    # (6) Player & Enemy SFX is handled by simulation singleton
-    # (7) Connects Dialog Signals From Dialogs Singleton
-    # (8) Collision detectin is done from simulation singleton
-    # (9) The current frame is the sprite id that would be rendered in the render() function
-
-    # to do: (1) set player's initial state to idle down not run up
+    * PLAYER CLASS
+    *
+    * THe Core Player Script
+    *
+    * Features
+    * (1) THe world's camera
+    * (2) Player hitboxes
+    * (3) It's a class and stores variables to the UI, Globals singleton, PlayersSave Files, and the Debug SIngleton
+    * (4) Extend input from Global Input Singleton
+    * (5) Extends to Top DOwn and SideScrolling Player Scripts
+    * (6) Player & Enemy SFX is handled by simulation singleton
+    * (7) Connects Dialog Signals From Dialogs Singleton
+    * (8) Collision detectin is done from simulation singleton
+    * (9) The current frame is the sprite id that would be rendered in the render() function
+    *
+    * to do: 
+    * (1) set player's initial state to idle down not run up
     */
 
     // Constants
@@ -1876,7 +1888,7 @@ class Player extends GameObject {
     private IdleRight : Array<number> =[1];
     private Roll : Array<number> =[0];
     private AttackUp : Array<number> =[36,37,38,39,40,41,42];
-    private AttackDown : Array<number> =[23,24,25,26,27,28];
+    private AttackDown : Array<number> =[23,24,25,26,27,27,28];
     private AttackLeft : Array<number> =[29,30,31,32,33,34,35]; 
     private AttackRight : Array<number> =[29,30,31,32,33,34,35]; // duplicate of right animatoin with mirror
     private Despawn : Array<number> =[43,44];
@@ -1929,13 +1941,6 @@ class Player extends GameObject {
         // (2)
 
         // Connect Heart box signals
-        // check if signal is connected
-        // temporarily debugging signal implementation
-
-        // Set initial player health
-
-
-        // player state machine
 
 
         // PLAYER'S FACING
@@ -2020,7 +2025,7 @@ class Player extends GameObject {
             },
             1 : () => {
                 this.state["STATE_WALKING"]()
-
+                this.mirror_ = false;
                 this.playAnim(this.RunDown);
 
                 //save previous facing data for idle state
@@ -2044,6 +2049,18 @@ class Player extends GameObject {
                 //save previous facing data for idle state
                 this.facingPos = 3;
             },
+
+            4 : () =>{
+
+                
+                // attack state
+                this.state["STATE_ATTACK"]();
+
+
+
+
+
+            },
             6 : () => {
 
                 //temporarily adding for testing
@@ -2060,26 +2077,7 @@ class Player extends GameObject {
 
         };
     };
-    // input states
 
-    //['UP', 0],
-    //['DOWN', 1],
-    //['LEFT', 2],
-    //['RIGHT', 3],
-    //['ATTACK', 4],
-    //['ROLL', 5],
-    //["IDLE", 6],
-
-
-    // player states
-    // ['STATE_BLOCKED', 0],
-    // ['STATE_IDLE', 1],
-    // ['STATE_WALKING', 2],
-    // ['STATE_ATTACK', 3],
-    // ['STATE_ROLL', 4],
-    // ['STATE_DIE', 5],
-    // ['STATE_HURT', 6],
-    // ['STATE_DANCE', 7]
 
     // stores complex player states
     matchState(): Record<string, () => void>  {
@@ -2105,6 +2103,31 @@ class Player extends GameObject {
                 this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
                 this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
             },
+
+            "STATE_ATTACK" : () => {
+                //console.log("attack state triggered");
+
+                // logic:
+                // get the current facing direction
+                // play the appropriate facing attack animation 
+                                // match the player's facing animation to the attack animation
+                if (this.facingPos == 0){
+                    this.mirror_ = false;
+                    this.playAnim(this.AttackUp)
+                }
+                if (this.facingPos == 1){
+                    this.mirror_ = false;
+                    this.playAnim(this.AttackDown)
+                }
+                if (this.facingPos == 2){
+                    this.mirror_ = true;
+                    this.playAnim(this.AttackLeft);
+                }
+                if (this.facingPos == 3){
+                    this.mirror_ = false;
+                    this.playAnim(this.AttackRight);
+                }
+            }
         }
     }
 
@@ -2150,8 +2173,11 @@ class Player extends GameObject {
         // to do: (1) fix stuck idle state bug and input buffer spammer
         //console.log("stae debug 12: ", sstate, "/", this.input.get_Buffer());
         
+        //console.log("state debug: ", inputState);
         // gets the input state from the singleton
         // passes it as a parameter to the state machine logic
+        // would break with the below error if the state doesn't exist
+        // error :  game.ts:2172:16 Uncaught TypeError: this.facing[inputState] is not a function
         this.facing[inputState]();
         
 
@@ -2160,16 +2186,19 @@ class Player extends GameObject {
         // (1) Move to simulation singleton
         // player hit collision detection
         // detects collision between any enemy in the global enemies pool
-        for (let i = 0; i < window.globals.enemies.length; i++) {
-
-            if (LittleJS.isOverlapping(this.pos, this.size, window.globals.enemies[i].pos, window.globals.enemies[i].size) && this.input.state == 4) { // if hit collission and attack state
-                console.log("Player Hit Collision Detection Triggered");
+        //for (let i = 0; i < window.globals.enemies.length; i++) {
+        // 
+        // to do:
+        // (1) recorganise code architechture to work with multiple enemies using object pooling
+        // (2) i'm temporarily disabling that to quicky hack hit collision logic for one enemy
+        if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) && this.input.state == 4) { // if hit collission and attack state
+                //console.log("Player Hit Collision Detection Triggered");
 
                 // Attack
                 // reduce enemy health
-                window.globals.enemies[i].hitpoints -= 1;
+                window.enemy.hitpoints -= 1;
 
-                window.globals.enemies[i].kickback();
+                window.enemy.kickback();
 
                 //hit register
 
@@ -2178,7 +2207,7 @@ class Player extends GameObject {
                 window.music.sound_metal_gong.play();
             }
 
-        }
+        //}
 
     }
 
@@ -2443,11 +2472,14 @@ class Enemy extends GameObject {
 
     despawn() {
         // The Enemy Despawn animation
+        // bug :
+        // (1) Enemy despawn logic doesn't work
+        // (2) No Enemy despawn animation or vfx
         console.log("Destroying Enemy");
         //create particle fx
         //let blood_fx = new ParticleFX(this.pos, this.size);
-
-        this.despawn_timer.set(3);
+        this.destroy();
+        //this.despawn_timer.set(3);
 
 
         // remove object from global object pool
@@ -2458,7 +2490,7 @@ class Enemy extends GameObject {
         }
 
         //blood_fx.destroy();
-        this.destroy();
+        
     }
     _on_enemy_eyesight_body_entered() {
         // player detection with a raycast
@@ -3473,7 +3505,7 @@ class UI  {
             window.inventory.render();
             window.music.ui_sfx[1].play();
         });
-        this.walletButton = this.createTextureButton("./btn-stats.png","ui-button", () => {
+        this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
 
             window.music.ui_sfx[0].play();
             window.wallet.__connectToPeraWallet()
@@ -3701,17 +3733,19 @@ class OverWorld  {
             });
         };
 
+
+        // Extract and draw tree/object layer (6 chunks)
+        const objectChunks = overMap.layers[1].chunks.slice(0, 5);
+        drawChunks(objectChunks, overMap.width, this.tempExtLayer);
+        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+
         // Extract and draw ground layer (7 chunks)
         const groundChunks = overMap.layers[0].chunks.slice(0, 6);
         drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer);
         //this.groundLayer.redraw();
 
-        // Extract and draw tree/object layer (6 chunks)
-        //const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        //drawChunks(objectChunks, overMap.width, this.treesObjectLayer);
-        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
-        // mobiles can only draw 1 tile layer
+        // bug: mobiles can only draw 1 tile layer
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
         drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
@@ -4018,7 +4052,8 @@ function gameRenderPost() {
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.png", "UI_1_tilemap_64x64.png", "godot_128x_dungeon_tileset.png"]);
+// tiles.png is a placeholder until proper file name management is donew for game init
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ['tiles.png', "player_tileset_128x128.png", "enemy_tileset_128x128.webp", "tiles.png", "godot_128x_dungeon_tileset.webp"]);
 
 
 
