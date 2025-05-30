@@ -1621,7 +1621,7 @@ class Inputs extends GameObject {
 
         // Virtual Gamepad Controller
         if (LittleJS.gamepadIsDown(1)) {
-            console.log("Game Pad Was Pressed, Test Successfull: ");
+            //console.log("Game Pad Was Pressed, Test Successfull: ");
             //return 0;
             this.roll();
         }
@@ -2055,12 +2055,14 @@ class Player extends GameObject {
                 
                 // attack state
                 this.state["STATE_ATTACK"]();
+            },
 
-
-
-
+            5 : () => {
+                // roll state
+                this.state["STATE_ROLL"]();
 
             },
+
             6 : () => {
 
                 //temporarily adding for testing
@@ -2102,6 +2104,10 @@ class Player extends GameObject {
 
                 this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
                 this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
+            },
+            "STATE_ROLL" : () =>{
+                // rolling state machine currently unimplemented
+
             },
 
             "STATE_ATTACK" : () => {
