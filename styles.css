@@ -280,3 +280,15 @@ h1 {
     display: none;
 }
 
+.wallet-tab, .map-tab, .quests-tab, .stats-tab {
+    padding: 1em;
+    font-family: 'sans-serif';
+}
+
+.map-image {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 0.5em;
+    max-width: 600px;
+    align-self: center;
+}

@@ -415,6 +415,10 @@ class Music {
 }
 
 
+class Quest {
+
+}
+
 class Wallet {
     /*
      * Implements all Wallet functionality in one class
@@ -450,6 +454,7 @@ class Wallet {
     public indexerClient: any | null = null;
     public kmdClient: any | null = null;
     public accountAddress: string | null = null;
+    public accountBalance : number | null = null;
     public accountInfo: any | null = null;
     public Connected: boolean;
 
@@ -550,6 +555,7 @@ class Wallet {
 
     async fetchSudHoldings() {
         // probably using vestigefi api, check for the sud holdings of this particular address
+        // idea 2: get the asa holdings of the connected wallet address
     }
 
     handleDisconnectWallet(error: Error | null, payload: any): void {
@@ -631,7 +637,11 @@ class Inventory {
          * (3) Renders stats ui by typescript + html + css manipulation of the dom
          * 
          * To DO: 
-         * (1) Add tabs and et al
+         * (1) Add tabs and et al (1/2)
+         * (2) Serialize wallet data to wallet tab renders
+         * (3) Connect buttons manually with each rendering a different page
+         * (4) Mini map?
+         * (5) Quest UI & kill counts
          */
         console.log("rendering inventory UI database");
 
@@ -645,7 +655,7 @@ class Inventory {
          // Inventory tab categories
          //each maps to an inventory item icon in the home and public directory
         
-        const categories = ["All", "inventory", "wallet","compass" ,"quest","shield"];
+        const categories = ["All", "inventory", "wallet","compass" ,"quest","stats"];
         let activeCategory = "All";
 
 
@@ -666,21 +676,87 @@ class Inventory {
 
         this.inventoryUI.innerHTML = tabsHTML;
 
-        const items = window.inventory.getAllItems(); // Get inventory items
+        
 
 
         
-        // Render items (filtered by category)
-        // to do:
-        // (1) each category should show different stats
-        const renderItems = (category: string) => {
+
+        // Add click listeners to tabs
+        const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
+        
+        // Store tab buttons in an object for manual control
+        const tabButtonMap: Record<string, HTMLButtonElement> = {};
+
+        tabButtons.forEach((tab_btn) => {
+            const button = tab_btn as HTMLButtonElement;
+            const category = tab_btn.getAttribute("data-category");
+            if (category) {
+                tabButtonMap[category] = button;
+                button.addEventListener("click", () => {
+                activeCategory = category;
+
+                // Remove active class from all tabs
+                tabButtons.forEach(b => (b as HTMLButtonElement).classList.remove("active-tab"));
+                button.classList.add("active-tab");
+
+                // Render different content depending on the category
+                switch (category) {
+                    case "All":
+                case "inventory":
+                    this.renderItems(category);
+                    break;
+                case "wallet":
+                    this.renderWallet();
+                    break;
+                case "compass":
+                    this.renderMap();
+                    break;
+                case "quest":
+                    this.renderQuests();
+                    break;
+                case "stats":
+                    this.renderStats();
+                    break;
+
+                }
+                });
+            }
+
+        });
+        
+
+
+
+        // Initial render
+        this.renderItems(activeCategory);
+
+
+    }
+
+    private renderWallet(): void {
+        const container = document.getElementById("inventory-items");
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="wallet-tab">
+                <p>Wallet address: ${window.wallet.accountAddress}</p>
+                <p>Token balance: ${window.wallet.accountBalance}</p>
+                <!-- Add more wallet details here -->
+            </div>
+        `;
+    }
+
+
+    // Render items (filtered by category)
+    private renderItems(category: string) : void {
             // gets the inventory items grid created above
             const container = document.getElementById("inventory-items");
             if (!container) return; // guard clause
             container.innerHTML = ""; // Clear previous
 
+            const items = window.inventory.getAllItems(); // Get inventory items
             Object.entries(items).forEach(([itemName, itemCount]) => {
-                // You may replace this logic with actual item metadata category lookup
+                // sort inventory items by category
                 const itemCategory = this._getItemCategory(itemName); // Custom function
 
                 // renders the item category
@@ -703,45 +779,55 @@ class Inventory {
             });
         };
 
+    private renderMap(): void {
+        const container = document.getElementById("inventory-items");
+        if (!container) return;
 
-        // Add click listeners to tabs
-        const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
-        
-        //console.log("ui debug 2 : ", tabButtons);
-        //
-        // to do: 
-        // (1) add icons to tab buttons
-        // (2) decouple inventory render code to render different tabs
-
-        // logic: 
-        // loops through all tab buttons
-        // add signal listener to each button press
-        // get the category name from the clicked button's data-category attribute
-        // update the variable tracking the currently selected category
-        // remove old active tab styles
-        // highlight the newly selected tab
-        // re-render the inventory items
-        tabButtons.forEach(tab_btn => {
-            tab_btn.addEventListener("click", () => {
-                const selectedCategory = tab_btn.getAttribute("data-category")!;
-                activeCategory = selectedCategory;
-
+        container.innerHTML = `
+            <div class="map-tab">
+                <h2>World Map</h2>
+                <!-- mini map placeholder -->
+                <img src="map ui 64x64.webp" alt="Mini Map" class="map-image">
                 
-                // Remove active class from all tabs
-                tabButtons.forEach(b => b.classList.remove("active-tab"));
-                
-                tab_btn.classList.add("active-tab");
-
-                renderItems(activeCategory); // re-render the tab
-            });
-        });
-
-
-        // Initial render
-        renderItems(activeCategory);
-
-
+            </div>
+        `;
     }
+
+
+    private renderQuests(): void {
+        const container = document.getElementById("inventory-items");
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="quests-tab">
+                <h2>Quest Log</h2>
+                <ul>
+                    <li>🗺️ Main Quest: Explore the world</li>
+                    <li>📜 Side Quest: Kill some monsters</li>
+                    <li>✅ Completed: None</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    private renderStats(): void {
+        const container = document.getElementById("inventory-items");
+        if (!container) return;
+
+        // serialise global info to the stats ui
+        let hp : number = window.globals.health;
+        let kc : number = window.globals.kill_count;
+        container.innerHTML = `
+            <div class="stats-tab">
+                <h2>Player Stats</h2>
+                <p>Level: ${kc}</p>
+                <p>HP: ${hp}</p>
+                <p>Attack: 0</p>
+                <p>Defense: 100</p>
+            </div>
+        `;
+    }
+
 
     // sorts items by categories to inventory ui
     // category cheat sheet:
