@@ -439,6 +439,7 @@ class Wallet {
      * (8) Port Escrow Smart Contract to Algokit
      * (9) Test Tokenized Asset UI/UX for Bow Item (1/2)
      * (10) Test Save / Load game Mechanics using local state save, web cache
+     * (11) Optimize pera wallet connect to serialize data to wallet class with objects accessible outside the class
      *      - Save Account Address
      */
     //public network: Map<string, number> = new Map([
@@ -514,26 +515,39 @@ class Wallet {
         */
     }
 
-    async __connectToPeraWallet() { //doesn't work
-        if (this.Connected == false) {
+    async __connectToPeraWallet() { // works slow
+        if (!this.Connected) {
 
             //disconnect wallet session error catcher
-            await this.peraWallet!.disconnect();
+            // await this.peraWallet!.disconnect();
 
             try {
+
+                if (this.peraWallet!.connector?.connected) {
+                    await this.peraWallet!.disconnect();
+                }
+
+
                 //create new connected session
                 const accounts = await this.peraWallet!.connect();
 
                 //this.peraWallet!.connector?.on('disconnect', this.handleDisconnectWallet);
 
                 this.accountAddress = accounts[0];
+                this.Connected = true;
 
-                console.log("Account Address: ", this.accountAddress);
+                console.log("Pera wallet Account Address: ", this.accountAddress);
 
-                //fetch account info
-                this.fetchAccountInfo();
-                this.fetchWalletAssets();
+                //fetch account info in parallel for reduced latency
+                await Promise.all([
+                    this.fetchAccountInfo(),
+                    this.fetchWalletAssets()
+                ]);
 
+
+                // Optional: listen for disconnect events
+                this.peraWallet!.connector?.on('disconnect', this.handleDisconnectWallet);
+     
                 // Use the accountAddress as needed
             } catch (error) {
                 console.error('Error connecting to Pera Wallet:', error);
