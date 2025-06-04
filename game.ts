@@ -748,6 +748,9 @@ class Inventory {
     }
 
     private renderWallet(): void {
+        // to do:
+        // (1) port wallet button from game hud to here using Connected and a trigger parameter
+        
         const container = document.getElementById("inventory-items");
         if (!container) return;
 
@@ -2296,7 +2299,6 @@ class Player extends GameObject {
         this.facing[inputState]();
         
 
-
         // TO DO: 
         // (1) Move to simulation singleton
         // player hit collision detection
@@ -2306,7 +2308,7 @@ class Player extends GameObject {
         // to do:
         // (1) recorganise code architechture to work with multiple enemies using object pooling
         // (2) i'm temporarily disabling that to quicky hack hit collision logic for one enemy
-        if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) && this.input.state == 4) { // if hit collission and attack state
+        if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) && inputState == 4) { // if hit collission and attack state
                 //console.log("Player Hit Collision Detection Triggered");
 
                 // Attack
@@ -2370,7 +2372,7 @@ class Enemy extends GameObject {
     // (6) Synchronize enemy and player state machine enumerations
     // (7) Connect to Utils hit collision detection system
 
-    public hitpoints: number = 3;
+    public hitpoints: number = 5;
     public speed: number = 3;
     public detectionRange: number;
     public minDistance: number;
@@ -2429,6 +2431,7 @@ class Enemy extends GameObject {
     private AttackLeft : Array<number> = [3,4,5];
     private AttackRight : Array<number> = [3,4,5];
     private Roll : Array<number> = [15,16,17,18,19];
+    private Despawn : number[] = [9,11,13,9,11,13];
 
     // state machine variables
     public state : number = this.enum.get("STATE_IDLE")!;
@@ -2439,15 +2442,19 @@ class Enemy extends GameObject {
     public Y : number  = 0; // used for facing animation calculations
 
     // Enemy AI variables
-    public local_player_object : Player = window.player;
+    public local_player_object : Player | null = window.player;
     public direction : Vector2 = vec2(0);
     public length : number = 0;
     private delta : number = 0;
     private random_walk_direction : Vector2 = vec2(100);
 
+    // unused important boolean
+    private isDead : boolean = false;
+    private isStunned : boolean = false;
 
     // Enemy FX
     // todo:
+    public despawn_particles : ParticleFX| null = null; 
 
     constructor(pos: Vector2) {
         super();
@@ -2512,9 +2519,20 @@ class Enemy extends GameObject {
 
     }
     update() {
+        // to do:
+        // (1) logic is ported to simulation singleton
+
+        // Despawn logic
+        if (this.hitpoints <= 0) {
+            this.despawn(); // trigger despawn timer
+
+        }
+
+   
 
         this.frameCounter += window.simulation.deltaTime!
-
+        
+        // if player object is valid
         if (this.local_player_object) {
 
             // trigger the enemy mob state
@@ -2548,24 +2566,18 @@ class Enemy extends GameObject {
 
         }
 
+        // if player object is null
         if (!this.local_player_object){
             // trigger the enemy idle state
             // to do:
             // (1) implement state enumeration logic for the state machine here (done)
-            // (2)
+            // (2) enemy navigation
             this.state = this.enum.get("STATE_IDLE")!;
 
             this.stateMachine[this.state]();
         }
 
-        // to do:
-        // (1) logic is ported to simulation singleton
-
-        // Despawn logic
-        if (this.hitpoints <= 0) {
-            this.despawn(); // trigger despawn timer
-
-        }
+        
         // exit tree
 
         // if (this.despawn_timer.elapsed() && this.hitpoints <= 0) {
@@ -2586,20 +2598,57 @@ class Enemy extends GameObject {
     }
 
     kickback() {
-        return 0;
+        //console.log("kickback called / hp: ", this.hitpoints);
+          // Prevent kickback if enemy is already stunned or dead
+        if (this.isDead || this.isStunned) return 0;
+
+        // Mark as stunned temporarily
+        //this.isStunned = true;
+        // Calculate direction from damage source
+        const dx = this.pos.x - this.local_player_object!.pos.x;
+        const dy = this.pos.y - this.local_player_object!.pos.y;
+
+
+        const magnitude = Math.sqrt(dx * dx + dy * dy) || 1; // avoid divide-by-zero        
+        const knockbackStrength = 5; // tweak this for stronger pushback
+        const knockbackX = (dx / magnitude) * knockbackStrength;
+        const knockbackY = (dy / magnitude) * knockbackStrength;
+
+        this.pos.x += knockbackX;
+        this.pos.y += knockbackY;
+
+        this.playAnim(this.Despawn);
+        
+        return 1;
     }
 
     despawn() {
         // The Enemy Despawn animation
         // bug :
-        // (1) Enemy despawn logic doesn't work
+        // (1) Enemy despawn logic doesn't work (done)
         // (2) No Enemy despawn animation or vfx
-        console.log("Destroying Enemy");
-        //create particle fx
-        //let blood_fx = new ParticleFX(this.pos, this.size);
-        this.destroy();
-        //this.despawn_timer.set(3);
+        
+        window.globals.kill_count += 1;
+        //this.local_player_object = null; // turn off mob logic
 
+        // spawns objects non stop and the position doesn't change
+        //this.despawn_particles = new Blood_splatter_fx(this.pos, this.size);
+
+        // spawn item if able to
+        // logic:
+        // (1) if this enemy has the itemspawner object as a child node
+        // (2) call the item spawn function
+
+        // bug: 
+        // (1) animation doesn't play
+
+        this.state = this.enum.get("STATE_DIE")!;
+        this.stateMachine[this.state](); 
+        // call the destruction function after a time lag
+        
+        //this.despawn_timer.set(3);
+        //this.despawn_particles!.destroy();
+        
 
         // remove object from global object pool
         // remove object from global array
@@ -2608,7 +2657,8 @@ class Enemy extends GameObject {
             window.globals.enemies.splice(index, 1);
         }
 
-        //blood_fx.destroy();
+        
+
         
     }
     _on_enemy_eyesight_body_entered() {
@@ -2684,6 +2734,15 @@ class Enemy extends GameObject {
             1: () =>{
 
             },
+            4: () =>{ // die state
+                        
+                this.playAnim(this.Despawn);
+                this.isDead =true;
+                console.log("Destroying Enemy");
+                
+                this.destroy();
+                
+            },
 
             6 : () => {  // enemy mob ai
 
@@ -2701,7 +2760,7 @@ class Enemy extends GameObject {
                 this.delta = window.simulation.deltaTime!;
 
                 // get initial direction to player
-                this.direction = Utils.restaVectores(this.local_player_object.pos, this.pos);
+                this.direction = Utils.restaVectores(this.local_player_object!.pos, this.pos);
 
                 // get length to player
                 // to do: i can use the direction to calculate the facing and play the appropriate
@@ -3902,9 +3961,9 @@ class OverWorld  {
         const data = new LittleJS.TileLayerData(tileIndex);
         layer.setData(pos, data);
 
-        //if (collision) {
-        //    LittleJS.setTileCollisionData(pos, collision);
-        //}
+        if (collision) {
+            LittleJS.setTileCollisionData(pos, collision);
+        }
     }
 
 
