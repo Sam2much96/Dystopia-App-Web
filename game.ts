@@ -170,6 +170,7 @@ class Music {
 
 
     public wind_fx = new Sound([,,174,.43,.48,.01,4,4.3,-92,57,,,,,36,,,.91,.43,.13]);
+    public item_use_sfx = new Sound([1.4,,954,.01,.01,.003,2,2.4,,-68,211,.3,,,184,,.45,.81,.02,,244]);
 
     public wind_sfx : Array<string> | undefined;
     public sword_sfx : Array<string> | undefined;
@@ -231,7 +232,7 @@ class Music {
 
       
         //drum
-        const drum = new Sound([,,129,.01,,.15,,,,,,,,5]); // Loaded Sound 68
+        //const drum = new Sound([,,129,.01,,.15,,,,,,,,5]); // Loaded Sound 68
 
         this.zelda_powerup = new Sound([1.5,0,214,.05,.19,.3,3,.1,,,150,.05,.09,,,,.11,.8,.15,.22]); // Powerup 9// Powerup 9
 
@@ -425,14 +426,14 @@ class Wallet {
      * 
      * To Do:
      * (1) Implement Wallet Connect Defly
-     * (2) Create Wallet on game start & only trigger connect with button press 
+     * (2) Create Wallet on game start & only trigger connect with button press (done)
      * (3) Implement Algod Client & Smart Contract Factory
      * (4) Get Total Assets Being held by this address using algod indexer
      * (5) Get Total Apps Created By this address
      * (6) Port Digital Marketplace smartcontract & finish mapping all frontend functions
-     * (7) Map Wallet Stats to Inventory & Stats UI
+     * (7) Map Wallet Stats to Inventory & Stats UI (1/2)
      * (8) Port Escrow Smart Contract to Algokit
-     * (9) Test Tokenized Asset UI/UX for Bow Item
+     * (9) Test Tokenized Asset UI/UX for Bow Item (1/2)
      * (10) Test Save / Load game Mechanics using local state save, web cache
      *      - Save Account Address
      */
@@ -683,14 +684,16 @@ class Inventory {
                 const itemCategory = this._getItemCategory(itemName); // Custom function
 
                 // renders the item category
+                // to do:
+                // (1) fetch each item count from the inventory record and update live
                 if (category === "All" || itemCategory === category) {
                     container.innerHTML += `
                         <!-- Renders the Tab items based on the inventory items data -->
                         <div class="inventory-item">
                             <!-- Button clicks don't work here, you'll hv to create global functions to call within this render -->
                             <!-- Code reference : Dystopia-App-Manga Landing page code -->
-                            <button class="item-button" onclick="useItem('${itemName}')">
-                                <img src="${itemName}.webp" alt="${itemName}" class="item-image">
+                            <button class="item-button" onclick="useItem('${itemName}', 1)">
+                                <img src="${itemName}.webp" alt="${itemName}, 1" class="item-image">
                                 <div class="item-name">${itemName}</div>
                                 <div class="item-description">Amount: ${itemCount}</div>
                             </button>
@@ -740,27 +743,30 @@ class Inventory {
 
     }
 
-    // sorts items by categories
+    // sorts items by categories to inventory ui
     // category cheat sheet:
     //"inventory", "wallet","compass" ,"quest","shield"
     // to do:
     // (1) All inventory items should be a global class for easier referencing than strings
     // (2) Depreciate this category class to render dirrerent ui elements for each tab button clicked 
     //     - and only category sort on the inventory tab
+    // hacky fix: return all items from useItem to inventory
     _getItemCategory(itemName: string): string {
-        if (itemName.includes("bomb") || itemName.includes("bow")) return "inventory";
-        if (itemName.includes("ring") || itemName.includes("potion")) return "inventory";
-        //if (itemName.includes("helmet") || itemName.includes("armor")) return "Armor";
+        if (itemName.includes("Bomb") || itemName.includes("Bow")) return "inventory";
+        if (itemName.includes("Arrow") || itemName.includes("health potion")) return "inventory";
+        if (itemName.includes("Generic Item") || itemName.includes("Magic Sword")) return "inventory";
         return "Misc";
     }
 
-    /**
+
+    set(itemName: string, quantity: number): void {
+     /**
      * Add or update an item in the inventory.
      * If the quantity is less than or equal to zero, the item is removed.
      * @param itemName - The name of the item.
      * @param quantity - The quantity to add (can be negative for removal).
      */
-    set(itemName: string, quantity: number): void {
+
         if (quantity <= 0) {
             delete this.items[itemName]; // Remove item if quantity is zero or less
         } else {
@@ -768,12 +774,13 @@ class Inventory {
         }
     }
 
+    get(itemName: string): number {
     /**
      * Retrieve the quantity of an item.
      * @param itemName - The name of the item.
      * @returns The quantity of the item, or 0 if it doesn't exist.
      */
-    get(itemName: string): number {
+
         if (typeof itemName !== 'string') {
             throw new Error('Item name must be a string.');
         }
@@ -1822,18 +1829,18 @@ class Player extends GameObject {
     */
 
     // Constants
-    private WALK_SPEED: number = 500; // pixels per second
-    private ROLL_SPEED: number = 1000; // pixels per second
+    public WALK_SPEED: number = 1.65; // pixels per second
+    public ROLL_SPEED: number = 1000; // pixels per second
     //private GRAVITY: number = 0; // For Platforming Levels
-    private ATTACK: number = 1; // For Item Equip
-    private pushback: number = 5000;
+    public ATTACK: number = 1; // For Item Equip
+    public pushback: number = 5000;
 
     // Properties
     private input: Inputs = window.input;
-    private hitpoints: number;
+    public hitpoints: number;
     private linear_vel = LittleJS.vec2(0, 0);
     private roll_direction = LittleJS.vec2(0, 1);
-    private StateBuffer: any[] = [];
+    private StateBuffer: number[] = [];
     private item_equip: string = ""; // Unused Item Equip Variant
 
 
@@ -1916,16 +1923,18 @@ class Player extends GameObject {
 
 
         // Player Logic Variables 
-        this.WALK_SPEED = 1.65; // pixels per second 
-        this.ROLL_SPEED = 1000; // pixels per second
+        //this.WALK_SPEED = 1.65; // pixels per second 
+        //this.ROLL_SPEED = 1000; // pixels per second
         //this.GRAVITY = 0; // For Platforming Levels // used simulation gravity instead
+        
         this.ATTACK = 1; // For Item Equip
         this.hitpoints = window.globals.health; // global hp singleton 
         this.pushback = 5000;
         this.linear_vel = LittleJS.vec2(0, 0);
         this.roll_direction = LittleJS.vec2(0, 1);//Vector2.DOWN
 
-        this.StateBuffer = [];
+        //this.StateBuffer = [];
+        
         this.item_equip = ""; //Unused Item Equip Variant
 
 
@@ -2242,6 +2251,10 @@ class Player extends GameObject {
     shake() {
         // shaky cam fx
         return 0;
+    }
+
+    update_heart_box(){
+        console.log("update heart box function is unimplemented. Fix heartbox bug");
     }
 
 
@@ -3000,6 +3013,11 @@ class Items extends GameObject {
         }
     }
 }
+
+class Bullet extends GameObject{
+     // bow and arrow implementation
+}
+
 
 /**
  * Particle FX
@@ -3813,6 +3831,8 @@ declare global {
         map: OverWorld;
         simulation: Simulation;
 
+        useItem: any; 
+
     }
 
     interface Vector2 {
@@ -3859,6 +3879,82 @@ declare global {
 
 
 
+/**
+ * Global UI Functions
+ * 
+ * Features:
+ * (1) Exported as a global window function called from the Inventory UI renderer
+ * (2) The function is saved to the DOM's global scope for the UI
+ * 
+ * 
+ * There's 4 Inventory Items implemented :
+ * (1) health potion
+ * (2) Generic Item
+ * (3) Magic Sword
+ * (4) Bomb
+ * (5) Arrow
+ * (6) Bow
+ */
+
+export function useItem(type :string, amount : number ) : boolean {
+    console.log("Use item function called :", type);
+    
+
+    window.music.item_use_sfx.play();
+
+    const player = window.player;
+    const local_inv = window.inventory;
+
+    if (local_inv.has(type)){
+        let old_amt : number = local_inv.get(type);
+        let new_amt = old_amt = amount;
+        local_inv.set(type, new_amt); 
+        
+        if (type== "health potion"){
+            player.hitpoints += 1;
+            window.globals.health += 1;
+
+            // update heart box hud
+            player.update_heart_box();
+        }
+        
+        if (type == "Generic Item"){
+            player.WALK_SPEED += 3; // double the player's speed variable
+            player.ROLL_SPEED += 400;
+            player.ATTACK = 2;
+
+        }
+
+        if (type == "Magic Sword"){
+            //increase pushback impact, increases chances of double attack
+            player.pushback = 8000;
+        }
+
+        if (type == "Bomb"){
+            const bomb = new Bombexplosion(player.pos, vec2());
+
+            console.log("bomb debug: ", bomb);
+        }
+
+        if (type == "Arrow" && local_inv.has("Bow")){
+            const bullet = new Bullet(); // arrow instance
+
+            console.log("arrow debug 1: ", bullet);
+
+        }
+    
+    }
+
+    
+
+    // to do:
+    // (1) each item use should either spawn the object or alter the player's state
+    // (2) port item use logic from inventory code for bombs, potions, bow & arrow, generic item and rings
+    // (3) connect wallet use logic to test wallet ui 
+
+    return true;
+}
+
 
 
 /*
@@ -3891,8 +3987,10 @@ function gameInit() {
 
 
     // UI Setup
-
+    // creates the ui singleton, scenes and global functions
     window.ui = new UI();
+    window.useItem = useItem;
+
 
     // Create & hide Ingame Menu
     window.ui.ingameMenu();
@@ -3920,10 +4018,13 @@ function gameInit() {
 
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
-    window.inventory.set("generic-item", 5);
-    window.inventory.set("bomb", 3);
-    window.inventory.set("elixir", 3);
-
+    window.inventory.set("Generic Item", 5);
+    window.inventory.set("Bomb", 3);
+    window.inventory.set("Magic Sword", 2);
+    window.inventory.set("Arrow", 13);
+    window.inventory.set("Bow", 3);
+    window.inventory.set("health potion", 3);
+    
     
 
     //Initialise 3d scene render
