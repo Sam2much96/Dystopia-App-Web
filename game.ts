@@ -1932,6 +1932,8 @@ class Player extends GameObject {
     *
     * to do: 
     * (1) set player's initial state to idle down not run up
+    * (2) decouple player code from input singleton to remove player position bug on item use
+    *   - the input singleton is a game object which position gradually deviates from player's position causing this bug
     */
 
     // Constants
@@ -4060,8 +4062,9 @@ class OverWorld  {
         //super();
         
         //LittleJS.tileCollision.initTileCollision;
-        initTileCollision(this.LevelSize);
+        LittleJS.initTileCollision(this.LevelSize);
 
+        
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
         // bug : redo for godot 128x tileset 
@@ -4100,7 +4103,29 @@ class OverWorld  {
         // tile drawing function
         // to do:
         // (1) make class function
-        const drawChunks = (chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: boolean) => {
+ 
+
+
+        // Extract and draw tree/object layer (6 chunks)
+        const objectChunks = overMap.layers[1].chunks.slice(0, 5);
+        this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,false);
+        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
+
+        // Extract and draw ground layer (7 chunks)
+        const groundChunks = overMap.layers[0].chunks.slice(0, 6);
+        this.drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, false);
+        //this.groundLayer.redraw();
+
+
+        // bug: mobiles can only draw 1 tile layer
+        // Extract and draw temple exterior (1 chunk)
+        const templeChunk = overMap.layers[2].chunks[0];
+        this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,true);
+        
+        this.tempExtLayer.redraw();
+    }
+
+    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: boolean) {
             chunks.forEach(chunk => {
                 const data = this.chunkArray(chunk.data, width).reverse();
                 data.forEach((row: any, y: any) => {
@@ -4111,27 +4136,6 @@ class OverWorld  {
                 });
             });
         };
-
-
-        // Extract and draw tree/object layer (6 chunks)
-        const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        drawChunks(objectChunks, overMap.width, this.tempExtLayer,false);
-        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
-
-        // Extract and draw ground layer (7 chunks)
-        const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, false);
-        //this.groundLayer.redraw();
-
-
-        // bug: mobiles can only draw 1 tile layer
-        // Extract and draw temple exterior (1 chunk)
-        const templeChunk = overMap.layers[2].chunks[0];
-        drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,false);
-        
-        this.tempExtLayer.redraw();
-    }
-
 
     chunkArray(array: number[], chunkSize: number) {
         /*
@@ -4153,6 +4157,9 @@ class OverWorld  {
     }
 
     drawMapTile(pos: LittleJS.Vector2, i = 80, layer: LittleJS.TileLayer, collision : boolean) {
+        
+        // docs:
+        // (1) tile index is the current tile to draw on the tile layer
         // bug: 
         // (1) collision not working
         // (2) no documentation tile. What is tile index? 
@@ -4162,10 +4169,12 @@ class OverWorld  {
         
         //console.log("tileset debug: ", tileIndex, "/ data: ", data);
         layer.setData(pos, data);
-
+        
         if (collision) {
+            // collision log for tile layer doesn't work
             //console.log("collision is true");
             LittleJS.setTileCollisionData(pos, tileIndex);
+            console.log("TIle data debug: ",LittleJS.getTileCollisionData(pos), "/ pos", pos); // works-ish?
 
         }
     }
