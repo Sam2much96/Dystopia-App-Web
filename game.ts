@@ -37,7 +37,7 @@ import * as LittleJS from 'littlejsengine';
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
 const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, TileLayer,TileLayerData, Sound, ParticleEmitter, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
+setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTileCollisionData, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
 
 
 //howler js is depreciated
@@ -2045,12 +2045,13 @@ class Player extends GameObject {
         
         this.item_equip = ""; //Unused Item Equip Variant
 
+        this.isSolid = true;
 
         // player GUI
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
 
-
-
+        // set player collision
+        this.setCollision(true,true,true,true);
 
 
         // TO DO:
@@ -2092,7 +2093,7 @@ class Player extends GameObject {
         //add state machine logic
 
         //little js camera pointer
-
+        //console.log("player render order debug: ", this.renderOrder);
     }
 
 
@@ -2485,11 +2486,9 @@ class Enemy extends GameObject {
         this.stateMachine = this.StateMachine();
         this.facing = this.Facing();
 
-        //Input State Machine Enumeration
-        //this.state_machine = 
 
-        // Enemy Movement Logic
-        //this.velocity = vec2(0, 0); // default temp velocity
+        // set enemy collision
+        this.setCollision(true,true,true,true);
 
         // Testing Enemy Type Enumeration
         //console.log("Input Debug 1: ", this.enemy_type.get("EASY"), "/ player debug 3: ", this.local_player_object);
@@ -4054,16 +4053,11 @@ class OverWorld  {
     tempExtLayer: LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 4, 0));
 
     layerCount: number = overMap.layers.length;
-    //tileData: Array<any>;
     ground_layer: number[][] = []; // matrix data type
     ENABLE: boolean = true;
     RENDERED : Boolean = false;
     constructor() {
         //super();
-        
-        //LittleJS.tileCollision.initTileCollision;
-        LittleJS.initTileCollision(this.LevelSize);
-
         
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
@@ -4103,18 +4097,22 @@ class OverWorld  {
         // tile drawing function
         // to do:
         // (1) make class function
- 
+
+        //LittleJS.tileCollision.initTileCollision;
+        
+        initTileCollision(vec2(30,20));
+        this.tempExtLayer.setCollision(true,true,true,true);
+        
 
 
         // Extract and draw tree/object layer (6 chunks)
         const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,false);
+        this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,true);
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
         // Extract and draw ground layer (7 chunks)
         const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        this.drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, false);
-        //this.groundLayer.redraw();
+        this.drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, true);
 
 
         // bug: mobiles can only draw 1 tile layer
@@ -4123,6 +4121,8 @@ class OverWorld  {
         this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,true);
         
         this.tempExtLayer.redraw();
+
+
     }
 
     drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: boolean) {
@@ -4130,12 +4130,14 @@ class OverWorld  {
                 const data = this.chunkArray(chunk.data, width).reverse();
                 data.forEach((row: any, y: any) => {
                     row.forEach((val: any, x: any) => {
-                        val = parseInt(val, 10);
-                        if (val) this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
+                        val = parseInt(val, 10); // convert numbers to base 10
+                        if (val) {
+                            this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
+                        }
                     });
                 });
             });
-        };
+    }
 
     chunkArray(array: number[], chunkSize: number) {
         /*
@@ -4156,7 +4158,7 @@ class OverWorld  {
             })
     }
 
-    drawMapTile(pos: LittleJS.Vector2, i = 80, layer: LittleJS.TileLayer, collision : boolean) {
+    drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : boolean) {
         
         // docs:
         // (1) tile index is the current tile to draw on the tile layer
@@ -4169,17 +4171,14 @@ class OverWorld  {
         
         //console.log("tileset debug: ", tileIndex, "/ data: ", data);
         layer.setData(pos, data);
-        
+
         if (collision) {
             // collision log for tile layer doesn't work
-            //console.log("collision is true");
-            LittleJS.setTileCollisionData(pos, tileIndex);
-            console.log("TIle data debug: ",LittleJS.getTileCollisionData(pos), "/ pos", pos); // works-ish?
-
+            setTileCollisionData(pos,1);
+            console.log("tile collision debug: ",LittleJS.getTileCollisionData(pos));
+        
         }
     }
-
-
 }
 
 
@@ -4341,14 +4340,11 @@ function gameInit() {
     // setup the game
     console.log("Game Started!");
 
-    // set touchpad visible
-    //
-    //touchGamepadEnable = true;
-    //showSplashScreen = true;
 
     // use pixelated rendering
     setCanvasPixelated(true);
     setTilesPixelated(false);
+
 
 
     //3d Camera Distance Constants
