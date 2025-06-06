@@ -36,8 +36,8 @@ import * as LittleJS from 'littlejsengine';
 
 //import { drawUITile, drawUIText, drawUIRect } from './uiSystem'; //depreciated
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, Sound, ParticleEmitter, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
+const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, TileLayer,TileLayerData, Sound, ParticleEmitter, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
+setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
 
 
 //howler js is depreciated
@@ -4047,11 +4047,9 @@ class OverWorld  {
     //LOADED: boolean = false;
     tileLookup: any;
     LevelSize: LittleJS.Vector2 = vec2(overMap.width, overMap.height);
-    //to do:
-    // (1) sort out the positioning and size of each tile layer
-    groundLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), vec2(48), tile(2, 128, 4, 0));
-    treesObjectLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(10,15), this.LevelSize, tile(2, 128, 4, 0));
-    tempExtLayer: LittleJS.TileLayer = new LittleJS.TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 4, 0));
+
+    // drawing more than one tile bugs out on mobile browsers
+    tempExtLayer: LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 4, 0));
 
     layerCount: number = overMap.layers.length;
     //tileData: Array<any>;
@@ -4060,7 +4058,9 @@ class OverWorld  {
     RENDERED : Boolean = false;
     constructor() {
         //super();
-
+        
+        //LittleJS.tileCollision.initTileCollision;
+        initTileCollision(this.LevelSize);
 
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
@@ -4098,13 +4098,15 @@ class OverWorld  {
 
 
         // tile drawing function
-        const drawChunks = (chunks: any[], width: number, tileLayer : LittleJS.TileLayer) => {
+        // to do:
+        // (1) make class function
+        const drawChunks = (chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: boolean) => {
             chunks.forEach(chunk => {
                 const data = this.chunkArray(chunk.data, width).reverse();
                 data.forEach((row: any, y: any) => {
                     row.forEach((val: any, x: any) => {
                         val = parseInt(val, 10);
-                        if (val) this.drawMapTile(vec2(x, y), val - 1, tileLayer, 1);
+                        if (val) this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
                     });
                 });
             });
@@ -4113,19 +4115,19 @@ class OverWorld  {
 
         // Extract and draw tree/object layer (6 chunks)
         const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        drawChunks(objectChunks, overMap.width, this.tempExtLayer);
+        drawChunks(objectChunks, overMap.width, this.tempExtLayer,false);
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
         // Extract and draw ground layer (7 chunks)
         const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer);
+        drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, false);
         //this.groundLayer.redraw();
 
 
         // bug: mobiles can only draw 1 tile layer
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
-        drawChunks([templeChunk], templeChunk.width, this.tempExtLayer);
+        drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,false);
         
         this.tempExtLayer.redraw();
     }
@@ -4150,13 +4152,21 @@ class OverWorld  {
             })
     }
 
-    drawMapTile(pos: LittleJS.Vector2, i = 80, layer: LittleJS.TileLayer, collision = 1) {
+    drawMapTile(pos: LittleJS.Vector2, i = 80, layer: LittleJS.TileLayer, collision : boolean) {
+        // bug: 
+        // (1) collision not working
+        // (2) no documentation tile. What is tile index? 
         const tileIndex = i;
-        const data = new LittleJS.TileLayerData(tileIndex);
+        
+        const data = new TileLayerData(tileIndex);
+        
+        //console.log("tileset debug: ", tileIndex, "/ data: ", data);
         layer.setData(pos, data);
 
         if (collision) {
-            LittleJS.setTileCollisionData(pos, collision);
+            //console.log("collision is true");
+            LittleJS.setTileCollisionData(pos, tileIndex);
+
         }
     }
 
