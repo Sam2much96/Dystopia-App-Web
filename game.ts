@@ -481,7 +481,7 @@ class Wallet {
         this.Connected = this.peraWallet.isConnected;
 
         console.log("Pera Connected Session: ", this.Connected);
-
+        console.log("indexer client debug: ", this.indexerClient);
         //works
         /**
         const connectToPeraWallet = async () => {
@@ -517,6 +517,9 @@ class Wallet {
 
     async __connectToPeraWallet() { // works slow
         if (!this.Connected) {
+            // separate async functions into proper forms and hook to ui properly
+            // bug: 
+            // (1) wallet connect doesn't work and is very buggy
 
             //disconnect wallet session error catcher
             // await this.peraWallet!.disconnect();
@@ -541,7 +544,7 @@ class Wallet {
                 //fetch account info in parallel for reduced latency
                 await Promise.all([
                     this.fetchAccountInfo(),
-                    this.fetchWalletAssets()
+                    //this.fetchWalletAssets()
                 ]);
 
 
@@ -3128,53 +3131,244 @@ class Networking {
     */
 }
 
+class ItemSpawner extends GameObject {
+/**
+ * Item Spawner Object
+ * 
+ * Features:
+ * (1) Object to be held by enemy objects
+ * (2) Randomly spawns an array of game items when enemy is despawned
+ * 
+ */
 
 
-class Items extends GameObject {
+}
+
+class Coins extends GameObject {
     /**
-     * All Player Interactable Objects.
-     * They increase the player's inventory count per item and only collide with
-     * Player objects' collision.
      * 
-     * @param item The type of item to create.
+     * Game Coin Object
+     * 
+     * to do:
+     * (1) Add coins animation sprites
+     * (2) Add ATC Transaction to coin collision 
      */
-    constructor(item: string) {
-        super(); // Call the parent class constructor.
 
-        switch (item) {
-            case "Generic Item":
-                // Logic to increase player speed.
-                console.log("Generic Item picked up: Increase player speed.");
-                break;
+    constructor(posi : LittleJS.Vector2){
 
-            case "Bomb":
-                // Logic to instantiate a bomb sprite with animations.
-                console.log("Bomb picked up: Instance a bomb sprite with animations.");
-                break;
+        super()
+        this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
+        this.pos = posi;
+        this.size = vec2(0.7);  
 
-            case "Health Potion":
-                // Logic to increase player's health.
-                console.log("Health Potion picked up: Increase player health.");
-                break;
+    }
 
-            case "Magic Potion":
-                // Logic to increase player's magic meter.
-                console.log("Magic Potion picked up: Increase player magic meter.");
-                break;
+    render(){
+        drawTile(this.pos, this.size, tile(22, 128, 4, 0), this.color, 0, this.mirror_);
+    }
 
-            case "Coin":
-                // Logic to increase player's coin count.
-                console.log("Coin picked up: Increase player coin count.");
-                break;
+    update(){
 
-            default:
-                console.log("Unknown item type.");
+        // set player collision to coin object
+        // set coin idle animation
+        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+
+            console.log("coin collected, creating atc txn");
+            this.destroy();
+            
         }
+
+    }
+}
+
+
+class Bomb extends GameObject {
+    /**
+     * 
+     * Game Bomb Item (collect)
+     * 
+     * TO DO:
+     * (1) parse item collect to status queue ui
+     * (2) port status queue ui from godot to typescript
+     * 
+     */
+
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
+        this.pos = posi;
+        this.size = vec2(0.7);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(20, 128, 4, 0), this.color, 0, this.mirror_);
+    }
+
+    update(){
+
+        // set player collision to coin object
+        // set coin idle animation
+        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            
+            console.log("Bomb item collected");
+            this.destroy();
+
+            // update bomb count in inventory
+            let y : number = window.inventory.get("Bomb");
+            let z : number = y + 1;
+            window.inventory.set("Arrow", z);
+            
+        }
+
     }
 }
 
 class Bullet extends GameObject{
-     // bow and arrow implementation
+    /**
+     * 
+     * Game Arrow Object
+     * 
+     * TO DO:
+     * (1) parse item collect to status queue ui
+     * (2) port status queue ui from godot to typescript
+     * 
+     */
+
+
+}
+
+class Bow extends GameObject{
+    /**
+     * 
+     * Game Bow Object
+     * 
+     * TO DO:
+     * (1) parse item collect to status queue ui
+     * (2) port status queue ui from godot to typescript
+     * 
+     */
+
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        this.pos = posi;
+        this.size = vec2(0.7);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(24, 128, 4, 0), this.color, 0, this.mirror_);
+    }
+
+    update(){
+
+        // set player collision to coin object
+        // set coin idle animation
+        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            
+            console.log("Bow item collected");
+            this.destroy();
+
+            // update bomb count in inventory
+            let y : number = window.inventory.get("Bow");
+            let z : number = y + 1;
+            window.inventory.set("Bow", z);
+            
+        }
+
+    }
+
+
+}
+
+class Arrow extends GameObject{
+    /**
+     * 
+     * Game Arrow Object
+     * 
+     * TO DO:
+     * (1) parse item collect to status queue ui
+     * (2) port status queue ui from godot to typescript
+     * 
+     */
+
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
+        this.pos = posi;
+        this.size = vec2(0.7);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(23, 128, 4, 0), this.color, 0, this.mirror_);
+    }
+
+    update(){
+
+        // set player collision to coin object
+        // set coin idle animation
+        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            
+            console.log("Arrow item collected");
+            this.destroy();
+
+            // update bomb count in inventory
+            let y : number = window.inventory.get("Arrow");
+            let z : number = y + 1;
+            window.inventory.set("Arrow", z);
+            
+        }
+
+    }
+
+}
+
+class HealthPotion extends GameObject{
+        /**
+     * 
+     * Game Bomb Object
+     * 
+     * TO DO:
+     * (1) parse item collect to status queue ui
+     * (2) port status queue ui from godot to typescript
+     * 
+     */
+
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
+        this.pos = posi;
+        this.size = vec2(0.7);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(21, 128, 4, 0), this.color, 0, this.mirror_);
+    }
+
+    update(){
+
+        // set player collision to coin object
+        // set coin idle animation
+        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            
+            console.log("Health Potion item collected");
+            this.destroy();
+
+            // update bomb count in inventory
+            let y : number = window.inventory.get("Health Potion");
+            let z : number = y + 1;
+            window.inventory.set("Health Potion", z);
+            
+        }
+
+    }
+
 }
 
 
@@ -4257,6 +4451,19 @@ function gameRender() {
             
             
             window.enemy = new Enemy(vec2(5, 10));
+            
+            /**
+             * I'm testing all item implementaions before 
+             * moving their spawing to a sprite atlas + overworld instance code
+             */
+            // coins object
+            const t = new Coins( vec2(15, 0)); 
+            const u = new Bomb(vec2(17, 0));
+            const i = new Bow(vec2(19, 0));
+            const o = new HealthPotion(vec2(21,0));
+            const p = new Arrow(vec2(23,0));
+            // generic item missing?
+
             
             //blood fx testing
             const q = new Blood_splatter_fx(vec2(0),vec2(5));
