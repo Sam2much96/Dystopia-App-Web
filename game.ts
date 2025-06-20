@@ -52,12 +52,10 @@ import {zzfxP, zzfxX} from  "./audio/zzfx";
 
 import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
-//import * as algosdk from "algosdk"; // AlgoSDK
+
 
 //import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
-
-//import { styleText } from 'util';
 
 
 'use strict';
@@ -110,7 +108,7 @@ class Music {
     //public ENABLE: boolean; //depreciated
 
 
-    public music_on : boolean = true;
+    public music_on : boolean = false;
     public sfx_on : boolean = true ;
     
     public volume : number = 99; // todo : (1) link to zzfxm audio context class 
@@ -1490,20 +1488,41 @@ class GameObject extends EngineObject {
      * 
      */
     // 
-    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
-    public mirror_: boolean = false; //false
-    public animationCounter : number = 0.1 // 0.1 seconds for each animation
-    public currentFrame : number = 0;
-
+    
     constructor() {
         super();
-        console.log("Loading Utils Singleton");
+        //console.log("Loading Utils Singleton");
 
     }
 
 
 
-    animate(currentFrame: number, sequence: number[]): number {
+ 
+
+
+}
+
+
+class PhysicsObject extends EngineObject {
+    /**
+     * LittleJS physics object for player and enemy physics & collisions
+     * 
+ 
+     */
+
+    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
+    public mirror: boolean = false; //false
+    public animationCounter : number = 0.1 // 0.1 seconds for each animation
+    public currentFrame : number = 0;
+
+    constructor()
+    {
+        super();
+        this.setCollision(); // make object collide
+        this.mass = 0; // make object have static physics
+    }
+
+       animate(currentFrame: number, sequence: number[]): number {
         /** 
          * Animation Function
          * 
@@ -1540,21 +1559,26 @@ class GameObject extends EngineObject {
     playAnim(anim: Array<number>){
 
         // play the animation for 0.1 seconds
-        if (this.frameCounter >= this.animationCounter) {
+        //if (this.frameCounter >= this.animationCounter) {
             
             //loop animation function
             this.currentFrame = this.animate(this.currentFrame, anim);
             //console.log(this.currentFrame);
-            this.frameCounter = 0; // Reset timer
+        //    this.frameCounter = 0; // Reset timer
                     
-        }
+        //}
     }
 
+    render() {
 
+        //// set player's sprite from tile info and animation frames
+        //console.log(this.currentFrame);
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror);
+    }
 }
 
 
-class Inputs extends GameObject {
+class Inputs  {
 
     /*
     Functions:
@@ -1574,11 +1598,11 @@ class Inputs extends GameObject {
     (3) Vibration spamming bug on mobile
     */
 
-    public color: LittleJS.Color;
+    //public color: LittleJS.Color;
     public input_buffer: number[];
     public input_state: Map<string, number>;
     public state: number = 0; // holds the current input state asides the input buffer
-    public WALKING: number;
+    //public WALKING: number;
 
     //input buffer conditional
     public saveBuffer : boolean = false;
@@ -1590,8 +1614,8 @@ class Inputs extends GameObject {
 
     
     constructor() {
-        super();
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        //super();
+        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         // Input Buffer
         this.input_buffer = [];
 
@@ -1607,7 +1631,6 @@ class Inputs extends GameObject {
         ]);
 
 
-        this.WALKING = 0.03; // walking speed
 
     }
 
@@ -1767,6 +1790,9 @@ class Inputs extends GameObject {
             this.input_buffer.length = 0; // Clears the array
         }
 
+        //this.setCollision(true,true,true,true);
+        //super.update();
+
     }
 
     /**
@@ -1844,7 +1870,7 @@ class Inputs extends GameObject {
         //console.log("state debug 1: ", this.state);
 
         // move up
-        this.pos.y += this.WALKING;
+        //this.pos.y += this.WALKING;
         //console.log("Position debug 1: ", this.pos.x);
 
         // Little JS vibrate for 100 ms
@@ -1861,7 +1887,7 @@ class Inputs extends GameObject {
         this.state = this.input_state.get("DOWN")!;
 
         // move down
-        this.pos.y -= this.WALKING;
+        //this.pos.y -= this.WALKING;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
@@ -1879,7 +1905,7 @@ class Inputs extends GameObject {
         this.state = this.input_state.get("RIGHT")!;
 
         // move right
-        this.pos.x += this.WALKING;
+        //this.pos.x += this.WALKING;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
@@ -1900,7 +1926,7 @@ class Inputs extends GameObject {
         this.state = this.input_state.get("LEFT")!;
 
         // move left
-        this.pos.x -= this.WALKING;
+        //this.pos.x -= this.WALKING;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
@@ -1913,7 +1939,7 @@ class Inputs extends GameObject {
 }
 
 
-class Player extends GameObject {
+class Player extends PhysicsObject {
     /*
     * PLAYER CLASS
     *
@@ -1934,6 +1960,12 @@ class Player extends GameObject {
     * (1) set player's initial state to idle down not run up
     * (2) decouple player code from input singleton to remove player position bug on item use
     *   - the input singleton is a game object which position gradually deviates from player's position causing this bug
+    * (3) Port player's movement physics from it's current implementation to LittleJS implementation
+    *   -docs:
+    *   (1) https://gitlab.com/gcnet-uk/games/worktime/-/blob/main/src/entities/player.ts?ref_type=heads
+    *   (2) https://gitlab.com/gcnet-uk/games/worktime/~/blob/main/src/entity.ts
+    *   (3) https://github.com/KilledByAPixel/LittleJS/blob/main/examples/shorts/topDown.js
+    *   use velocity to alter player's movement, set gravity to zero, call engine update first then increase/decrease/cap your velocity
     */
 
     // Constants
@@ -1972,8 +2004,8 @@ class Player extends GameObject {
         ]);
     
     // State Machines Actions
-    public state: Record<string, () => void>;
-    public facing: Record<number, () => void>;
+    public state: Record<string, () => void> | undefined;
+    public facing: Record<number, () => void> | undefined;
     public facingPos : number = 0; // for storing the current facing positoin
 
     // References
@@ -2009,12 +2041,14 @@ class Player extends GameObject {
     private Despawn : Array<number> =[43,44];
     private Dance : Array<number> = [47,48];
 
+    public WALKING :number = 0.03; // walking speed
     constructor() {
 
         super();
+        this.renderOrder = 1;
 
         //centalise player pos to tilemap
-        this.pos = vec2(16, 9);
+        //this.pos = vec2(16, 9);
         //this.size = vec2(0.8);
 
         //console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
@@ -2050,8 +2084,6 @@ class Player extends GameObject {
         // player GUI
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
 
-        // set player collision
-        this.setCollision(true,true,true,true);
 
 
         // TO DO:
@@ -2064,8 +2096,8 @@ class Player extends GameObject {
         // PLAYER'S FACING
 
         // set initial player's default state
-        this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
-        this.facing = this.matchInputs(); // the input state machine / facing logic  //= this.FACING.get("DOWN")!;
+        //this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
+        //this.facing = this.matchInputs(); // the input state machine / facing logic  //= this.FACING.get("DOWN")!;
         
 
         //TO DO: player's camera pointer (1) Camer should follow/ track the player's position
@@ -2087,6 +2119,7 @@ class Player extends GameObject {
         // this not needing the music singleton pointer to actually play sfx
         this.music_singleton_ = null;
 
+        //this.mass = 1; // make object have dynamic physics
         // player collision & mass
         //this.mass = this.GRAVITY; // make object have static physics
 
@@ -2094,6 +2127,8 @@ class Player extends GameObject {
 
         //little js camera pointer
         //console.log("player render order debug: ", this.renderOrder);
+        //this.setCollision(true,true,true,true);
+        //super.update();
     }
 
 
@@ -2109,7 +2144,9 @@ class Player extends GameObject {
         console.log("Player hit: ", this.hitpoints);
     }
 
-    matchInputs(): Record<number, () => void>  {
+    // to do:
+    // rewrite logic to fit current input implementation
+    matchInputss(): Record<number, () => void>  {
             
 
 
@@ -2129,9 +2166,9 @@ class Player extends GameObject {
             0 : () => {
 
                 // apply walking physics
-                this.state["STATE_WALKING"]()
+                //this.state!["STATE_WALKING"]()
 
-                this.mirror_ = false;
+                this.mirror = false;
 
                 // play the animation for 0.1 seconds
                 this.playAnim(this.RunUp);
@@ -2142,26 +2179,26 @@ class Player extends GameObject {
 
             },
             1 : () => {
-                this.state["STATE_WALKING"]()
-                this.mirror_ = false;
+                //this.state!["STATE_WALKING"]()
+                this.mirror = false;
                 this.playAnim(this.RunDown);
 
                 //save previous facing data for idle state
                 this.facingPos = 1;
             },
             2 : () => {
-                this.state["STATE_WALKING"]()
+                //this.state!["STATE_WALKING"]()
 
-                this.mirror_ = true;
+                this.mirror = true;
                 this.playAnim(this.RunLeft);
 
                 //save previous facing data for idle state
                 this.facingPos = 2;
             },
             3 : () => {
-                this.state["STATE_WALKING"]()
+                //this.state!["STATE_WALKING"]()
                 
-                this.mirror_ =  false;
+                this.mirror =  false;
                 this.playAnim(this.RunRight);
 
                 //save previous facing data for idle state
@@ -2172,12 +2209,12 @@ class Player extends GameObject {
 
                 
                 // attack state
-                this.state["STATE_ATTACK"]();
+                //this.state["STATE_ATTACK"]();
             },
 
             5 : () => {
                 // roll state
-                this.state["STATE_ROLL"]();
+                //this.state["STATE_ROLL"]();
 
             },
 
@@ -2191,8 +2228,8 @@ class Player extends GameObject {
 
                 if (this.facingPos == 0){this.currentFrame = 2}
                 else if (this.facingPos == 1){ this.currentFrame = 0}
-                else if (this.facingPos == 2){ this.currentFrame = 1; this.mirror_ = true}
-                else if (this.facingPos == 3){ this.currentFrame = 1; this.mirror_ = false}
+                else if (this.facingPos == 2){ this.currentFrame = 1; this.mirror = true}
+                else if (this.facingPos == 3){ this.currentFrame = 1; this.mirror = false}
             }
 
         };
@@ -2220,8 +2257,8 @@ class Player extends GameObject {
                 //this.pos.y += this.input.pos.y * this.WALK_SPEED  * delta;
 
 
-                this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
-                this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
+                //this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
+                //this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
             },
             "STATE_ROLL" : () =>{
                 // rolling state machine currently unimplemented
@@ -2236,19 +2273,19 @@ class Player extends GameObject {
                 // play the appropriate facing attack animation 
                                 // match the player's facing animation to the attack animation
                 if (this.facingPos == 0){
-                    this.mirror_ = false;
+                    this.mirror = false;
                     this.playAnim(this.AttackUp)
                 }
                 if (this.facingPos == 1){
-                    this.mirror_ = false;
+                    this.mirror = false;
                     this.playAnim(this.AttackDown)
                 }
                 if (this.facingPos == 2){
-                    this.mirror_ = true;
+                    this.mirror = true;
                     this.playAnim(this.AttackLeft);
                 }
                 if (this.facingPos == 3){
-                    this.mirror_ = false;
+                    this.mirror = false;
                     this.playAnim(this.AttackRight);
                 }
             }
@@ -2275,8 +2312,23 @@ class Player extends GameObject {
          */
 
         //Gets Delta Time calculation from Simulation singleton
-        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
+        //this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
+        //console.log("pos debug:", this.pos);
+
+        //this.playAnim(this.IdleDown);
+                // apply movement controls
+        //this.facing[3]();
+
+        // velocity logic
+        const moveInput = LittleJS.keyDirection().clampLength(1).scale(.001); // clamp and scale input
+        this.velocity = this.velocity.add(moveInput); // apply movement
+        console.log("move input debug: ", moveInput);
+        super.update(); // call parent update function
+        
+        //cameraPos = this.pos; // move camera with player
+        //this.playAnim(this.IdleDown);
+        this.tileInfo = tile(1,128,1,1);
         /**
          * Simple State Machine
          * 
@@ -2292,7 +2344,8 @@ class Player extends GameObject {
         // match inputs and match state
         // bug:
         // (1) theres a time lag between the button pressed and button released causing a stuck idle bug
-        let inputState : number = this.input.getState();
+        
+        //let inputState : number = this.input.getState();
         
         // to do: (1) fix stuck idle state bug and input buffer spammer
         //console.log("stae debug 12: ", sstate, "/", this.input.get_Buffer());
@@ -2302,7 +2355,8 @@ class Player extends GameObject {
         // passes it as a parameter to the state machine logic
         // would break with the below error if the state doesn't exist
         // error :  game.ts:2172:16 Uncaught TypeError: this.facing[inputState] is not a function
-        this.facing[inputState]();
+        
+        
         
 
         // TO DO: 
@@ -2314,32 +2368,31 @@ class Player extends GameObject {
         // to do:
         // (1) recorganise code architechture to work with multiple enemies using object pooling
         // (2) i'm temporarily disabling that to quicky hack hit collision logic for one enemy
-        if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) && inputState == 4) { // if hit collission and attack state
-                //console.log("Player Hit Collision Detection Triggered");
+        
+        /** 
+        if (window.enemy){ //&& inputState == 4
+            if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) ) { // if hit collission and attack state
+                    //console.log("Player Hit Collision Detection Triggered");
 
-                // Attack
-                // reduce enemy health
-                window.enemy.hitpoints -= 1;
+                    // Attack
+                    // reduce enemy health
+                    window.enemy.hitpoints -= 1;
 
-                window.enemy.kickback();
+                    window.enemy.kickback();
 
-                //hit register
+                    //hit register
 
 
-                //sfx
-                window.music.hit_sfx[2].play();
-            }
+                    //sfx
+                    window.music.hit_sfx[2].play();
+                }
 
-        //}
+        }
+                */
 
     }
 
-    render() {
-
-        //// set player's sprite from tile info and animation frames
-
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror_);
-    }
+    
 
     despawn() {
         // (1) Play Despawn Animation
@@ -2368,7 +2421,7 @@ class Player extends GameObject {
 
 }
 
-class Enemy extends GameObject {
+class Enemy extends PhysicsObject {
     // To DO :
     // (1) Enemy spawner
     // (2) Enemy Mob logic using Utils functions
@@ -2519,7 +2572,7 @@ class Enemy extends GameObject {
         //console.log(this.currentFrame); // frame positioning doesnt start from 0
         //down : 17,18,19,20
         // bug: enemy tileset cuts off the last frame row
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror);
 
     }
     update() {
@@ -2817,24 +2870,24 @@ class Enemy extends GameObject {
         0 : () => {
 
             // facing up
-            this.mirror_ = false;
+            this.mirror = false;
             //console.log("playing run up anims: ", this.RunUpp);
             this.playAnim(this.RunUp);
         },
         1 : () => {
             // facing down
-            this.mirror_ = false;
+            this.mirror = false;
             this.playAnim(this.RunDown);
 
         },
         2 : () => {
             //facing left
-            this.mirror_ = true;
+            this.mirror = true;
             this.playAnim(this.RunLeft);
         },
         3 : () => {
             //facing right
-            this.mirror_ = false;
+            this.mirror = false;
             this.playAnim(this.RunRight);
         }
      }
@@ -3165,7 +3218,7 @@ class Coins extends GameObject {
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(22, 128, 4, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(22, 128, 4, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -3204,7 +3257,7 @@ class Bomb extends GameObject {
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(20, 128, 4, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(20, 128, 4, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -3260,7 +3313,7 @@ class Bow extends GameObject{
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(24, 128, 4, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(24, 128, 4, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -3305,7 +3358,7 @@ class Arrow extends GameObject{
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(23, 128, 4, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(23, 128, 4, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -3349,7 +3402,7 @@ class HealthPotion extends GameObject{
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(21, 128, 4, 0), this.color, 0, this.mirror_);
+        drawTile(this.pos, this.size, tile(21, 128, 4, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -4033,7 +4086,7 @@ class UI  {
 
 
 
-class OverWorld  {
+class OverWorld extends GameObject{
     /*
         Unused 
         The Overworld Scene + Objects as children
@@ -4057,7 +4110,7 @@ class OverWorld  {
     ENABLE: boolean = true;
     RENDERED : Boolean = false;
     constructor() {
-        //super();
+        super();
         
         //this is needed for extra collision logic, drawing collision items, coins etc et al
         // this is used to create object instead of tile
@@ -4107,20 +4160,21 @@ class OverWorld  {
 
         // Extract and draw tree/object layer (6 chunks)
         const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,true);
+        this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,true); // collision works
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
 
         // Extract and draw ground layer (7 chunks)
         const groundChunks = overMap.layers[0].chunks.slice(0, 6);
-        this.drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, true);
+        this.drawChunks(groundChunks, groundChunks[0].width, this.tempExtLayer, false);
 
 
         // bug: mobiles can only draw 1 tile layer
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
-        this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,true);
+        this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,false);
         
         this.tempExtLayer.redraw();
+
 
 
     }
@@ -4162,9 +4216,8 @@ class OverWorld  {
         
         // docs:
         // (1) tile index is the current tile to draw on the tile layer
-        // bug: 
-        // (1) collision not working
-        // (2) no documentation tile. What is tile index? 
+        //   it is mapped to e the environment layer's tilesheet
+
         const tileIndex = i;
         
         const data = new TileLayerData(tileIndex);
@@ -4173,9 +4226,9 @@ class OverWorld  {
         layer.setData(pos, data);
 
         if (collision) {
-            // collision log for tile layer doesn't work
+            // works
+            // note : collission detection requires using the engine's physics impl
             setTileCollisionData(pos,1);
-            console.log("tile collision debug: ",LittleJS.getTileCollisionData(pos));
         
         }
     }
@@ -4366,7 +4419,7 @@ function gameInit() {
 
 
     /* Create Global Singletons*/
-    window.input = new Inputs();
+    //window.input = new Inputs();
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -4465,7 +4518,7 @@ function gameRender() {
             window.player = new Player();
             
             
-            window.enemy = new Enemy(vec2(5, 10));
+            //window.enemy = new Enemy(vec2(5, 10));
             
             /**
              * I'm testing all item implementaions before 
