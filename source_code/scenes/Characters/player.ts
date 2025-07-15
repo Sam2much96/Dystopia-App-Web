@@ -194,7 +194,7 @@ export class Player extends PhysicsObject {
 
         super();
         this.renderOrder = 1;
-        this.pos = LittleJS.vec2(5,10);
+        this.pos = LittleJS.vec2(7,10);
         // create a pointer to the Particle fx class
 
         // store player object in global array

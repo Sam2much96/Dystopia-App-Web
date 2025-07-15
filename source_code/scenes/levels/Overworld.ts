@@ -5,6 +5,7 @@ const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisio
 
 //import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
+import {Bomb} from "../items/Bomb";
 
 export class OverWorld extends EngineObject{
     /*
@@ -60,7 +61,7 @@ export class OverWorld extends EngineObject{
 
         //LittleJS.tileCollision.initTileCollision;
         
-        initTileCollision(vec2(33,32));
+        initTileCollision(vec2(33,54));
         //this.tempExtLayer.setCollision(true,true,true,true);
                 
         const chunkArray = (array : any, chunkSize : any) => {
@@ -120,6 +121,9 @@ export class OverWorld extends EngineObject{
             row.forEach((val : any, x : any) => {
                 val = parseInt(val, 10);
                 if (val) {
+                    // to do:
+                    // (1) refactor from if conditionals to a recursive loop with lookup
+
                     //console.log("val debug : ", val);
 
                     if (val ===3 ){ // signpost
@@ -172,6 +176,14 @@ export class OverWorld extends EngineObject{
                     if (val === 20){ // temp ext
                         // trees tile draws with collision
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                    }
+                    //21 is bomb
+                    if (val ===21){ // bomb object
+
+                        // works
+                        const u = new Bomb(vec2(x, y));
+                        return
+
                     }
                     
                     if (val === 29){ // temple exterior
@@ -264,16 +276,9 @@ export class OverWorld extends EngineObject{
                     if (val === 90){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-
 
                     else {
+                        //console.log("tile debug: ", val);
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0); // 0 is for no collision, 1 is for collision
                     }
                     }})});
