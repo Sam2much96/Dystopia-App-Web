@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, drawTile, Timer,tile} = LittleJS;
+const {EngineObject, drawTile, Timer,tile, vec2} = LittleJS;
 
 
 export class PhysicsObject extends EngineObject {
@@ -124,8 +124,8 @@ export class Player extends PhysicsObject {
     // Properties
     //private input: Inputs = window.input;
     public hitpoints: number;
-    private linear_vel = LittleJS.vec2(0, 0);
-    private roll_direction = LittleJS.vec2(0, 1);
+    private linear_vel = vec2(0, 0);
+    private roll_direction = vec2(0, 1);
     private StateBuffer: number[] = [];
     private item_equip: string = ""; // Unused Item Equip Variant
 
@@ -194,7 +194,8 @@ export class Player extends PhysicsObject {
 
         super();
         this.renderOrder = 1;
-        this.pos = LittleJS.vec2(7,10);
+        this.pos = vec2(7,10);
+        this.size =vec2(0.8);
         // create a pointer to the Particle fx class
 
         // store player object in global array
