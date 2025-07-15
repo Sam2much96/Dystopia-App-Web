@@ -40,7 +40,7 @@ import {Wallet} from "./source_code/scenes/Wallet/Wallet";
 import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
 import {Inventory} from "./source_code/singletons/Inventory";
-import {Inputs} from "./source_code/singletons/Inputs";
+//import {Inputs} from "./source_code/singletons/Inputs";
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 

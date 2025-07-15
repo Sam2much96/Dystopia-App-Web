@@ -76,11 +76,14 @@ export class OverWorld extends EngineObject{
         //LittleJS.tileCollision.initTileCollision;
         
         initTileCollision(vec2(30,20));
-        this.tempExtLayer.setCollision(true,true,true,true);
+        //this.tempExtLayer.setCollision(true,true,true,true);
         
-
+// bug:
+//(1) object collision only triggers when the player collides with an item object. It's disabled before
+// (2) the ground tiles and object tiles have confliging tilemap
 
         // Extract and draw tree/object layer (6 chunks)
+        // object chunk has some overlay
         const objectChunks = overMap.layers[1].chunks.slice(0, 5);
         this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,true); // collision works
         //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
@@ -93,7 +96,7 @@ export class OverWorld extends EngineObject{
         // bug: mobiles can only draw 1 tile layer
         // Extract and draw temple exterior (1 chunk)
         const templeChunk = overMap.layers[2].chunks[0];
-        this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,false);
+        this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,true);
         
         this.tempExtLayer.redraw();
 
@@ -148,8 +151,6 @@ export class OverWorld extends EngineObject{
         layer.setData(pos, data);
 
         if (collision) {
-            // works
-            // note : collission detection requires using the engine's physics impl
             setTileCollisionData(pos,1);
         
         }

@@ -3,7 +3,7 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject, drawTile, Timer,tile} = LittleJS;
 
 
-class PhysicsObject extends EngineObject {
+export class PhysicsObject extends EngineObject {
     /**
      * LittleJS physics object for player and enemy physics & collisions
      * 
@@ -14,6 +14,7 @@ class PhysicsObject extends EngineObject {
     public mirror: boolean = false; //false
     public animationCounter : number = 0.1 // 0.1 seconds for each animation
     public currentFrame : number = 0;
+    
 
     constructor()
     {
@@ -22,7 +23,7 @@ class PhysicsObject extends EngineObject {
         this.mass = 0; // make object have static physics
     }
 
-       animate(currentFrame: number, sequence: number[]): number {
+    animate(currentFrame: number, sequence: number[]): number {
         /** 
          * Animation Function
          * 
@@ -158,7 +159,9 @@ export class Player extends PhysicsObject {
     private music_singleton_: any = null;
 
     // Player attributes
-    public mass: number = window.simulation.gravity;//this.GRAVITY;
+    public mass: number = 1; //window.simulation.gravity;//this.GRAVITY;
+    public gravityScale: number = 0;
+    
     //public size: Vector2 = vec2(1);
     //public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
     public animationTimer: LittleJS.Timer = new Timer();
@@ -188,27 +191,11 @@ export class Player extends PhysicsObject {
         super();
         this.renderOrder = 1;
 
-        //centalise player pos to tilemap
-        //this.pos = vec2(16, 9);
-        //this.size = vec2(0.8);
-
-        //console.log("Creating Player Sprite /", window.map.pos, "/", this.pos);
-        
-        // Fetch Player Health From Globals Singleton
-        // Update Globals With Player Pointer
-
-        //this.input = window.input; // global input singleton
-
         // create a pointer to the Particle fx class
 
         // store player object in global array
         window.globals.players.push(this);
 
-
-        // Player Logic Variables 
-        //this.WALK_SPEED = 1.65; // pixels per second 
-        //this.ROLL_SPEED = 1000; // pixels per second
-        //this.GRAVITY = 0; // For Platforming Levels // used simulation gravity instead
         
         this.ATTACK = 1; // For Item Equip
         this.hitpoints = window.globals.health; // global hp singleton 
@@ -240,13 +227,6 @@ export class Player extends PhysicsObject {
         //this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
         //this.facing = this.matchInputs(); // the input state machine / facing logic  //= this.FACING.get("DOWN")!;
         
-
-        //TO DO: player's camera pointer (1) Camer should follow/ track the player's position
-        //TO DO: player's animation node pointer
-
-        //disconnect extra signal
-        //this.health_signal.disconnect(healthDebug);
-
         //PLAYER'S PARTICLE AND SOUND FX POINTERS
         // TO DO:
         // (1) Player's particle fx
@@ -260,16 +240,6 @@ export class Player extends PhysicsObject {
         // this not needing the music singleton pointer to actually play sfx
         this.music_singleton_ = null;
 
-        //this.mass = 1; // make object have dynamic physics
-        // player collision & mass
-        //this.mass = this.GRAVITY; // make object have static physics
-
-        //add state machine logic
-
-        //little js camera pointer
-        //console.log("player render order debug: ", this.renderOrder);
-        //this.setCollision(true,true,true,true);
-        //super.update();
     }
 
 
@@ -280,7 +250,7 @@ export class Player extends PhysicsObject {
         //(1) Play Hurt Animation
         //(2) Trigger kickback
         //(3) Update Player health
-        // (4) Emit blood fx particle fx
+        //(4) Emit blood fx particle fx
         this.hitpoints -= 1;
         console.log("Player hit: ", this.hitpoints);
     }
@@ -288,21 +258,11 @@ export class Player extends PhysicsObject {
     // to do:
     // rewrite logic to fit current input implementation
     matchInputss(): Record<number, () => void>  {
-            
-
-
-            /**
-             * Maps input singleton states to the player's state machine
-             * 
-             *
-            */
-            // to do : attack and death
-        
-            // match facing animation
-           // ['UP', 0],
-           // ['DOWN', 1],
-           // ['LEFT', 2],
-        //  ['RIGHT', 3],
+        /**
+         * Maps input singleton states to the player's state machine
+         * 
+         *
+         */
         return {
             0 : () => {
 
@@ -361,8 +321,6 @@ export class Player extends PhysicsObject {
 
             6 : () => {
 
-                //temporarily adding for testing
-                //this.state["STATE_WALKING"]()
                 // idle state
                 // use the previous facing position 
                 // to play the corresponding idle animation
@@ -412,7 +370,7 @@ export class Player extends PhysicsObject {
                 // logic:
                 // get the current facing direction
                 // play the appropriate facing attack animation 
-                                // match the player's facing animation to the attack animation
+                // match the player's facing animation to the attack animation
                 if (this.facingPos == 0){
                     this.mirror = false;
                     this.playAnim(this.AttackUp)
@@ -457,20 +415,15 @@ export class Player extends PhysicsObject {
 
         //console.log("pos debug:", this.pos);
 
-        //this.playAnim(this.IdleDown);
-                // apply movement controls
-        //this.facing[3]();
-
         // velocity logic
-        // temporarily disabled for refactoring Jul 15th/ 2025
-        const moveInput = LittleJS.keyDirection().clampLength(1).scale(.001); // clamp and scale input
-        this.velocity = this.velocity.add(moveInput); // apply movement
-        //console.log("move input debug: ", moveInput);
-        super.update(); // call parent update function
+        // move input is the key direction serialised in to vector 2 positions
         
-        //cameraPos = this.pos; // move camera with player
-        //this.playAnim(this.IdleDown);
-        this.tileInfo = tile(5,128,0,1);
+        const moveInput = LittleJS.keyDirection().clampLength(1).scale(.1); // clamp and scale input
+        
+        this.velocity = moveInput;//this.velocity.add(moveInput); // apply movement
+        
+        console.log("move input debug: ", moveInput, "/",this.velocity);
+        super.update();
         /**
          * Simple State Machine
          * 
@@ -533,8 +486,6 @@ export class Player extends PhysicsObject {
                 */
 
     }
-
-    
 
     despawn() {
         // (1) Play Despawn Animation
