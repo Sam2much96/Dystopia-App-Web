@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 import { Player } from './player';
-import { Utils } from './source_code/singletons/Utils';
+import { Utils } from '../../singletons/Utils';
 
 const {EngineObject,vec2, drawTile, Timer,tile} = LittleJS;
 

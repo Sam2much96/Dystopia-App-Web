@@ -463,10 +463,10 @@ export class Player extends PhysicsObject {
 
         // velocity logic
         // temporarily disabled for refactoring Jul 15th/ 2025
-        //const moveInput = LittleJS.keyDirection().clampLength(1).scale(.001); // clamp and scale input
-        //this.velocity = this.velocity.add(moveInput); // apply movement
+        const moveInput = LittleJS.keyDirection().clampLength(1).scale(.001); // clamp and scale input
+        this.velocity = this.velocity.add(moveInput); // apply movement
         //console.log("move input debug: ", moveInput);
-        //super.update(); // call parent update function
+        super.update(); // call parent update function
         
         //cameraPos = this.pos; // move camera with player
         //this.playAnim(this.IdleDown);

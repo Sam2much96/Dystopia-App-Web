@@ -44,8 +44,8 @@ import {Inputs} from "./source_code/singletons/Inputs";
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
-import {Player} from "./player";
-import {Enemy} from "./enemy";
+import {Player} from "./source_code/scenes/Characters/player";
+import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 
 
