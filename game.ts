@@ -890,7 +890,7 @@ function gameRenderPost() {
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
 // tiles.png is a placeholder until proper file name management is donew for game init
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["source_code/resources/Aarin/player_tileset_128x128.png", "/source_code/resources/pj/enemy_tileset_128x128.webp", "/source_code/resources/Environment Tilesets & Tilemaps/godot_128x_dungeon_tileset.webp"]);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["source_code/resources/Aarin/player_tileset_128x128.webp", "/source_code/resources/pj/enemy_tileset_128x128.webp", "/source_code/resources/Environment Tilesets & Tilemaps/godot_128x_dungeon_tileset.webp"]);
 
 
 
