@@ -58,16 +58,19 @@ export class PhysicsObject extends EngineObject {
     }
 
     playAnim(anim: Array<number>){
+        //Gets Delta Time calculation from Simulation singleton
+        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
         // play the animation for 0.1 seconds
-        //if (this.frameCounter >= this.animationCounter) {
-            
+        if (this.frameCounter >= this.animationCounter) {
+            //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
+        
             //loop animation function
             this.currentFrame = this.animate(this.currentFrame, anim);
             //console.log(this.currentFrame);
-        //    this.frameCounter = 0; // Reset timer
+            this.frameCounter = 0; // Reset timer
                     
-        //}
+        }
     }
 
     render() {
@@ -77,6 +80,7 @@ export class PhysicsObject extends EngineObject {
         //this.currentFrame
         drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
     }
+    
 }
 
 
@@ -190,7 +194,7 @@ export class Player extends PhysicsObject {
 
         super();
         this.renderOrder = 1;
-
+        this.pos = LittleJS.vec2(5,10);
         // create a pointer to the Particle fx class
 
         // store player object in global array
@@ -336,7 +340,7 @@ export class Player extends PhysicsObject {
 
 
     // stores complex player states
-    matchState(): Record<string, () => void>  {
+    State(): Record<string, () => void>  {
 
         return {
             "STATE_BLOCKED" : () => {
@@ -344,20 +348,56 @@ export class Player extends PhysicsObject {
             },
 
             "STATE_IDLE" : () => {
-
             },
 
             "STATE_WALKING" : () => {
 
-                const delta = window.simulation.deltaTime!;
+                //const delta = window.simulation.deltaTime!;
                 // walking state
-                // ice level walking stage?
-                //this.pos.x += this.input.pos.x * this.WALK_SPEED * delta ;
-                //this.pos.y += this.input.pos.y * this.WALK_SPEED  * delta;
+                const moveInput = LittleJS.keyDirection().clampLength(1).scale(.1); // clamp and scale input
+        
+                this.velocity = moveInput;//this.velocity.add(moveInput); // apply movement
+        
+                //console.log("move input debug: ", moveInput, "/",this.velocity);
+                super.update();
 
+                // play facing animations by normalising moveInput vec2 positions to animation directions
+                if (this.velocity.x === -0.1){
+                    
+                    // play run left animation
+                    this.mirror = true;
+                    this.playAnim(this.RunLeft);
 
-                //this.pos.x = this.input.pos.x * this.WALK_SPEED  ;//* delta ;
-                //this.pos.y = this.input.pos.y  * this.WALK_SPEED ;//* delta;
+                    //save previous facing data for idle state
+                    this.facingPos = 2;
+                }
+                if (this.velocity.x === 0.1){
+                    this.mirror =  false;
+                    this.playAnim(this.RunRight);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 3;
+                }
+                if (this.velocity.y === 0.1){
+
+                    // play run up animation
+                    this.mirror = false;
+                    this.playAnim(this.RunUp);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 0;
+                }
+                if (this.velocity.y === -0.1){
+
+                    // play run down animation
+                    this.mirror = false;
+                    this.playAnim(this.RunDown);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 1;
+                }
+                
+                
             },
             "STATE_ROLL" : () =>{
                 // rolling state machine currently unimplemented
@@ -410,20 +450,15 @@ export class Player extends PhysicsObject {
          * Delta Time Calculation
          */
 
-        //Gets Delta Time calculation from Simulation singleton
-        //this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
+        
 
         //console.log("pos debug:", this.pos);
 
         // velocity logic
         // move input is the key direction serialised in to vector 2 positions
-        
-        const moveInput = LittleJS.keyDirection().clampLength(1).scale(.1); // clamp and scale input
-        
-        this.velocity = moveInput;//this.velocity.add(moveInput); // apply movement
-        
-        console.log("move input debug: ", moveInput, "/",this.velocity);
-        super.update();
+       // apply walking physics
+        this.State()["STATE_WALKING"]();
+
         /**
          * Simple State Machine
          * 

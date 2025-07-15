@@ -1,83 +1,8 @@
 import * as LittleJS from 'littlejsengine';
-import { Player } from './player';
+import { Player, PhysicsObject } from './player';
 import { Utils } from '../../singletons/Utils';
 
-const {EngineObject,vec2, drawTile, Timer,tile} = LittleJS;
-
-
-class PhysicsObject extends EngineObject {
-    /**
-     * LittleJS physics object for player and enemy physics & collisions
-     * 
- 
-     */
-
-    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
-    public mirror: boolean = false; //false
-    public animationCounter : number = 0.1 // 0.1 seconds for each animation
-    public currentFrame : number = 0;
-
-    constructor()
-    {
-        super();
-        this.setCollision(); // make object collide
-        this.mass = 0; // make object have static physics
-    }
-
-       animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-
-        * Bugs :
-        * (1) Doesn't work with enemy run up animation frames 
-        */
-       
-        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-        let index = sequence.indexOf(currentFrame);
-        
-        if (index === -1) {
-            // Not found in the sequence — maybe default to the first frame or throw an error
-            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
-            //console.trace("Trace of who called me");
-            //return sequence[0]; // or throw new Error("Invalid currentFrame")
-            index = sequence[0];
-        }
-
-        return sequence[(index + 1) % sequence.length];
-        
-    }
-
-    playAnim(anim: Array<number>){
-
-        // play the animation for 0.1 seconds
-        //if (this.frameCounter >= this.animationCounter) {
-            
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-            //console.log(this.currentFrame);
-        //    this.frameCounter = 0; // Reset timer
-                    
-        //}
-    }
-
-    render() {
-
-        //// set player's sprite from tile info and animation frames
-        //console.log(this.currentFrame);
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror);
-    }
-}
+const {vec2, drawTile, Timer,tile} = LittleJS;
 
 
 
@@ -233,7 +158,7 @@ export class Enemy extends PhysicsObject {
         //console.log(this.currentFrame); // frame positioning doesnt start from 0
         //down : 17,18,19,20
         // bug: enemy tileset cuts off the last frame row
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror);
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror);
 
     }
     update() {

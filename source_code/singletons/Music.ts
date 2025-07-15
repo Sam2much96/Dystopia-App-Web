@@ -1,7 +1,7 @@
 import * as LittleJS from 'littlejsengine';
 const {Sound } = LittleJS;
-import { zzfxM } from '../../audio/zzfxm';
-import {zzfxP, zzfxX} from  "../../audio/zzfx";
+import { zzfxM } from '../audio/zzfxm';
+import {zzfxP, zzfxX} from  "../audio/zzfx";
 
 
 export class Music {

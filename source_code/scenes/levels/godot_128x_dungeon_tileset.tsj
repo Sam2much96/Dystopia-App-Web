@@ -1,0 +1,14 @@
+{ "columns":14,
+ "image":"..\/..\/resources\/Environment Tilesets & Tilemaps\/godot_128x_dungeon_tileset.webp",
+ "imageheight":1646,
+ "imagewidth":1804,
+ "margin":0,
+ "name":"godot_128x_dungeon_tileset",
+ "spacing":0,
+ "tilecount":168,
+ "tiledversion":"1.11.0",
+ "tileheight":128,
+ "tilewidth":128,
+ "type":"tileset",
+ "version":"1.10"
+}

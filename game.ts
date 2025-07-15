@@ -832,18 +832,18 @@ function gameRender() {
             window.player = new Player();
             
             
-            //window.enemy = new Enemy(vec2(5, 10));
+            window.enemy = new Enemy(vec2(5, 10));
             
             /**
              * I'm testing all item implementaions before 
              * moving their spawing to a sprite atlas + overworld instance code
              */
             // coins object
-            const t = new Coins( vec2(15, 0)); 
-            const u = new Bomb(vec2(17, 0));
-            const i = new Bow(vec2(19, 0));
-            const o = new HealthPotion(vec2(21,0));
-            const p = new Arrow(vec2(23,0));
+            const t = new Coins( vec2(15, 10)); 
+            const u = new Bomb(vec2(17, 10));
+            const i = new Bow(vec2(19, 10));
+            const o = new HealthPotion(vec2(21,10));
+            const p = new Arrow(vec2(23,10));
             // generic item missing?
 
             
