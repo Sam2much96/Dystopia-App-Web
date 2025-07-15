@@ -6,6 +6,11 @@ const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisio
 //import * as tiled from "@kayahr/tiled";
 import overMap from "./overworld.json";
 import {Bomb} from "../items/Bomb";
+import {Coins} from "../items/Coins";
+import { HealthPotion } from '../items/Extralife';
+import { Bow} from "../items/Bow";
+import { Arrow } from '../items/Arrow';
+
 
 export class OverWorld extends EngineObject{
     /*
@@ -185,7 +190,30 @@ export class OverWorld extends EngineObject{
                         return
 
                     }
+                    if (val === 22){ // 22 is health potion
+
+                        const o = new HealthPotion(vec2(x,y));
+                        return
+                    }
+
+                    //23 is coins
+                    if (val === 23){ // coins
+                        // coins object
+                        const t = new Coins( vec2(x, y)); 
+                        return
+
+                    }
+                    if (val === 24){ // arrow
+                        // arrow object
+                        const p = new Arrow(vec2(x,y));
+                        return
+                    }
                     
+                    if (val === 25){
+                        // bow object
+                        const i = new Bow(vec2(x, y));
+                        return
+                    }
                     if (val === 29){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
