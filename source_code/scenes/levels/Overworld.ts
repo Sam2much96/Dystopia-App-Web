@@ -10,6 +10,7 @@ import {Coins} from "../items/Coins";
 import { HealthPotion } from '../items/Extralife';
 import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
+import { GenericItem } from '../items/GenericItem';
 
 
 export class OverWorld extends EngineObject{
@@ -239,28 +240,34 @@ export class OverWorld extends EngineObject{
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
                     if (val === 44){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 45){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 46){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 47){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 48){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
+
+                    if (val === 51){ // generic item object
+                        const j = new GenericItem(vec2(x,y));
+                        return
+                    }
+
                     if (val === 57){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
                     if (val === 58){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 59){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 60){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);

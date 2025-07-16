@@ -25,6 +25,7 @@
     "@algorandfoundation/algokit-utils": "^8.1.0",
     "@kayahr/tiled": "^0.0.1",
     "@perawallet/connect": "^1.4.1",
+    "@types/ysdk": "^1.1.0",
     "algosdk": "^3.1.0",
     "buffer": "^6.0.3",
     "howler": "^2.2.4",

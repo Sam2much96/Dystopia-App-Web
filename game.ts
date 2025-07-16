@@ -605,7 +605,7 @@ function gameRender() {
 
             
             //blood fx testing
-            //const q = new Blood_splatter_fx(vec2(0),vec2(5));
+            const q = new Blood_splatter_fx(vec2(10,10),vec2(5));
             
             
             // setup the screen and camera
