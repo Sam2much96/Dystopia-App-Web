@@ -3,7 +3,10 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 
-//import * as tiled from "@kayahr/tiled";
+//import * as tiled from "@kayahr/tiled"; // depreciated
+
+
+// all items used in this level
 import overMap from "./overworld.json";
 import {Bomb} from "../items/Bomb";
 import {Coins} from "../items/Coins";
@@ -36,9 +39,19 @@ export class OverWorld extends EngineObject{
         (3) The objects layer is offset by a couple of horizontal movements
          ( This bug was from merging the layers into a single render as androids don't support muliple layer renders)
 
+
+         To Do:
+         (1) scene changer for overworld top down/ sidescrolling and 3d scenes
+         (2) side scrolling player physics logic
+         (3) Parallax background in css logic for overworld sidescrolling levels using background pixel art scaled up
+         (4) create scene changing static function + logic that works with overworld level instances
+         (5) create player and enemy spawning tiles and depreciate manual player spawing implementation
+         (6) create exit scene collision object and logic
+         (7) create temple interior pixel art background and tileset
+         (8) 
         */
-    //LOADED: boolean = false;
-    tileLookup: any;
+    
+    
     LevelSize: LittleJS.Vector2 = vec2(overMap.width, overMap.height);
 
     // drawing more than one tile bugs out on mobile browsers
@@ -46,8 +59,7 @@ export class OverWorld extends EngineObject{
 
     layerCount: number = overMap.layers.length;
     ground_layer: number[][] = []; // matrix data type
-    ENABLE: boolean = true;
-    RENDERED : Boolean = false;
+    
     constructor() {
         super();
 
@@ -61,14 +73,9 @@ export class OverWorld extends EngineObject{
         console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
 
-        // tile drawing function
-        // to do:
-        // (1) make class function
-
-        //LittleJS.tileCollision.initTileCollision;
         
-        initTileCollision(vec2(33,54));
-        //this.tempExtLayer.setCollision(true,true,true,true);
+        initTileCollision(vec2(overMap.width,overMap.height));
+        
                 
         const chunkArray = (array : any, chunkSize : any) => {
             const numberOfChunks = Math.ceil(array.length / chunkSize)
@@ -88,42 +95,17 @@ export class OverWorld extends EngineObject{
             }
         }
 
-        const tileCollisionLookup: Record<number, boolean> = {
-            10: true,
-            15: true,
-            20: true,
-            // etc.
-        };
-        // bug:
-        //(1) object collision only triggers when the player collides with an item object. It's disabled before
-        // (2) the ground tiles and object tiles have confliging tilemap
-
-        // Extract and draw tree/object layer (6 chunks)
-        // object chunk has some overlay
         
-        //this.treesObjectLayer.redraw(); //objects layers turned of for bad positioning
-
-        // Extract and draw ground layer (7 chunks)
-        // get the chunk size to determine the splice size
         
         //const chunk = overMap.layers[0].chunks[0];
         //const chunkWidth = chunk.width;   // 16
         //const chunkHeight = chunk.height; // 16
         //console.log("chunk size debug: ", chunkWidth, "/", chunkHeight); // 16/16
-        const groundChunks = chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
+        this.ground_layer = chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
         
-        // ground chunk width ?
-        //console.log("ground chunk width: ", groundChunks[0].width); // 16 chunks 
-        /// parameters
-        // (1) tile data
-        // (2) 16 chunks
-        // (3) Layer to draw
-        // (4) Collisions
         
-        //this.drawChunks(groundChunks, overMap.width, this.tempExtLayer, false);
-
-        // to do : (1) create a tile lookup for the trees
-        groundChunks.forEach((row, y) => {
+        // to do : (1) create a tile lookup for the trees and replace if conditionals
+        this.ground_layer.forEach((row, y) => {
             row.forEach((val : any, x : any) => {
                 val = parseInt(val, 10);
                 if (val) {
@@ -131,6 +113,18 @@ export class OverWorld extends EngineObject{
                     // (1) refactor from if conditionals to a recursive loop with lookup
 
                     //console.log("val debug : ", val);
+                    /**
+                     * Tile Collision Layer Logic in badly written if conditionals
+                     * 
+                     * Features:
+                     * (1) sets tile collision for each tile on /off 
+                     * (2) creates objects spawns for object tiles
+                     * 
+                     * 
+                     */
+                    if (val === 2){ // skull head
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                    }
 
                     if (val ===3 ){ // signpost
                         // signpost tile draws with collision
@@ -234,10 +228,10 @@ export class OverWorld extends EngineObject{
                     }
 
                     if (val === 34){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 43){ // temple exterior
-                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
                     if (val === 44){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
@@ -253,6 +247,14 @@ export class OverWorld extends EngineObject{
                     }
                     if (val === 48){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                    }
+
+                    if (val === 49){ // house 1 tile
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                    }
+
+                    if (val === 50){ // house 2 tile
+                        drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
 
                     if (val === 51){ // generic item object

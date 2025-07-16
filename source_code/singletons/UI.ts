@@ -32,7 +32,9 @@ export class UI  {
     (10) Separate each Ui element type into different classes with global pointers
         - game menu, game hud, 
     (11) organise heartbox into 64x UI tileset
-    (12) rewrite UI using only html and css
+    (12) rewrite UI using only html and css (done)
+    (13) Fix broken Inventory Ui logic
+    (14) Implement Kenny UI textures into CSS code for graphical consistency
     */
 
 

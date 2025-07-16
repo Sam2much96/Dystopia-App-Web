@@ -35,10 +35,11 @@ setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setS
 
 
 import {Music} from "./source_code/singletons/Music";
-import {OverWorld} from "./source_code/scenes/levels/Overworld";
+import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {Wallet} from "./source_code/scenes/Wallet/Wallet";
 import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
+import {Globals} from "./source_code/singletons/Globals";
 import {Inventory} from "./source_code/singletons/Inventory";
 //import {Inputs} from "./source_code/singletons/Inputs";
 import {UI} from "./source_code/singletons/UI";
@@ -47,6 +48,7 @@ import {Utils} from "./source_code/singletons/Utils";
 import {Player} from "./source_code/scenes/Characters/player";
 import {Enemy} from "./source_code/scenes/Characters/enemy";
 
+import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
 
 
 'use strict';
@@ -141,170 +143,6 @@ class EnemySpawner extends GameObject {
         }
     }
 }
-
-
-
-class Networking {
-
-    /* 
-    Should Handle All Multiplayer Logic 
-    alongside simulation and utils singleton classes
-    
-    */
-}
-
-
-
-
-
-
-
-
-/**
- * Particle FX
- * 
- * (1) Blood_splatter_fx
- * (2) DespawnFx
- */
-
-
-class ParticleFX extends EngineObject {
-    /**
-     * Particle Effects Logic in a single class 
-     * 
-     * TO DO : (1) Make A Sub function within Player Class 
-     
-     * Extends LittleJS Particle FX mapped to an enumerator
-     * attach a trail effect
-     * 
-     * @param {*} pos 
-     * @param {*} size 
-     */
-
-
-    public color: any;
-    public trailEffect: any;
-
-    /** */
-    constructor(pos: Vector2, size: Vector2) {
-        super();
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
-
-        const color__ = hsl(0, 0, .2);
-        this.trailEffect = new LittleJS.ParticleEmitter(
-            this.pos, 0,                          // pos, angle
-            this.size, 0, 80, LittleJS.PI,                 // emitSize, emitTime, emitRate, emiteCone
-            tile(0, 16),                          // tileIndex, tileSize
-            color__, color__,                         // colorStartA, colorStartB
-            color__.scale(0), color__.scale(0),       // colorEndA, colorEndB
-            2, .4, 1, .001, .05,// time, sizeStart, sizeEnd, speed, angleSpeed
-            .99, .95, 0, PI,    // damp, angleDamp, gravity, cone
-            .1, .5, true, true        // fade, randomness, collide, additive
-        );
-
-
-    }
-}
-
-class Blood_splatter_fx extends ParticleFX {
-     public color: any;
-    //private trailEffect: any;
-
-    constructor(pos: Vector2, size: Vector2) {
-        super(vec2(),vec2());
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
-
-        const color__ = hsl(0, 0, .2);
-        this.trailEffect = new ParticleEmitter(
-            this.pos, 0,                          // pos, angle
-            this.size, 0, 8, PI,                 // emitSize, emitTime, emitRate, emiteCone
-            tile(25, 128, 2, 0),                          // tileIndex, tileSize
-            color__.scale(1), color__.scale(10),                         // colorStartA, colorStartB
-            color__.scale(5), color__.scale(10),       // colorEndA, colorEndB
-            2, .4, 1, .001, .05,// time, sizeStart, sizeEnd, speed, angleSpeed
-            .99, .95, 0, PI,    // damp, angleDamp, gravity, cone
-            .1, .5, false, false        // fade, randomness, collide, additive
-        );
-
-    }
-
-
-}
-
-class DespawnFx extends ParticleFX {
-
-}
-
-class Bombexplosion extends ParticleFX{
-
-}
-
-class RainFX extends ParticleFX {
-
-}
-
-class SmokeFX extends ParticleFX {
-
-}
-
-/*
-*Globals Singleton
-*
-*Features: 
-*(1) Holds All Global Variants in one scrupt
-*(2) Can Only Store Data, Cannot Manipulate Data
-*
-*
-*
-*/
-
-class Globals {
-
-    // All Global Variables
-    public health: number;
-    public players: Array<Player>; // Update the type to a specific Player class if available
-    public enemies: Array<Enemy>; // Update the type to a specific Enemy class if available
-    public scenes: Record<string, any>; // Update the value type if you have a specific Scene type
-    public score: number;
-    public kill_count: number;
-    public GAME_START: boolean;
-
-    
-
-    constructor() {
-
-        // All Global Variables 
-
-        this.health = 3;
-        this.players = []; // internal array to hold all playe objects
-        this.enemies = []; // internal global array to hold all enemy types
-        this.scenes = {};// holds pointers to all scenes
-        //this.PlayingMusic = false; // boolean for stopping music start loop
-        this.score = 0;
-        this.kill_count = 0; //enemy kill count
-
-        this.GAME_START = false;// for triggering the main game loop logic in other scenes
-    }
-}
-
-
-/**
- * Debug Class
- *  
- * For properly debugging elements in littlejs
- * by attaching debug variables to the ljs inengine debugger
- * 
- * Currently unimplemented
- * Would require refactoring each singleton to reference this class
- * would require syncing with mobile build syntax per object
- * Should replace console.log debugging
- * 
- */
-
-class Debug {
-
-}
-
 
 
 
@@ -600,12 +438,11 @@ function gameRender() {
             
             window.enemy = new Enemy(vec2(5, 10));
             
-            
-            // generic item missing?
 
             
             //blood fx testing
-            const q = new Blood_splatter_fx(vec2(10,10),vec2(5));
+            // bug : (1) doesn't render now, not sure why yet
+            //const q = new Blood_splatter_fx(vec2(10,10),vec2(5));
             
             
             // setup the screen and camera
@@ -613,14 +450,8 @@ function gameRender() {
 
             //turn game menu invisibke
             window.ui.MenuVisible = false;
-
-
-
-
-            //create overworld map
-            // overworld tile renderer breaks on mobile?
         
-            window.music.play(); //works
+            window.music.play(); //play zzfxm music
             
             
         
