@@ -43,12 +43,13 @@ export class OverWorld extends EngineObject{
 
          To Do:
          (1) scene changer for overworld top down/ sidescrolling and 3d scenes
-         (2) side scrolling player physics logic
+            -create scene changing static function + logic that works with overworld level instances
+         (2) side scrolling player physics logic (1/2)
          (3) Parallax background in css logic for overworld sidescrolling levels using background pixel art scaled up
-         (4) create scene changing static function + logic that works with overworld level instances
-         (5) create player and enemy spawning tiles and depreciate manual player spawing implementation
+         
+         (5) create player and enemy spawning tiles and depreciate manual player spawing implementation (done)
          (6) create exit scene collision object and logic
-         (7) create temple interior pixel art background and tileset
+         (7) create temple interior pixel art background and tileset (1/3)
          (8) 
         */
     

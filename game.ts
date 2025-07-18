@@ -45,7 +45,7 @@ import {Inventory} from "./source_code/singletons/Inventory";
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
-import {TopDownPlayer} from "./source_code/scenes/Characters/player";
+import {Player} from "./source_code/scenes/Characters/player";
 import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
@@ -162,7 +162,7 @@ declare global {
         utils: Utils,
         music: Music,
         //input: Inputs,
-        player: TopDownPlayer,
+        player: Player,
         enemy: Enemy,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling;
@@ -252,7 +252,8 @@ export function useItem(type :string, amount : number ) : boolean {
             window.globals.health += 1;
 
             // update heart box hud
-            player.update_heart_box();
+            //player.update_heart_box();
+            console.log("to do: implement update heartbox funcitonality on player object");
         }
         
         if (type == "Generic Item"){
@@ -423,9 +424,9 @@ function gameRender() {
             // to do: (1) create exit scene
             
             // overworld map 1 works
-            //window.map = new OverWorld();
+            window.map = new OverWorld();
             
-            window.map = new OverworldSideScrolling();
+            //window.map = new OverworldSideScrolling();
             // side sc
             
             //console.log("map debug: ", window.map);

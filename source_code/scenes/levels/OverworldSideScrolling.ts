@@ -1,9 +1,9 @@
-import overMap from "./OverworldSideScrolling.json";
-import {TopDownPlayer} from "../Characters/player";
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, mainContext,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
+import overMap from "./OverworldSideScrolling.json";
+import {SideScrollPlayer} from "../Characters/player";
 
 export class OverworldSideScrolling extends EngineObject {
 
@@ -14,6 +14,17 @@ export class OverworldSideScrolling extends EngineObject {
 
     constructor(){
         super();
+
+        const backgroundImage = new Image();
+        backgroundImage.src = "../background.png";
+
+        // draw the background image
+        // doesn't work \(-_-)|
+        //mainContext.drawImage(
+        //        backgroundImage,
+        //        0, 0,                   // draw at top-left
+        //        1024, 600   // stretch to fill canvas
+        //    );
 
         //mainContext.drawImage()
         console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
@@ -53,7 +64,7 @@ export class OverworldSideScrolling extends EngineObject {
                     
                     // temporary player spawn tile
                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                        window.player = new TopDownPlayer(vec2(x,y));
+                        window.player = new SideScrollPlayer(vec2(x,y));
 
                         return
                     }
