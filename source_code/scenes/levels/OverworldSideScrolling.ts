@@ -1,5 +1,5 @@
 import overMap from "./OverworldSideScrolling.json";
-import {Player} from "../Characters/player";
+import {TopDownPlayer} from "../Characters/player";
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, mainContext,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
@@ -53,7 +53,7 @@ export class OverworldSideScrolling extends EngineObject {
                     
                     // temporary player spawn tile
                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                        window.player = new Player(vec2(x,y));
+                        window.player = new TopDownPlayer(vec2(x,y));
                     }
 
                     if (val === 63){ // corner tile

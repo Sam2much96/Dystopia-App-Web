@@ -1,5 +1,5 @@
 import * as LittleJS from 'littlejsengine';
-import {Player} from "../Characters/player";
+
 const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 
@@ -14,7 +14,8 @@ import { HealthPotion } from '../items/Extralife';
 import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
-
+import {TopDownPlayer} from "../Characters/player";
+import {Enemy} from "../Characters/enemy";
 
 export class OverWorld extends EngineObject{
     /*
@@ -153,9 +154,11 @@ export class OverWorld extends EngineObject{
                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                         
                         //console.log("player spawn tile debug :", val, "/", x,",", y);
-                        window.player = new Player(vec2(x,y));
+                        window.player = new TopDownPlayer(vec2(x,y));
                         return
                     }
+
+                    
 
                     if (val === 15){ // temp ext tile
                         // trees tile draws with collision
@@ -237,6 +240,13 @@ export class OverWorld extends EngineObject{
                     if (val === 34){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }
+
+                    if (val === 35){ // first fire tile as enemy spawner placeholder
+                    // // supposed to be enemy spawner object but instead it's a single enemy spawner
+                        window.enemy = new Enemy(vec2(5, 10));   
+                        return
+                    }
+
                     if (val === 43){ // temple exterior
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
                     }

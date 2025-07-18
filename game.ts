@@ -45,7 +45,7 @@ import {Inventory} from "./source_code/singletons/Inventory";
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
-import {Player} from "./source_code/scenes/Characters/player";
+import {TopDownPlayer} from "./source_code/scenes/Characters/player";
 import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
@@ -162,7 +162,7 @@ declare global {
         utils: Utils,
         music: Music,
         //input: Inputs,
-        player: Player,
+        player: TopDownPlayer,
         enemy: Enemy,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling;
@@ -443,10 +443,6 @@ function gameRender() {
         //create global player object
         if (!window.player) {
             
-            
-            
-            // temporarily disabled for level 2 renders
-            //window.enemy = new Enemy(vec2(5, 10));
             
 
             

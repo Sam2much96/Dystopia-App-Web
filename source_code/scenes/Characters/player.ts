@@ -86,8 +86,13 @@ export class PhysicsObject extends EngineObject {
 }
 
 
+class Player extends PhysicsObject{
 
-export class Player extends PhysicsObject {
+    // core player class
+}
+
+
+export class TopDownPlayer extends Player {
     /*
     * PLAYER CLASS
     *
