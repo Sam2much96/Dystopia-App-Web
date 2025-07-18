@@ -78,6 +78,8 @@ export class PhysicsObject extends EngineObject {
         //// set player's sprite from tile info and animation frames
         //console.log(this.currentFrame);
         //this.currentFrame
+        //console.log("pos debug: ", this.pos);
+
         drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
     }
     
@@ -112,6 +114,9 @@ export class Player extends PhysicsObject {
     *   (2) https://gitlab.com/gcnet-uk/games/worktime/~/blob/main/src/entity.ts
     *   (3) https://github.com/KilledByAPixel/LittleJS/blob/main/examples/shorts/topDown.js
     *   use velocity to alter player's movement, set gravity to zero, call engine update first then increase/decrease/cap your velocity
+        
+    * (4) Fix attack animation bug
+    * (5) Create sidescrolling player physics object
     */
 
     // Constants
@@ -190,11 +195,12 @@ export class Player extends PhysicsObject {
     private Dance : Array<number> = [47,48];
 
     public WALKING :number = 0.03; // walking speed
-    constructor() {
+    constructor(pos : LittleJS.Vector2) {
+        //console.log("player pos debug :", pos);
 
         super();
         this.renderOrder = 1;
-        this.pos = vec2(7,10);
+        this.pos = pos; //vec2(0,0); // 7,10 for overmap 1
         this.size =vec2(0.8);
         // create a pointer to the Particle fx class
 

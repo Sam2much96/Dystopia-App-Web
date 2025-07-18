@@ -1,8 +1,9 @@
 import overMap from "./OverworldSideScrolling.json";
-
+import {Player} from "../Characters/player";
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+const {EngineObject, mainContext,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+
 
 export class OverworldSideScrolling extends EngineObject {
 
@@ -14,6 +15,7 @@ export class OverworldSideScrolling extends EngineObject {
     constructor(){
         super();
 
+        //mainContext.drawImage()
         console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
         initTileCollision(vec2(overMap.width,overMap.height));
@@ -47,14 +49,34 @@ export class OverworldSideScrolling extends EngineObject {
 
                     // to do: create lookup logic for the ground layer tiles
                     // to doL create parallax background css logic for rhis layer
+                    console.log("overmap val debug : ", val);
+                    
+                    // temporary player spawn tile
+                    if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
+                        window.player = new Player(vec2(x,y));
+                    }
 
-                    if (val === 2){ // skull head
+                    if (val === 63){ // corner tile
                         drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                     }
+
+                    if (val === 64){ // corner tile 2
+                        drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                    }
+
+                    if (val === 65){ // corner tile 3
+                    drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                    }
+                    else{ // every other tile
+                    drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                    }
+
 
             }})});
         
         this.tileLayer.redraw();
 
     }
+
+
 }

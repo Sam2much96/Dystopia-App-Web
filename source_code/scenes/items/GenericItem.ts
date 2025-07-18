@@ -31,19 +31,21 @@ export class GenericItem extends EngineObject {
 
     update(){
 
-        // set player collision to coin object
-        // set coin idle animation
-        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-            
-            console.log("Generic item collected");
-            this.destroy();
+        if (window.player){
 
-            // update bomb count in inventory
-            let y : number = window.inventory.get("Generic Item");
-            let z : number = y + 1;
-            window.inventory.set("Generic Item", z);
-            
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+                
+                console.log("Generic item collected");
+                this.destroy();
+
+                // update bomb count in inventory
+                let y : number = window.inventory.get("Generic Item");
+                let z : number = y + 1;
+                window.inventory.set("Generic Item", z);
+                
+            }
         }
-
     }
 }

@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile} = LittleJS;
+const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
 
 
 export class Bow extends EngineObject{
@@ -28,20 +28,21 @@ export class Bow extends EngineObject{
 
     update(){
 
-        // set player collision to coin object
-        // set coin idle animation
-        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-            
-            console.log("Bow item collected");
-            this.destroy();
+        if (window.player){
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+                
+                console.log("Bow item collected");
+                this.destroy();
 
-            // update bomb count in inventory
-            let y : number = window.inventory.get("Bow");
-            let z : number = y + 1;
-            window.inventory.set("Bow", z);
-            
+                // update bomb count in inventory
+                let y : number = window.inventory.get("Bow");
+                let z : number = y + 1;
+                window.inventory.set("Bow", z);
+                
+            }
         }
-
     }
 
 

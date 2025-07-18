@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile} = LittleJS;
+const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
 
 
 export class HealthPotion extends EngineObject{
@@ -29,20 +29,22 @@ export class HealthPotion extends EngineObject{
 
     update(){
 
-        // set player collision to coin object
-        // set coin idle animation
-        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-            
-            console.log("Health Potion item collected");
-            this.destroy();
+        if (window.player){
 
-            // update bomb count in inventory
-            let y : number = window.inventory.get("Health Potion");
-            let z : number = y + 1;
-            window.inventory.set("Health Potion", z);
-            
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+                
+                console.log("Health Potion item collected");
+                this.destroy();
+
+                // update bomb count in inventory
+                let y : number = window.inventory.get("Health Potion");
+                let z : number = y + 1;
+                window.inventory.set("Health Potion", z);
+                
+            }
         }
-
     }
 
 }

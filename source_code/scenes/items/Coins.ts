@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile} = LittleJS;
+const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
 
 export class Coins extends EngineObject {
     /**
@@ -27,15 +27,16 @@ export class Coins extends EngineObject {
 
     update(){
 
-        // set player collision to coin object
-        // set coin idle animation
-        if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+        if (window.player){
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
 
-            console.log("coin collected, creating atc txn");
-            this.destroy();
-            
+                console.log("coin collected, creating atc txn");
+                this.destroy();
+                
+            }
         }
-
     }
 }
 

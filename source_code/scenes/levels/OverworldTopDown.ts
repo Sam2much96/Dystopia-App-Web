@@ -1,5 +1,5 @@
 import * as LittleJS from 'littlejsengine';
-
+import {Player} from "../Characters/player";
 const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 
@@ -148,6 +148,13 @@ export class OverWorld extends EngineObject{
                     if (val === 12){ // mushroom small
                         // mushroom small tile draws with collision
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                    }
+
+                    if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
+                        
+                        //console.log("player spawn tile debug :", val, "/", x,",", y);
+                        window.player = new Player(vec2(x,y));
+                        return
                     }
 
                     if (val === 15){ // temp ext tile

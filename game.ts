@@ -35,7 +35,7 @@ setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setS
 
 
 import {Music} from "./source_code/singletons/Music";
-import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
+
 import {Wallet} from "./source_code/scenes/Wallet/Wallet";
 import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
@@ -50,6 +50,8 @@ import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
 
+import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
+import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
 
 'use strict';
 
@@ -163,7 +165,7 @@ declare global {
         player: Player,
         enemy: Enemy,
         wallet: Wallet;
-        map: OverWorld;
+        map: OverWorld | OverworldSideScrolling;
         simulation: Simulation;
 
         useItem: any; 
@@ -418,13 +420,20 @@ function gameRender() {
     if (window.globals.GAME_START) {
 
         if (!window.map){
-            // preload overworld
+            // to do: (1) create exit scene
+            
+            // overworld map 1
             window.map = new OverWorld();
-            console.log("map debug: ", window.map);
+            //window.map = new OverworldSideScrolling();
+            // side sc
+            
+            //console.log("map debug: ", window.map);
         }
 
         // formerly screen class
         if (window.player){
+
+            //console.log("window player exists debug");
             // Track player
             // set camera position to player position
             setCameraPos(window.player.pos);
@@ -433,10 +442,11 @@ function gameRender() {
    
         //create global player object
         if (!window.player) {
-            window.player = new Player();
             
             
-            window.enemy = new Enemy(vec2(5, 10));
+            
+            // temporarily disabled for level 2 renders
+            //window.enemy = new Enemy(vec2(5, 10));
             
 
             
@@ -449,7 +459,7 @@ function gameRender() {
             //const y = new Screen();
 
             //turn game menu invisibke
-            window.ui.MenuVisible = false;
+            //window.ui.MenuVisible = false;
         
             window.music.play(); //play zzfxm music
             

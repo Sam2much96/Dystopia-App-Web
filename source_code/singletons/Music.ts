@@ -240,7 +240,7 @@ export class Music {
 
     async play(){
 
-        console.log("Initialising song player 2", this.counter);
+        //console.log("Initialising song player 2", this.counter);
         // bug:
         // (1) loops and plays song twice
         // zzfx song initialization
