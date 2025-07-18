@@ -49,11 +49,13 @@ export class OverworldSideScrolling extends EngineObject {
 
                     // to do: create lookup logic for the ground layer tiles
                     // to doL create parallax background css logic for rhis layer
-                    console.log("overmap val debug : ", val);
+                    //console.log("overmap val debug : ", val);
                     
                     // temporary player spawn tile
                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                         window.player = new TopDownPlayer(vec2(x,y));
+
+                        return
                     }
 
                     if (val === 63){ // corner tile

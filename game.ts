@@ -422,9 +422,10 @@ function gameRender() {
         if (!window.map){
             // to do: (1) create exit scene
             
-            // overworld map 1
-            window.map = new OverWorld();
-            //window.map = new OverworldSideScrolling();
+            // overworld map 1 works
+            //window.map = new OverWorld();
+            
+            window.map = new OverworldSideScrolling();
             // side sc
             
             //console.log("map debug: ", window.map);

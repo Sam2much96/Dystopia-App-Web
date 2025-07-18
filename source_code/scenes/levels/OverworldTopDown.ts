@@ -56,7 +56,7 @@ export class OverWorld extends EngineObject{
     LevelSize: LittleJS.Vector2 = vec2(overMap.width, overMap.height);
 
     // drawing more than one tile bugs out on mobile browsers
-    tempExtLayer: LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0));
+    tempExtLayer: LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
 
     layerCount: number = overMap.layers.length;
     ground_layer: number[][] = []; // matrix data type
