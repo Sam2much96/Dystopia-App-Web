@@ -220,9 +220,17 @@ export class Player extends PhysicsObject{
     update(): void {
         
         // Capture movement control
-        this.moveInput     = isUsingGamepad ? gamepadStick(0) : keyDirection().clampLength(1).scale(.1);
-        this.holdingAttack  = !isUsingGamepad && mouseIsDown(0) || keyIsDown('KeyZ') || gamepadIsDown(2);
-        this.holdingRoll = keyIsDown('Space') || mouseIsDown(1) || gamepadIsDown(2);
+        // gamepad breaks on itchIO because i used a redirect to dystopia.online
+        // to do : (1) add redundancy code for gamepad logic on different platforms
+        //this.moveInput     = isUsingGamepad ? gamepadStick(0) : keyDirection().clampLength(1).scale(.1);
+        //this.holdingAttack  = !isUsingGamepad && mouseIsDown(0) || keyIsDown('KeyX') || gamepadIsDown(2);
+        //this.holdingRoll = keyIsDown('Space') || mouseIsDown(1) || gamepadIsDown(2);
+        
+        this.moveInput     =  keyDirection().clampLength(1).scale(.1);
+        this.holdingAttack  =  keyIsDown('KeyX');
+        this.holdingRoll = keyIsDown('Space') ;
+        
+
         super.update();
     }
 
@@ -554,6 +562,7 @@ export class SideScrollPlayer extends Player {
 
         this.velocity = this.moveInput; // top down movement logic
         super.update();
+
 
     }
 }
