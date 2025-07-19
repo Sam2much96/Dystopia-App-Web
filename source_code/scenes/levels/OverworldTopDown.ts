@@ -17,6 +17,8 @@ import { GenericItem } from '../items/GenericItem';
 import {TopDownPlayer} from "../Characters/player";
 import {Enemy} from "../Characters/enemy";
 
+import {Hole} from "../UI & misc/Exit";
+
 export class OverWorld extends EngineObject{
     /*
         Features
@@ -134,6 +136,13 @@ export class OverWorld extends EngineObject{
                         console.log("to do : (1) replace tile collision with signpost object that triggers a dialog box"); 
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
+
+                    if (val ===4){ // hole object
+                        const l = new Hole(vec2(x,y));
+                        return
+
+                    }
+
                     if (val === 8 ){ // boulder
                         drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
                     }
@@ -410,6 +419,12 @@ export class OverWorld extends EngineObject{
             setTileCollisionData(pos,1);
         
         }
+    }
+
+    destroy(): void {
+        //this.destroy();
+        this.tempExtLayer.destroy();
+        window.enemy.destroy();
     }
 }
 

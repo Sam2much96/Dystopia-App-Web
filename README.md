@@ -30,11 +30,13 @@ To run the game locally:
    ```
 
 2. **Run the Build Server**:
-   Check the package,json for supported commands to run for testing / building
+   Check the package,json for supported commands to run for testing / building.
+   Run npm run vite build --emptyOutDir to build game assets to /dist folder. Game assets stored
+   in /Public are copied over to /dist for final hosting
 
 # Engine
 
-The web build of Dystopia App Uses LittleJS game Engine for 2d rendering and game Logic, Threejs for 3d rendering, ZzFx for Sound Effects and Vercel + HowlerJs for Audio files playback
+The web build of Dystopia App Uses LittleJS game Engine for 2d rendering and game Logic, Threejs for 3d rendering, ZzFx for Sound Effects and Zzfxm for Audio files playback
 
 Game distributabels are built into the dist folder which is served as the /public folder
 the game fetches all assets from the /public directory in the vercel server build

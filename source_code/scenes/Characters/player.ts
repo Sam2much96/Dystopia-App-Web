@@ -530,10 +530,11 @@ export class SideScrollPlayer extends Player {
     constructor(pos : LittleJS.Vector2){
         super(pos);
         
-        this.mass = 10;
+        //this.mass = 10;
         
         //super.update();
-        setGravity(.1);
+        //setGravity(10);
+        //super.update();
         
     }
 
@@ -549,8 +550,9 @@ export class SideScrollPlayer extends Player {
         // top down walking state
         //this.State()["STATE_WALKING"]();
 
-        this.velocity.y += 3500;
+        //this.velocity.y = 10; // gravity doesnt work here
 
+        this.velocity = this.moveInput; // top down movement logic
         super.update();
 
     }

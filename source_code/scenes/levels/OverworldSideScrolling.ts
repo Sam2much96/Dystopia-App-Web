@@ -12,6 +12,8 @@ export class OverworldSideScrolling extends EngineObject {
     tileLayer : LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl
     ground_layer: number[][] = []; // matrix data type
 
+    // to do: add exit collision underneath the level and logic to transition to overworld level
+
     constructor(){
         super();
 
