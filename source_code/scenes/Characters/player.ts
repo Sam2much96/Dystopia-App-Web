@@ -241,7 +241,7 @@ export class Player extends PhysicsObject{
         // bug: Game pad stick capture doesnt affect logic
         
         if (isTouchDevice){ // touchscreen dpad bindings
-            this.moveInput = gamepadStick(0,0) ;
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
             this.holdingRoll = gamepadIsDown(1); 
             this.holdingAttack  = gamepadIsDown(2);     
             
@@ -482,7 +482,7 @@ export class TopDownPlayer extends Player {
 
                 
             
-
+                
                 // play facing animations by normalising moveInput vec2 positions to animation directions
                 if (this.velocity.x === -0.1){
                     
