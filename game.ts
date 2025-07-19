@@ -426,7 +426,7 @@ function gameRender() {
             // overworld map 1 works
             // testing scene transitiion using exit (hole) object
             window.map = new OverWorld();
-            
+            window.music.play(); //play zzfxm music
             //window.map = new OverworldSideScrolling();
             // side sc
             
@@ -460,7 +460,7 @@ function gameRender() {
             //turn game menu invisibke
             //window.ui.MenuVisible = false;
         
-            window.music.play(); //play zzfxm music
+            
             
             
         
