@@ -246,7 +246,7 @@ export class Player extends PhysicsObject{
             this.holdingAttack  = gamepadIsDown(2);     
             
             // for debugging player input on mobile
-            logToScreen(this.moveInput);
+            //logToScreen(this.moveInput);
         }
 
         if (!isTouchDevice){ // keyboard and mouse bindings
