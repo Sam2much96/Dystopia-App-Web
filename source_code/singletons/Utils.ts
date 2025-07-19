@@ -158,8 +158,10 @@ export class Utils {
 
     static calcRandNumber(): number {
         const rando: number = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
-    return rando;
-}
+        return rando;
+    }
+
+
     
     static saveGame(){
 
@@ -176,4 +178,27 @@ export class Utils {
         // if (shopJson){}
         // else {}
     }
+}
+
+
+export function logToScreen(...args: unknown[]): void {
+    const debugEl = document.getElementById('debug');
+    if (!debugEl) {
+        console.warn('Debug element with id="debug" not found.');
+        return;
+    }
+
+    const logLine = args
+        .map(arg => {
+            if (typeof arg === 'string') return arg;
+            try {
+                return JSON.stringify(arg);
+            } catch {
+                return String(arg);
+            }
+        })
+        .join(' ');
+
+    debugEl.innerHTML += logLine + '<br>';
+    debugEl.scrollTop = debugEl.scrollHeight;
 }

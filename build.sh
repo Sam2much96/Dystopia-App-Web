@@ -31,6 +31,8 @@ ls -al &&
 # copy enemy tileset
 cp enemy_tileset_128x128.png /dist &&
 
+
+
 echo "📁 Changing to dist directory..."
 # Change to the dist directory and debug all files in there
 cd dist/ &&

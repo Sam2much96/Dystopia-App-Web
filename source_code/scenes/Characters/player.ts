@@ -3,6 +3,8 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,setGravity,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
 
 
+import { logToScreen } from '../../singletons/Debug';
+
 export class PhysicsObject extends EngineObject {
     /**
      * LittleJS physics object for player and enemy physics & collisions
@@ -68,8 +70,7 @@ export class PhysicsObject extends EngineObject {
     }
 
     playAnim(anim: Array<number>){
-        //Gets Delta Time calculation from Simulation singleton
-        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
+        
 
         // play the animation for 0.1 seconds
         if (this.frameCounter >= this.animationCounter) {
@@ -85,8 +86,11 @@ export class PhysicsObject extends EngineObject {
 
     render() {
 
+        // bug:
+        // (1) player animation frame is iffy
+
         //// set player's sprite from tile info and animation frames
-        //console.log(this.currentFrame);
+        //console.log("frame debug: ",this.currentFrame);
         //this.currentFrame
         //console.log("pos debug: ", this.pos);
 
@@ -224,6 +228,9 @@ export class Player extends PhysicsObject{
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
         //this.isSolid = true;
 
+        //touch device debug
+        console.log("Touch device debug: ", isTouchDevice);
+
     }
 
     update(): void {
@@ -231,10 +238,24 @@ export class Player extends PhysicsObject{
         // Capture movement control
         // gamepad breaks on itchIO because i used a redirect to dystopia.online
         // to do : (1) add redundancy code for gamepad logic on different platforms
-        this.moveInput     = isUsingGamepad ? gamepadStick(0) : keyDirection().clampLength(1).scale(.1);
-        this.holdingAttack  = !isUsingGamepad && mouseIsDown(0) || keyIsDown('KeyX') || gamepadIsDown(2);
-        this.holdingRoll = keyIsDown('Space') || mouseIsDown(1) || gamepadIsDown(2);
+        // bug: Game pad stick capture doesnt affect logic
         
+        if (isTouchDevice){ // touchscreen dpad bindings
+            this.moveInput = gamepadStick(0,0) ;
+            this.holdingRoll = gamepadIsDown(1); 
+            this.holdingAttack  = gamepadIsDown(2);     
+            
+            // for debugging player input on mobile
+            logToScreen(this.moveInput);
+        }
+
+        if (!isTouchDevice){ // keyboard and mouse bindings
+            //works
+            this.moveInput = keyDirection().clampLength(1).scale(.1);
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
+            this.holdingAttack = mouseIsDown(0) || keyIsDown('KeyX');
+        }
+
 
 
         super.update();
@@ -333,6 +354,8 @@ export class TopDownPlayer extends Player {
         
 
         //console.log("pos debug:", this.pos);
+        //Gets Delta Time calculation from Simulation singleton
+        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
         // velocity logic
         // move input is the key direction serialised in to vector 2 positions
@@ -451,11 +474,14 @@ export class TopDownPlayer extends Player {
         
                 //if (this.moveInput){
                 //console.log("movement debug: ", this.moveInput);
-                this.velocity = this.moveInput;//this.velocity.add(moveInput); // apply movement
-                    //console.log("move input debug: ", moveInput, "/",this.velocity);
+                this.velocity = this.moveInput;// apply movement
+                //console.log("move input debug: ", this.moveInput, "/",this.velocity);
                     
                 //}
                 super.update();
+
+                
+            
 
                 // play facing animations by normalising moveInput vec2 positions to animation directions
                 if (this.velocity.x === -0.1){
@@ -465,34 +491,37 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.RunLeft);
 
                     //save previous facing data for idle state
-                    this.facingPos = 2;
+                    //this.facingPos = 2;
                 }
                 if (this.velocity.x === 0.1){
                     this.mirror =  false;
                     this.playAnim(this.RunRight);
 
                     //save previous facing data for idle state
-                    this.facingPos = 3;
+                    //this.facingPos = 3;
                 }
                 if (this.velocity.y === 0.1){
+                    // dbug the animation frames
+                    //console.log("animation frames debug: ", this.RunUp);
 
                     // play run up animation
                     this.mirror = false;
                     this.playAnim(this.RunUp);
 
                     //save previous facing data for idle state
-                    this.facingPos = 0;
+                    //this.facingPos = 0;
                 }
                 if (this.velocity.y === -0.1){
 
+                    //console.log("play run down animation");
                     // play run down animation
                     this.mirror = false;
                     this.playAnim(this.RunDown);
 
                     //save previous facing data for idle state
-                    this.facingPos = 1;
+                    //this.facingPos = 1;
                 }
-                
+
                 
             },
             "STATE_ROLL" : () =>{
