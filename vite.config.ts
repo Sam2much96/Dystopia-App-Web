@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 
 
 export default defineConfig({
+    base: "", //ensures relative paths for itchio hosting
     build: {
         ssr: false, // Ensure no server-side rendering
         outDir: 'dist',
@@ -9,6 +10,7 @@ export default defineConfig({
             external: [], //'three', 'littlejs','howler'
 
         },
+        
     },
 
     server: {

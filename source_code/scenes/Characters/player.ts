@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,Timer,isUsingGamepad, gamepadStick, setGravity,vibrate,keyDirection, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
+const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,setGravity,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
 
 
 export class PhysicsObject extends EngineObject {
@@ -21,6 +21,15 @@ export class PhysicsObject extends EngineObject {
         super();
         this.setCollision(true,true,true,true); // make object collide
         this.mass = 1; // make object have static physics
+
+
+        // Game Pad on Mobile Devices Settings
+        setTouchGamepadEnable(true);
+        setTouchGamepadSize(256);
+        setTouchGamepadAlpha(0.3);
+
+        // set dpad configuration on mobile browsers 
+        setTouchGamepadAnalog(false);
         
     }
 
@@ -222,14 +231,11 @@ export class Player extends PhysicsObject{
         // Capture movement control
         // gamepad breaks on itchIO because i used a redirect to dystopia.online
         // to do : (1) add redundancy code for gamepad logic on different platforms
-        //this.moveInput     = isUsingGamepad ? gamepadStick(0) : keyDirection().clampLength(1).scale(.1);
-        //this.holdingAttack  = !isUsingGamepad && mouseIsDown(0) || keyIsDown('KeyX') || gamepadIsDown(2);
-        //this.holdingRoll = keyIsDown('Space') || mouseIsDown(1) || gamepadIsDown(2);
+        this.moveInput     = isUsingGamepad ? gamepadStick(0) : keyDirection().clampLength(1).scale(.1);
+        this.holdingAttack  = !isUsingGamepad && mouseIsDown(0) || keyIsDown('KeyX') || gamepadIsDown(2);
+        this.holdingRoll = keyIsDown('Space') || mouseIsDown(1) || gamepadIsDown(2);
         
-        this.moveInput     =  keyDirection().clampLength(1).scale(.1);
-        this.holdingAttack  =  keyIsDown('KeyX');
-        this.holdingRoll = keyIsDown('Space') ;
-        
+
 
         super.update();
     }

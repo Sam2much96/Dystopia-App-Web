@@ -1,5 +1,5 @@
 import * as LittleJS from 'littlejsengine';
-const {Sound } = LittleJS;
+const {Sound , setSoundVolume,setSoundEnable} = LittleJS;
 import { zzfxM } from '../audio/zzfxm';
 import {zzfxP, zzfxX} from  "../audio/zzfx";
 
@@ -30,7 +30,7 @@ export class Music {
     //public ENABLE: boolean; //depreciated
 
 
-    public music_on : boolean = false;
+    public music_on : boolean = true;
     public sfx_on : boolean = true ;
     
     public volume : number = 99; // todo : (1) link to zzfxm audio context class 
@@ -140,6 +140,12 @@ export class Music {
   
 
     constructor() {
+
+
+        //Audio Control settings
+        // to do : map to a control ui / control class
+        setSoundVolume(0.3);
+        setSoundEnable(true);
 
         console.log("Music on Settings: ", this.music_on );
 

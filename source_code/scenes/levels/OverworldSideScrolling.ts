@@ -7,6 +7,15 @@ import {SideScrollPlayer} from "../Characters/player";
 
 export class OverworldSideScrolling extends EngineObject {
 
+    /**
+     * Overworld Sidescrolling level
+     * 
+     * Features:
+     * (1) Exit Collisions are the blank white tiles
+     * 
+     * 
+     */
+
 
     LevelSize: LittleJS.Vector2 = vec2(overMap.width, overMap.height); // get the level size
     tileLayer : LittleJS.TileLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl

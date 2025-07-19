@@ -34,6 +34,9 @@ To run the game locally:
    Run npm run vite build --emptyOutDir to build game assets to /dist folder. Game assets stored
    in /Public are copied over to /dist for final hosting
 
+3. **Building for ItchIO**:
+   Make sure that paths to assets and code are relative paths, this is `src="/assets/index-DF-xfI7b.js">` is bad and this `src="./assets/index-DF-xfI7b.js">` is good for all loaded assets in /dist/index.html
+
 # Engine
 
 The web build of Dystopia App Uses LittleJS game Engine for 2d rendering and game Logic, Threejs for 3d rendering, ZzFx for Sound Effects and Zzfxm for Audio files playback
