@@ -12,9 +12,9 @@ export class PhysicsObject extends EngineObject {
  
      */
 
-    public frameCounter: number = 0; // for timing frame changes to 1 sec or less
+    public animationTime: number = 0; // for timing frame changes to 1 sec or less
     public mirror: boolean = false; //false
-    public animationCounter : number = 0.1 // 0.1 seconds for each animation
+    public animationInterval : number = 0.1 // 0.1 seconds for each animation
     public currentFrame : number = 0;
     
 
@@ -22,7 +22,7 @@ export class PhysicsObject extends EngineObject {
     {
         super();
         this.setCollision(true,true,true,true); // make object collide
-        this.mass = 1; // make object have static physics
+        this.mass = 0; // make object have static physics
 
 
         // Game Pad on Mobile Devices Settings
@@ -73,13 +73,17 @@ export class PhysicsObject extends EngineObject {
         
 
         // play the animation for 0.1 seconds
-        if (this.frameCounter >= this.animationCounter) {
+        this.animationTime += LittleJS.timeDelta;
+
+        if (this.animationTime >= this.animationInterval) {
             //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
         
             //loop animation function
             this.currentFrame = this.animate(this.currentFrame, anim);
             //console.log(this.currentFrame);
-            this.frameCounter = 0; // Reset timer
+            
+            // subtract interval to handle lag gracefully
+            this.animationTime -= this.animationInterval; // Reset timer
                     
         }
     }
@@ -214,13 +218,13 @@ export class Player extends PhysicsObject{
 
         // input controlls
     public moveInput : LittleJS.Vector2 = vec2(0);
-    public holdingRoll : any;
-    public holdingAttack : any;
+    public holdingRoll : boolean = false;
+    public holdingAttack : boolean = false;
 
     constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;
-        
+        this.mass = 1; //make have dynamic physics
         // store player object in global array
         window.globals.players.push(this);
         this.hitpoints = window.globals.health; // global hp singleton 
@@ -355,7 +359,7 @@ export class TopDownPlayer extends Player {
 
         //console.log("pos debug:", this.pos);
         //Gets Delta Time calculation from Simulation singleton
-        this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
+        //this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
         // velocity logic
         // move input is the key direction serialised in to vector 2 positions
@@ -566,19 +570,16 @@ export class SideScrollPlayer extends Player {
      * Side scrolling player
      * 
      * Features:
-     * (1) Gravity
+     * (1) Gravity physics
+     * (2) Jumping physics
      * 
      */
+    groundObject : any | undefined;
 
     constructor(pos : LittleJS.Vector2){
         super(pos);
         
-        //this.mass = 10;
-        
-        //super.update();
-        //setGravity(10);
-        //super.update();
-        
+        setGravity(-.035); // apply global gravity
     }
 
     update(){
@@ -586,7 +587,7 @@ export class SideScrollPlayer extends Player {
         // calls the input capture in the parent update class
         
 
-
+        //console.log("ground object: ", this.groundObject);
         // debug movement input variables
         //console.log("movement debug :", this.moveInput);
 
@@ -594,8 +595,19 @@ export class SideScrollPlayer extends Player {
         //this.State()["STATE_WALKING"]();
 
         //this.velocity.y = 10; // gravity doesnt work here
+        //this.pos.y += 7 ; // apply gravity
+        
+        this.velocity.x += this.moveInput.x * (this.groundObject ? .1: .01); // top down movement logic
+        
+        //console.log("debug: ", this.groundObject, "/", this.holdingRoll); //works
+        
+        // detect if player is on ground and apply jump physics
+        if (this.groundObject && this.holdingRoll){
+            console.log("jump physics triggered");
+            this.velocity.y = .9; // jump
 
-        this.velocity = this.moveInput; // top down movement logic
+        }
+
         super.update();
 
 
@@ -606,7 +618,7 @@ export class SideScrollPlayer extends Player {
 
 
 
-export class Inputs  {
+export class InputsBuffer  {
 
     /*
     Functions:
@@ -679,73 +691,7 @@ export class Inputs  {
          */
 
 
-        // mouse and TouchScreen Input
-        // use for minimap inputs 
-        //this.pos = mousePos;
-
-        // Keyboard Input Controller
-
-        //
-        // Move UP
-        //
-        if (LittleJS.keyIsDown('ArrowUp')) {
-            //console.log("key up pressed");
-            this.up()
-        }
-
-        if (LittleJS.keyWasReleased("ArrowUp")){
-                
-        //this.idle();
-        }
-
-        // Move Down
-        if (LittleJS.keyIsDown('ArrowDown')) {
-            this.down()
-        }
-
-        if (LittleJS.keyWasReleased("ArrowDown")){
-            //this.idle()
-        }
-
-
-        // Move Left
-        if (LittleJS.keyIsDown('ArrowLeft')) {
-            //console.log("key left pressed");
-            this.left()
-        }
-
-        if (LittleJS.keyWasReleased("ArrowLeft")){
-            //this.idle()
-        }
-
-
-        // Move Right
-        if (LittleJS.keyIsDown('ArrowRight')) {
-            this.right()
-
-        }
-
-        if (LittleJS.keyWasReleased("ArrowRight")){
-            //this.idle()
-        }
-
-        // Attack
-        if (LittleJS.keyIsDown('KeyX')) {
-            this.attack()
-
-        }
         
-        if (LittleJS.keyWasReleased("KeyX")){
-            //this.idle()
-        }
-
-
-        // Dash
-        if (LittleJS.keyIsDown('Space')) {
-            this.roll();
-
-        }
-
         // Debug Input Buffer
         if (LittleJS.keyWasPressed('KeyL')) {
             console.log("key L as pressed! ");

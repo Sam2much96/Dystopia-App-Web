@@ -30,7 +30,7 @@ export class Simulation extends EngineObject {
     public color: any | null;
     public tick: number = 0;
     public lastTick: number = 0;
-    public deltaTime: number | null = null;
+    public deltaTime: number = LittleJS.timeDelta;
 
     public Enabled: boolean = false;
 
@@ -108,9 +108,11 @@ export class Simulation extends EngineObject {
         // Delta Calculation
         //needed for animation logic
         //get delta time via ticks
-        this.tick = window.performance.now();
-        this.deltaTime = (this.tick - this.lastTick) / 1000;
-        this.lastTick = this.tick;
+        //this.tick = window.performance.now();
+        //this.deltaTime = (this.tick - this.lastTick) / 1000;
+        //this.lastTick = this.tick;
+
+
 
         //console.log("Delta time debug:", this.deltaTime); //works
 

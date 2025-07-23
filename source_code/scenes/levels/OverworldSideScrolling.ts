@@ -76,7 +76,6 @@ export class OverworldSideScrolling extends EngineObject {
                     // temporary player spawn tile
                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                         window.player = new SideScrollPlayer(vec2(x,y));
-
                         return
                     }
 

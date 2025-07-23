@@ -29,8 +29,7 @@ import * as LittleJS from 'littlejsengine';
 
 
 
-const { tile, vec2, hsl, drawTile, setFontDefault, drawTextOverlay, glCreateTexture,  WHITE, PI, EngineObject, Timer, TileLayer,TileLayerData, Sound, ParticleEmitter, timeDelta, Color, touchGamepadEnable, isTouchDevice, setTouchGamepadSize,setShowSplashScreen, setTouchGamepadEnable,// do not use pixelated rendering
-setTouchGamepadAlpha,initTileCollision,setTouchGamepadAnalog,setSoundVolume,setSoundEnable, vibrate,setCanvasPixelated, setTileCollisionData, setTilesPixelated, setGravity,setCameraPos, setCameraScale, engineInit } = LittleJS;
+const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit } = LittleJS;
 
 
 
@@ -59,21 +58,7 @@ import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideS
 // import module
 
 // show the LittleJS splash screen
-setShowSplashScreen(true);
-
-
-// Game Pad on Mobile Devices Settings
-setTouchGamepadEnable(true);
-setTouchGamepadSize(256);
-setTouchGamepadAlpha(0.3);
-
-// set dpad configuration on mobile browsers 
-setTouchGamepadAnalog(false);
-
-//Audio Control settings
-// to do : map to a control ui / control class
-setSoundVolume(0.3);
-setSoundEnable(true);
+setShowSplashScreen(false);
 
 
 

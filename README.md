@@ -37,9 +37,16 @@ To run the game locally:
 3. **Building for ItchIO & Other Platforms**:
    Make sure that paths to assets and code are relative paths, this is `src="/assets/index-DF-xfI7b.js">` is bad and this `src="./assets/index-DF-xfI7b.js">` is good for all loaded assets in /dist/index.html
 
-# Engine
+4. **Engine**
 
 The web build of Dystopia App Uses LittleJS game Engine for 2d rendering and game Logic, Threejs for 3d rendering, ZzFx for Sound Effects and Zzfxm for Audio files playback
 
-Game distributabels are built into the dist folder which is served as the /public folder
+Game distributables are built into the dist folder which is served as the /public folder
 the game fetches all assets from the /public directory in the vercel server build
+
+5. **Optimisation & Bugs**
+
+The game runs well on PC browsers bug lags on mobile browsers. It would require optimzation
+and proper memory management of code engine elements including the 3d rendering engine, the 3d level design,
+the font loading also lags. There's also a periodic lag that i suspect had to do with the simulation singleton 
+delta time that's needed for animation.

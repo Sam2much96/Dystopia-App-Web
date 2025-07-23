@@ -2,7 +2,7 @@ import * as LittleJS from 'littlejsengine';
 import { Player, PhysicsObject } from './player';
 import { Utils } from '../../singletons/Utils';
 
-const {vec2, drawTile, Timer,tile} = LittleJS;
+const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
 
 
@@ -173,7 +173,7 @@ export class Enemy extends PhysicsObject {
 
    
 
-        this.frameCounter += window.simulation.deltaTime!
+        //this.frameCounter += window.simulation.deltaTime!
         
         // if player object is valid
         if (this.local_player_object) {
@@ -194,7 +194,7 @@ export class Enemy extends PhysicsObject {
             // Enemy hit collision detection
             // todo : 
             // (1) connect both player and enemy state machines to simulation collision detection
-            if (LittleJS.isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 //console.log("ENemy Hit Collision Detection Triggered: ", distanceToPlayer);
 
                 // this.hitpoints -= 1;
