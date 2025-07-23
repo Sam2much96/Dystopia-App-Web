@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, mainContext,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+const {EngineObject, mainContext, setGravity,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 import overMap from "./OverworldSideScrolling.json";
 import {SideScrollPlayer} from "../Characters/player";
@@ -12,7 +12,7 @@ export class OverworldSideScrolling extends EngineObject {
      * 
      * Features:
      * (1) Exit Collisions are the blank white tiles
-     * 
+     * (2) Sets scene gravity
      * 
      */
 
@@ -25,7 +25,7 @@ export class OverworldSideScrolling extends EngineObject {
 
     constructor(){
         super();
-
+        setGravity(-.035); // apply global gravity
         const backgroundImage = new Image();
         backgroundImage.src = "../background.png";
 
@@ -94,6 +94,8 @@ export class OverworldSideScrolling extends EngineObject {
                     drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                     }
 
+                    //exit tile
+
 
             }})});
         
@@ -101,5 +103,10 @@ export class OverworldSideScrolling extends EngineObject {
 
     }
 
+    destroy(): void {
+        //this.destroy();
+        this.tileLayer.destroy();
+        setGravity(0);// reset gravity
+    }
 
 }

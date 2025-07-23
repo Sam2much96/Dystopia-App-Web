@@ -1,9 +1,10 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,setGravity,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
+const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
 
 
-import { logToScreen } from '../../singletons/Debug';
+//import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
+import { OverWorld } from '../levels/OverworldTopDown';
 
 export class PhysicsObject extends EngineObject {
     /**
@@ -142,12 +143,10 @@ export class Player extends PhysicsObject{
     // Constants
     public WALK_SPEED: number = 1.65; // pixels per second
     public ROLL_SPEED: number = 1000; // pixels per second
-    //private GRAVITY: number = 0; // For Platforming Levels
     public ATTACK: number = 1; // For Item Equip
     public pushback: number = 5000;
 
     // Properties
-    //private input: Inputs = window.input;
     public hitpoints: number = 3;
     public linear_vel = vec2(0, 0);
     public roll_direction = vec2(0, 1);
@@ -579,38 +578,79 @@ export class SideScrollPlayer extends Player {
     constructor(pos : LittleJS.Vector2){
         super(pos);
         
-        setGravity(-.035); // apply global gravity
+        
     }
 
     update(){
-        
-        // calls the input capture in the parent update class
+
+        // apply walking physics
+        this.State()["STATE_WALK"]();
         
 
-        //console.log("ground object: ", this.groundObject);
-        // debug movement input variables
-        //console.log("movement debug :", this.moveInput);
-
-        // top down walking state
-        //this.State()["STATE_WALKING"]();
-
-        //this.velocity.y = 10; // gravity doesnt work here
-        //this.pos.y += 7 ; // apply gravity
-        
-        this.velocity.x += this.moveInput.x * (this.groundObject ? .1: .01); // top down movement logic
-        
-        //console.log("debug: ", this.groundObject, "/", this.holdingRoll); //works
-        
-        // detect if player is on ground and apply jump physics
-        if (this.groundObject && this.holdingRoll){
-            console.log("jump physics triggered");
-            this.velocity.y = .9; // jump
+        // fall of stage despawn conditional
+        //console.log("y positional debug: ", this.pos.y, "/", this.velocity.y);
+        if (this.pos.y < -10){ // player falls off ground conditional
+            this.destroy();
+            
+            //destroy the overworld scene and player
+            window.map.destroy();
+            // spawn the top down overworld scene                 
+            console.log("Loading the new level");
+            window.map = new OverWorld();
 
         }
+    
+    }
 
-        super.update();
+        // stores complex player states
+    State(): Record<string, () => void>  {
 
+        return {
+            "STATE_WALK" : () => {
 
+                // to do: move to a state machine and add logic for facing and jumping animations
+                // ground object is the first engine object instance that this player object makes a collision with
+                //this.velocity.x += this.moveInput.x * (this.groundObject ? .1: .01); // top down movement logic
+                this.velocity.x = this.moveInput.x;
+
+                //console.log("debug: ", this.groundObject, "/", this.holdingRoll); //works
+                
+                // detect if player is on ground and apply jump physics
+                if (this.groundObject && this.holdingRoll){
+                    console.log("jump physics triggered");
+                    this.velocity.y = .9; 
+                }
+
+                super.update();
+                
+
+                if (this.velocity.x < 0){ // use Math.ceil for roundups
+
+                    // play run left animation
+                    this.mirror = true;
+                    this.playAnim(this.RunLeft);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 2;
+                }
+
+                if (this.velocity.x > 0){ 
+
+                    // play run right animation
+                    this.mirror = false;
+                    this.playAnim(this.RunLeft);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 2;
+                }
+
+                //for debug purposes only
+                //console.log("velocity debug: ", this.velocity.x);
+            },
+
+            "STATE_IDLE" : () => {
+            },
+        }
     }
 }
 

@@ -10,12 +10,12 @@ const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 export class Enemy extends PhysicsObject {
     // To DO :
     // (1) Enemy spawner
-    // (2) Enemy Mob logic using Utils functions
+    // (2) Enemy Mob logic using Utils functions (done)
     // (3) Enemy State Machine (1/2)
     // (4) Enemy Collisions
-    // (5) Enemy Animations (2/2)
+    // (5) Enemy Animations (2/3)
     // (6) Synchronize enemy and player state machine enumerations
-    // (7) Connect to Utils hit collision detection system
+    // (7) Connect to Utils hit collision detection system (done)
 
     public hitpoints: number = 5;
     public speed: number = 3;
@@ -171,9 +171,7 @@ export class Enemy extends PhysicsObject {
 
         }
 
-   
 
-        //this.frameCounter += window.simulation.deltaTime!
         
         // if player object is valid
         if (this.local_player_object) {

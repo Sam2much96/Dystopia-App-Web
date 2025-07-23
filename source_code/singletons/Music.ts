@@ -4,6 +4,7 @@ import { zzfxM } from '../audio/zzfxm';
 import {zzfxP, zzfxX} from  "../audio/zzfx";
 
 
+
 export class Music {
 
 
@@ -148,7 +149,7 @@ export class Music {
         setSoundEnable(true);
 
         console.log("Music on Settings: ", this.music_on );
-
+        
         
         // Initialize the LittleJS Sound System
 
@@ -256,7 +257,10 @@ export class Music {
         if (this.counter == 0){
     
 
-        // Loads a song
+        // Loads a song via a http get request
+        // bugs:
+        // (1) This creates a bottleneck / noticable lag at the start of the game
+
         const load = async ()  => {
             this.track = this.shuffle(this.default_playlist); // get a random track
 
