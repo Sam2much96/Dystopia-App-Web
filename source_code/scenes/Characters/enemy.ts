@@ -70,11 +70,11 @@ export class Enemy extends PhysicsObject {
     private RunUp : Array<number> =[28,29,30,31];
     private RunDown : Array<number> =[20,21,22,23];
     private RunLeft : Array<number> =[24,25,26,27];
-    private RunRight : Array<number> =[24,25,26,27];
+    private RunRight : Array<number> =[...this.RunLeft];
     private AttackUp : Array<number> = [6,7,8];
     private AttackDown : Array<number> = [0,1,2];
     private AttackLeft : Array<number> = [3,4,5];
-    private AttackRight : Array<number> = [3,4,5];
+    private AttackRight : Array<number> = [...this.AttackLeft];
     private Roll : Array<number> = [15,16,17,18,19];
     private Despawn : number[] = [9,11,13,9,11,13];
 
@@ -114,7 +114,7 @@ export class Enemy extends PhysicsObject {
         //this.pos = pos.copy();
 
         // store object to global pointer for object pooling
-        window.globals.enemies.push(this);
+        //window.globals.enemies.push(this);
 
 
         // store player object in global array
@@ -255,8 +255,8 @@ export class Enemy extends PhysicsObject {
         const knockbackX = (dx / magnitude) * knockbackStrength;
         const knockbackY = (dy / magnitude) * knockbackStrength;
 
-        this.pos.x += knockbackX;
-        this.pos.y += knockbackY;
+        this.velocity.x += knockbackX;
+        this.velocity.y += knockbackY;
 
         this.playAnim(this.Despawn);
         
@@ -264,6 +264,8 @@ export class Enemy extends PhysicsObject {
     }
 
     despawn() {
+        //console.log("Enemy Despawn Logic Triggered");
+        
         // The Enemy Despawn animation
         // bug :
         // (1) Enemy despawn logic doesn't work (done)
@@ -291,13 +293,8 @@ export class Enemy extends PhysicsObject {
         //this.despawn_particles!.destroy();
         
 
-        // remove object from global object pool
-        // remove object from global array
-        const index = window.globals.enemies.indexOf(this);
-        if (index !== -1) {
-            window.globals.enemies.splice(index, 1);
-        }
-
+  
+        //this.destroy();
         
 
         
@@ -381,6 +378,13 @@ export class Enemy extends PhysicsObject {
                 this.isDead =true;
                 console.log("Destroying Enemy");
                 
+                // remove object from global object pool
+                // remove object from global array
+                const index = window.globals.enemies.indexOf(this);
+                if (index !== -1) {
+                    window.globals.enemies.splice(index, 1);
+                }
+
                 this.destroy();
                 
             },

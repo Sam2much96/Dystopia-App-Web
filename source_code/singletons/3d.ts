@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+const { Scene, PerspectiveCamera, WebGLRenderer,BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh } = THREE;
 /*
 
 3d Rendering Engine
@@ -22,7 +23,7 @@ Bugs
 
 export class ThreeRender {
 
-    private THREE: typeof THREE;
+    //private THREE: typeof THREE;
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
@@ -31,12 +32,11 @@ export class ThreeRender {
     constructor() {
         //super();
         // create a global threejs object
-        this.THREE = THREE;
+        //this.THREE = THREE;
 
-        console.log("Three JS Debug 1: ", this.THREE);
+        //console.log("Three JS Debug 1: ", this.THREE); // works
 
 
-        const { Scene, PerspectiveCamera, WebGLRenderer } = this.THREE;
 
         // Initialize scene, camera, and renderer
         //make  scene and camera globally accessible
@@ -144,7 +144,7 @@ export class ThreeRender {
         console.log("Creating 3D Cube Object");
 
         // Load required Libraries from Global THreejs class
-        const { BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh } = this.THREE;
+        //const {  } = this.THREE;
 
 
         // Geometry and wireframe

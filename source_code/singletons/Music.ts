@@ -48,10 +48,10 @@ export class Music {
     // to do:
     // (1) track the new beats in Zzfxm tools
     public default_playlist: Record<number,string> =  {
-            0:`./audio/songs/sanxion.js`,
-            1:"./audio/songs/cuddly.js",
-            2:"./audio/songs/depp.js",
-            3:"./audio/songs/iamback.js"
+            0:`../audio/songs/sanxion.js`,
+            1:"../audio/songs/cuddly.js",
+            2:"../audio/songs/depp.js",
+            3:"../audio/songs/iamback.js"
 
     };
     
@@ -254,20 +254,20 @@ export class Music {
         //use zzfxm synthesiser for music
          
         //error catcher for double music plays
-        if (this.counter == 0){
+        if (this.music_on && this.counter == 0){
     
 
-        // Loads a song via a http get request
-        // bugs:
-        // (1) This creates a bottleneck / noticable lag at the start of the game
+            // Loads a song via a http get request
+            // bugs:
+            // (1) This creates a bottleneck / noticable lag at the start of the game because of the fetch request for the music track
 
-        const load = async ()  => {
-            this.track = this.shuffle(this.default_playlist); // get a random track
+            const load = async ()  => {
+                this.track = this.shuffle(this.default_playlist); // get a random track
 
-            console.log ("track debug : ", this.track);
-            const res = await fetch(this.track);
-            const src = await res.text();
-            return parse(src);
+                console.log ("track debug : ", this.track);
+                const res = await fetch(this.track);
+                const src = await res.text();
+                return parse(src);
         };
 
         // As we're downloading the song as a string, we need to convert it to JSON

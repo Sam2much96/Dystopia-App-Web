@@ -253,7 +253,9 @@ export class OverWorld extends EngineObject{
 
                     if (val === 35){ // first fire tile as enemy spawner placeholder
                     // // supposed to be enemy spawner object but instead it's a single enemy spawner
-                        window.enemy = new Enemy(vec2(5, 10));   
+                        const y = new Enemy(vec2(5, 10));   
+                        window.globals.enemies.push(y);
+                        
                         return
                     }
 
@@ -422,9 +424,14 @@ export class OverWorld extends EngineObject{
     }
 
     destroy(): void {
-        //this.destroy();
+        
         this.tempExtLayer.destroy();
-        window.enemy.destroy();
+        
+        for (const enemy of window.globals.enemies){
+
+            enemy.despawn();
+        }
+        
     }
 }
 

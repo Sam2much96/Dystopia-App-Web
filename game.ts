@@ -308,6 +308,8 @@ function gameInit() {
 
     // UI Setup
     // creates the ui singleton, scenes and global functions
+    // to do: redesign and map ui from figma to here
+    // to do: implement mouse pos for minimap drawing ui
     window.ui = new UI();
     window.useItem = useItem;
 
@@ -409,13 +411,12 @@ function gameRender() {
             // to do: (1) create exit scene
             
             // overworld map 1 works
-            // testing scene transitiion using exit (hole) object
+            //
             window.map = new OverWorld();
-            window.music.play(); //play zzfxm music
-            //window.map = new OverworldSideScrolling();
-            // side sc
             
-            //console.log("map debug: ", window.map);
+            //music play doesnt work? Jul 23, 2025
+            window.music.play(); //play zzfxm music
+            return;
         }
 
         // formerly screen class

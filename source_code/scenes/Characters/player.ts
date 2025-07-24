@@ -1,10 +1,11 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown,drawTile,tile, vec2} = LittleJS;
+const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown, isOverlapping,drawTile,tile, vec2} = LittleJS;
 
 
 //import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
 import { OverWorld } from '../levels/OverworldTopDown';
+import { Enemy } from './enemy';
 
 export class PhysicsObject extends EngineObject {
     /**
@@ -200,32 +201,36 @@ export class Player extends PhysicsObject{
     public RunUp : Array<number> =[3, 4, 5, 6, 7, 8];
     public RunDown : Array<number> =[9, 10, 11, 12, 13, 14, 15];
     public RunLeft : Array<number> =[17, 18, 19, 20, 21, 22];
-    public RunRight : Array<number> =[17, 18, 19, 20, 21, 22];
+    public RunRight : Array<number> =[...this.RunLeft];
     public IdleUp : Array<number> =[2];
     public IdleDown : Array<number> =[0];
     public IdleLeft : Array<number> =[1];
-    public IdleRight : Array<number> =[1];
+    public IdleRight : Array<number> =[...this.IdleLeft];
     public Roll : Array<number> =[0];
     public AttackUp : Array<number> =[36,37,38,39,40,41,42];
-    public AttackDown : Array<number> =[23,24,25,26,27,27,28];
+    public AttackDown : Array<number> =[23,24,25,26,27,28];
     public AttackLeft : Array<number> =[29,30,31,32,33,34,35]; 
-    public AttackRight : Array<number> =[29,30,31,32,33,34,35]; // duplicate of right animatoin with mirror
+    public AttackRight : Array<number> =[...this.AttackLeft];
     public Despawn : Array<number> =[43,44];
     public Dance : Array<number> = [47,48];
 
-    public WALKING :number = 0.03; // walking speed
+    //public WALKING :number = 0.03; // walking speed
 
-        // input controlls
+    // input controlls
     public moveInput : LittleJS.Vector2 = vec2(0);
     public holdingRoll : boolean = false;
     public holdingAttack : boolean = false;
+
+    public Buffer : InputsBuffer = new InputsBuffer();
 
     constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;
         this.mass = 1; //make have dynamic physics
+    
         // store player object in global array
         window.globals.players.push(this);
+
         this.hitpoints = window.globals.health; // global hp singleton 
         // player GUI
         this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
@@ -246,17 +251,17 @@ export class Player extends PhysicsObject{
         if (isTouchDevice){ // touchscreen dpad bindings
             this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
             this.holdingRoll = gamepadIsDown(1); 
-            this.holdingAttack  = gamepadIsDown(2);     
+            this.holdingAttack  = gamepadIsDown(2) || mouseIsDown(0);     
             
             // for debugging player input on mobile
             //logToScreen(this.moveInput);
         }
 
-        if (!isTouchDevice){ // keyboard and mouse bindings
+        else if (!isTouchDevice){ // keyboard and mouse bindings
             //works
             this.moveInput = keyDirection().clampLength(1).scale(.1);
             this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
-            this.holdingAttack = mouseIsDown(0) || keyIsDown('KeyX');
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
         }
 
 
@@ -360,71 +365,30 @@ export class TopDownPlayer extends Player {
         //Gets Delta Time calculation from Simulation singleton
         //this.frameCounter += window.simulation.deltaTime!; //accumulate elasped time
 
-        // velocity logic
-        // move input is the key direction serialised in to vector 2 positions
-       // apply walking physics
-        this.State()["STATE_WALKING"]();
-        //super.update();
-        /**
-         * Simple State Machine
-         * 
-         * Features:
-         * 
-         * (1) Plays the player animation
-         * (2) Manages & Stores the Player's state
-         * 
-         */
-        // Simple State Machine Logic
-        // triggers the state machine logic
-        // feeds the input state into the state machine logics
-        // match inputs and match state
-        // bug:
-        // (1) theres a time lag between the button pressed and button released causing a stuck idle bug
+       
         
-        //let inputState : number = this.input.getState();
+            
         
-        // to do: (1) fix stuck idle state bug and input buffer spammer
-        //console.log("stae debug 12: ", sstate, "/", this.input.get_Buffer());
-        
-        //console.log("state debug: ", inputState);
-        // gets the input state from the singleton
-        // passes it as a parameter to the state machine logic
-        // would break with the below error if the state doesn't exist
-        // error :  game.ts:2172:16 Uncaught TypeError: this.facing[inputState] is not a function
-        
-        
-        
-
-        // TO DO: 
-        // (1) Move to simulation singleton
-        // player hit collision detection
-        // detects collision between any enemy in the global enemies pool
-        //for (let i = 0; i < window.globals.enemies.length; i++) {
-        // 
-        // to do:
-        // (1) recorganise code architechture to work with multiple enemies using object pooling
-        // (2) i'm temporarily disabling that to quicky hack hit collision logic for one enemy
-        
-        /** 
-        if (window.enemy){ //&& inputState == 4
-            if (LittleJS.isOverlapping(this.pos, this.size, window.enemy.pos, window.enemy.size) ) { // if hit collission and attack state
-                    //console.log("Player Hit Collision Detection Triggered");
-
-                    // Attack
-                    // reduce enemy health
-                    window.enemy.hitpoints -= 1;
-
-                    window.enemy.kickback();
-
-                    //hit register
-
-
-                    //sfx
-                    window.music.hit_sfx[2].play();
-                }
+        if (this.moveInput.x == 0 && this.moveInput.y == 0 && !this.holdingAttack){
+            
+            //console.log("idle debug: ");
+            //apply idle state
+            this.State()["STATE_IDLE"]();
 
         }
-                */
+        
+        if (this.holdingAttack){
+            //bug: (1) attack down animation has a stuck frame bug?
+            //console.log("attack debug: ", this.holdingAttack); // works
+            this.State()["STATE_ATTACK"]();
+        }
+
+        // velocity logic
+        // move input is the key direction serialised in to vector 2 positions
+        // apply walking physics
+        this.State()["STATE_WALKING"]();
+        
+
 
     }
 
@@ -467,6 +431,27 @@ export class TopDownPlayer extends Player {
             },
 
             "STATE_IDLE" : () => {
+
+                // logic:
+                // get the current facing direction
+                // play the appropriate facing idle animation 
+                // match the player's facing animation to the attack animation
+                if (this.facingPos == 0){
+                    this.mirror = false;
+                    this.playAnim(this.IdleUp)
+                }
+                if (this.facingPos == 1){
+                    this.mirror = false;
+                    this.playAnim(this.IdleDown)
+                }
+                if (this.facingPos == 2){
+                    this.mirror = true;
+                    this.playAnim(this.IdleLeft);
+                }
+                if (this.facingPos == 3){
+                    this.mirror = false;
+                    this.playAnim(this.IdleRight);
+                }
             },
 
             "STATE_WALKING" : () => {
@@ -494,14 +479,18 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.RunLeft);
 
                     //save previous facing data for idle state
-                    //this.facingPos = 2;
+                    this.facingPos = 2;
+
+                    // save input to buffer
+                    this.Buffer.idle();
                 }
                 if (this.velocity.x === 0.1){
                     this.mirror =  false;
                     this.playAnim(this.RunRight);
 
                     //save previous facing data for idle state
-                    //this.facingPos = 3;
+                    this.facingPos = 3;
+                    this.Buffer.right();
                 }
                 if (this.velocity.y === 0.1){
                     // dbug the animation frames
@@ -512,7 +501,8 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.RunUp);
 
                     //save previous facing data for idle state
-                    //this.facingPos = 0;
+                    this.facingPos = 0;
+                    this.Buffer.up();
                 }
                 if (this.velocity.y === -0.1){
 
@@ -522,7 +512,8 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.RunDown);
 
                     //save previous facing data for idle state
-                    //this.facingPos = 1;
+                    this.facingPos = 1;
+                    this.Buffer.down();
                 }
 
                 
@@ -534,6 +525,8 @@ export class TopDownPlayer extends Player {
 
             "STATE_ATTACK" : () => {
                 //console.log("attack state triggered");
+                // input buffer
+                this.Buffer.attack();
 
                 // logic:
                 // get the current facing direction
@@ -555,6 +548,31 @@ export class TopDownPlayer extends Player {
                     this.mirror = false;
                     this.playAnim(this.AttackRight);
                 }
+
+                for (const enemy of window.globals.enemies){
+
+                    //console.log("eneemy debug: ", enemy.pos);
+                    //bug: checks for only one player and doesn't account for multiple players
+                    if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
+                        //console.log("Player Hit Collision Detection Triggered");
+
+                        // Attack
+                        // reduce enemy health
+                        enemy.hitpoints -= 1;
+
+                        enemy.kickback();
+
+                        //hit register
+
+
+                        //sfx
+                        window.music.hit_sfx[2].play();
+                }
+
+
+                }
+
+                
             }
         }
     }
@@ -617,7 +635,7 @@ export class SideScrollPlayer extends Player {
                 
                 // detect if player is on ground and apply jump physics
                 if (this.groundObject && this.holdingRoll){
-                    console.log("jump physics triggered");
+                    //console.log("jump physics triggered");
                     this.velocity.y = .9; 
                 }
 
@@ -632,6 +650,8 @@ export class SideScrollPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 2;
+
+                    this.Buffer.left();
                 }
 
                 if (this.velocity.x > 0){ 
@@ -642,6 +662,8 @@ export class SideScrollPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 2;
+
+                    this.Buffer.right();
                 }
 
                 //for debug purposes only
