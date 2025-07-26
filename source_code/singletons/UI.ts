@@ -364,10 +364,13 @@ export class UI  {
                     window.music.sound_start.play();
                 });
 
+        // temporarily disabled for yandex games implementation
+        /**         
         this.Comics = this.createMenuOption("Comics", "#", () => {
             window.open("https://dystopia-app.site", "_blank");
         });
-
+        */
+       
         this.Controls = this.createMenuOption("Controls", "#", () => {
             window.music.sound_start.play();
         });

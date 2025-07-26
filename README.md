@@ -48,5 +48,11 @@ the game fetches all assets from the /public directory in the vercel server buil
 
 The game runs well on PC browsers bug lags on mobile browsers. It would require optimzation
 and proper memory management of code engine elements including the 3d rendering engine, the 3d level design,
-the font loading also lags. There's also a periodic lag that i suspect had to do with the simulation singleton 
-delta time that's needed for animation.
+the font loading also lags. There's also a periodic lag that i suspect had to do with the simulation singleton
+delta time that's needed for animation. Remove unused dependencies using dep check
+run `$npx depcheck ` and `$npm uninstall <unused deps>`
+
+5. **Monetization Bugs**
+
+The yandex build will throw errors if any external url is built into the game. You can check this by
+Ctrl + F in VsCode. Then check for any http:// or https:// dependencies and remove them

@@ -117,8 +117,8 @@ export class Enemy extends PhysicsObject {
         //window.globals.enemies.push(this);
 
 
-        // store player object in global array
-        window.globals.enemies.push(this);
+        // store player object in global array when instanced
+       // window.globals.enemies.push(this);
 
 
         // Enemy State Machine initialisation

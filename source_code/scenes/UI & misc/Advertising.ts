@@ -1,9 +1,14 @@
 // Import necessary SDK module types.
 import type { SDK, Player } from 'ysdk';
 
-import { FB } from './facebook-sdk';
 
 
+//import { FB } from './facebook-sdk';
+
+// note: facebook app id is : 1271967600833599
+// note: fix version has no source for yandex games submission
+//  - check the docs for uploading a valid build
+// new error:  Service storage URL detected
 export class Ads {
     /**
      * Yandex Games Ads implementation
@@ -12,51 +17,31 @@ export class Ads {
      * (1) show advertising on title screen
      * (2) integrate shop with yandex games shop impl (1/5)
      * (3) integrate with facebook instant games & facebook sdk (1/3)
+     * 
+     * 
+     * Facebook Games Integrations
+     * (1) Integrates intersitial ads and rewarded videoa ds into the game 
      */
-    private ysdk : any;
+    private ysdk : SDK | undefined ; //= await YaGames.init();
     
 
     constructor(){}
 
     async initSDK() : Promise<void>  {
       
-        // Example of using the SDK with types.
-        this.ysdk = await YaGames.init();
-        
-        this.ysdk.adv.showFullscreenAdv({
-            callbacks: {
-                onClose : () => {
-                    console.info("First close Debug");
-                }
-            }
-        });
-        
-        //const player: Player = await ysdk.getPlayer();
+    if (typeof window.YaGames !== 'undefined') {
+        this.ysdk = await window.YaGames.init();
+        // Proceed with SDK usage
+    } else {
+        console.warn("YaGames SDK is not available. Are you running locally?");
+    }
     }
 
 
-    async FacebookInit() {
-        await FB.initializeAsync();
-        FB.setLoadingProgress(100);
-        await FB.startGameAsync();
 
-        console.log('Player ID:', FB.player.getID());
-    }
-
-    async showRewardedAd() {
-        const ad = await FB.getRewardedVideoAsync('YOUR_PLACEMENT_ID');
-        await ad.loadAsync();
-        await ad.showAsync();
-    }
-
-    async postScore() {
-        const leaderboard = await FB.getLeaderboardAsync('global');
-        await leaderboard.setScoreAsync(1234);
-    }
-
-    async buyItem(productID: string) {
-        await FB.payments.purchaseAsync({ productID });
-    }
+    
 
 
 }
+
+

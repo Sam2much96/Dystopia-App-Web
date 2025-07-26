@@ -10,7 +10,7 @@
     <meta charset=utf-8>
     <meta name=apple-mobile-web-app-capable content=yes>
     <meta name=mobile-web-app-capable content=yes>
-    <link rel=icon type=image/png href=https://dystopia-app.online/favicon.png>
+    <link rel=icon type=image/png href=./favicon.png>
     <link rel="stylesheet" href="source_code/styles/styles.css">
 
     <!-- SEO optimisation for google and older search engines-->
@@ -19,26 +19,19 @@
         content="Dystopia App, game, webgame ,cyberpunk, webcomic, dystopian, sci-fi, adventure, anime, cartoon">
     <meta property="og:title" content="Dystopia App - Gameboy Survival RPG Game">
     <meta property="og:description" content="A thrilling cyberpunk web game about survival in a dystopian world.">
-    <meta property="og:image" content="https://dystopia-app.online/title-art_2.jpg">
-    <meta property="og:url" content="https://dystopia-app.online">
+    <meta property="og:image" content="./title-art_2.jpg">
+    <meta property="og:url" content="">
 
     <!-- Twitter Card SEO -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Dystopia App - Cyberpunk WebGame">
     <meta name="twitter:description"
         content="Play Dystopia App, a Gameboy style survival cyberpunk adventure. You are a 4th WOrlder, Survive!">
-    <meta name="twitter:image" content="https://dystopia-app.online/title-art_2.jpg">
+    <meta name="twitter:image" content="./title-art_2.jpg">
 
 
-    <!-- Google tag (gtag.js) for google analytics-->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
 
-        gtag('config', 'G-4XTFM74YY1');
-    </script>
+
 </head>
 
 <body>
@@ -67,6 +60,56 @@
     
     <!-- Mobile Debug -->
     <div id="debug"></div>
-    <!-- Telegram game integration -->
-    <!--<script src="https://telegram.org/js/games.js"></script> -->
+
+    <!-- Yandex Games SDK -->
+    <script src="https://sdk.games.s3.yandex.net/sdk.js"></script>
+    <script type="text/javascript">
+    // Wait until the Yandex SDK is available
+    window.onload = () => {
+      if (typeof YaGames !== 'undefined') {
+        YaGames.init().then(sdk => {
+          console.log('Yandex SDK initialized');
+
+          // Save the SDK for later use
+          window.ysdk = sdk;
+
+          // Optional: show an interstitial ad
+          sdk.adv.showFullscreenAdv({
+            callbacks: {
+              onOpen: () => console.log('Ad opened'),
+              onClose: wasShown => console.log('Ad closed, wasShown:', wasShown),
+              onError: err => console.error('Ad error:', err)
+            }
+          });
+        });
+      } else {
+        console.error('YaGames is not defined');
+      }
+    };
+  </script>
+  <!-- Statically preload all image files-->
+  <img src="./player_tileset_128x128.webp" style="display:none">
+  <img src="./enemy_tileset_128x128.webp" style="display:none">
+  <img src="./godot_128x_dungeon_tileset.webp" style="display:none">
+  <img src="./tiles.png" style="display:none">
+  <img src="./btn-mask.png" style="display: none;">
+  <img src="./btn-interact.png" style="display: none;">
+  <img src="./btn-mask.png" style="display: none;">
+  <img src="./menu white.png" style="display: none;">
+  <img src="./btn-stats.png" style="display: none;">
+
+
+  <!-- all 3d model files-->
+  <link href="./overworld_map.glb" as="fetch" type="model/gltf-binary">
+
+  <!-- all json files (2d levels )-->
+  <link href="./overworld.json" as="fetch" type="application/json" crossorigin="anonymous">
+  <link href="./OverworldSideScrolling.json" as="fetch" type="application/json" crossorigin="anonymous">
+
+  <!-- all audio files-->
+  <script src="./audio/songs/depp.js" ></script>
+  <script src="./audio/songs/sanxion.js"></script>
+  <script src="./audio/songs/cuddly.js" ></script>
+  <script src="./audio/songs/iamback.js"></script>
+  
 </body>

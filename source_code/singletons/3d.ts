@@ -28,7 +28,8 @@ export class ThreeRender {
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private cube: any | null;
-
+    private gltf: any | undefined;
+    private threejsLayer : HTMLElement | null = document.getElementById("threejs-layer"); // get the renderer's DOM element 
     constructor() {
         //super();
         // create a global threejs object
@@ -48,10 +49,9 @@ export class ThreeRender {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         // Append the renderer's DOM element to your target layer
-        const threejsLayer = document.getElementById("threejs-layer");
 
-        if (threejsLayer) {
-            threejsLayer.appendChild(this.renderer.domElement);
+        if (this.threejsLayer) {
+            this.threejsLayer.appendChild(this.renderer.domElement);
         } else {
             console.error("Three.js layer element not found.");
         }
@@ -86,7 +86,7 @@ export class ThreeRender {
         const loader = new GLTFLoader;
         const DEBUG = false;
         loader.load(
-            'overworld_map.glb',
+            './overworld_map.glb',
             (gltf) => {
                 if (DEBUG) {
 
@@ -104,12 +104,13 @@ export class ThreeRender {
                 }
 
                 // save scene as global pointer
-                if (gltf.scene instanceof THREE.Mesh) {
-                    this.cube = gltf.scene;
-                } else {
-                    console.error("gltf.scene is not a Mesh");
-                    this.cube = gltf.scene;
-                }
+                //if (gltf.scene instanceof THREE.Mesh) {
+                //    this.cube = gltf.scene;
+                                   
+                this.cube = gltf.scene;
+                    
+                console.log("Finished loading model", this.cube);
+                
 
                 //this.cube = gltf.scene; // save scene as global pointer
 
@@ -123,7 +124,7 @@ export class ThreeRender {
             }
         );
 
-        console.log("Finished loading model", this.cube);
+       
 
     }
 

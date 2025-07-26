@@ -1,7 +1,7 @@
 import * as LittleJS from 'littlejsengine';
 const {Sound , setSoundVolume,setSoundEnable} = LittleJS;
-import { zzfxM } from '../audio/zzfxm';
-import {zzfxP, zzfxX} from  "../audio/zzfx";
+import { zzfxM } from './zzfxm';
+import {zzfxP, zzfxX} from  "./zzfx";
 
 
 
@@ -48,10 +48,10 @@ export class Music {
     // to do:
     // (1) track the new beats in Zzfxm tools
     public default_playlist: Record<number,string> =  {
-            0:`../audio/songs/sanxion.js`,
-            1:"../audio/songs/cuddly.js",
-            2:"../audio/songs/depp.js",
-            3:"../audio/songs/iamback.js"
+            0:`./audio/songs/sanxion.js`,
+            1:"./audio/songs/cuddly.js",
+            2:"./audio/songs/depp.js",
+            3:"./audio/songs/iamback.js"
 
     };
     
@@ -245,6 +245,30 @@ export class Music {
     
     play_sfx(){}
 
+    
+    unsafeParse(str: string) : any {
+
+            //console.log(str);
+            // regex process the song files
+            // bug :
+            // (1) regex logic creates whitespace bug when parsing json
+            str = str.replace(/\[,/g,'[null,')
+            .replace(/,,\]/g,',null]')
+            .replace(/,\s*(?=[,\]])/g,',null')
+            .replace(/([\[,]-?)(?=\.)/g,'$10')
+            .replace(/-\./g,'-0.')
+            .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
+
+
+            return JSON.parse(str, (key, value) => {
+            if (value === null) {
+                return undefined;
+            }
+            return value;
+            });
+        };
+
+
     async play(){
 
         //console.log("Initialising song player 2", this.counter);
@@ -267,36 +291,19 @@ export class Music {
                 console.log ("track debug : ", this.track);
                 const res = await fetch(this.track);
                 const src = await res.text();
-                return parse(src);
-        };
+                
+                
+                // parsing of audio files breaks in final build
+                return this.unsafeParse(src); 
+                
+            };
 
         // As we're downloading the song as a string, we need to convert it to JSON
         // before we can play it.
         //
         // This step isn't required when embedding a song directly into your
         // production.
-        const parse = (str: string) => {
 
-            // regex process the song files
-            // bug :
-            // (1) regex logic creates whitespace bug when parsing json
-            str = str.replace(/\[,/g,'[null,')
-            .replace(/,,\]/g,',null]')
-            .replace(/,\s*(?=[,\]])/g,',null')
-            .replace(/([\[,]-?)(?=\.)/g,'$10')
-            .replace(/-\./g,'-0.')
-            .replace(/\/\/# sourceMappingURL=.*$/gm, ''); //whitespace fixed
-
-            //
-            //console.log("song debug: ",str);
-
-            return JSON.parse(str, (key, value) => {
-            if (value === null) {
-                return undefined;
-            }
-            return value;
-            });
-        };
 
 
         

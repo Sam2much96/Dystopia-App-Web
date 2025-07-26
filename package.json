@@ -14,21 +14,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/howler": "^2.2.12",
     "@types/node": "^22.10.7",
     "@types/three": "^0.172.0",
     "typescript": "^5.7.3",
-    "vite": "^6.0.9",
-    "vite-plugin-cdn-import": "^1.0.1"
+    "vite": "^6.0.9"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-utils": "^8.1.0",
-    "@kayahr/tiled": "^0.0.1",
-    "@perawallet/connect": "^1.4.1",
     "@types/ysdk": "^1.1.0",
-    "algosdk": "^3.1.0",
-    "buffer": "^6.0.3",
-    "howler": "^2.2.4",
     "littlejsengine": "^1.11.8",
     "three": "^0.172.0"
   }

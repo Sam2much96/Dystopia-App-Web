@@ -52,6 +52,7 @@ import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
 import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
 
+//import {Ads} from "./source_code/scenes/UI & misc/Advertising";
 'use strict';
 
 
@@ -61,14 +62,49 @@ import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideS
 setShowSplashScreen(false);
 
 
+/**
+ * <!-- Yandex Games SDK -->
+    <script src="https://sdk.games.s3.yandex.net/sdk.js"></script>
+    <script type="text/javascript">
+    // Wait until the Yandex SDK is available
+    window.onload = () => {
+      if (typeof YaGames !== 'undefined') {
+        YaGames.init().then(sdk => {
+          console.log('Yandex SDK initialized');
+
+          // Save the SDK for later use
+          window.ysdk = sdk;
+
+          // Optional: show an interstitial ad
+          sdk.adv.showFullscreenAdv({
+            callbacks: {
+              onOpen: () => console.log('Ad opened'),
+              onClose: wasShown => console.log('Ad closed, wasShown:', wasShown),
+              onError: err => console.error('Ad error:', err)
+            }
+          });
+        });
+      } else {
+        console.error('YaGames is not defined');
+      }
+    };
+  </script>
+ */
 
 
+/**
+ *     <!-- Google tag (gtag.js) for google analytics disabled for yandex games build
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-class Quest {
-
-}
-
-
+        gtag('config', 'G-4XTFM74YY1');
+    </script>
+    -->
+ * 
+ */
 
 
 class GameObject extends EngineObject {
@@ -146,14 +182,17 @@ declare global {
         globals: Globals,
         utils: Utils,
         music: Music,
-        //input: Inputs,
+        //ads: Ads,
         player: Player,
-        enemy: Enemy,
+        //enemy: Array<Enemy>,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling;
         simulation: Simulation;
 
         useItem: any; 
+        YaGames?: {
+            init(): Promise<import('ysdk').SDK>;
+        };
 
     }
 
@@ -280,6 +319,8 @@ export function useItem(type :string, amount : number ) : boolean {
 
 
 
+
+
 /*
 * LittleJS Main Loop
 * 
@@ -319,8 +360,8 @@ function gameInit() {
     window.ui.gameHUD();
 
 
-    /* Create Global Singletons*/
-    //window.input = new Inputs();
+    //window.ads.FacebookInit();
+
     window.inventory = new Inventory;
     window.globals = new Globals;
     window.utils = new Utils;
@@ -329,14 +370,15 @@ function gameInit() {
 
   
 
-    window.wallet = new Wallet(false);
+    //window.wallet = new Wallet(false);
 
     //get device browser type/ platform
     window.utils.detectBrowser();
 
 
-
-
+    // ads testing disabled Jul 26/2025
+    //const t = new Ads();
+    //t.initSDK();
 
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
@@ -368,9 +410,7 @@ function gameInit() {
     //Ads
     // to do: 
     // (1) port ads mediator to yandex
-    //buggy & performance hog
-    //const ads = new Adsense();
-    //ads.loadAdSense();
+  
 
 
 
@@ -414,7 +454,7 @@ function gameRender() {
             //
             window.map = new OverWorld();
             
-            //music play doesnt work? Jul 23, 2025
+            
             window.music.play(); //play zzfxm music
             return;
         }
@@ -469,11 +509,13 @@ function gameRenderPost() {
 }
 
 
+
+
 // Startup LittleJS Engine
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
 // tiles.png is a placeholder until proper file name management is donew for game init
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["player_tileset_128x128.webp", "enemy_tileset_128x128.webp", "godot_128x_dungeon_tileset.webp"]);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp"]);
 
 
 

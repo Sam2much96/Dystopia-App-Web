@@ -1,5 +1,5 @@
-import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
-import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
+//import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
+//import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
 
 
 export class Wallet {
@@ -32,7 +32,7 @@ export class Wallet {
     //    ["All Networks", 4160]
     //]) ;
 
-    public peraWallet: PeraWalletConnect | null = null;
+    public peraWallet: any | null = null;
     public algorand: any | null = null;
     public algodClient: any | null = null;
     public indexerClient: any | null = null;
@@ -47,13 +47,13 @@ export class Wallet {
         //console.log("Testing Wallet Integration");
 
         // initialise wallet connect and save player address
-        this.peraWallet = new PeraWalletConnect({
-            chainId: 4160, // All Net
-            shouldShowSignTxnToast: true,
-        });
+        //this.peraWallet = new PeraWalletConnect({
+        //    chainId: 4160, // All Net
+        //    shouldShowSignTxnToast: true,
+        //});
 
         if (client == true) {
-            this.algorand = AlgorandClient.mainNet(); //connect to mainnet
+            this.algorand = null//AlgorandClient.mainNet(); //connect to mainnet
 
             // get algod parameters
             this.algodClient = this.algorand.client.algod;

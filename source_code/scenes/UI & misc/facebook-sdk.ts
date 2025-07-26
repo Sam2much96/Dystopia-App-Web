@@ -1,3 +1,15 @@
+/**
+ * 
+    Features: 
+    This provides a class wrapper for:
+
+    Initializing the Facebook SDK
+
+    Accessing player info
+
+    Logging analytics events
+ * 
+ */
 // facebook-sdk.ts
 
 type FBGameContextType = 'POST' | 'THREAD' | 'GROUP' | 'SOLO';
@@ -80,6 +92,11 @@ interface FBInstantAPI {
 }
 
 // Fallback mock for local development
+/**
+ * Auto-Switch Between Real and Mock for Localhost
+
+    Enhance the SDK to auto-detect if it's in localhost and inject mocks:
+ */
 const mockFBInstant: FBInstantAPI = {
     initializeAsync: async () => {
         console.warn('FBInstant mock: initializeAsync');
