@@ -8,7 +8,7 @@
 body {
     margin: 0;
     overflow: hidden;
-    font-family: 'Comic Andy', sans-serif;
+    font-family: 'Comic Andy';
     src: url("./Comic_Andy.ttf");
     background-color: #111;
     margin: 0;
