@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable, mouseIsDown, keyIsDown, gamepadIsDown, isOverlapping,drawTile,tile, vec2} = LittleJS;
+const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice, keyDirection, vibrate, mouseIsDown, keyIsDown, gamepadIsDown, isOverlapping,drawTile,tile, vec2} = LittleJS;
 
 
 //import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
@@ -27,13 +27,6 @@ export class PhysicsObject extends EngineObject {
         this.mass = 0; // make object have static physics
 
 
-        // Game Pad on Mobile Devices Settings
-        setTouchGamepadEnable(true);
-        setTouchGamepadSize(256);
-        setTouchGamepadAlpha(0.3);
-
-        // set dpad configuration on mobile browsers 
-        setTouchGamepadAnalog(false);
         
     }
 
@@ -251,7 +244,7 @@ export class Player extends PhysicsObject{
         if (isTouchDevice){ // touchscreen dpad bindings
             this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
             this.holdingRoll = gamepadIsDown(1); 
-            this.holdingAttack  = gamepadIsDown(2) || mouseIsDown(0);     
+            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
             
             // for debugging player input on mobile
             //logToScreen(this.moveInput);
@@ -591,8 +584,7 @@ export class SideScrollPlayer extends Player {
      * (2) Jumping physics
      * 
      */
-    groundObject : any | undefined;
-
+    
     constructor(pos : LittleJS.Vector2){
         super(pos);
         
