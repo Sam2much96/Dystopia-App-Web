@@ -59,7 +59,7 @@ export class OverWorld extends EngineObject{
         */
     
     LevelSize: LittleJS.Vector2 | null = null;
-    tempExtLayer: LittleJS.TileLayer | null = null;
+    tempExtLayer: LittleJS.TileLayer | undefined;
     ground_layer: number[][] = []; // matrix data type
     
     constructor() {
@@ -81,18 +81,17 @@ export class OverWorld extends EngineObject{
 
             if (!response.ok) throw new Error("Network Error");
             const overMap = await response.json();
+            
             console.log('Map data:', overMap);
 
             this.LevelSize = vec2(overMap.width, overMap.height);
 
-            // drawing more than one tile bugs out on mobile browsers
-            this.tempExtLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
-
-                // TO DO:
-                // (1) Organise debug for logic arrangement (1/2)
-                // (2) Recusively handle data chunks with the appropriate algorithm
+            //if (!this.tempExtLayer) throw new Error("Layer Loading Error");
             
-            //console.log("Layer count:", this.layerCount);
+            // drawing more than one tile bugs out on mobile browsers
+            const tempExtLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
+            this.tempExtLayer = tempExtLayer;
+            
             console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
 
@@ -100,27 +99,10 @@ export class OverWorld extends EngineObject{
             initTileCollision(vec2(overMap.width,overMap.height));
             
                     
-            const chunkArray = (array : any, chunkSize : any) => {
-                const numberOfChunks = Math.ceil(array.length / chunkSize)
-
-                return [...Array(numberOfChunks)]
-                    .map((value, index) => {
-                    return array.slice(index * chunkSize, (index + 1) * chunkSize)
-                    })
-            }
-
-            const drawMapTile = (pos : any, i = 80, layer : any, collision = 1) => {
-                const tileIndex = i;
-                const data = new TileLayerData(tileIndex);
-                layer.setData(pos, data);
-                if (collision) {
-                setTileCollisionData(pos, collision);
-                }
-            }
 
             
             
-            this.ground_layer = chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
+            this.ground_layer = this.chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
             
             
             // to do : (1) create a tile lookup for the trees and replace if conditionals
@@ -142,14 +124,14 @@ export class OverWorld extends EngineObject{
                          * 
                          */
                         if (val === 2){ // skull head
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val ===3 ){ // signpost
                             // signpost tile draws with collision
                             // to do : (1) replace tile collision with signpost object that triggers a dialog box
                             console.log("to do : (1) replace tile collision with signpost object that triggers a dialog box"); 
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val ===4){ // hole object
@@ -159,21 +141,21 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val === 8 ){ // boulder
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 10){ // trees
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 11){ // mushroom big
                             // tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 12){ // mushroom small
                             // mushroom small tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
@@ -187,30 +169,30 @@ export class OverWorld extends EngineObject{
 
                         if (val === 15){ // temp ext tile
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 16){ // temp ext tile
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 17){ // temp ext tile
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 18){ // temp ext
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 19){ // temp ext
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 20){ // temp ext
                             // trees tile draws with collision
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         //21 is bomb
                         if (val ===21){ // bomb object
@@ -245,25 +227,25 @@ export class OverWorld extends EngineObject{
                             return
                         }
                         if (val === 29){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 30){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 31){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 32){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 33){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 34){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
 
                         if (val === 35){ // first fire tile as enemy spawner placeholder
@@ -275,30 +257,30 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val === 43){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 44){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 45){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 46){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 47){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 48){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
 
                         if (val === 49){ // house 1 tile
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 50){ // house 2 tile
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         if (val === 51){ // generic item object
@@ -307,60 +289,60 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val === 57){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 58){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 59){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 60){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 61){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 62){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 71){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 72){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 73){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 75){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 76){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 85){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 86){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 87){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 88){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 89){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
                         if (val === 90){ // temple exterior
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
 
                         else {
                             //console.log("tile debug: ", val);
-                            drawMapTile(vec2(x, y), val - 1, this.tempExtLayer, 0); // 0 is for no collision, 1 is for collision
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0); // 0 is for no collision, 1 is for collision
                         }
                         }})});
                         
@@ -386,7 +368,7 @@ export class OverWorld extends EngineObject{
 
     }
 
-    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: boolean) {
+    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
             chunks.forEach(chunk => {
                 
                 // breaks here
@@ -426,7 +408,7 @@ export class OverWorld extends EngineObject{
             })
     }
 
-    drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : boolean) {
+    drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {
         
         // docs:
         // (1) tile index is the current tile to draw on the tile layer
