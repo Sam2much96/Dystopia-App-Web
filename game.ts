@@ -29,7 +29,7 @@ import * as LittleJS from 'littlejsengine';
 
 
 
-const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , ,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
+const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , setTouchGamepadAlpha, setTouchGamepadAnalog,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
 
 
 
