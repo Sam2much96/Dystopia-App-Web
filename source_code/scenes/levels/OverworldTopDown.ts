@@ -7,7 +7,7 @@ const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisio
 
 
 // all items used in this level
-//import overMap from "./overworld.json";
+import overMap from "./overworld.json";
 
 
 
@@ -77,10 +77,10 @@ export class OverWorld extends EngineObject{
         //all assets are also preloaded        
         try {
 
-            const response = await fetch("./overworld.json");
+            //const response = await fetch("./overworld.json");
 
-            if (!response.ok) throw new Error("Network Error");
-            const overMap = await response.json();
+            //if (!response.ok) throw new Error("Network Error");
+            //const overMap = await response.json();
             
             console.log('Map data:', overMap);
 

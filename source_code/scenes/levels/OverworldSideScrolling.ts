@@ -2,7 +2,7 @@ import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, mainContext, setGravity,TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
-//import overMap from "./OverworldSideScrolling.json";
+import overMap from "./OverworldSideScrolling.json";
 
 import {SideScrollPlayer} from "../Characters/player";
 
@@ -33,11 +33,11 @@ export class OverworldSideScrolling extends EngineObject {
 
     async loadMap(){
         try {
-            const response = await fetch("./OverworldSideScrolling.json");
+            //const response = await fetch("./OverworldSideScrolling.json");
 
-            if (!response.ok) throw new Error("Network Error");
-            const overMap = await response.json();
-            console.log('Map data:', overMap);
+            //if (!response.ok) throw new Error("Network Error");
+            //const overMap = await response.json();
+            //console.log('Map data:', overMap);
 
             //to do: (1) draw parallax backgrounds
 
