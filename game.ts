@@ -29,7 +29,7 @@ import * as LittleJS from 'littlejsengine';
 
 
 
-const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit } = LittleJS;
+const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , ,setTouchGamepadAlpha, setTouchGamepadAnalog,vibrate,keyDirection,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
 
 
 
@@ -40,7 +40,7 @@ import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
 import {Globals} from "./source_code/singletons/Globals";
 import {Inventory} from "./source_code/singletons/Inventory";
-//import {Inputs} from "./source_code/singletons/Inputs";
+
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
@@ -61,6 +61,13 @@ import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideS
 // show the LittleJS splash screen
 setShowSplashScreen(false);
 
+// Game Pad on Mobile Devices Settings
+setTouchGamepadEnable(true);
+setTouchGamepadSize(256);
+setTouchGamepadAlpha(0.3);
+
+// set dpad configuration on mobile browsers 
+setTouchGamepadAnalog(false);
 
 /**
  * <!-- Yandex Games SDK -->
