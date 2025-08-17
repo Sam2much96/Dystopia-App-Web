@@ -66,6 +66,7 @@ export class OverWorld extends EngineObject{
     tempExtLayer: LittleJS.TileLayer | undefined;
     ground_layer: number[][] = []; // matrix data type
     
+    levelObjects : any[] | null = []; // for storing all the spawned object
 
     constructor() {
         super();
@@ -136,6 +137,8 @@ export class OverWorld extends EngineObject{
 
                         if (val ===4){ // hole object
                             const l = new Hole(vec2(x,y));
+
+                            this.levelObjects?.push(l);
                             return
 
                         }
@@ -162,6 +165,8 @@ export class OverWorld extends EngineObject{
                             
                             //console.log("player spawn tile debug :", val, "/", x,",", y);
                             window.player = new TopDownPlayer(vec2(x,y));
+                            
+                            this.levelObjects?.push(window.player);
                             return
                         }
 
@@ -199,12 +204,15 @@ export class OverWorld extends EngineObject{
 
                             // works
                             const u = new Bomb(vec2(x, y));
+
+                            this.levelObjects?.push(u);
                             return
 
                         }
                         if (val === 22){ // 22 is health potion
 
                             const o = new HealthPotion(vec2(x,y));
+                            this.levelObjects?.push(o);
                             return
                         }
 
@@ -212,18 +220,21 @@ export class OverWorld extends EngineObject{
                         if (val === 23){ // coins
                             // coins object
                             const t = new Coins( vec2(x, y)); 
+                            this.levelObjects?.push(t);
                             return
 
                         }
                         if (val === 24){ // arrow
                             // arrow object
                             const p = new Arrow(vec2(x,y));
+                            this.levelObjects?.push(p);
                             return
                         }
                         
                         if (val === 25){
                             // bow object
                             const i = new Bow(vec2(x, y));
+                            this.levelObjects?.push(i);
                             return
                         }
                         if (val === 29){ // temple exterior
@@ -253,7 +264,7 @@ export class OverWorld extends EngineObject{
                             //const y = new Enemy(vec2(5, 10));   
                             //window.globals.enemies.push(y);
                             const i = new EnemySpawner(vec2(x, y));
-
+                            this.levelObjects?.push(i);
                             return
                         }
 
@@ -288,6 +299,7 @@ export class OverWorld extends EngineObject{
 
                         if (val === 51){ // generic item object
                             const j = new GenericItem(vec2(x,y));
+                            this.levelObjects?.push(j);
                             return
                         }
 
@@ -442,6 +454,11 @@ export class OverWorld extends EngineObject{
             enemy.despawn();
         }
         
+        if (this.levelObjects){
+            for (const i of this.levelObjects!){
+                i.destroy();
+                this.levelObjects = null;
+            }}
     }
 }
 

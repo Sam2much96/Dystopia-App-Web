@@ -11,13 +11,11 @@ Main Game Logic
 
 Bugs
 
-(1) Overworld load times on mobile browsers is long
-(2) Buttons aren't interractive, add sfx
-(3) Input is terrible on mobile browsers
+
+(3) Input is terrible on mobile browsers (1/2)
 
 
 To Do:
-(1) import only the modules you need for faster load time
 (2) Implement yandex ads services
 (3) Create global sprite atlas for each tileset in game init
 
@@ -232,8 +230,6 @@ function gameInit() {
     window.ui.ingameMenu();
     window.ui.gameHUD();
 
-
-    //window.ads.FacebookInit();
 
     window.inventory = new Inventory;
     window.globals = new Globals;
@@ -451,10 +447,9 @@ function gameRenderPost() {
 
 
 // Startup LittleJS Engine
-// I can pass in the tilemap and sprite sheet directly to the engine as arrays
-// i can also convert tile data to json from tiled editor and parse that instead
-// tiles.png is a placeholder until proper file name management is donew for game init
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.png"]);
+// I pass in the tilemap and image data directly to the engine as arrays
+
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.webp"]);
 
 
 

@@ -97,6 +97,7 @@ export class Inventory {
         // Clear previous inventory UI
         //this.inventoryUI.innerHTML = '';
         
+        // connect UI inventory buttons to useItem function
         // Loop through items and create a button for each
         // bug : (1) increases inventory item instead of decreasing it
         Object.entries(this.getAllItems()).forEach(([name, count]) => {
@@ -110,7 +111,8 @@ export class Inventory {
                 
                 // You can trigger item usage, show details, etc. here
                 // bug: (1) triggers addition by when called from ui
-                this.use(name, 1);
+                //this.use(name, 1);
+                useItem(name,1)
             });
 
             // Add button to inventory UI container
@@ -121,7 +123,10 @@ export class Inventory {
 
         /**
         // depreciated code bloc
+        // to do:
+        // (1) map UI code to UI inventory tab  buttons
         // to do: (1) connect render to tab icon buttons
+        
         // Add click listeners to tabs
         const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
         
@@ -305,27 +310,8 @@ export class Inventory {
         }
     }
 
-    use(itemName: string, quantity: number): void {
-     /**
-     * Add an item into the inventory.
-     * If the quantity is less than or equal to zero, the item is removed.
-     * @param itemName - The name of the item.
-     * @param quantity - The quantity to add (can be negative for removal).
-     */
 
-        if (quantity <= 0) {
-            delete this.items[itemName];  // item to use cannot be quantity is zero or less
-        } else {
-
-            this.items[itemName] = (this.items[itemName] || 0) - quantity;
-
-            //
-            //console.log("to do : add impementation for ", itemName);
-            this.itemUseEffect(itemName);
-            // item use implementation
-            
-        }
-    }
+    /** 
     itemUseEffect(name : string){
         if (!window.player) return;
 
@@ -342,6 +328,7 @@ export class Inventory {
             window.ui.heartbox(window.player.hitpoints)
         }
     }
+    */
 
     get(itemName: string): number {
     /**
@@ -422,6 +409,10 @@ export class Inventory {
  * (4) Bomb
  * (5) Arrow
  * (6) Bow
+ * 
+ * To Do:
+ * (1) Implement ring item
+ * (2)
  */
 
 export function useItem(type :string, amount : number ) : boolean {
@@ -433,7 +424,7 @@ export function useItem(type :string, amount : number ) : boolean {
     const player = window.player;
     const local_inv = window.inventory;
 
-    if (local_inv.has(type)){
+    if (player && local_inv.has(type)){
         let old_amt : number = local_inv.get(type);
         let new_amt = old_amt = amount;
         local_inv.set(type, new_amt); 
@@ -441,14 +432,14 @@ export function useItem(type :string, amount : number ) : boolean {
         if (type== "health potion"){
             player.hitpoints += 1;
             window.globals.health += 1;
-
+            window.ui.heartbox(window.player.hitpoints)
             // update heart box hud
             //player.update_heart_box();
             console.log("to do: implement update heartbox funcitonality on player object");
         }
         
         if (type == "Generic Item"){
-            player.WALK_SPEED += 3; // double the player's speed variable
+            player.WALK_SPEED += 500; // double the player's speed variable
             player.ROLL_SPEED += 400;
             player.ATTACK = 2;
 

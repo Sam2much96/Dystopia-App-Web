@@ -11,6 +11,9 @@ export class EnemySpawner extends PhysicsObject {
     //public color: any | null;
     private fire : Array<number> =[34,35,36,37,38,39]; // fire animation
     //spawn an enemy count at specific posisitons
+    public enemy1 : Enemy | undefined;
+    public enemy2 : Enemy | undefined;
+
     constructor(pos: LittleJS.Vector2) {
         super();
         this.tileInfo = tile(2,128,2,0);
@@ -26,8 +29,8 @@ export class EnemySpawner extends PhysicsObject {
 
                 // spawn 2 new enemies if the enemy pool is 0
         if (window.globals.enemies.length < 1 && this.ENABLE) {
-            const enemy1 = new Enemy(this.pos);
-            const enemy2 = new Enemy(this.pos); 
+            this.enemy1 = new Enemy(this.pos);
+            //this.enemy2 = new Enemy(this.pos); 
             this.COUNTER += 1;
         //if (this.COUNTER === 2) {
         //    this.ENABLE = false

@@ -452,7 +452,6 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.AttackRight);
                 }
 
-                
                 for (const player of window.globals.players) { // checks for all player objects
                    for (const enemy of window.globals.enemies){ // checks for all enemy objects
                         //console.log("eneemy debug: ", enemy.pos);

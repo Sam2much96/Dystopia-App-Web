@@ -31,7 +31,7 @@ export class Music {
     //public ENABLE: boolean; //depreciated
 
 
-    public music_on : boolean = false;
+    public music_on : boolean = true;
     public sfx_on : boolean = true ;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
