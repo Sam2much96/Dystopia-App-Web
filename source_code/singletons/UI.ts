@@ -1,5 +1,8 @@
 import {Simulation} from "./Simulation";
+import * as LittleJS from 'littlejsengine';
 
+
+type Translations = Record<string, Record<string, string>>;
 
 export class UI  {
     /* 
@@ -34,7 +37,8 @@ export class UI  {
     (11) organise heartbox into 64x UI tileset
     (12) rewrite UI using only html and css (done)
     (13) Fix broken Inventory Ui logic
-    (14) Implement Kenny UI textures into CSS code for graphical consistency
+    (14) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
+    (15) Each UI item should be in separate classes/ scripts
     */
 
 
@@ -43,7 +47,7 @@ export class UI  {
     public UI_MENU: HTMLDivElement;
     public leftButtons : HTMLElement | null;
     public TopRightUI : HTMLElement | null;
-    public UI_GAMEHUD: HTMLDivElement;
+    //public UI_GAMEHUD: HTMLDivElement;
     public HEART_BOX: Array<HTMLDivElement>;
     public UI_STATS: HTMLDivElement;
     public UI_CONTROLS: HTMLDivElement;
@@ -71,14 +75,26 @@ export class UI  {
 
     //timer: LittleJS.Timer = new Timer();
 
-    public SHOW_DIALOGUE: boolean = false;
+    public SHOW_DIALOGUE: boolean = true;
     public SHOW_MENU: boolean = true;
-    public SHOW_INVENTORY : boolean = false;
+    public SHOW_INVENTORY : boolean = true;
 
     // safe pointer to the music global singleton
     private local_music_singleton = window.music;
 
+    //public browserLang = navigator.language;
+    //csv translations settings
+    private translations : Translations  = {};
+    private currentLang : string = "fr";//(navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
+
+
     constructor() {
+        // testing other languages
+        // doesn't work
+        console.log("language debug:", this.currentLang);
+
+        
+        this.loadTranslations(); //load the translations csv
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
@@ -105,15 +121,17 @@ export class UI  {
         this.menuContainer = document.getElementById("menu-container");
         //this.menuContainer.id = "menu-container";
 
-        this.inventoryContainer = document.getElementById("inventory-container");
+        this.inventoryContainer = document.getElementById("hud");
         //this.inventoryContainer.id = "inventory-container";
         
         // turn off
         this.InventoryVisible = false;
+        
         this.MenuVisible = true;
         
+        // create a div for each of these new UI elements
         this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
-        this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
+        //this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
         this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = this.createPanel("ui-stats");// stats and inventory
         this.UI_CONTROLS = this.createPanel("ui-controls");
@@ -122,20 +140,30 @@ export class UI  {
 
         this.UI_ROOT.append(
                     this.UI_MENU,
-                    this.UI_GAMEHUD,
-                    this.UI_STATS,
+                    //this.UI_GAMEHUD,
+                    
                     this.UI_CONTROLS,
                     this.DIALOG_BOX
                 );
 
+        this.inventoryContainer?.append(this.UI_STATS);
 
         //console.log("Menu Debug 1: ", this.menuContainer);
         
-        //pointer to simulation singleton
+
+        document.querySelector('.v12_14')?.addEventListener('click', this.debugTab);
+        document.querySelector('.v12_15')?.addEventListener('click', this.debugTab);
+        document.querySelector('.v12_16')?.addEventListener('click', this.debugTab);
+        document.querySelector('.v12_17')?.addEventListener('click', this.debugTab);
+
         
         
         }
-
+    
+    debugTab(){
+    // for debugging tab button presses
+    console.log("tab button clicked")
+    }
    
 
     /**
@@ -197,6 +225,7 @@ export class UI  {
     set InventoryVisible(visible_: boolean) {
         // Toggles Menu Visibility by editing the html element's css style
         this.SHOW_INVENTORY = visible_;
+        LittleJS.setPaused(visible_);
 
         // play toggle sfx
         if (this.local_music_singleton) {
@@ -254,8 +283,24 @@ export class UI  {
         // Triggered by Pressing Key E; function called from the Input SIngleton 
         console.log("Creating Dialgoue Box Instance");
         //this.timer.set(5);
-        this.SHOW_DIALOGUE = true;
-        this.DialogVisible = true;
+        //this.SHOW_DIALOGUE = true;
+        //this.DialogVisible = true;
+
+        this.DIALOG_BOX.innerHTML = `<!-- Dialogue Main Content Container to do: (1) add in styling -->
+            <div class="v1_5">
+
+                <!-- Decorative or Background Element -->
+                <div class="v1_2"></div>
+
+                <!-- Another Decorative Layer or Element -->
+                <div class="v1_3"></div>
+
+                <!-- Text Content -->
+                <span class="v1_4">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </span>
+
+            </div>`;
     }
 
     gameHUD() {
@@ -277,7 +322,7 @@ export class UI  {
         this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
             //this.stats.bind(this);
             console.log("stats button pressed");
-            this.InventoryVisible = !this.InventoryVisible;
+            //this.InventoryVisible = !this.InventoryVisible;
             // Triggers stats ui
             // to do :
             // (1) on & off (done)
@@ -298,7 +343,10 @@ export class UI  {
             // (1) Create / Show New UI Board
             // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
             // (3) Inventory Item Call Example is in Input under I Press
-            window.inventory.render();
+            
+            this.statsHUD(); //renders the stats hud (1/2) todo: connect functionality and fix positioning
+            window.inventory.render(); // old inventory render is depreciated
+            this.InventoryVisible = !this.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
         });
         this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
@@ -309,15 +357,18 @@ export class UI  {
         });
 
         this.dialogButton = this.createTextureButton("./btn-interact.png", "ui-button", ()=>{
-            this.dialogueBox.bind(this);
+            //this.dialogueBox.bind(this);
             console.log("dialog pressed");
+            this.dialogueBox();
         });
         
-        this.menuButton = this.createTextureButton("./menu white.png", "menu-btn",() => {
+        this.menuButton = this.createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
             window.music.ui_sfx[2].play();
             this.MenuVisible = !this.MenuVisible;
             //console.log("menu pressed");
         });
+        
+        
 
         // left buttons on the ui
         this.leftButtons!.append( this.statsButton,this.walletButton, this.dialogButton);
@@ -355,12 +406,13 @@ export class UI  {
         if (this.newGame) return; // guard clause
         console.log("Creating Ingame Menu");
     
-        this.newGame = this.createMenuOption("New Game", "#", () => {
+        // note : (1) ingame menu translations is buggy
+        this.newGame = this.createMenuOption(this.t("new game"), "#", () => {
             window.music.sound_start.play();
             window.simulation = new Simulation();
         });
 
-        this.contGame = this.createMenuOption("Continue", "#", () => {
+        this.contGame = this.createMenuOption(this.t("continue"), "#", () => {
                     window.music.sound_start.play();
                 });
 
@@ -371,11 +423,11 @@ export class UI  {
         });
         */
        
-        this.Controls = this.createMenuOption("Controls", "#", () => {
+        this.Controls = this.createMenuOption(this.t("controls"), "#", () => {
             window.music.sound_start.play();
         });
 
-        this.Quit = this.createMenuOption("Quit", "#", () => {
+        this.Quit = this.createMenuOption(this.t("quit"), "#", () => {
             window.music.sound_start.play();
             window.THREE_RENDER.showThreeLayer();// doesn;t work
         });
@@ -390,6 +442,14 @@ export class UI  {
             );
         
         
+    }
+
+    statsHUD(){
+        console.log("stats ui debug 1: ", this.UI_STATS.innerHTML);
+        if (this.UI_STATS.innerHTML.trim() === ""){
+            console.log("rendering stats HUD depreciated function");
+
+        }
     }
 
     /**
@@ -449,6 +509,30 @@ export class UI  {
         return div;
     }
 
+    async loadTranslations(){
+        console.log("Translations initialised");
+        const response  = await fetch ("Translation_1.csv");
+        const csvText = await response.text();
+        const lines = csvText.trim().split("\n");
+        const headers = lines[0].split(',');
+            for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        const key = cols[0];
+        this.translations[key] = {};
+        for (let j = 1; j < headers.length; j++) {
+                this.translations[key][headers[j]] = cols[j];
+            }
+        //console.log("translations debg: ", this.translations); // works
+        }
+    }
+
+    t(key : string) { // translates the string file
+        // doesn't work for other translations
+        // bug: returns the key without actually translating
+        var y = this.translations[key]?.[this.currentLang] || key;
+        console.log("lang debug 2: ", y);
+        return y
+    }
 }
 
 

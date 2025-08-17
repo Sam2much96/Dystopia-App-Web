@@ -34,6 +34,8 @@ export class Coins extends EngineObject {
 
                 console.log("coin collected, creating atc txn");
                 this.destroy();
+
+                window.music.item_pickup.play();
                 
             }
         }

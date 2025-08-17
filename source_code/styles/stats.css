@@ -1,0 +1,415 @@
+* {
+  box-sizing: border-box;
+  
+}
+body {
+  font-size: 14px;
+}
+
+
+.inventory-container {
+    z-index: 1000;
+    display: flex; /* turns off & on inventory ui - grid, -none*/
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background-color: #5050509a;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 1000px;
+    
+}
+
+.inventory-item {
+    background-color: #eaeaea;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.inventory-item:hover {
+    transform: scale(1.05);
+}
+
+.item-image {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.item-name {
+    font-weight: bold;
+    margin: 10px 0 5px;
+}
+
+.item-description {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.inventory-tabs {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.inventory-tab {
+    padding: 8px 16px;
+    background: #222;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.inventory-tab.active-tab {
+    background: #444;
+    font-weight: bold;
+}
+
+.inventory-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.tab-icon {
+    margin-right: 6px;
+    width: 48px;
+    height: 48px;
+    vertical-align: middle;
+}
+
+
+.inventory-item {
+    display: block;
+    margin: 4px 0;
+    padding: 6px 12px;
+    background: #444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 32px;
+}
+.inventory-item:hover {
+    background: #666;
+}
+
+
+.parent { /* The root game hud scene*/
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+  display: block;
+  
+}
+.main { /*Main tab after Aug 14 refactor*/
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  position: absolute;
+  top: 80px; /*positioning*/
+  left: 0px;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.dashboard { /* Stats HUD dashboard/ tab*/
+  width: 100%;
+  height: 80%;
+  background: rgb(114, 112, 112);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  border-top-left-radius: 52px;
+  border-top-right-radius: 52px;
+  border-bottom-left-radius: 52px;
+  border-bottom-right-radius: 52px;
+  overflow: hidden;
+}
+.v11_5 { /* Stats label*/
+  width: 80%;
+  color: rgb(255, 255, 255);
+  position: absolute;
+  top: 65px;
+  left: 39px;
+  font-family: 'Comic Andy';
+  opacity: 1;
+  text-align: left;
+}
+.v11_6 { /* kill count label*/
+  width: 272px;
+  color: rgb(181, 0, 0);
+  position: absolute;
+  top: 115px;
+  left: 39px;
+  font-family: ABeeZee;
+  font-weight: Regular;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+  visibility: hidden; /*temporarily hide this label*/
+}
+.v12_11 { /*Coins panel*/
+  width: 369px;
+  height: 584px;
+  background: url("../images/v12_11.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 87px;
+  left: 0px;
+  overflow: hidden;
+  visibility: hidden; /*temporarily hiding for refactoring Aug 14/ 2025*/
+}
+.v12_8 {
+  width: 369px;
+  height: 584px;
+  background: rgba(115,115,115,1);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  border-top-left-radius: 52px;
+  border-top-right-radius: 52px;
+  border-bottom-left-radius: 52px;
+  border-bottom-right-radius: 52px;
+  overflow: hidden;
+}
+.v12_19 {
+  width: 123px;
+  color: rgba(255,255,255,1);
+  position: absolute;
+  top: 65px;
+  left: 27px;
+  font-family: ABeeZee;
+  font-weight: Regular;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+.v12_20 { /*Quest dashboard panel*/
+  width: 369px;
+  height: 584px;
+  background: url("../images/v12_20.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 87px;
+  left: 0px;
+  overflow: hidden;
+  visibility: hidden;
+}
+.v12_21 {
+  width: 369px;
+  height: 584px;
+  background: rgba(115,115,115,1);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  border-top-left-radius: 52px;
+  border-top-right-radius: 52px;
+  border-bottom-left-radius: 52px;
+  border-bottom-right-radius: 52px;
+  overflow: hidden;
+}
+.v12_22 {
+  width: 314px;
+  color: rgba(255,255,255,1);
+  position: absolute;
+  top: 65px;
+  left: 27px;
+  font-family: ABeeZee;
+  font-weight: Regular;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+.v12_23 {
+  width: 369px;
+  height: 584px;
+  background: url("../images/v12_23.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 87px;
+  left: 0px;
+  overflow: hidden;
+}
+.v12_24 {
+  width: 369px;
+  height: 584px;
+  background: rgba(115,115,115,1);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  border-top-left-radius: 52px;
+  border-top-right-radius: 52px;
+  border-bottom-left-radius: 52px;
+  border-bottom-right-radius: 52px;
+  overflow: hidden;
+}
+.v12_25 {
+  width: 288px;
+  color: rgba(255,255,255,1);
+  position: absolute;
+  top: 65px;
+  left: 27px;
+  font-family: ABeeZee;
+  font-weight: Regular;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+.v12_27 {
+  width: 369px;
+  height: 677px;
+  background: url("../images/v12_27.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+.v12_28 {
+  width: 369px;
+  height: 584px;
+  background: rgba(115,115,115,1);
+  opacity: 1;
+  position: absolute;
+  top: 87px;
+  left: 0px;
+  border-top-left-radius: 52px;
+  border-top-right-radius: 52px;
+  border-bottom-left-radius: 52px;
+  border-bottom-right-radius: 52px;
+  overflow: hidden;
+}
+.v12_30 {
+  width: 358px;
+  height: 677px;
+  background: url("../images/v12_30.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.5;
+  position: absolute;
+  top: 0px;
+  left: 5px;
+  border-top-left-radius: 88px;
+  border-top-right-radius: 88px;
+  border-bottom-left-radius: 88px;
+  border-bottom-right-radius: 88px;
+  overflow: hidden;
+}
+.v12_18 {
+  width: 30px;
+  height: 30px;
+  background: url("../images/v12_18.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 175px;
+  left: 12px;
+  overflow: hidden;
+}
+.v13_31 {
+  width: 10px;
+  height: 10px;
+  background: url("../images/v13_31.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 289px;
+  left: 97px;
+  overflow: hidden;
+}
+.v13_32 {
+  width: 10px;
+  height: 10px;
+  background: url("../images/v13_32.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 289px;
+  left: 148px;
+  overflow: hidden;
+}
+.v12_14 { /*shield tab with shield icon*/
+  width: 48px;
+  height: 48px;
+  background: url("../../v12_14.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 98px;
+  left: 38px;
+  overflow: hidden;
+  
+}
+.v12_15 { /* wallet tab button*/
+  width: 48px;
+  height: 48px;
+  background: url("../../v12_15.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 98px;
+  left: 109px;
+  overflow: hidden;
+}
+.v12_16 { /* sword tab button */
+  width: 48px;
+  height: 48px;
+  background: url("../../v12_16.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 96px;
+  left: 181px;
+  overflow: hidden;
+}
+.v12_17 { /*stats tab button */
+  width: 53px;
+  height: 53px;
+  background: url("../../v12_17.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 96px;
+  left: 128px;
+  overflow: hidden;
+}

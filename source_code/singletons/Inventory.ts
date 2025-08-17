@@ -1,4 +1,9 @@
+import * as LittleJS from 'littlejsengine';
 
+const {vec2} = LittleJS;
+
+
+import {Bombexplosion} from "../scenes/UI & misc/Blood_Splatter_FX";
 
 
 export class Inventory {
@@ -13,6 +18,7 @@ export class Inventory {
     *
     * to do :
     * (1) player stats render function should renderer different pages, not categories
+    * (2) Map render functions to ui buttons
     */
 
     private items: Record<string, number>; // Dictionary to store inventory items
@@ -31,17 +37,31 @@ export class Inventory {
          * (2) connects to the stats ui button created in the UI class object
          * (3) Renders stats ui by typescript + html + css manipulation of the dom
          * 
+         * Temporarily depreciated for Game HUD refactor Aug 14/2025
          * To DO: 
          * (1) Add tabs and et al (1/2)
          * (2) Serialize wallet data to wallet tab renders
          * (3) Connect buttons manually with each rendering a different page
          * (4) Mini map?
          * (5) Quest UI & kill counts
-         */
+         * (6) 
+        */
+         
         console.log("rendering inventory UI database");
 
         // consider rewriting this to call a get class from the UI class object
-        this.inventoryUI = document.getElementById("inventory-container");
+        //this.inventoryUI = document.getElementById("v12_23");
+
+        // Select the element
+        this.inventoryUI = document.querySelector('.v11_5');
+
+            // Change the text
+            //if (statsTitle) {
+            //    statsTitle.textContent = 'Updated Stats Title';
+                // Or if you want HTML formatting:
+                // statsTitle.innerHTML = '<b>Updated Stats Title</b>';
+            //}
+
 
         if (!this.inventoryUI) return console.warn("debug Inventory UI");
 
@@ -50,32 +70,58 @@ export class Inventory {
          // Inventory tab categories
          //each maps to an inventory item icon in the home and public directory
         
-        const categories = ["All", "inventory", "wallet","compass" ,"quest","stats"];
-        let activeCategory = "All";
+        //const categories = ["All", "inventory", "wallet","compass" ,"quest","stats"];
+        //let activeCategory = "All";
 
 
         // Create tabs container 
         // from each of the objects in the categories array
-        const tabsHTML = `
-            <div class="inventory-tabs">
-                ${categories.map(cat => `
-                    <button class="inventory-tab" data-category="${cat}">
-                    <!-- Renders the Tab icons based on the category items -->
-                    <img src="${cat.toLowerCase()}.webp" class="tab-icon" alt="${cat} icon">
-                    ${cat}
-                    </button>
-                `).join("")}
-            </div>
-            <div id="inventory-items" class="inventory-items-grid"></div>
-        `;
+        //const tabsHTML = `
+        //    <div class="inventory-tabs">
+        //        ${categories.map(cat => `
+        //            <button class="inventory-tab" data-category="${cat}">
+        //            <!-- Renders the Tab icons based on the category items -->
+        //            <img src="${cat.toLowerCase()}.webp" class="tab-icon" alt="${cat} icon">
+        //            ${cat}
+         //           </button>
+         //       `).join("")}
+         //   </div>
+         //   <div id="inventory-items" class="inventory-items-grid"></div>
+        //`;
 
-        this.inventoryUI.innerHTML = tabsHTML;
+        // testing rendering all inventory items to the UI
+        //this.inventoryUI.textContent = Object.entries(this.getAllItems())
+        //.map(([name, count]) => `${name} x ${count}`)
+        //.join('\n');
 
+        // Clear previous inventory UI
+        //this.inventoryUI.innerHTML = '';
+        
+        // Loop through items and create a button for each
+        // bug : (1) increases inventory item instead of decreasing it
+        Object.entries(this.getAllItems()).forEach(([name, count]) => {
+            const btn = document.createElement('button');
+            btn.textContent = `${name} x ${count}`; // set the button text
+            btn.classList.add('inventory-item'); // optional CSS styling
+
+            // add use item for each button
+            btn.addEventListener('click', () => {
+                //console.log(`Used 1 x ${name} of ${count}`);
+                
+                // You can trigger item usage, show details, etc. here
+                // bug: (1) triggers addition by when called from ui
+                this.use(name, 1);
+            });
+
+            // Add button to inventory UI container
+            this.inventoryUI?.appendChild(btn);
+        });
         
 
 
-        
-
+        /**
+        // depreciated code bloc
+        // to do: (1) connect render to tab icon buttons
         // Add click listeners to tabs
         const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
         
@@ -116,14 +162,15 @@ export class Inventory {
                 }
                 });
             }
+                
 
         });
-        
+          */
 
 
 
         // Initial render
-        this.renderItems(activeCategory);
+        //this.renderItems(activeCategory);
 
 
     }
@@ -245,7 +292,7 @@ export class Inventory {
 
     set(itemName: string, quantity: number): void {
      /**
-     * Add or update an item in the inventory.
+     * Add an item into the inventory.
      * If the quantity is less than or equal to zero, the item is removed.
      * @param itemName - The name of the item.
      * @param quantity - The quantity to add (can be negative for removal).
@@ -255,6 +302,44 @@ export class Inventory {
             delete this.items[itemName]; // Remove item if quantity is zero or less
         } else {
             this.items[itemName] = (this.items[itemName] || 0) + quantity;
+        }
+    }
+
+    use(itemName: string, quantity: number): void {
+     /**
+     * Add an item into the inventory.
+     * If the quantity is less than or equal to zero, the item is removed.
+     * @param itemName - The name of the item.
+     * @param quantity - The quantity to add (can be negative for removal).
+     */
+
+        if (quantity <= 0) {
+            delete this.items[itemName];  // item to use cannot be quantity is zero or less
+        } else {
+
+            this.items[itemName] = (this.items[itemName] || 0) - quantity;
+
+            //
+            //console.log("to do : add impementation for ", itemName);
+            this.itemUseEffect(itemName);
+            // item use implementation
+            
+        }
+    }
+    itemUseEffect(name : string){
+        if (!window.player) return;
+
+        window.music.item_use_sfx.play(); // play item use sfx
+        if (name === "Generic Item"){
+            window.player.WALK_SPEED + 500;
+        }
+        if (name === "Bomb"){
+            console.log("spawn new bomb item");
+        }
+        if (name === "health potion"){
+            // increase player heartbox
+            window.player.hitpoints += 1;
+            window.ui.heartbox(window.player.hitpoints)
         }
     }
 
@@ -318,4 +403,85 @@ export class Inventory {
         return Object.values(this.items).reduce((sum, quantity) => sum + quantity, 0);
     }
 }
+
+
+
+
+/**
+ * Global UI Functions
+ * 
+ * Features:
+ * (1) Exported as a global window function called from the Inventory UI renderer
+ * (2) The function is saved to the DOM's global scope for the UI
+ * 
+ * 
+ * There's 4 Inventory Items implemented :
+ * (1) health potion
+ * (2) Generic Item
+ * (3) Magic Sword
+ * (4) Bomb
+ * (5) Arrow
+ * (6) Bow
+ */
+
+export function useItem(type :string, amount : number ) : boolean {
+    console.log("Use item function called :", type);
+    
+
+    window.music.item_use_sfx.play();
+
+    const player = window.player;
+    const local_inv = window.inventory;
+
+    if (local_inv.has(type)){
+        let old_amt : number = local_inv.get(type);
+        let new_amt = old_amt = amount;
+        local_inv.set(type, new_amt); 
+        
+        if (type== "health potion"){
+            player.hitpoints += 1;
+            window.globals.health += 1;
+
+            // update heart box hud
+            //player.update_heart_box();
+            console.log("to do: implement update heartbox funcitonality on player object");
+        }
+        
+        if (type == "Generic Item"){
+            player.WALK_SPEED += 3; // double the player's speed variable
+            player.ROLL_SPEED += 400;
+            player.ATTACK = 2;
+
+        }
+
+        if (type == "Magic Sword"){
+            //increase pushback impact, increases chances of double attack
+            player.pushback = 8000;
+        }
+
+        if (type == "Bomb"){
+            const bomb = new Bombexplosion(player.pos, vec2());
+
+            console.log("bomb debug: ", bomb);
+        }
+
+        if (type == "Arrow" && local_inv.has("Bow")){
+            //const bullet = new Bullet(); // arrow instance
+
+            //console.log("arrow debug 1: ", bullet);
+            console.log("to do: finish item use implementation");
+        }
+    
+    }
+
+    
+
+    // to do:
+    // (1) each item use should either spawn the object or alter the player's state
+    // (2) port item use logic from inventory code for bombs, potions, bow & arrow, generic item and rings
+    // (3) connect wallet use logic to test wallet ui 
+
+    return true;
+}
+
 

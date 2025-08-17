@@ -1,0 +1,52 @@
+import * as LittleJS from 'littlejsengine';
+
+const {EngineObject, Vector2,vec2, drawTile, tile, isOverlapping} = LittleJS;
+
+import { Enemy } from '../Characters/enemy';
+import { PhysicsObject } from '../../singletons/Utils';
+
+export class EnemySpawner extends PhysicsObject {
+    public ENABLE: boolean;
+    private COUNTER: number;
+    //public color: any | null;
+    private fire : Array<number> =[34,35,36,37,38,39]; // fire animation
+    //spawn an enemy count at specific posisitons
+    constructor(pos: LittleJS.Vector2) {
+        super();
+        this.tileInfo = tile(2,128,2,0);
+        this.pos = pos;
+        //this.pos = pos;
+        this.ENABLE = true;
+        // set the fire tiles
+        this.setCollision(false,false,false,false);
+        
+        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        this.COUNTER = 0; // counter for calculatin how much enemies been spawned
+        console.log("Enemy Spawner Instanced: ", this.ENABLE);
+
+                // spawn 2 new enemies if the enemy pool is 0
+        if (window.globals.enemies.length < 1 && this.ENABLE) {
+            const enemy1 = new Enemy(this.pos);
+            const enemy2 = new Enemy(this.pos); 
+            this.COUNTER += 1;
+        //if (this.COUNTER === 2) {
+        //    this.ENABLE = false
+        //}
+
+            return
+
+        }
+    }
+
+    render(){
+        this.playAnim(this.fire);
+        // draw the enemy tiles
+        //console.log(this.currentFrame); // frame positioning doesnt start from 0
+        //down : 17,18,19,20
+        // bug: enemy tileset cuts off the last frame row
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror);
+
+    }
+
+
+}

@@ -45,13 +45,18 @@ import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
 import {Player} from "./source_code/scenes/Characters/player";
-import {Enemy} from "./source_code/scenes/Characters/enemy";
+//import {Enemy} from "./source_code/scenes/Characters/enemy";
 
-import {Bombexplosion} from "./source_code/scenes/UI & misc/Blood_Splatter_FX";
+
 
 import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
+import { initPostProcess } from './source_code/singletons/postProcess';
 
+
+//import * as Box2D from './source_code/singletons/box2d';
+//const {Box2dObject, box2dEngineInit} = Box2D;
+//import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
 //import {Ads} from "./source_code/scenes/UI & misc/Advertising";
 'use strict';
 
@@ -114,66 +119,6 @@ setTouchGamepadAnalog(false);
  */
 
 
-class GameObject extends EngineObject {
-    /**
-     * Base Class for All Game Objects
-     * 
-     * Features
-     * (1) Animation functions
-     * (2) Destroy functions
-     * 
-     */
-    // 
-    
-    constructor() {
-        super();
-        //console.log("Loading Utils Singleton");
-
-    }
-
-
-
- 
-
-
-}
-
-
-class EnemySpawner extends GameObject {
-    public ENABLE: boolean;
-    private COUNTER: number;
-    public color: any | null;
-
-    //spawn an enemy count at specific posisitons
-    constructor() {
-        super();
-
-        this.ENABLE = true;
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
-        this.COUNTER = 0; // counter for calculatin how much enemies been spawned
-        console.log("Enemy Spawner Instanced: ", this.ENABLE);
-
-    }
-
-    update() {
-
-        // spawn 2 new enemies if the enemy pool is 0
-        if (window.globals.enemies.length < 1 && this.ENABLE) {
-            const enemy1 = new Enemy(vec2(5, 10));
-
-            this.COUNTER += 1;
-
-            return
-
-        }
-
-        // stop spawning if enemy spawn count is 15
-        if (window.globals.enemies.length == 15) {
-            this.ENABLE = false
-        }
-    }
-}
-
 
 
 
@@ -196,7 +141,7 @@ declare global {
         map: OverWorld | OverworldSideScrolling;
         simulation: Simulation;
 
-        useItem: any; 
+        //useItem: any; 
         YaGames?: {
             init(): Promise<import('ysdk').SDK>;
         };
@@ -247,85 +192,6 @@ declare global {
 
 
 
-/**
- * Global UI Functions
- * 
- * Features:
- * (1) Exported as a global window function called from the Inventory UI renderer
- * (2) The function is saved to the DOM's global scope for the UI
- * 
- * 
- * There's 4 Inventory Items implemented :
- * (1) health potion
- * (2) Generic Item
- * (3) Magic Sword
- * (4) Bomb
- * (5) Arrow
- * (6) Bow
- */
-
-export function useItem(type :string, amount : number ) : boolean {
-    console.log("Use item function called :", type);
-    
-
-    window.music.item_use_sfx.play();
-
-    const player = window.player;
-    const local_inv = window.inventory;
-
-    if (local_inv.has(type)){
-        let old_amt : number = local_inv.get(type);
-        let new_amt = old_amt = amount;
-        local_inv.set(type, new_amt); 
-        
-        if (type== "health potion"){
-            player.hitpoints += 1;
-            window.globals.health += 1;
-
-            // update heart box hud
-            //player.update_heart_box();
-            console.log("to do: implement update heartbox funcitonality on player object");
-        }
-        
-        if (type == "Generic Item"){
-            player.WALK_SPEED += 3; // double the player's speed variable
-            player.ROLL_SPEED += 400;
-            player.ATTACK = 2;
-
-        }
-
-        if (type == "Magic Sword"){
-            //increase pushback impact, increases chances of double attack
-            player.pushback = 8000;
-        }
-
-        if (type == "Bomb"){
-            const bomb = new Bombexplosion(player.pos, vec2());
-
-            console.log("bomb debug: ", bomb);
-        }
-
-        if (type == "Arrow" && local_inv.has("Bow")){
-            //const bullet = new Bullet(); // arrow instance
-
-            //console.log("arrow debug 1: ", bullet);
-            console.log("to do: finish item use implementation");
-        }
-    
-    }
-
-    
-
-    // to do:
-    // (1) each item use should either spawn the object or alter the player's state
-    // (2) port item use logic from inventory code for bombs, potions, bow & arrow, generic item and rings
-    // (3) connect wallet use logic to test wallet ui 
-
-    return true;
-}
-
-
-
 
 
 /*
@@ -359,7 +225,7 @@ function gameInit() {
     // to do: redesign and map ui from figma to here
     // to do: implement mouse pos for minimap drawing ui
     window.ui = new UI();
-    window.useItem = useItem;
+    //window.useItem = useItem;
 
 
     // Create & hide Ingame Menu
@@ -389,7 +255,7 @@ function gameInit() {
 
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
-    window.inventory.set("Generic Item", 5);
+    window.inventory.set("Generic Item", 5-1);
     window.inventory.set("Bomb", 3);
     window.inventory.set("Magic Sword", 2);
     window.inventory.set("Arrow", 13);
@@ -424,9 +290,16 @@ function gameInit() {
     //draw title screen
     // TO DO :
     // (1) draw dystopia logo with css
+    //(window as any).Box2D = (window as any).Box2D || {};
+    //(window as any).Box2D.locateFile = (path: string) => {
+    //    if (path.endsWith(".wasm")) {
+    //        return "./Box2D_v2.3.1_min.wasm.wasm"; // ✅ correct path to your wasm
+    //    }
+    //    return path;
+    //};
 
 
-
+    //box2dEngineInit();
 
 }
 
@@ -443,6 +316,62 @@ function gameUpdatePost() {
 
 }
 
+
+
+// tv shader post processing
+function setupPostProcess()
+{
+    const televisionShader = `
+    // Simple TV Shader Code
+    float hash(vec2 p)
+    {
+        p=fract(p*.3197);
+        return fract(1.+sin(51.*p.x+73.*p.y)*13753.3);
+    }
+    float noise(vec2 p)
+    {
+        vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+1.),u.x),u.y);
+    }
+    void mainImage(out vec4 c, vec2 p)
+    {
+        // put uv in texture pixel space
+        p /= iResolution.xy;
+
+        // apply fuzz as horizontal offset
+        const float fuzz = .0005;
+        const float fuzzScale = 800.;
+        const float fuzzSpeed = 9.;
+        p.x += fuzz*(noise(vec2(p.y*fuzzScale, iTime*fuzzSpeed))*2.-1.);
+
+        // init output color
+        c = texture(iChannel0, p);
+
+        // chromatic aberration
+        const float chromatic = .002;
+        c.r = texture(iChannel0, p - vec2(chromatic,0)).r;
+        c.b = texture(iChannel0, p + vec2(chromatic,0)).b;
+
+        // tv static noise
+        const float staticNoise = .1;
+        c += staticNoise * hash(p + mod(iTime, 1e3));
+
+        // scan lines
+        const float scanlineScale = 1e3;
+        const float scanlineAlpha = .1;
+        c *= 1. + scanlineAlpha*sin(p.y*scanlineScale);
+
+        // black vignette around edges
+        const float vignette = 2.;
+        const float vignettePow = 6.;
+        float dx = 2.*p.x-1., dy = 2.*p.y-1.;
+        c *= 1.-pow((dx*dx + dy*dy)/vignette, vignettePow);
+    }`;
+
+    const includeOverlay = true;
+    initPostProcess(televisionShader, includeOverlay);
+}
+
 function gameRender() {
     // Temporary Game Manger + simulations
     // triggers the LittleJS renderer
@@ -453,16 +382,17 @@ function gameRender() {
     // The third tile parameter constrols which tile object to draw
     // draw tile allows for better object scalling
     if (window.globals.GAME_START) {
-
+        
         if (!window.map){
             // to do: (1) create exit scene
             
             // overworld map 1 works
             //
             window.map = new OverWorld();
-            
+
             
             window.music.play(); //play zzfxm music
+            //setupPostProcess(); // setup tv shader post processing
             return;
         }
 
@@ -474,6 +404,8 @@ function gameRender() {
             // set camera position to player position
             setCameraPos(window.player.pos);
             setCameraScale(128);  // zoom camera to 128 pixels per world unit
+                            // 1. draw background image
+            
         }
    
         //create global player object
@@ -522,7 +454,7 @@ function gameRenderPost() {
 // I can pass in the tilemap and sprite sheet directly to the engine as arrays
 // i can also convert tile data to json from tiled editor and parse that instead
 // tiles.png is a placeholder until proper file name management is donew for game init
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp"]);
+engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.png"]);
 
 
 

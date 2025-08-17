@@ -5,99 +5,8 @@ const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isT
 
 //import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
 import { OverWorld } from '../levels/OverworldTopDown';
-import { Enemy } from './enemy';
-
-export class PhysicsObject extends EngineObject {
-    /**
-     * LittleJS physics object for player and enemy physics & collisions
-     * 
- 
-     */
-
-    public animationTime: number = 0; // for timing frame changes to 1 sec or less
-    public mirror: boolean = false; //false
-    public animationInterval : number = 0.1 // 0.1 seconds for each animation
-    public currentFrame : number = 0;
-    
-
-    constructor()
-    {
-        super();
-        this.setCollision(true,true,true,true); // make object collide
-        this.mass = 0; // make object have static physics
-
-
-        
-    }
-
-    animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-
-        * Bugs :
-        * (1) Doesn't work with enemy run up animation frames 
-        */
-       
-        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-        let index = sequence.indexOf(currentFrame);
-        
-        if (index === -1) {
-            // Not found in the sequence — maybe default to the first frame or throw an error
-            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
-            //console.trace("Trace of who called me");
-            //return sequence[0]; // or throw new Error("Invalid currentFrame")
-            index = sequence[0];
-        }
-
-        return sequence[(index + 1) % sequence.length];
-        
-    }
-
-    playAnim(anim: Array<number>){
-        
-
-        // play the animation for 0.1 seconds
-        this.animationTime += LittleJS.timeDelta;
-
-        if (this.animationTime >= this.animationInterval) {
-            //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
-        
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-            //console.log(this.currentFrame);
-            
-            // subtract interval to handle lag gracefully
-            this.animationTime -= this.animationInterval; // Reset timer
-                    
-        }
-    }
-
-    render() {
-
-        // bug:
-        // (1) player animation frame is iffy
-
-        //// set player's sprite from tile info and animation frames
-        //console.log("frame debug: ",this.currentFrame);
-        //this.currentFrame
-        //console.log("pos debug: ", this.pos);
-
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
-    }
-    
-}
-
+//import { Enemy } from './enemy';
+import { PhysicsObject } from '../../singletons/Utils';
 
 export class Player extends PhysicsObject{
 
@@ -517,7 +426,8 @@ export class TopDownPlayer extends Player {
             },
 
             "STATE_ATTACK" : () => {
-                //console.log("attack state triggered");
+                // temporarily disabled for itchIO build
+                //console.log("attack state triggered: ", window.globals.enemies);
                 // input buffer
                 this.Buffer.attack();
 
@@ -542,29 +452,17 @@ export class TopDownPlayer extends Player {
                     this.playAnim(this.AttackRight);
                 }
 
-                for (const enemy of window.globals.enemies){
-
-                    //console.log("eneemy debug: ", enemy.pos);
-                    //bug: checks for only one player and doesn't account for multiple players
-                    if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
-                        //console.log("Player Hit Collision Detection Triggered");
-
-                        // Attack
-                        // reduce enemy health
-                        enemy.hitpoints -= 1;
-
-                        enemy.kickback();
-
-                        //hit register
-
-
-                        //sfx
-                        window.music.hit_sfx[2].play();
+                
+                for (const player of window.globals.players) { // checks for all player objects
+                   for (const enemy of window.globals.enemies){ // checks for all enemy objects
+                        //console.log("eneemy debug: ", enemy.pos);
+                        //bug: checks for only one player and doesn't account for multiple players
+                        if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
+                            //console.log("Player Hit Collision Detection Triggered");
+                            enemy.hitCollisionDetected();
+                        }
+                     }
                 }
-
-
-                }
-
                 
             }
         }

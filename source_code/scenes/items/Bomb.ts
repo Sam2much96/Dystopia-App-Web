@@ -39,7 +39,8 @@ export class Bomb extends EngineObject {
             // update bomb count in inventory
             let y : number = window.inventory.get("Bomb");
             let z : number = y + 1;
-            window.inventory.set("Arrow", z);
+            window.inventory.set("Bomb", z);
+            window.music.item_pickup.play();
             
             }
         }

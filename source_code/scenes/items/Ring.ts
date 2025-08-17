@@ -26,7 +26,7 @@ export class GenericItem extends EngineObject {
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(50, 128, 2, 0), this.color, 0, this.mirror);
+        drawTile(this.pos, this.size, tile(27, 128, 2, 0), this.color, 0, this.mirror);
     }
 
     update(){
@@ -40,10 +40,10 @@ export class GenericItem extends EngineObject {
                 console.log("Generic item collected");
                 this.destroy();
 
-                // update bomb count in inventory
-                let y : number = window.inventory.get("Generic Item");
+                // update ring count in inventory
+                let y : number = window.inventory.get("Ring");
                 let z : number = y + 1;
-                window.inventory.set("Generic Item", z);
+                window.inventory.set("Ring", z);
                 window.music.item_pickup.play();
                 
             }

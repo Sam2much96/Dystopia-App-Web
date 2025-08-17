@@ -1,7 +1,7 @@
 
 import * as LittleJS from 'littlejsengine';
 
-const {vec2} = LittleJS
+const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData} = LittleJS
 export class Utils {
 
     /*
@@ -161,6 +161,68 @@ export class Utils {
         return rando;
     }
 
+    static drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
+                chunks.forEach(chunk => {
+                    
+                    // breaks here
+                    const data = this.chunkArray(chunk, width).reverse();
+                    
+                    data.forEach((row: any, y: any) => {
+                        row.forEach((val: any, x: any) => {
+                            //console.log("x and y debug: ",x,"/",y);
+                            val = parseInt(val, 10); // convert numbers to base 10
+                            if (val) {
+    
+                                //console.log("val debug: ",val);
+                                this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
+                            }
+                        });
+                    });
+                });
+            console.log("finished drawing chunk"); // works
+        }
+    
+        static chunkArray(array: number[], chunkSize: number) {
+            /*
+             * The function chunkArray takes an array of numbers & 
+             * splits it into smaller chunks of a specified size.
+             * 
+             * It separates arrays into 30 size matrices as number[][]
+             * each representing a different x and y dimentsion on the tilemap 
+             */
+    
+            
+            // algorithm helps loading the level data array as chunks
+            const numberOfChunks = Math.ceil(array.length / chunkSize)
+    
+            return [...Array(numberOfChunks)]
+                .map((value, index) => {
+                    return array.slice(index * chunkSize, (index + 1) * chunkSize)
+                })
+        }
+    
+        static drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {
+            
+            // docs:
+            // (1) tile index is the current tile to draw on the tile layer
+            //   it is mapped to e the environment layer's tilesheet
+    
+            // bugs:
+            // (1) does not draw 4 tiles after the temple tile
+            const tileIndex = i;
+            
+            const data = new TileLayerData(tileIndex);
+            
+            //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
+            layer.setData(pos, data);
+    
+            if (collision) {
+                setTileCollisionData(pos,1);
+            
+            }
+        }
+
+
 
     
     static saveGame(){
@@ -178,5 +240,99 @@ export class Utils {
         // if (shopJson){}
         // else {}
     }
+}
+
+
+
+
+export class PhysicsObject extends EngineObject {
+    /**
+     * LittleJS physics object for player and enemy physics & collisions
+     * 
+ 
+     */
+
+    public animationTime: number = 0; // for timing frame changes to 1 sec or less
+    public mirror: boolean = false; //false
+    public animationInterval : number = 0.1 // 0.1 seconds for each animation
+    public currentFrame : number = 0;
+    
+
+    constructor()
+    {
+        super();
+        this.setCollision(true,true,true,true); // make object collide
+        this.mass = 0; // make object have static physics
+
+
+        
+    }
+
+    animate(currentFrame: number, sequence: number[]): number {
+        /** 
+         * Animation Function
+         * 
+         * Features:
+         * 
+         * (1) Loops through an array sequence and return this current frame
+         * (2) Plays animation loops
+         *
+         *  Usage Examples:
+            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+
+        * Bugs :
+        * (1) Doesn't work with enemy run up animation frames 
+        */
+       
+        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+        let index = sequence.indexOf(currentFrame);
+        
+        if (index === -1) {
+            // Not found in the sequence — maybe default to the first frame or throw an error
+            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
+            //console.trace("Trace of who called me");
+            //return sequence[0]; // or throw new Error("Invalid currentFrame")
+            index = sequence[0];
+        }
+
+        return sequence[(index + 1) % sequence.length];
+        
+    }
+
+    playAnim(anim: Array<number>){
+        
+
+        // play the animation for 0.1 seconds
+        this.animationTime += LittleJS.timeDelta;
+
+        if (this.animationTime >= this.animationInterval) {
+            //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
+        
+            //loop animation function
+            this.currentFrame = this.animate(this.currentFrame, anim);
+            //console.log(this.currentFrame);
+            
+            // subtract interval to handle lag gracefully
+            this.animationTime -= this.animationInterval; // Reset timer
+                    
+        }
+    }
+
+    render() {
+
+        // bug:
+        // (1) player animation frame is iffy
+
+        //// set player's sprite from tile info and animation frames
+        //console.log("frame debug: ",this.currentFrame);
+        //this.currentFrame
+        //console.log("pos debug: ", this.pos);
+
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
+    }
+    
 }
 

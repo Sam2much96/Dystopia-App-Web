@@ -1,9 +1,12 @@
+/**
+ * The Game's Top Down Overworld Map
+ * 
+ * 
+ */
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, TileLayer,TileLayerData, initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
-
-//import * as tiled from "@kayahr/tiled"; // depreciated
 
 
 // all items used in this level
@@ -19,6 +22,7 @@ import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
 import {TopDownPlayer} from "../Characters/player";
 import {Enemy} from "../Characters/enemy";
+import {EnemySpawner} from "../UI & misc/Enemyspawner";
 
 import {Hole} from "../UI & misc/Exit";
 
@@ -62,6 +66,7 @@ export class OverWorld extends EngineObject{
     tempExtLayer: LittleJS.TileLayer | undefined;
     ground_layer: number[][] = []; // matrix data type
     
+
     constructor() {
         super();
         this.loadMap();
@@ -77,20 +82,16 @@ export class OverWorld extends EngineObject{
         //all assets are also preloaded        
         try {
 
-            //const response = await fetch("./overworld.json");
-
-            //if (!response.ok) throw new Error("Network Error");
-            //const overMap = await response.json();
             
-            console.log('Map data:', overMap);
+            //console.log('Map data:', overMap);
 
             this.LevelSize = vec2(overMap.width, overMap.height);
 
             //if (!this.tempExtLayer) throw new Error("Layer Loading Error");
             
             // drawing more than one tile bugs out on mobile browsers
-            const tempExtLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
-            this.tempExtLayer = tempExtLayer;
+            this.tempExtLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
+            //this.tempExtLayer = tempExtLayer;
             
             console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
@@ -105,7 +106,6 @@ export class OverWorld extends EngineObject{
             this.ground_layer = this.chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
             
             
-            // to do : (1) create a tile lookup for the trees and replace if conditionals
             this.ground_layer.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
                     val = parseInt(val, 10);
@@ -250,9 +250,10 @@ export class OverWorld extends EngineObject{
 
                         if (val === 35){ // first fire tile as enemy spawner placeholder
                         // // supposed to be enemy spawner object but instead it's a single enemy spawner
-                            const y = new Enemy(vec2(5, 10));   
-                            window.globals.enemies.push(y);
-                            
+                            //const y = new Enemy(vec2(5, 10));   
+                            //window.globals.enemies.push(y);
+                            const i = new EnemySpawner(vec2(x, y));
+
                             return
                         }
 
@@ -277,10 +278,12 @@ export class OverWorld extends EngineObject{
 
                         if (val === 49){ // house 1 tile
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            // to do: create an exit object to Temple Interior scene
                         }
 
                         if (val === 50){ // house 2 tile
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            // to do : create an Empty object to Temple Interior Scene
                         }
 
                         if (val === 51){ // generic item object

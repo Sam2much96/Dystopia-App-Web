@@ -31,10 +31,10 @@ export class Music {
     //public ENABLE: boolean; //depreciated
 
 
-    public music_on : boolean = true;
+    public music_on : boolean = false;
     public sfx_on : boolean = true ;
     
-    public volume : number = 99; // todo : (1) link to zzfxm audio context class 
+    public volume : number = 50; // todo : (1) link to zzfxm audio context class 
 
     
     //music track variables
@@ -57,7 +57,7 @@ export class Music {
     
     // Zzfx synth sounds
     // define each of the required sfx and organise them into dictionaries
-    public ui_sfx_1 : LittleJS.Sound = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]);
+    public ui_sfx_1 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]);
     public ui_Sfx_2 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,-1,,,.65,.17,,-806]);
     public ui_robot_sfx = new Sound([1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]);
 
@@ -92,7 +92,7 @@ export class Music {
 
     public wind_fx = new Sound([,,174,.43,.48,.01,4,4.3,-92,57,,,,,36,,,.91,.43,.13]);
     public item_use_sfx = new Sound([1.4,,954,.01,.01,.003,2,2.4,,-68,211,.3,,,184,,.45,.81,.02,,244]);
-
+    public item_pickup = new Sound([.8,,629,.01,.08,.06,,3.5,1,,462,.08,.08,,9.5,,,.98,.02,,-1291]); 
     public wind_sfx : Array<string> | undefined;
     public sword_sfx : Array<string> | undefined;
     public nokia_pack_sfx : Array<string> | undefined;

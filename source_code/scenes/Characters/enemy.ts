@@ -1,8 +1,12 @@
-import * as LittleJS from 'littlejsengine';
-import { Player, PhysicsObject } from './player';
-import { Utils } from '../../singletons/Utils';
+// to do: (1) update documentation
+// (2) rewrite all collision classes to use static type checks instead of global singletons , this would fix the enemy mob and the 
+// buggy hit collision problem
 
-const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
+import * as LittleJS from 'littlejsengine';
+import { Player} from './player';
+import { Utils, PhysicsObject } from '../../singletons/Utils';
+
+const {Vector2,vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
 
 
@@ -101,7 +105,7 @@ export class Enemy extends PhysicsObject {
     // todo:
     //public despawn_particles : ParticleFX| null = null; 
 
-    constructor(pos: Vector2) {
+    constructor(pos: LittleJS.Vector2) {
         super();
         //(1) set the Enemy object's position
         //(2) set the Enemy object's type which determines the logic
@@ -111,10 +115,10 @@ export class Enemy extends PhysicsObject {
         //this.size = vec2(0.8);
 
         // set enemy position from the initialisation script
-        //this.pos = pos.copy();
+        this.pos = pos.copy();
 
         // store object to global pointer for object pooling
-        //window.globals.enemies.push(this);
+        window.globals.enemies.push(this);
 
 
         // store player object in global array when instanced
@@ -236,6 +240,14 @@ export class Enemy extends PhysicsObject {
 
         //(1) Gets the Player Object in the Scene Tree if Player unavailable, get him from the global pointer 
         return 0;
+    }
+
+    hitCollisionDetected(){ // resolves the enemy hit collision detection
+        this.hitpoints -= 1;
+        //hit register
+        //sfx
+        window.music.hit_sfx[2].play();
+        this.kickback();
     }
 
     kickback() {
@@ -386,6 +398,9 @@ export class Enemy extends PhysicsObject {
                 }
 
                 this.destroy();
+
+                // debug the enemy object
+                //console.log("enemy despawn debug: ",window.globals.enemies.indexOf(this));
                 
             },
 

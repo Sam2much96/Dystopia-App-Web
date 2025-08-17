@@ -3,6 +3,45 @@
  "infinite":false,
  "layers":[
         {
+         "id":4,
+         "image":"..\/..\/..\/public\/Desert_background_1.png",
+         "name":"Image Layer 1",
+         "offsetx":1036,
+         "offsety":1512,
+         "opacity":1,
+         "repeatx":true,
+         "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "id":6,
+         "image":"..\/..\/..\/public\/Desert_background_3.png",
+         "name":"Image Layer 3",
+         "offsetx":1836,
+         "offsety":1526.66666666667,
+         "opacity":1,
+         "repeatx":true,
+         "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "id":5,
+         "image":"..\/..\/..\/public\/Desert_background_2.png",
+         "name":"Image Layer 2",
+         "offsetx":472,
+         "offsety":1516,
+         "opacity":1,
+         "repeatx":true,
+         "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -21,7 +60,7 @@
             84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 84, 84, 84, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":16,
          "id":1,
-         "name":"Tile Layer 1",
+         "name":"ground_layer",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
@@ -29,7 +68,7 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":4,
+ "nextlayerid":7,
  "nextobjectid":1,
  "orientation":"orthogonal",
  "renderorder":"right-down",

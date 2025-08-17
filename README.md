@@ -12,10 +12,11 @@ A custom web version of the Dystopia App game, written in HTML5 and JavaScript. 
 
 1. LittleJS
 2. Zzfx
-3. Algokit (Typescript)
-4. Tiled Editor
+3. Box2d physics (c++ compiled to js via emscripten)
+4. Tiled Level Editor
 5. Krita
-6. Aseprite
+6. Three JS for the 3d animation
+7. Cannon-es for the 3d physics and collisions
 
 ## Getting Started
 
@@ -52,7 +53,22 @@ the font loading also lags. There's also a periodic lag that i suspect had to do
 delta time that's needed for animation. Remove unused dependencies using dep check
 run `$npx depcheck ` and `$npm uninstall <unused deps>`
 
-5. **Monetization Bugs**
+5. **Yandex Bugs**
 
-The yandex build will throw errors if any external url is built into the game. You can check this by
-Ctrl + F in VsCode. Then check for any http:// or https:// dependencies and remove them
+The yandex build will throw errors if any external url is built into the game. also make sure your code structure's
+closed in html tags
+e.g.
+
+```
+<html>
+<head>
+...
+</head>
+<body>
+...
+</body>
+</html>
+
+```
+
+Yandex console will throw errors unless your page is structured like this

@@ -40,6 +40,7 @@ export class Bow extends EngineObject{
                 let y : number = window.inventory.get("Bow");
                 let z : number = y + 1;
                 window.inventory.set("Bow", z);
+                window.music.item_pickup.play();
                 
             }
         }

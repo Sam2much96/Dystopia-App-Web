@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<html>
 
 <head>
     <!-- Game and UI Plugin -->
@@ -11,14 +11,17 @@
     <meta name=apple-mobile-web-app-capable content=yes>
     <meta name=mobile-web-app-capable content=yes>
     <link rel=icon type=image/png href=./favicon.png>
+    
     <link rel="stylesheet" href="source_code/styles/styles.css">
+    <link rel="stylesheet" href="source_code/styles/stats.css">
 
+    
     <!-- SEO optimisation for google and older search engines-->
     <!-- Open Graph (Facebook, LinkedIn) -->
     <meta name="keywords"
-        content="Dystopia App, game, webgame ,cyberpunk, webcomic, dystopian, sci-fi, adventure, anime, cartoon">
+        content="Dystopia App, game, webgame ,cyberpunk, webcomic, noir, 8-bit, adventure, anime, cartoon">
     <meta property="og:title" content="Dystopia App - Gameboy Survival RPG Game">
-    <meta property="og:description" content="A thrilling cyberpunk web game about survival in a dystopian world.">
+    <meta property="og:description" content="A thrilling cyberpunk web game about survival in a application.">
     <meta property="og:image" content="./title-art_2.jpg">
     <meta property="og:url" content="">
 
@@ -55,23 +58,91 @@
     <!-- Top-Right Heart Box + Menu -->
     <div id="top-right-ui" class="top-right-ui"></div>
     
-    <div id="inventory-container" class="inventory-container"></div>
+    <!-- Game HUD container -->
+    <div id="hud" class="parent">
+      <!-- Main Container -->
+                        
+
+        <!-- Stats Panel Div-->
+        <div class="main">
+              <!-- Icon or Visual Box for Stats -->
+              <div class="dashboard" ></div>
+
+              <!-- Stats Title -->
+              <span class="v11_5">Stats</span>
+
+              <!-- Kill Count Label -->
+              <span class="v11_6">Kill Count :</span>
+        </div>
+        <!-- Tab Buttons -->
+        <button class="v12_14"></button>
+        <button class="v12_15"></button>
+        <button class="v12_16"></button>
+        <button class="v12_17"></button>
+
+
+
+    </div>
     <div id="menu-container" class="menu-container"></div>
     
     <!-- Mobile Debug -->
     <div id="debug"></div>
 
 
-     <!-- Google tag (gtag.js) for google analytics to be disabled for yandex games build -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script>
-    <script>
+
+
+  <!-- Yandex Games SDK --> 
+<script>
+    // temporarily disabled for itch io maintenance build
+    // Load the Yandex Games SDK dynamically
+    /*
+    const sdkScript = document.createElement('script');
+    sdkScript.src = '/sdk.js';
+    sdkScript.async = true;
+
+    sdkScript.onload = () => {
+      if (typeof YaGames !== 'undefined') {
+        YaGames.init().then(sdk => {
+          console.log('Yandex SDK initialized');
+          window.ysdk = sdk;
+
+          // Example ad call (optional)
+          sdk.adv.showFullscreenAdv({
+            callbacks: {
+              onOpen: () => console.log('Ad opened'),
+              onClose: wasShown => console.log('Ad closed:', wasShown),
+              onError: err => console.error('Ad error:', err)
+            }
+          });
+
+        }).catch(err => {
+          console.warn('YaGames.init() failed:', err);
+        });
+      } else {
+        console.warn('YaGames is not defined after script loaded');
+      }
+    };
+
+    sdkScript.onerror = () => {
+      console.warn('⚠️ Yandex SDK failed to load: sdk.js not found or blocked.');
+    };
+
+    document.head.appendChild(sdkScript);
+
+    */
+</script>
+
+  <!-- Google tag (gtag.js) for google analytics on my private hosting --> 
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script> -->
+  <script>
+      /*
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', 'G-4XTFM74YY1');
-    </script>
-    
+        */
+  </script>
     
   <!-- Statically preload all image files-->
   <img src="./player_tileset_128x128.webp" style="display:none">
@@ -99,3 +170,4 @@
   <script src="./audio/songs/iamback.js"></script>
   
 </body>
+</html>
