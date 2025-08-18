@@ -24,7 +24,7 @@ import {TopDownPlayer} from "../Characters/player";
 import {Enemy} from "../Characters/enemy";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 
-import {Hole} from "../UI & misc/Exit";
+import {Hole, House1, House2} from "../UI & misc/Exit";
 
 export class OverWorld extends EngineObject{
     /*
@@ -125,7 +125,7 @@ export class OverWorld extends EngineObject{
                          * 
                          */
                         if (val === 2){ // skull head
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
 
                         if (val ===3 ){ // signpost
@@ -288,12 +288,17 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val === 49){ // house 1 tile
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            const a = new House1(vec2(x,y));
+                            this.levelObjects?.push(a);
+                            return
+                            //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                             // to do: create an exit object to Temple Interior scene
                         }
 
                         if (val === 50){ // house 2 tile
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            const b = new House2(vec2(x,y));
+                            this.levelObjects?.push(b);
+                            //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                             // to do : create an Empty object to Temple Interior Scene
                         }
 
@@ -454,7 +459,7 @@ export class OverWorld extends EngineObject{
             enemy.despawn();
         }
         
-        if (this.levelObjects){
+        if (this.levelObjects){ // destroy all instanced level objects
             for (const i of this.levelObjects!){
                 i.destroy();
                 this.levelObjects = null;

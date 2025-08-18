@@ -5,6 +5,7 @@ const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, rand,hsl,in
 import overMap from "./OverworldSideScrolling.json";
 
 import {SideScrollPlayer} from "../Characters/player";
+import { Utils } from '../../singletons/Utils';
 
 //import './box2d'; // this adds globals: box2d, box2dWorld, Box2dObject, etc.
 //import * as Box2D from '../../../source_code/singletons/box2d';
@@ -12,7 +13,7 @@ import {SideScrollPlayer} from "../Characters/player";
 //const {Box2dObject, box2dEngineInit} = Box2D;
 
 
-let LevelSize = vec2(overMap.width, overMap.height)
+let LevelSize = vec2(overMap.width, overMap.height); // get the level size
 
 export class OverworldSideScrolling extends EngineObject {
 
@@ -26,7 +27,7 @@ export class OverworldSideScrolling extends EngineObject {
      */
 
 
-    LevelSize: LittleJS.Vector2 | null = null; // get the level size
+    //LevelSize: LittleJS.Vector2 | null = null; // get the level size
     tileLayer : LittleJS.TileLayer | null = null; // create a tile layer for drawing the lvl
     ground_layer: number[][] = []; // matrix data type
 
@@ -44,7 +45,7 @@ export class OverworldSideScrolling extends EngineObject {
         this.loadMap();
 
 
-        this.renderOrder = 1001;
+        //this.renderOrder = 1001;
     }
 
     async loadMap(){
@@ -58,14 +59,14 @@ export class OverworldSideScrolling extends EngineObject {
             //to do: (1) draw parallax backgrounds
 
         
-            console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
+            console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
 
 
-            this.LevelSize = vec2(overMap.width, overMap.height); // get the level size
-            this.tileLayer  = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1), 2); // create a tile layer for drawing the lvl
+            //this.LevelSize = vec2(overMap.width, overMap.height); // get the level size
+            this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0), vec2(1), 2); // create a tile layer for drawing the lvl
             //this.parallax_layer = new TileLayer(vec2(0,3.5), vec2(5), tile(0, vec2(256, 242), 4, 0), vec2(1), 0);
 
-            initTileCollision(vec2(overMap.width,overMap.height));
+            initTileCollision(LevelSize);
 
             // function for loading the level data from the json files as chunks
             const chunkArray = (array : number[], chunkSize : number) => {
@@ -87,7 +88,7 @@ export class OverworldSideScrolling extends EngineObject {
             }
 
             // load level data as chunks
-            this.ground_layer = chunkArray(overMap.layers[3].data ?? [], overMap.layers[3].width ?? 64).reverse();
+            this.ground_layer = Utils.chunkArray(overMap.layers[3].data ?? [], overMap.layers[3].width ?? 64).reverse();
 
             this.ground_layer.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {

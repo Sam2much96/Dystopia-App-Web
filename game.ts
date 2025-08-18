@@ -16,8 +16,16 @@ Bugs
 
 
 To Do:
+(0) Fix UI translations
+(1) Add webhooks for the inventory UI
 (2) Implement yandex ads services
 (3) Create global sprite atlas for each tileset in game init
+(4) create Particle fx for hit and bomb explosion
+(5) create npc
+(6) implement item use for bombs and bows
+(7) implement dialogue trigger and dialog box for signpost and NPC merchant
+(8) Implement auto tile procedural levels
+(9) Audit music tracks 
 
 */
 
@@ -27,7 +35,7 @@ import * as LittleJS from 'littlejsengine';
 
 
 
-const {vec2, EngineObject, setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , setTouchGamepadAlpha, setTouchGamepadAnalog,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
+const {setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , setTouchGamepadAlpha, setTouchGamepadAnalog,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
 
 
 
@@ -49,7 +57,12 @@ import {Player} from "./source_code/scenes/Characters/player";
 
 import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
+import { Marketplace } from './source_code/scenes/levels/Marketplace';
+import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
+
+// post processing
 import { initPostProcess } from './source_code/singletons/postProcess';
+
 
 
 //import * as Box2D from './source_code/singletons/box2d';
@@ -136,7 +149,7 @@ declare global {
         player: Player,
         //enemy: Array<Enemy>,
         wallet: Wallet;
-        map: OverWorld | OverworldSideScrolling;
+        map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
         simulation: Simulation;
 
         //useItem: any; 
@@ -146,16 +159,6 @@ declare global {
 
     }
 
-    interface Vector2 {
-        x: number;
-        y: number;
-        copy(): Vector2;
-        add(arg0: Vector2): Vector2;
-        multiply(arg0: Vector2): Vector2;
-        //directionTo(arg0: Vector2, arg1: Vector2): Vector2;
-
-
-    }
 
     interface Vector3 {
         x: number;
@@ -164,13 +167,13 @@ declare global {
     }
 
     interface player_info { 0 :{ //server peer id
-        posi:Vector2, // position
-        vel:Vector2, // velocity
+        posi:LittleJS.Vector2, // position
+        vel:LittleJS.Vector2, // velocity
         fr:number, // frame data
         in:number, // input buffer from input singleton
         hp:number,
         st:number, // roll back networking state predictions
-        rd:Vector2, // roll direction
+        rd:LittleJS.Vector2, // roll direction
         dx:number,
         up:number, //persistent update id across client peers
         wa:string, //Wallet address
