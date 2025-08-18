@@ -5,6 +5,7 @@ const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, rand,hsl,in
 import templeMap from "./TempleInterior.json";
 import { Utils } from '../../singletons/Utils';
 import {TopDownPlayer} from "../Characters/player";
+import { Stairs } from '../UI & misc/Exit';
 
 /**
  * Temple Interior Scene
@@ -24,7 +25,7 @@ export class TempleInterior extends EngineObject {
 
     tileLayer : LittleJS.TileLayer | null = null; // create a tile layer for drawing the lvl
     levelData: number[][] = []; // matrix data type
-
+    levelObjects : any[] | null = [];
     constructor(){
         super();
         setGravity(0);
@@ -44,13 +45,33 @@ export class TempleInterior extends EngineObject {
                 row.forEach((val : any, x : any) => {
                     val = parseInt(val, 10);
                     if (val) {
+                        if (val === 0){ // collision tiles
+
+                        }
+
+                        if (val === 0){ // exit object
+                            
+                        }
+                        if (val === 0){ // bow object
+                            
+                        }
+                        if (val === 0){ // NPC quest giver
+                            
+                        }
+                        if (val === 0){ // Enemy spawner
+                            
+                        }
+                        // to do :
+                        // (1) write item spawner for enemy random drops
 
                     }
                     else{ // every other tile
-                        Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+                        Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
                     }
                 }
             )})
+
+            this.tileLayer.redraw();
 
         }
         catch(err){
@@ -61,6 +82,14 @@ export class TempleInterior extends EngineObject {
     destroy(): void {
         if (this.tileLayer){
             this.tileLayer.destroy();
+
+        if (this.levelObjects){ // destroy all instanced level objects
+            for (const i of this.levelObjects!){
+                i.destroy();
+                
+            }
+            this.levelObjects = null;
+        }
         }
     }
 }

@@ -1,9 +1,9 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+const {EngineObject,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 import overMap from "./OverworldSideScrolling.json";
-
+import { GenericItem } from '../items/GenericItem';
 import {SideScrollPlayer} from "../Characters/player";
 import { Utils } from '../../singletons/Utils';
 
@@ -36,6 +36,9 @@ export class OverworldSideScrolling extends EngineObject {
     parallax_1 : SpriteParallaxLayer | undefined;
     parallax_2 : SpriteParallaxLayer | undefined;
 
+    //spawned objects
+    levelObjects : any[] | null = [];
+
 
     constructor(){
         super();
@@ -50,33 +53,15 @@ export class OverworldSideScrolling extends EngineObject {
 
     async loadMap(){
         try {
-            //const response = await fetch("./OverworldSideScrolling.json");
-
-            //if (!response.ok) throw new Error("Network Error");
-            //const overMap = await response.json();
-            //console.log('Map data:', overMap);
-
-            //to do: (1) draw parallax backgrounds
 
         
             console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
 
 
-            //this.LevelSize = vec2(overMap.width, overMap.height); // get the level size
             this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0), vec2(1), 2); // create a tile layer for drawing the lvl
-            //this.parallax_layer = new TileLayer(vec2(0,3.5), vec2(5), tile(0, vec2(256, 242), 4, 0), vec2(1), 0);
 
             initTileCollision(LevelSize);
 
-            // function for loading the level data from the json files as chunks
-            const chunkArray = (array : number[], chunkSize : number) => {
-                const numberOfChunks = Math.ceil(array.length / chunkSize)
-
-                return [...Array(numberOfChunks)]
-                    .map((value, index) => {
-                    return array.slice(index * chunkSize, (index + 1) * chunkSize)
-                    })
-            }
 
             const drawMapTile = (pos : any, i = 80, layer : any, collision = 1) => {
                 const tileIndex = i;
@@ -105,6 +90,11 @@ export class OverworldSideScrolling extends EngineObject {
                             return
                         }
 
+                        if (val === 51){ // generic item object
+                            const j = new GenericItem(vec2(x,y));
+                            this.levelObjects?.push(j);
+                            return
+                        }
                         if (val === 63){ // corner tile
                             drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                         }
@@ -150,6 +140,13 @@ export class OverworldSideScrolling extends EngineObject {
             this.sky?.destroy();
             this.parallax_1?.destroy();
             this.parallax_2?.destroy();
+        }
+        if (this.levelObjects){
+            for (const i of this.levelObjects){
+                i.destroy();
+                
+            }
+            this.levelObjects = null;
         }
 
 

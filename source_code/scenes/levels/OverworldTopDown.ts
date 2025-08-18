@@ -24,7 +24,7 @@ import {TopDownPlayer} from "../Characters/player";
 import {Enemy} from "../Characters/enemy";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 
-import {Hole, House1, House2} from "../UI & misc/Exit";
+import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";
 
 export class OverWorld extends EngineObject{
     /*
@@ -274,8 +274,11 @@ export class OverWorld extends EngineObject{
                         if (val === 44){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
-                        if (val === 45){ // temple exterior
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
+                        if (val === 45){ // temple doors
+                            const g = new TempleDoor( vec2(x,y));
+                            this.levelObjects?.push(g);
+                            //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
+                            return
                         }
                         if (val === 46){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
@@ -462,8 +465,9 @@ export class OverWorld extends EngineObject{
         if (this.levelObjects){ // destroy all instanced level objects
             for (const i of this.levelObjects!){
                 i.destroy();
-                this.levelObjects = null;
+                
             }}
+            this.levelObjects = null;
     }
 }
 

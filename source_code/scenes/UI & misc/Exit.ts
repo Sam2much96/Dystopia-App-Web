@@ -11,6 +11,7 @@ import { OverWorld } from '../levels/OverworldTopDown';
 import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
 import { Marketplace } from '../levels/Marketplace';
 import { exp } from 'three/tsl';
+import { TempleInterior } from '../levels/TempleInterior';
 
 export class Hole extends EngineObject {
     /**
@@ -153,6 +154,47 @@ export class Stairs extends EngineObject { // temple interior exit scene
                 
                 console.log("Loading the new level");
                 window.map = new OverWorld();
+                this.destroy();
+            }
+        }
+    }
+}
+
+export class TempleDoor extends EngineObject{ // temple exterior door
+ENABLE : boolean = true;
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        this.tileInfo = tile(44, 128, 2, 0); // set Temple ext door tile 44
+        this.pos = posi;
+        this.size = vec2(1);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(44, 128, 2, 0), this.color, 0, this.mirror);
+    }
+
+    update(){
+
+        if (window.player && this.ENABLE){
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+
+                console.log("Player Entered Temple Entrance");
+                
+
+                
+                //logic
+                //save player stats via global function
+                window.player.destroy();
+                //destroy the overworld scene and player
+                window.map.destroy();
+                // spawn the new overworld scene 
+                
+                console.log("Loading the new level");
+                window.map = new TempleInterior();
                 this.destroy();
             }
         }
