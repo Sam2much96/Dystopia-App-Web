@@ -275,7 +275,7 @@ export class OverWorld extends EngineObject{
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 45){ // temple doors
-                            const g = new TempleDoor( vec2(x,y));
+                            const g = new TempleDoor(vec2(x + 0.45,y+0.5));
                             this.levelObjects?.push(g);
                             //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                             return

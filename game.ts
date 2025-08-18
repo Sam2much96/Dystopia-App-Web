@@ -85,52 +85,6 @@ setTouchGamepadAlpha(0.3);
 // set dpad configuration on mobile browsers 
 setTouchGamepadAnalog(false);
 
-/**
- * <!-- Yandex Games SDK -->
-    <script src="https://sdk.games.s3.yandex.net/sdk.js"></script>
-    <script type="text/javascript">
-    // Wait until the Yandex SDK is available
-    window.onload = () => {
-      if (typeof YaGames !== 'undefined') {
-        YaGames.init().then(sdk => {
-          console.log('Yandex SDK initialized');
-
-          // Save the SDK for later use
-          window.ysdk = sdk;
-
-          // Optional: show an interstitial ad
-          sdk.adv.showFullscreenAdv({
-            callbacks: {
-              onOpen: () => console.log('Ad opened'),
-              onClose: wasShown => console.log('Ad closed, wasShown:', wasShown),
-              onError: err => console.error('Ad error:', err)
-            }
-          });
-        });
-      } else {
-        console.error('YaGames is not defined');
-      }
-    };
-  </script>
- */
-
-
-/**
- *     <!-- Google tag (gtag.js) for google analytics disabled for yandex games build
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-4XTFM74YY1');
-    </script>
-    -->
- * 
- */
-
-
-
 
 
 /* Declare Global Singletons
@@ -386,7 +340,7 @@ function gameRender() {
             // to do: (1) create exit scene
             
             // overworld map 1 works
-            //
+            // currently testing temple interior
             window.map = new OverWorld();
 
             
