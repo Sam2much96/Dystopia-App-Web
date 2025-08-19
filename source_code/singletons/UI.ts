@@ -1,4 +1,5 @@
 import {Simulation} from "./Simulation";
+import { useItem } from "./Inventory";
 import * as LittleJS from 'littlejsengine';
 
 
@@ -150,7 +151,9 @@ export class UI  {
 
         //console.log("Menu Debug 1: ", this.menuContainer);
         
-
+        // tab button for rendering different stats icons and screens
+        // currently unimplemented
+        // to do : (1) organise button layout
         document.querySelector('.v12_14')?.addEventListener('click', this.debugTab);
         document.querySelector('.v12_15')?.addEventListener('click', this.debugTab);
         document.querySelector('.v12_16')?.addEventListener('click', this.debugTab);
@@ -162,6 +165,7 @@ export class UI  {
     
     debugTab(){
     // for debugging tab button presses
+    // to do: (1) connect to different stats UI render
     console.log("tab button clicked")
     }
    
@@ -511,8 +515,13 @@ export class UI  {
 
     async loadTranslations(){
         console.log("Translations initialised");
-        const response  = await fetch ("Translation_1.csv");
-        const csvText = await response.text();
+        const response  = await fetch ("Translation_1.csv"); // works
+        const csvText = await response.text(); // works
+
+        // to do: 
+        // (1) rework this logic so it parses the translations csv properly
+        // (2) fix translations bug
+        // (3) add conditional for failed async fetch
         const lines = csvText.trim().split("\n");
         const headers = lines[0].split(',');
             for (let i = 1; i < lines.length; i++) {
@@ -522,8 +531,8 @@ export class UI  {
         for (let j = 1; j < headers.length; j++) {
                 this.translations[key][headers[j]] = cols[j];
             }
-        //console.log("translations debg: ", this.translations); // works
         }
+        console.log("translations debg: ", this.translations); // works
     }
 
     t(key : string) { // translates the string file
