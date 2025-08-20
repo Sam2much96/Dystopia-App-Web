@@ -1,3 +1,16 @@
+/**
+ * Overworld sidescrolling
+ * 
+ * Features:
+ * (1) Platforming levels
+ * (2) Parallax backgrounds
+ * 
+ * Bugs:
+ * (1) Ground layer breaks on mobile browsers and doesn't render
+ *      fix: make ground layer area much smaller and resize game level
+ * 
+ */
+
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;

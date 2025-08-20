@@ -1,3 +1,14 @@
+/**
+ * Game UI
+ * 
+ * Features:
+ * (1) Renders all game UI and huds
+ * 
+ * Bugs:
+ * (1) Menu Button icon doesn't render in production
+ * (2) Screen D-Pad controls is laggy, consider debugging enemy A.I. if the cause pf lag is from simulations delta
+ * (3) Status HUD buttons aren't working on mobile browsers, duplicate press initialisation from menu UI
+ */
 import {Simulation} from "./Simulation";
 import { useItem } from "./Inventory";
 import * as LittleJS from 'littlejsengine';
@@ -514,7 +525,7 @@ export class UI  {
     }
 
     async loadTranslations(){
-        console.log("Translations initialised");
+        console.log("Translations initialised: Fix buggy translations code");
         const response  = await fetch ("Translation_1.csv"); // works
         const csvText = await response.text(); // works
 

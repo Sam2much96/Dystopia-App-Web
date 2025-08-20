@@ -1,7 +1,9 @@
 /**
  * The Game's Top Down Overworld Map
  * 
- * 
+ * Bugs:
+ * (1) Breaks on mobile browsers when changing scenes
+ * (2) Takes too long to load the entire overmap level in mobile browser
  */
 import * as LittleJS from 'littlejsengine';
 
@@ -275,6 +277,9 @@ export class OverWorld extends EngineObject{
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 45){ // temple doors
+                            // notes: the 0.45, and 0.5 pixel offsets are needed for this tile objedt
+                            // to do:
+                            // (1) make door collsion the one above this tile
                             const g = new TempleDoor(vec2(x + 0.45,y+0.5));
                             this.levelObjects?.push(g);
                             //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
@@ -303,6 +308,7 @@ export class OverWorld extends EngineObject{
                             this.levelObjects?.push(b);
                             //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                             // to do : create an Empty object to Temple Interior Scene
+                            return
                         }
 
                         if (val === 51){ // generic item object
