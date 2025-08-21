@@ -22,7 +22,7 @@ export class Enemy extends PhysicsObject {
     // (7) Connect to Utils hit collision detection system (done)
 
     public hitpoints: number = 5;
-    public speed: number = 3;
+    public speed: number = 2;
     public detectionRange: number;
     public minDistance: number;
     public wanderCooldown: number;
@@ -419,9 +419,8 @@ export class Enemy extends PhysicsObject {
                 * (4) Add that movement to the AI's position.
                 *  
                 */
-                //this.delta = window.simulation.deltaTime!;// this causes a major gameplay lag
-                //ffff
-
+                
+                //super.update();// update the parent class to save the physics
                 // get initial direction to player
                 this.direction = Utils.restaVectores(this.local_player_object!.pos, this.pos);
 
@@ -439,11 +438,11 @@ export class Enemy extends PhysicsObject {
 
                 
 
-                
                             
                 // Add movement to ai position
                 // to do: 
                 //(1) use velocity logic for positional movement to implement collisions
+                //(2) note that animationTime is the engine's delta time saved from the parent class
                 this.pos.x += this.direction.x * this.speed * this.animationTime;
                 this.pos.y += this.direction.y * this.speed * this.animationTime;
 

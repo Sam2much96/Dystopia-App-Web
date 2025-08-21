@@ -358,10 +358,11 @@ export class TopDownPlayer extends Player {
 
             "STATE_WALKING" : () => {
 
-                // input controls are gotten from parent class
-                this.velocity = this.moveInput;// apply movement
                 super.update(); // update physics from the parent
 
+                // input controls are gotten from parent class
+                this.velocity = this.moveInput;// apply movement
+                
                 // play facing animations by normalising moveInput vec2 positions to animation directions
                 if (this.velocity.x === -0.1){
                     
