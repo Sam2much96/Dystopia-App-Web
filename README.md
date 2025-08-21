@@ -75,3 +75,7 @@ e.g.
 ```
 
 Yandex console will throw errors unless your page is structured like this
+
+5. **Mobile Browser Bugs**
+   The overworld tile layer and the sidescrolling tile layers are not optimised for mobile browsers. They would require either
+   a smaller level with less ram cost or a split level
