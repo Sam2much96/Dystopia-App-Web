@@ -113,13 +113,11 @@ declare global {
 
     }
 
-    interface Vector2 {
+    interface Vector2 { // required for vercel build process
     x: number;
     y: number;
-    //constructor(x?: number, y?: number);
     set(x: number, y: number): this;
     add(v: Vector2): this;
-    //sub(v: Vector2): this;
     length(): number;
     normalize(): this;
     // … add other methods you use

@@ -11,13 +11,9 @@
  * - Call box2dEngineInit to start
  */
 
-import * as LittleJS from 'littlejsengine';
-const {EngineObject, setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
-import {Box2D} from "./Box2D_v2.3.1_min.wasm.js";
-
 'use strict';
 
-let box2d = Box2D;
+let box2d;
 let box2dWorld;
 let box2dDebugDraw;
 let box2dDebug = false;
@@ -29,13 +25,12 @@ const box2dBodyTypeDynamic   = 2;
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Object - extend with your own custom physics objects
 
-export class Box2dObject extends LittleJS.EngineObject 
+class Box2dObject extends EngineObject 
 {
     constructor(pos=vec2(), size, tileInfo, angle=0, color, bodyType=box2dBodyTypeDynamic, renderOrder=0)
     {
         super(pos, size, tileInfo, angle, color, renderOrder);
-        console.log("Box 2d debug: ", Box2D);
-        Box2D.box2dEngineInit();
+
         // create physics body
         const bodyDef = new box2d.b2BodyDef();
         bodyDef.set_type(bodyType);
@@ -806,7 +801,7 @@ function box2dDrawFillStroke(context, color, outlineColor, lineWidth)
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Setup
 
-export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources)
+function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources)
 {
     Box2D().then(_box2d=>
     {
@@ -815,30 +810,30 @@ export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender
         box2dWorld = new box2d.b2World();
 
         // override functions for box2d
-        let setGravity = function(newGravity) 
+        setGravity = function(newGravity) 
         {
             box2dWorld.SetGravity(vec2(0,newGravity).getBox2d());
             gravity = newGravity*timeDelta*timeDelta; // engine gravity
         }
 
         // allow passing box2d vectors to vec2
-        const defaultVec2 = LittleJS.vec2;
-        let vec2 = function(x, y)
+        const defaultVec2 = vec2;
+        vec2 = function(x, y)
         {
             return (x instanceof box2d.b2Vec2) ? 
                 new Vector2(x.get_x(), x.get_y()) : defaultVec2(x, y);
         }
 
         // functions to convert between vec2 and box2d vectors
-        LittleJS.Vector2.prototype.setBox2d = function(p) { return this.set(p.get_x(), p.get_y()); }
-        LittleJS.Vector2.prototype.getBox2d = function()  { return new box2d.b2Vec2(this.x, this.y); }
-        LittleJS.Vector2.prototype.setBox2dPointer = function(p)  
+        Vector2.prototype.setBox2d = function(p) { return this.set(p.get_x(), p.get_y()); }
+        Vector2.prototype.getBox2d = function()  { return new box2d.b2Vec2(this.x, this.y); }
+        Vector2.prototype.setBox2dPointer = function(p)  
         { return this.setBox2d(box2d.wrapPointer(p, box2d.b2Vec2)); }
 
         // functions to convert between color and box2d colors
-        LittleJS.Color.prototype.setBox2d = function(c)  
+        Color.prototype.setBox2d = function(c)  
         { return this.set(c.get_r(), c.get_g(), c.get_b()); }
-        LittleJS.Color.prototype.setBox2dPointer = function(c)  
+        Color.prototype.setBox2dPointer = function(c)  
         { return this.setBox2d(box2d.wrapPointer(c, box2d.b2Color)); }
 
         // setup contact listener
@@ -877,20 +872,20 @@ export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender
         box2dWorld.SetDebugDraw(box2dDebugDraw);
 
         // hook up box2d plugin to update and render
-        LittleJS.engineAddPlugin(box2dUpdate, box2dRender);
+        engineAddPlugin(box2dUpdate, box2dRender);
         function box2dUpdate()
         {
-            if (!LittleJS.paused)
-                box2dWorld.Step(LittleJS.timeDelta, box2dStepIterations, box2dStepIterations);
+            if (!paused)
+                box2dWorld.Step(timeDelta, box2dStepIterations, box2dStepIterations);
         }
         function box2dRender()
         {
-            if (box2dDebug || LittleJS.debugPhysics && LittleJS.debugOverlay)
+            if (box2dDebug || debugPhysics && debugOverlay)
                 box2dWorld.DrawDebugData();
         }
 
         // start littlejs
-        LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources);
+        engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources);
   
         // box2d debug drawing implementation
         function box2dGetDebugDraw()

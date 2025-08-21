@@ -5,8 +5,10 @@ kenny ui-pack/
 game.js
 dist/
 file-structure.txt
-*.d.ts
 *.zip
 *.pem
-
+public/audio/songs/cuddly.d.ts
+public/audio/songs/depp.d.ts
+public/audio/songs/iamback.d.ts
+public/audio/songs/sanxion.d.ts
 public/.~lock.Translation_1.csv#

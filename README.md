@@ -45,7 +45,10 @@ The web build of Dystopia App Uses LittleJS game Engine for 2d rendering and gam
 Game distributables are built into the dist folder which is served as the /public folder
 the game fetches all assets from the /public directory in the vercel server build
 
-5. **Optimisation & Bugs**
+5. **Plugins**
+   To compile javascvript .js plugins for typescript, run `npx tsc box2d.js --declaration --allowJs --outFile box2d.js` to generate the declaration d.ts file
+
+6. **Optimisation & Bugs**
 
 The game runs well on PC browsers bug lags on mobile browsers. It would require optimzation
 and proper memory management of code engine elements including the 3d rendering engine, the 3d level design,
