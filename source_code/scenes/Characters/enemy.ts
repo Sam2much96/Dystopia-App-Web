@@ -6,7 +6,7 @@ import * as LittleJS from 'littlejsengine';
 import { Player} from './player';
 import { Utils, PhysicsObject } from '../../singletons/Utils';
 
-const {Vector2,vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
+const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
 
 
@@ -26,7 +26,7 @@ export class Enemy extends PhysicsObject {
     public detectionRange: number;
     public minDistance: number;
     public wanderCooldown: number;
-    private targetPos: Vector2;
+    private targetPos: LittleJS.Vector2;
     
     private type_enum: Map<string, number> = new Map([
             ['EASY', 0],
@@ -92,10 +92,10 @@ export class Enemy extends PhysicsObject {
 
     // Enemy AI variables
     public local_player_object : Player | null = window.player;
-    public direction : Vector2 = vec2(0);
+    public direction : LittleJS.Vector2 = vec2(0);
     public length : number = 0;
-    private delta : number = 0;
-    private random_walk_direction : Vector2 = vec2(100);
+    //private delta : number = 0;
+    private random_walk_direction : LittleJS.Vector2 = vec2(100);
 
     // unused important boolean
     private isDead : boolean = false;
@@ -196,6 +196,7 @@ export class Enemy extends PhysicsObject {
             // Enemy hit collision detection
             // todo : 
             // (1) connect both player and enemy state machines to simulation collision detection
+            // (2) implement raycast into enemy detection logic
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 //console.log("ENemy Hit Collision Detection Triggered: ", distanceToPlayer);
 
@@ -208,6 +209,7 @@ export class Enemy extends PhysicsObject {
                 // (2) Add Raycast for detection
                 return 0;
             }
+
 
         }
 
@@ -417,7 +419,8 @@ export class Enemy extends PhysicsObject {
                 * (4) Add that movement to the AI's position.
                 *  
                 */
-                this.delta = window.simulation.deltaTime!;
+                //this.delta = window.simulation.deltaTime!;// this causes a major gameplay lag
+                //ffff
 
                 // get initial direction to player
                 this.direction = Utils.restaVectores(this.local_player_object!.pos, this.pos);
@@ -439,8 +442,10 @@ export class Enemy extends PhysicsObject {
                 
                             
                 // Add movement to ai position
-                this.pos.x += this.direction.x * this.speed * this.delta;
-                this.pos.y += this.direction.y * this.speed * this.delta;
+                // to do: 
+                //(1) use velocity logic for positional movement to implement collisions
+                this.pos.x += this.direction.x * this.speed * this.animationTime;
+                this.pos.y += this.direction.y * this.speed * this.animationTime;
 
             },
 

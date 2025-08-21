@@ -18,7 +18,7 @@ export class Utils {
     public platform : string = "unknown";
 
     public  screenOrientation : number | undefined;
-    public viewport_size : Vector2 | undefined;
+    public viewport_size : LittleJS.Vector2 | undefined;
 
 
     enemyMob() {
@@ -65,13 +65,13 @@ export class Utils {
     static proximity_attack_simulation(
         hitpoints : number, 
         player : any,//Player, 
-        player_pos : Vector2, 
-        _position : Vector2,
+        player_pos : LittleJS.Vector2, 
+        _position : LittleJS.Vector2,
         _enemy : any,//Enemy,
         enemy_type : String,
         state : string, // the enemy state machine in typesript is string based
         enemy_distance_to_player: number,
-        center : Vector2
+        center : LittleJS.Vector2
     
     ): string {
 
@@ -111,9 +111,9 @@ export class Utils {
     static hit_collision_detected(
         state : number,
         hitpoints : number,
-        pushback_directoin : Vector2,
+        pushback_directoin : LittleJS.Vector2,
         _body : any,//Enemy,
-        _global_position : Vector2,
+        _global_position : LittleJS.Vector2,
         kick_back_distance : number
     ){
 
@@ -304,9 +304,10 @@ export class PhysicsObject extends EngineObject {
 
     playAnim(anim: Array<number>){
         
-
+        // update animation time with the game's delta
         // play the animation for 0.1 seconds
         this.animationTime += LittleJS.timeDelta;
+        
 
         if (this.animationTime >= this.animationInterval) {
             //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    

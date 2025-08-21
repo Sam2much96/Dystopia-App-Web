@@ -358,21 +358,10 @@ export class TopDownPlayer extends Player {
 
             "STATE_WALKING" : () => {
 
-                //const delta = window.simulation.deltaTime!;
-                // walking state
-                //const moveInput = keyDirection().clampLength(1).scale(.1); // clamp and scale input
-        
-                //if (this.moveInput){
-                //console.log("movement debug: ", this.moveInput);
+                // input controls are gotten from parent class
                 this.velocity = this.moveInput;// apply movement
-                //console.log("move input debug: ", this.moveInput, "/",this.velocity);
-                    
-                //}
-                super.update();
+                super.update(); // update physics from the parent
 
-                
-            
-                
                 // play facing animations by normalising moveInput vec2 positions to animation directions
                 if (this.velocity.x === -0.1){
                     
