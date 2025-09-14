@@ -19,6 +19,7 @@ export class Inventory {
     * to do :
     * (1) player stats render function should renderer different pages, not categories
     * (2) Map render functions to ui buttons
+    * (3) Inventory Translations
     */
 
     private items: Record<string, number>; // Dictionary to store inventory items
@@ -102,7 +103,9 @@ export class Inventory {
         // bug : (1) increases inventory item instead of decreasing it
         Object.entries(this.getAllItems()).forEach(([name, count]) => {
             const btn = document.createElement('button');
-            btn.textContent = `${name} x ${count}`; // set the button text
+            // translate inventory items
+            let translateName = window.ui.t(`${name}`, window.ui.currentLang)
+            btn.textContent = `${translateName} x ${count}`; // set the button text
             btn.classList.add('inventory-item'); // optional CSS styling
 
             // add use item for each button

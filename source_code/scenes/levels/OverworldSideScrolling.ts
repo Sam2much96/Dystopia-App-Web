@@ -22,6 +22,7 @@ import { Utils } from '../../singletons/Utils';
 
 //import './box2d'; // this adds globals: box2d, box2dWorld, Box2dObject, etc.
 //import * as Box2D from '../../../source_code/singletons/box2d';
+import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
 
 //const {Box2dObject, box2dEngineInit} = Box2D;
 

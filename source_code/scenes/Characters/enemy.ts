@@ -1,6 +1,21 @@
-// to do: (1) update documentation
-// (2) rewrite all collision classes to use static type checks instead of global singletons , this would fix the enemy mob and the 
-// buggy hit collision problem
+/**
+ * Enemy
+ * 
+ * Features:
+ * (1) Detects enemy object in the update function
+ * 
+ * 
+ * To DO :
+ * (1) Randomize enemy speed
+ * (2) Velocity logic for enemy movement in mob state
+ * (3) Enemy State Machine (1/2)
+ * (4) Implement Enemy idle state with animations
+ * (5) Implement Enemy idle to Enemy mob to Enemy Idle animation states
+ * (6) Synchronize enemy and player state machine enumerations
+ * (7) update documentation
+ */
+
+
 
 import * as LittleJS from 'littlejsengine';
 import { Player} from './player';
@@ -12,17 +27,9 @@ const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
 
 export class Enemy extends PhysicsObject {
-    // To DO :
-    // (1) Enemy spawner
-    // (2) Enemy Mob logic using Utils functions (done)
-    // (3) Enemy State Machine (1/2)
-    // (4) Enemy Collisions
-    // (5) Enemy Animations (2/3)
-    // (6) Synchronize enemy and player state machine enumerations
-    // (7) Connect to Utils hit collision detection system (done)
 
     public hitpoints: number = 5;
-    public speed: number = 2;
+    public speed: number = 1.5;
     public detectionRange: number;
     public minDistance: number;
     public wanderCooldown: number;
@@ -91,7 +98,7 @@ export class Enemy extends PhysicsObject {
     public Y : number  = 0; // used for facing animation calculations
 
     // Enemy AI variables
-    public local_player_object : Player | null = window.player;
+    public local_player_object : Player | null = null;
     public direction : LittleJS.Vector2 = vec2(0);
     public length : number = 0;
     //private delta : number = 0;
@@ -120,11 +127,6 @@ export class Enemy extends PhysicsObject {
         // store object to global pointer for object pooling
         window.globals.enemies.push(this);
 
-
-        // store player object in global array when instanced
-       // window.globals.enemies.push(this);
-
-
         // Enemy State Machine initialisation
         this.stateMachine = this.StateMachine();
         this.facing = this.Facing();
@@ -140,7 +142,6 @@ export class Enemy extends PhysicsObject {
         //this.setCollision(true, true); // make object collide
         //this.mass = 0; // make object have static physics
 
-        //enemy AI variables
 
 
         this.detectionRange = 200; // Range to detect the player
@@ -148,6 +149,10 @@ export class Enemy extends PhysicsObject {
         this.targetPos = vec2(0, 0); // Random wandering target
         this.wanderCooldown = 0; // Time before choosing a new wandering target
 
+
+        // Object timers
+        // (1) Despawn timer
+        // (2) Detection Timer
 
         // blood fx
         //this.blood_fx = null
@@ -159,15 +164,20 @@ export class Enemy extends PhysicsObject {
     }
     render(){
         // draw the enemy tiles
-        //console.log(this.currentFrame); // frame positioning doesnt start from 0
-        //down : 17,18,19,20
-        // bug: enemy tileset cuts off the last frame row
+        //console.log(this.currentFrame); 
         drawTile(this.pos, this.size, tile(this.currentFrame, 128, 1, 0), this.color, 0, this.mirror);
 
     }
     update() {
-        // to do:
-        // (1) logic is ported to simulation singleton
+
+        // detecting player
+        if (!this.local_player_object && window.player){ 
+
+            //enemy AI variables
+            this.local_player_object = window.player;
+            console.log("enemy player debug: ", this.local_player_object);
+
+        }
 
         // Despawn logic
         if (this.hitpoints <= 0) {
@@ -179,6 +189,8 @@ export class Enemy extends PhysicsObject {
         
         // if player object is valid
         if (this.local_player_object) {
+
+            //get a raycast to detect the distance
 
             // trigger the enemy mob state
             this.state = this.enum.get("STATE_MOB")!;
@@ -197,8 +209,8 @@ export class Enemy extends PhysicsObject {
             // todo : 
             // (1) connect both player and enemy state machines to simulation collision detection
             // (2) implement raycast into enemy detection logic
-            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-                //console.log("ENemy Hit Collision Detection Triggered: ", distanceToPlayer);
+            if (isOverlapping(this.pos, this.size, this.local_player_object.pos, this.local_player_object.size)) {
+                //console.log("ENemy Hit Collision Detection Triggered "); // works
 
                 // this.hitpoints -= 1;
                 //this.pos = window.player.pos
@@ -236,12 +248,15 @@ export class Enemy extends PhysicsObject {
 
     }
 
+    setPlayer(obj : Player ){
+        this.local_player_object = obj
 
+    }
 
-    _get_player() {
+    getPlayer() : Player {
 
         //(1) Gets the Player Object in the Scene Tree if Player unavailable, get him from the global pointer 
-        return 0;
+        return this.local_player_object!!;
     }
 
     hitCollisionDetected(){ // resolves the enemy hit collision detection
@@ -394,10 +409,11 @@ export class Enemy extends PhysicsObject {
                 
                 // remove object from global object pool
                 // remove object from global array
-                const index = window.globals.enemies.indexOf(this);
-                if (index !== -1) {
-                    window.globals.enemies.splice(index, 1);
-                }
+                //const index = window.globals.enemies.indexOf(this);
+                //if (index !== -1) {
+                //    window.globals.enemies.splice(index, 1);
+                //}
+                window.globals.enemies = window.globals.enemies.filter(e => !e.isDead);
 
                 this.destroy();
 

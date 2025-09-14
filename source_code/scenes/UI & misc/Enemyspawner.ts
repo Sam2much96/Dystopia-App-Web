@@ -30,15 +30,26 @@ export class EnemySpawner extends PhysicsObject {
                 // spawn 2 new enemies if the enemy pool is 0
         if (window.globals.enemies.length < 1 && this.ENABLE) {
             this.enemy1 = new Enemy(this.pos);
-            //this.enemy2 = new Enemy(this.pos); 
+            this.enemy2 = new Enemy(this.pos); 
+ 
+            // set the player position
+            //this.enemy1.setPlayer(window.player)
+            //this.enemy2.setPlayer(window.player)
+            
+            
             this.COUNTER += 1;
         //if (this.COUNTER === 2) {
         //    this.ENABLE = false
         //}
 
-            return
+            //return
 
         }
+
+        // update all enemy objects
+        //for (const enemy of window.globals.enemies) {
+        //    enemy.update();
+        //}
     }
 
     render(){

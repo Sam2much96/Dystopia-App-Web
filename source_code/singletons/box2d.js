@@ -13,7 +13,7 @@
 
 'use strict';
 
-let box2d;
+//let box2d;
 let box2dWorld;
 let box2dDebugDraw;
 let box2dDebug = false;
@@ -801,7 +801,7 @@ function box2dDrawFillStroke(context, color, outlineColor, lineWidth)
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Setup
 
-function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources)
+export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources)
 {
     Box2D().then(_box2d=>
     {

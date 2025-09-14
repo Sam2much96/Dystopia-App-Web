@@ -51,6 +51,7 @@ export class UI  {
     (13) Fix broken Inventory Ui logic
     (14) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
     (15) Each UI item should be in separate classes/ scripts
+    (16) Map UI language controls to a controller UI
     */
 
 
@@ -97,7 +98,7 @@ export class UI  {
     //public browserLang = navigator.language;
     //csv translations settings
     private translations : Translations  = {};
-    private currentLang : string = "fr";//(navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
+    public currentLang : string = (navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
 
 
     constructor() {
@@ -106,7 +107,6 @@ export class UI  {
         console.log("language debug:", this.currentLang);
 
         
-        this.loadTranslations(); //load the translations csv
 
         // Create UI objects For All UI Scenes
         // set root to attach all ui elements to
@@ -409,7 +409,7 @@ export class UI  {
         
     }
 
-    ingameMenu() {
+    async ingameMenu() {
         /*
         * Creates the Ingame Menu UI Object
         *
@@ -417,17 +417,20 @@ export class UI  {
         * (1) ingame menu scaling via android singletons
         * (2) menu translations
         */
+
+
+        await this.loadTranslations(); //load the translations csv
         
         if (this.newGame) return; // guard clause
         console.log("Creating Ingame Menu");
     
         // note : (1) ingame menu translations is buggy
-        this.newGame = this.createMenuOption(this.t("new game"), "#", () => {
+        this.newGame = this.createMenuOption(this.t("new game", this.currentLang), "#", () => {
             window.music.sound_start.play();
             window.simulation = new Simulation();
         });
 
-        this.contGame = this.createMenuOption(this.t("continue"), "#", () => {
+        this.contGame = this.createMenuOption(this.t("continue", this.currentLang), "#", () => {
                     window.music.sound_start.play();
                 });
 
@@ -438,11 +441,11 @@ export class UI  {
         });
         */
        
-        this.Controls = this.createMenuOption(this.t("controls"), "#", () => {
+        this.Controls = this.createMenuOption(this.t("controls", this.currentLang), "#", () => {
             window.music.sound_start.play();
         });
 
-        this.Quit = this.createMenuOption(this.t("quit"), "#", () => {
+        this.Quit = this.createMenuOption(this.t("quit", this.currentLang), "#", () => {
             window.music.sound_start.play();
             window.THREE_RENDER.showThreeLayer();// doesn;t work
         });
@@ -524,9 +527,10 @@ export class UI  {
         return div;
     }
 
-    async loadTranslations(){
-        console.log("Translations initialised: Fix buggy translations code");
-        const response  = await fetch ("Translation_1.csv"); // works
+    async loadTranslations() : Promise<void>{
+        //translations[key][lang]
+        console.log("UI Translations initialised");
+        const response  = await fetch ("./Translation_1.csv"); // works
         const csvText = await response.text(); // works
 
         // to do: 
@@ -542,16 +546,23 @@ export class UI  {
         for (let j = 1; j < headers.length; j++) {
                 this.translations[key][headers[j]] = cols[j];
             }
-        }
-        console.log("translations debg: ", this.translations); // works
+        }   
+        //debug language translations
+        //console.log("translations debg: ", this.translations); // works
+        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
     }
 
-    t(key : string) { // translates the string file
+    t(word : string, lang: string) : string { // translates the string file
         // doesn't work for other translations
         // bug: returns the key without actually translating
-        var y = this.translations[key]?.[this.currentLang] || key;
-        console.log("lang debug 2: ", y);
+        // bug: function doesn't wait for finished loading translations to translate and so breaks
+        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
+        if (!this.translations){ return word} // guard clause 
+        //console.log("word debug: ", word);
+        var y = this.translations[word][lang];        
+        //console.log("lang debug 2: ", y, "/ key: ", lang);
         return y
+        
     }
 }
 

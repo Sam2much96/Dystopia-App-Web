@@ -23,7 +23,7 @@ import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
 import {TopDownPlayer} from "../Characters/player";
-import {Enemy} from "../Characters/enemy";
+//import {Enemy} from "../Characters/enemy";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 
 import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";

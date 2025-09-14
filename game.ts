@@ -217,12 +217,12 @@ function gameInit() {
 
     // Add  Inventory Items
     // to do : feed inventory globals to inventroy ui
-    window.inventory.set("Generic Item", 5-1);
-    window.inventory.set("Bomb", 3);
-    window.inventory.set("Magic Sword", 2);
-    window.inventory.set("Arrow", 13);
-    window.inventory.set("Bow", 3);
-    window.inventory.set("health potion", 3);
+    //window.inventory.set("Generic Item", 5-1);
+    //window.inventory.set("Bomb", 3);
+    //window.inventory.set("Magic Sword", 2);
+    //window.inventory.set("Arrow", 13);
+    //window.inventory.set("Bow", 3);
+    //window.inventory.set("health potion", 3);
     
     
 
