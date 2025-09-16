@@ -1,3 +1,11 @@
+/*
+styling sheet for stats UI
+
+To do:
+(1) document
+(2) fix icon positioning
+(3) refactor
+*/
 * {
   box-sizing: border-box;
   

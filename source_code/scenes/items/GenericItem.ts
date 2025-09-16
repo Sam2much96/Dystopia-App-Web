@@ -13,6 +13,7 @@ export class GenericItem extends EngineObject {
      * TO DO:
      * (1) parse item collect to status queue ui
      * (2) port status queue ui from godot to typescript
+     * (3) Implement translations to items UI (done)
      * 
      */
 
@@ -31,6 +32,7 @@ export class GenericItem extends EngineObject {
 
     update(){
 
+        // item hit collision
         if (window.player){
 
             // set player collision to coin object

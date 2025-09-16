@@ -3,14 +3,17 @@
  * 
  * Features:
  * (1) Renders all game UI and huds
+ * (2) Uses stats.css and dialog.css for UI object styling
  * 
  * Bugs:
  * (1) Menu Button icon doesn't render in production
  * (2) Screen D-Pad controls is laggy, consider debugging enemy A.I. if the cause pf lag is from simulations delta
  * (3) Status HUD buttons aren't working on mobile browsers, duplicate press initialisation from menu UI
+ * (4) Fix Yandex moderation issues for IOS & android tv examples : https://github.com/Sam2much96/Dystopia-App-Web/issues/6
  */
+import { Music } from "./Music";
 import {Simulation} from "./Simulation";
-import { useItem } from "./Inventory";
+//import { useItem } from "./Inventory";
 import * as LittleJS from 'littlejsengine';
 
 
@@ -27,9 +30,8 @@ export class UI  {
 
     Each UI setup is sepatated into diffferent functions
 
-    To DO:
+    Features:
     (1) in-game menu (1/2)
-    (2) Controls Menu
     (3) Game HUD 
         -inventory ui (1/3)
         -quest ui
@@ -38,12 +40,11 @@ export class UI  {
         -map dialogue text to dialog box boundaries
         
     (5) Heartbox (1/2)
-    (6) Should Play UI sounds from singleton class (1/2)
+    (6) All UI elements Play UI sounds from singleton class (2/2)
 
-    (7) Separate Each Object into class extensions
-    
-    (8) UI upscalling for mobile browsers
-    (9) Better UI graphics
+    To DO:
+    (2) Controls Menu
+
     (10) Separate each Ui element type into different classes with global pointers
         - game menu, game hud, 
     (11) organise heartbox into 64x UI tileset
@@ -52,6 +53,7 @@ export class UI  {
     (14) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
     (15) Each UI item should be in separate classes/ scripts
     (16) Map UI language controls to a controller UI
+    
     */
 
 
@@ -63,7 +65,7 @@ export class UI  {
     //public UI_GAMEHUD: HTMLDivElement;
     public HEART_BOX: Array<HTMLDivElement>;
     public UI_STATS: HTMLDivElement;
-    public UI_CONTROLS: HTMLDivElement;
+    //public UI_CONTROLS: HTMLDivElement;
     public DIALOG_BOX: HTMLDivElement;
 
     // UI Buttons
@@ -85,6 +87,12 @@ export class UI  {
     public menuButton: HTMLButtonElement | null = null;
     public walletButton: HTMLButtonElement | null = null;
 
+    // tab button elements
+    public statsTab : HTMLButtonElement | null = null;
+    public walletTab : HTMLButtonElement | null = null;
+    public inventoryTab : HTMLButtonElement | null = null;
+    public questTab : HTMLButtonElement | null = null;
+
 
     //timer: LittleJS.Timer = new Timer();
 
@@ -93,12 +101,13 @@ export class UI  {
     public SHOW_INVENTORY : boolean = true;
 
     // safe pointer to the music global singleton
-    private local_music_singleton = window.music;
+    public local_music_singleton : Music = window.music;
+    
 
     //public browserLang = navigator.language;
     //csv translations settings
     private translations : Translations  = {};
-    public currentLang : string = (navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
+    public currentLang : string = "ru_RU";//(navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
 
 
     constructor() {
@@ -117,25 +126,10 @@ export class UI  {
 
         // Create UI containers
         this.leftButtons  = document.getElementById("left-buttons");
-        //this.leftButtons.id = "left-buttons";
-
-        this.TopRightUI = document.getElementById("top-right-ui"); //document.createElement("div");
-        //this.TopRightUI.id = "top-right-ui";
-
-                //create menu with inner html script
-        // bugs
-        // (1) game menu small scale on mobile
-        // (2) game menu buttons doesn't click with mobile touch
-
-        // connects to menu container div in index.html ln 59.
-        // turn menu invisible by default
-        // to do: create this div with code
+        this.TopRightUI = document.getElementById("top-right-ui"); 
         this.menuContainer = document.getElementById("menu-container");
-        //this.menuContainer.id = "menu-container";
-
         this.inventoryContainer = document.getElementById("hud");
-        //this.inventoryContainer.id = "inventory-container";
-        
+
         // turn off
         this.InventoryVisible = false;
         
@@ -146,7 +140,7 @@ export class UI  {
         //this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
         this.HEART_BOX = []; //created with the heartbox function
         this.UI_STATS = this.createPanel("ui-stats");// stats and inventory
-        this.UI_CONTROLS = this.createPanel("ui-controls");
+        //this.UI_CONTROLS = this.createPanel("ui-controls");
         this.DIALOG_BOX = this.createPanel("dialog-box");
 
 
@@ -154,7 +148,7 @@ export class UI  {
                     this.UI_MENU,
                     //this.UI_GAMEHUD,
                     
-                    this.UI_CONTROLS,
+                    //this.UI_CONTROLS,
                     this.DIALOG_BOX
                 );
 
@@ -164,20 +158,34 @@ export class UI  {
         
         // tab button for rendering different stats icons and screens
         // currently unimplemented
-        // to do : (1) organise button layout
-        document.querySelector('.v12_14')?.addEventListener('click', this.debugTab);
-        document.querySelector('.v12_15')?.addEventListener('click', this.debugTab);
-        document.querySelector('.v12_16')?.addEventListener('click', this.debugTab);
-        document.querySelector('.v12_17')?.addEventListener('click', this.debugTab);
-
+        // to do : 
+        // (1) organise button layout
+        // (2) add proper documentation and function calls (1/2)
+        // (3) create class pointer objects for each tab butten and placeholder functions (done)
+        // (4) add tab button sound fx
+        // (5) fix stats UI items overlap
+        // (6) change even handler from click to on button down (done)
+        this.statsTab = document.querySelector('.v12_14');
+        this.walletTab = document.querySelector('.v12_15');
+        this.inventoryTab = document.querySelector('.v12_16');
+        this.questTab = document.querySelector('.v12_17');
         
+        // connect button click events to render functions via global singletons -> local object pointers
+        // depreciate default inventory renderer
+        this.statsTab?.addEventListener("pointerdown", () => { this.debugTab("v12_14 stats tab")});
+        this.walletTab?.addEventListener("pointerdown", () => {this.debugTab("v12_15 wallet tab")});
+        this.inventoryTab?.addEventListener("pointerdown", () => {this.debugTab("v12_16 inventory tab")});
+        this.questTab?.addEventListener("pointerdown", () => {this.debugTab("v12_17 quests tab")});
+
+        console.log("tabs debug 2: ", this.statsTab);
         
         }
     
-    debugTab(){
+    debugTab(log : string){
     // for debugging tab button presses
     // to do: (1) connect to different stats UI render
-    console.log("tab button clicked")
+    window.music.ui_sfx[0].play();
+    console.log(`tab button clicked x ${log}`)
     }
    
 
@@ -348,6 +356,9 @@ export class UI  {
             // (6) Game Menu Shouldn't trigger once stats is showing
             // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) 
 
+            // to do:
+            // (1) depreciate default stats render UI from stats HUD button press
+            // (2) Make all global singletons directly responsible for their UI render implementation
             // fetch all inventory items
             console.log("Inventory Items", window.inventory.getAllItems());
 
@@ -364,8 +375,12 @@ export class UI  {
             this.InventoryVisible = !this.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
         });
+        
         this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
 
+            // to do:
+            // (1) implement better wallet singleton to UI class pointer
+            // (2) create generic wallet api implementation adaptable for multiple web plaforms not just pera wallet
             window.music.ui_sfx[0].play();
             window.wallet.__connectToPeraWallet()
         
@@ -501,6 +516,7 @@ export class UI  {
         option.className = "menu-option";
         option.innerText = text;
         
+        // to do: use event handler architecture for stats UI buttons
         const handler = (event: Event) => {
             event.preventDefault(); // Prevent navigation
             if (this.menuContainer!.style.display !== "none") {

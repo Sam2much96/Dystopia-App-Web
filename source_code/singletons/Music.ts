@@ -21,6 +21,7 @@ export class Music {
     TO DO:
     (1) All music play in this codebase, should be routed through this object via a function
     (2) separate music and sfx plays funcitionally
+    (3) Music should turn off when switching tabs is needed for yandex moderation approval
 
     Notes:
     (1) The SFX and Music Use 2 Different Systems, SFX USes ZzFX a js midi engine
@@ -28,14 +29,14 @@ export class Music {
     (2) Most Browsers Refuse Audio music play by default unless the player / user enters an input gesture
     */
 
-    //public ENABLE: boolean; //depreciated
+    
 
 
     public music_on : boolean = true;
     public sfx_on : boolean = true ;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
-
+    public wasPlaying : boolean = false;
     
     //music track variables
     public play_back_position : number | undefined;
@@ -157,7 +158,8 @@ export class Music {
         this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
-      
+        // to do: 
+        // (1) move this code to the class object initialiser and not class constants
         //drum
         //const drum = new Sound([,,129,.01,,.15,,,,,,,,5]); // Loaded Sound 68
 
@@ -215,7 +217,26 @@ export class Music {
 
         // Music tracks Url's
         //this.default_playlist 
-
+        
+        // ---- ADD TAB VISIBILITY HANDLER ----
+        // this turns the music off if the browser tab
+        // is no longer visible
+        document.addEventListener("visibilitychange", async () => {
+            if (document.hidden){
+                if (this.stream){
+                    //this.stream.stop();
+                    await zzfxX.suspend();
+                    this.wasPlaying = true;
+                    console.log("pausing music");
+                }
+            }
+            else{
+                if (this.wasPlaying){
+                    await zzfxX.resume();
+                    console.log("resuming game music");
+                }
+            }
+        });
 
 
     }
@@ -242,8 +263,8 @@ export class Music {
 
     }
 
-    
-    play_sfx(){}
+    // unnecessary function
+    //play_sfx(){}
 
     
     unsafeParse(str: string) : any {
@@ -311,7 +332,7 @@ export class Music {
           // Renders the song. ZzFXM blocks the main thread so defer execution for a few
          // ms so that any status message change can be repainted.
          // to do:
-        // (1) fix audio balancing on headphones
+        // (1) fix audio balancing on headphones via mizing
         const render = (song : any[]) : Promise<number[][]> => {
             return new Promise(resolve => {
                 setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
