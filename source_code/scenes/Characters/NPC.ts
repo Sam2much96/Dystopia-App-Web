@@ -3,3 +3,54 @@ import { Player} from './player';
 import { Utils, PhysicsObject  } from '../../singletons/Utils';
 
 const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
+
+/**
+ * NPC
+ * 
+ * Base NPC class
+ */
+
+
+class NPC extends PhysicsObject {
+    constructor(pos : LittleJS.Vector2){
+        super();
+        this.pos = pos;
+        this.mass = 1;
+        this.currentFrame = 1; // set the current frame for the object
+
+    }
+
+}
+
+
+/**
+ * NPC Trader
+ * 
+ * Requires:
+ * (1) Dialogs subsystem
+ * (2) Decision Dialog
+ * (3) Translated Dialogs
+ * (4) Ads API
+ * (5) Database implementation
+ * (6) Shop API & Documentation
+ * (7)
+ * 
+ * To Do:
+ * (1)NPC movement logic
+ */
+
+class Merchant extends NPC{}
+
+/**
+ * NPC Old Woman
+ * 
+ */
+
+
+class OldWoman extends NPC{}
+
+/**
+ * NPC Aboy
+ * 
+ */
+class NPC_Aboy extends NPC{}

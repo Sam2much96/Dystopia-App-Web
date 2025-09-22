@@ -46,7 +46,7 @@ import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
 import {Globals} from "./source_code/singletons/Globals";
 import {Inventory} from "./source_code/singletons/Inventory";
-
+import { Diaglogs } from './source_code/singletons/Dialogs';
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
@@ -65,6 +65,7 @@ import { initPostProcess } from './source_code/singletons/postProcess';
 
 
 
+
 //import * as Box2D from './source_code/singletons/box2d';
 //const {Box2dObject, box2dEngineInit} = Box2D;
 //import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
@@ -79,7 +80,7 @@ setShowSplashScreen(false);
 
 // Game Pad on Mobile Devices Settings
 setTouchGamepadEnable(true);
-setTouchGamepadSize(256);
+setTouchGamepadSize(100); // game pad is too big on some mobile browsers
 setTouchGamepadAlpha(0.3);
 
 // set dpad configuration on mobile browsers 
@@ -99,6 +100,7 @@ declare global {
         globals: Globals,
         utils: Utils,
         music: Music,
+        dialogs : Diaglogs,
         //ads: Ads,
         player: Player,
         //enemy: Array<Enemy>,
@@ -182,8 +184,8 @@ function gameInit() {
 
     /* Create 3D Scenes And Objects*/
     window.THREE_RENDER = new ThreeRender();
-
-
+    window.dialogs = new Diaglogs();
+    window.globals = new Globals();
     // UI Setup
     // creates the ui singleton, scenes and global functions
     // to do: redesign and map ui from figma to here
@@ -198,10 +200,10 @@ function gameInit() {
 
 
     window.inventory = new Inventory;
-    window.globals = new Globals;
+    
     window.utils = new Utils;
     window.music = new Music;
-
+    
 
   
 
@@ -343,15 +345,28 @@ function gameRender() {
     // triggers srart of game loop from simulation singleton
     // The third tile parameter constrols which tile object to draw
     // draw tile allows for better object scalling
+
+    // start game logic
     if (window.globals.GAME_START) {
         
+        // yandex games logic
+        // documentation : https://yandex.com/dev/games/doc/en/sdk/sdk-game-events#gameready.
+        if (window.YaGames){
+            // Informing the platform that the game has loaded and is ready to play.
+            console.log("Yandex todo : expand yandex game implementation from js to typescript class ");
+            console.log ("Yagames: ", window.YaGames);
+            // to do:
+            // (1) implement yandex ads properly with a global singleton class that handles error
+            // (2) improper yandex ads implementation might be what crashes iphone browsers
+        }
+
         if (!window.map){
             // to do: (1) create exit scene
             
             // overworld map 1 works
             // currently testing temple interior
             window.map = new OverWorld();
-
+           
             
             window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing
@@ -369,6 +384,8 @@ function gameRender() {
                             // 1. draw background image
             
         }
+
+        //yandex sdk game start logic
    
         //create global player object
         if (!window.player) {

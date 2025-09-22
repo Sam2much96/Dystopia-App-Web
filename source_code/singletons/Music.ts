@@ -32,7 +32,7 @@ export class Music {
     
 
 
-    public music_on : boolean = true;
+    public enable : boolean = true;
     public sfx_on : boolean = true ;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
@@ -149,7 +149,7 @@ export class Music {
         setSoundVolume(0.3);
         setSoundEnable(true);
 
-        console.log("Music on Settings: ", this.music_on );
+        console.log("Music on Settings: ", this.enable );
         
         
         // Initialize the LittleJS Sound System
@@ -221,6 +221,7 @@ export class Music {
         // ---- ADD TAB VISIBILITY HANDLER ----
         // this turns the music off if the browser tab
         // is no longer visible
+        // works
         document.addEventListener("visibilitychange", async () => {
             if (document.hidden){
                 if (this.stream){
@@ -299,7 +300,7 @@ export class Music {
         //use zzfxm synthesiser for music
          
         //error catcher for double music plays
-        if (this.music_on && this.counter == 0){
+        if (this.enable && this.counter == 0){
     
 
             // Loads a song via a http get request

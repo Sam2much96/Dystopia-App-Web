@@ -25,14 +25,16 @@ import { GenericItem } from '../items/GenericItem';
 import {TopDownPlayer} from "../Characters/player";
 //import {Enemy} from "../Characters/enemy";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
-
+import {Utils} from "../../singletons/Utils";
 import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";
 
 export class OverWorld extends EngineObject{
     /*
         Features
 
-        (1) This render is only adapted to an infinite map
+        (1) Renders the overworld map
+        (2) Renders the overworld objects
+        (3) saves the game state with static functions 
 
         Unused 
         The Overworld Scene + Objects as children
@@ -61,7 +63,7 @@ export class OverWorld extends EngineObject{
          (5) create player and enemy spawning tiles and depreciate manual player spawing implementation (done)
          (6) create exit scene collision object and logic
          (7) create temple interior pixel art background and tileset (1/3)
-         (8) 
+         (8) create NPC
         */
     
     LevelSize: LittleJS.Vector2 | null = null;
@@ -460,8 +462,10 @@ export class OverWorld extends EngineObject{
 
     destroy(): void {
         
-        if (this.tempExtLayer) this.tempExtLayer.destroy();
-        
+        if (this.tempExtLayer) {
+            this.tempExtLayer.destroy();
+        }
+        Utils.saveGame(); // save the game state once exiting the overworld map
 
         for (const enemy of window.globals.enemies){
 

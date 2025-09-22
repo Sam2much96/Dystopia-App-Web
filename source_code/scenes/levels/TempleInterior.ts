@@ -100,6 +100,7 @@ export class TempleInterior extends EngineObject {
         if (this.tileLayer){
             this.tileLayer.destroy();
 
+        Utils.saveGame(); // save the game state once exiting the temple interior map
         if (this.levelObjects){ // destroy all instanced level objects
             for (const i of this.levelObjects!){
                 i.destroy();

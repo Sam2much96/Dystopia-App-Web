@@ -22,7 +22,7 @@ export class Inventory {
     * (3) Inventory Translations
     */
 
-    private items: Record<string, number>; // Dictionary to store inventory items
+    public items: Record<string, number>; // Dictionary to store inventory items
     public inventoryUI: HTMLElement | null = null;
     constructor() {
         console.log("Loading Inventory Singleton");
@@ -104,7 +104,10 @@ export class Inventory {
         Object.entries(this.getAllItems()).forEach(([name, count]) => {
             const btn = document.createElement('button');
             // translate inventory items
-            let translateName = window.ui.t(`${name}`, window.ui.currentLang)
+            let translateName = window.ui.t(`${name}`, window.dialogs.language)
+            
+            // debug inventory translations
+            //console.log("translate Inv debug: ", translateName); //works
             btn.textContent = `${translateName} x ${count}`; // set the button text
             btn.classList.add('inventory-item'); // optional CSS styling
 
@@ -268,7 +271,7 @@ export class Inventory {
         if (!container) return;
 
         // serialise global info to the stats ui
-        let hp : number = window.globals.health;
+        let hp : number = window.globals.hp;
         let kc : number = window.globals.kill_count;
         container.innerHTML = `
             <div class="stats-tab">
@@ -434,7 +437,7 @@ export function useItem(type :string, amount : number ) : boolean {
         
         if (type== "health potion"){
             player.hitpoints += 1;
-            window.globals.health += 1;
+            window.globals.hp += 1;
             window.ui.heartbox(window.player.hitpoints)
             // update heart box hud
             //player.update_heart_box();

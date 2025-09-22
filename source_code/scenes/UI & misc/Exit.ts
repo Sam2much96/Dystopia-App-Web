@@ -76,7 +76,7 @@ export class House1 extends EngineObject {
      * (1) temporarily disabled for Marketplace and translations implementation
      * (2)  
      */
-    ENABLE : boolean = false;
+    ENABLE : boolean = true;
     tileNumber : number;
     constructor(posi : LittleJS.Vector2){
 

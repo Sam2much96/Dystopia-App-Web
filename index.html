@@ -14,7 +14,9 @@
     
     <link rel="stylesheet" href="source_code/styles/styles.css">
     <link rel="stylesheet" href="source_code/styles/stats.css">
-
+    <link rel="stylesheet" href="source_code/styles/heartbox.css">
+    <link rel="stylesheet" href="source_code/styles/gamehud.css">
+    <link rel="stylesheet" href="source_code/styles/ingame_menu.css">
     
     <!-- SEO optimisation for google and older search engines-->
     <!-- Open Graph (Facebook, LinkedIn) -->
@@ -65,7 +67,7 @@
                         
 
         <!-- Stats Panel Div-->
-        <div class="main">
+        <div class="statspanel">
               <!-- Icon or Visual Box for Stats -->
               <div class="dashboard" ></div>
 
@@ -107,7 +109,24 @@
           console.log('Yandex SDK initialized');
           window.ysdk = sdk;
 
-          // Example ad call (optional)
+
+                  // yandex games logic
+        // documentation : https://yandex.com/dev/games/doc/en/sdk/sdk-game-events#gameready.
+        
+            // to do:
+            // (1) implement yandex ads properly with a global singleton class that handles error
+            // (2) improper yandex ads implementation might be what crashes iphone browsers
+        
+
+          // Informing the platform that the game has loaded and is ready to play.
+          sdk.features.LoadingAPI?.ready()
+
+          // works:
+          // (1) port initialisation logic to typescript with proper error handling / debugging
+          // (2) implement ads into gameplay via shop 
+          // (3) implement rewarded ads ligic
+
+          // ad call 
           sdk.adv.showFullscreenAdv({
             callbacks: {
               onOpen: () => console.log('Ad opened'),

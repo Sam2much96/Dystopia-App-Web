@@ -12,6 +12,12 @@ export class Utils {
     (1)  Contains All Game Math Logic in One Script
     (2) Extends Static Functions to Other Scenes For Handing Maths, and Logical Caculations asides Simulation Logic
     (3) Detects which type of device the game is running on for platform specific optimization
+
+    To do:
+    (1) implement abstract save and load class that serialises player data to json
+    (2) connect abstract save functions to yandex games to pass game moderation : docs : https://yandex.com/dev/games/doc/en/sdk/sdk-player
+    (3) use save data implementation from Dystopia site implementation to store data to cookies as well
+    (4) implement save and load players inventory items to yandex server, json , and on-chain
     */
 
     public browser : string = "unknown";
@@ -228,17 +234,52 @@ export class Utils {
     static saveGame(){
 
         // save game state to a session token
-        // sessionStorage.setItem('products', JSON.stringify(data));
-        //console.log(`✅ Loaded Shop Database 1`);
+        // serialises game state from each autoload singleton
+        // To do:
+        // (1) Quest and dialog subsystems are unwritten as at the time of writing this on Sept 20, 2025
+        let data : { [key: string]: any } = {};
+        let safe_Globals = window.globals;
+        let safe_Diag = window.dialogs;
+        let safe_Music = window.music;
+        //let safe_Quest ;
+        //let safe_Wallet ;
+        let safe_Inventory = window.inventory;
+        
+        data["suds"] = safe_Globals.suds;
+        data["kill_count"] = safe_Globals.kill_count;
+        data["hp"] = safe_Globals.hp;
+        data["language"] = safe_Diag.language;
+        data["death_count"] = safe_Globals.death_count;
+        data["inventory"] = safe_Inventory.getAllItems();
+        data.music = Number(safe_Music.enable);
+        sessionStorage.setItem('savegame', JSON.stringify(data));
+        console.log(`✅ save game successfull`);
+        //ddddd
+        // (1) get all required global singletons
+        //
 
     }
 
     static loadGame(){
         // load game state function
         // load function
-        //var shopJson = sessionStorage.getItem('products');
-        // if (shopJson){}
-        // else {}
+        let saveDict = sessionStorage.getItem('savegame');
+        if (saveDict){
+            console.log("save game debug: ", saveDict);
+            let safe_Globals = window.globals;
+            //let safe_Diag;
+            let safe_Music = window.music;
+            //let safe_Quest ;
+            //let safe_Wallet ;
+            let safe_Inventory = window.inventory;
+
+
+            console.log(`✅ load game successfull`);
+        }
+        else {
+            console.warn("save file is not detected")
+        }
+        // (2)
     }
 }
 

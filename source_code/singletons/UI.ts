@@ -13,7 +13,8 @@
  */
 import { Music } from "./Music";
 import {Simulation} from "./Simulation";
-//import { useItem } from "./Inventory";
+
+import {Utils} from "./Utils";
 import * as LittleJS from 'littlejsengine';
 
 
@@ -107,13 +108,12 @@ export class UI  {
     //public browserLang = navigator.language;
     //csv translations settings
     private translations : Translations  = {};
-    public currentLang : string = "ru_RU";//(navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
 
-
+    private language : string = window.dialogs.language; // fetch language from dialog singleton
     constructor() {
         // testing other languages
         // doesn't work
-        console.log("language debug:", this.currentLang);
+        console.log("language debug:", this.language);
 
         
 
@@ -133,7 +133,7 @@ export class UI  {
         // turn off
         this.InventoryVisible = false;
         
-        this.MenuVisible = true;
+        this.MenuVisible = true; // make menu initially visible
         
         // create a div for each of these new UI elements
         this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
@@ -330,11 +330,15 @@ export class UI  {
         /*  
         * Spawns The Game HUD Buttons & Connects 
         * Their SIgnals on start of the game 
+        * 
+        * To do:
+        * (1) lock game hud designs into html and css class
+        * (2) include logic to hide the game hud once game menu is visible to prevent UI overlap
         */
 
         //create Heartboxes
         //update & draw heartbox ui every frame
-        this.heartbox(3); //create 3 hearboxes
+        this.heartbox(window.globals.hp); //create 3 hearboxes
         console.log("Creating Game HUD Buttons");
         
         // create button icons images
@@ -375,6 +379,8 @@ export class UI  {
             this.InventoryVisible = !this.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
         });
+        // to do:
+        // (1) lock gameHUD layout into separated css and html files and separte each ui into seprate css object
         
         this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
 
@@ -440,13 +446,23 @@ export class UI  {
         console.log("Creating Ingame Menu");
     
         // note : (1) ingame menu translations is buggy
-        this.newGame = this.createMenuOption(this.t("new game", this.currentLang), "#", () => {
+        this.newGame = this.createMenuOption(this.t("new game", this.language), "#", () => {
             window.music.sound_start.play();
+            console.log('creating new game simulation');
             window.simulation = new Simulation();
+            Utils.saveGame();
+
+            //hide menu
+             window.ui.MenuVisible = false; // hide the menu ui
         });
 
-        this.contGame = this.createMenuOption(this.t("continue", this.currentLang), "#", () => {
+        this.contGame = this.createMenuOption(this.t("continue", this.language), "#", () => {
                     window.music.sound_start.play();
+                    // logic
+                    // (1) should fetch save game .save and load the current level in the global singleton
+                    Utils.loadGame();
+
+                     window.ui.MenuVisible = false; // hide the menu ui
                 });
 
         // temporarily disabled for yandex games implementation
@@ -456,13 +472,18 @@ export class UI  {
         });
         */
        
-        this.Controls = this.createMenuOption(this.t("controls", this.currentLang), "#", () => {
+        this.Controls = this.createMenuOption(this.t("controls", this.language), "#", () => {
             window.music.sound_start.play();
+
+             window.ui.MenuVisible = false; // hide the menu ui
         });
 
-        this.Quit = this.createMenuOption(this.t("quit", this.currentLang), "#", () => {
+        this.Quit = this.createMenuOption(this.t("quit", this.language), "#", () => {
             window.music.sound_start.play();
             window.THREE_RENDER.showThreeLayer();// doesn;t work
+            
+            //to do :
+            // (1) implement close browser tab
         });
 
         // append buttons to menu container
