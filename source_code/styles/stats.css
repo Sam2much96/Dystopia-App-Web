@@ -168,10 +168,7 @@ body {
 .v12_11 { /*Coins panel*/
   width: 369px;
   height: 584px;
-  background: url("/v12_11.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
+ 
   opacity: 1;
   position: absolute;
   top: 87px;
@@ -208,10 +205,6 @@ body {
 .v12_20 { /*Quest dashboard panel*/
   width: 369px;
   height: 584px;
-  background: url("/v12_20.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
   opacity: 1;
   position: absolute;
   top: 87px;
@@ -248,10 +241,6 @@ body {
 .v12_23 {
   width: 369px;
   height: 584px;
-  background: url("/v12_23.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
   opacity: 1;
   position: absolute;
   top: 87px;
@@ -287,10 +276,6 @@ body {
 .v12_27 {
   width: 369px;
   height: 677px;
-  background: url("/v12_27.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
   opacity: 1;
   position: relative;
   top: 0px;
