@@ -144,7 +144,7 @@ body {
   overflow: hidden;
 }
 
-.v11_5 { /* Stats panel*/
+.v11_5 { /* Stats & inventory items*/
 
   position: absolute;
   top: 65px;
@@ -168,7 +168,7 @@ body {
 .v12_11 { /*Coins panel*/
   width: 369px;
   height: 584px;
-  background: url("../images/v12_11.png");
+  background: url("/v12_11.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -208,7 +208,7 @@ body {
 .v12_20 { /*Quest dashboard panel*/
   width: 369px;
   height: 584px;
-  background: url("../images/v12_20.png");
+  background: url("/v12_20.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -248,7 +248,7 @@ body {
 .v12_23 {
   width: 369px;
   height: 584px;
-  background: url("../images/v12_23.png");
+  background: url("/v12_23.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -287,7 +287,7 @@ body {
 .v12_27 {
   width: 369px;
   height: 677px;
-  background: url("../images/v12_27.png");
+  background: url("/v12_27.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -314,7 +314,7 @@ body {
 .v12_30 {
   width: 358px;
   height: 677px;
-  background: url("../images/v12_30.png");
+  background: url("/v12_30.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -331,7 +331,7 @@ body {
 .v12_18 {
   width: 30px;
   height: 30px;
-  background: url("../images/v12_18.png");
+  background: url("/v12_18.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -344,7 +344,7 @@ body {
 .v13_31 {
   width: 10px;
   height: 10px;
-  background: url("../images/v13_31.png");
+  background: url("/v13_31.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -357,7 +357,7 @@ body {
 .v13_32 {
   width: 10px;
   height: 10px;
-  background: url("../images/v13_32.png");
+  background: url("/v13_32.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -370,7 +370,7 @@ body {
 .v12_14 { /*shield tab with shield icon*/
   width: 48px;
   height: 48px;
-  background: url("../../v12_14.png");
+  background: url("/v12_14.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -384,7 +384,7 @@ body {
 .v12_15 { /* wallet tab button*/
   width: 48px;
   height: 48px;
-  background: url("../../v12_15.png");
+  background: url("/v12_15.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -397,7 +397,7 @@ body {
 .v12_16 { /* sword tab button */
   width: 48px;
   height: 48px;
-  background: url("../../v12_16.png");
+  background: url("/v12_16.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -410,7 +410,7 @@ body {
 .v12_17 { /*stats tab button */
   width: 53px;
   height: 53px;
-  background: url("../../v12_17.png");
+  background: url("/v12_17.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;

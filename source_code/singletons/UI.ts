@@ -5,6 +5,9 @@
  * (1) Renders all game UI and huds
  * (2) Uses stats.css and dialog.css for UI object styling
  * 
+ * To Do:
+ * (1) // to do: implement mouse pos for minimap drawing ui
+ * 
  * Bugs:
  * (1) Menu Button icon doesn't render in production
  * (2) Screen D-Pad controls is laggy, consider debugging enemy A.I. if the cause pf lag is from simulations delta
@@ -135,6 +138,7 @@ export class UI  {
         
         this.MenuVisible = true; // make menu initially visible
         
+        
         // create a div for each of these new UI elements
         this.UI_MENU = this.createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
         //this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
@@ -142,6 +146,7 @@ export class UI  {
         this.UI_STATS = this.createPanel("ui-stats");// stats and inventory
         //this.UI_CONTROLS = this.createPanel("ui-controls");
         this.DIALOG_BOX = this.createPanel("dialog-box");
+        this.DialogVisible = false; //temporarily hide dialogue box for ui refactor Sept 22, 2025
 
 
         this.UI_ROOT.append(
