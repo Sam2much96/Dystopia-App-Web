@@ -82,7 +82,7 @@ export class Player extends PhysicsObject{
     public facingPos : number = 0; // for storing the current facing positoin
 
     // References
-    public local_heart_box: any; // Update type to match UI class
+    //public local_heart_box: any; // Update type to match UI class
     public blood: any | undefined;
     public despawn_particles: any  | undefined;
     public die_sfx: any | undefined;
@@ -133,13 +133,13 @@ export class Player extends PhysicsObject{
         // store player object in global array
         window.globals.players.push(this);
 
-        this.hitpoints = window.globals.health; // global hp singleton 
+        this.hitpoints = window.globals.hp; // global hp singleton 
         // player GUI
-        this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
+        //this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
         //this.isSolid = true;
 
         //touch device debug
-        console.log("Touch device debug: ", isTouchDevice);
+        //console.log("Touch device debug: ", isTouchDevice);
 
     }
 
