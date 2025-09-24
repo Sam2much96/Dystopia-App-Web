@@ -25,6 +25,7 @@ export class Controls {
 
 
     constructor(){
+    // hide the engine splash screen
     LittleJS.setShowSplashScreen(false);
 
     // Game Pad on Mobile Devices Settings

@@ -53,7 +53,7 @@ import {Utils} from "./source_code/singletons/Utils";
 import {Player} from "./source_code/scenes/Characters/player";
 //import {Enemy} from "./source_code/scenes/Characters/enemy";
 
-
+import { Controls } from './source_code/scenes/UI & misc/Controls';
 
 import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
@@ -72,19 +72,6 @@ import { initPostProcess } from './source_code/singletons/postProcess';
 //import {Ads} from "./source_code/scenes/UI & misc/Advertising";
 'use strict';
 
-
-// import module
-
-// show the LittleJS splash screen
-setShowSplashScreen(false);
-
-// Game Pad on Mobile Devices Settings
-setTouchGamepadEnable(true);
-setTouchGamepadSize(100); // game pad is too big on some mobile browsers
-setTouchGamepadAlpha(0.3);
-
-// set dpad configuration on mobile browsers 
-setTouchGamepadAnalog(false);
 
 
 
@@ -148,12 +135,8 @@ declare global {
         inv:string, // Client inventory items
         rt:number, // respawn timer
         hash:string, //hash splice for data integrity
-
+        }
     }
-
-    
-
-}
 }
 
 
@@ -186,13 +169,9 @@ function gameInit() {
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
     window.globals = new Globals();
-    // UI Setup
-    // creates the ui singleton, scenes and global functions
-    // to do: redesign and map ui from figma to here
-    // to do: implement mouse pos for minimap drawing ui
     window.ui = new UI();
-    //window.useItem = useItem;
-
+   
+    let controls = new Controls(); // set up the engine's controls
 
     // Create & hide Ingame Menu
     window.ui.ingameMenu();
@@ -213,18 +192,6 @@ function gameInit() {
     window.utils.detectBrowser();
 
 
-    // ads testing disabled Jul 26/2025
-    //const t = new Ads();
-    //t.initSDK();
-
-    // Add  Inventory Items
-    // to do : feed inventory globals to inventroy ui
-    //window.inventory.set("Generic Item", 5-1);
-    //window.inventory.set("Bomb", 3);
-    //window.inventory.set("Magic Sword", 2);
-    //window.inventory.set("Arrow", 13);
-    //window.inventory.set("Bow", 3);
-    //window.inventory.set("health potion", 3);
     
     
 
@@ -349,16 +316,7 @@ function gameRender() {
     // start game logic
     if (window.globals.GAME_START) {
         
-        // yandex games logic
-        // documentation : https://yandex.com/dev/games/doc/en/sdk/sdk-game-events#gameready.
-        if (window.YaGames){
-            // Informing the platform that the game has loaded and is ready to play.
-            console.log("Yandex todo : expand yandex game implementation from js to typescript class ");
-            console.log ("Yagames: ", window.YaGames);
-            // to do:
-            // (1) implement yandex ads properly with a global singleton class that handles error
-            // (2) improper yandex ads implementation might be what crashes iphone browsers
-        }
+
 
         if (!window.map){
             // to do: (1) create exit scene

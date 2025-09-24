@@ -34,10 +34,7 @@
         content="Play Dystopia App, a Gameboy style survival cyberpunk adventure. You are a 4th WOrlder, Survive!">
     <meta name="twitter:image" content="./title-art_2.jpg">
 
-    <!-- Adsense Ads -->
-   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3900377589557710" crossorigin="anonymous"></script>
-
-
+ 
 </head>
 
 <body>
@@ -92,7 +89,52 @@
     <div id="debug"></div>
 
 
+   <!-- Game Monetize ads SDK + Ads testing -->
+<script src="https://html5.api.gamemonetize.com/sdk.js"></script>
+<script type="text/javascript">
+   window.SDK_OPTIONS = {
+      gameId: "2s3jqh4cymu086cf9m1kmmm9cm52hdj2",
+      onEvent: function (a) {
+         switch (a.name) {
+            case "SDK_GAME_PAUSE":
+               // pause game logic / mute audio
+               break;
+            case "SDK_GAME_START":
+               // advertisement done, resume game logic and unmute audio
+               break;
+            case "SDK_READY":
+               // when sdk is ready
+               break;
+         }
+      }
+   };
+(function (a, b, c) {
+   var d = a.getElementsByTagName(b)[0];
+   a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
+})(document, "script", "gamemonetize-sdk"); 
+</script>
 
+<script>
+    // Ads testing
+    // requires activation on game monetize to implement ads
+    //show game monetize ads testing
+    if (typeof sdk !== "undefined" && sdk.showBanner !== undefined) {
+      sdk.showBanner();
+  }
+
+  // Example for rewarded video ad:
+  //if (typeof sdk !== "undefined" && sdk.showRewarded !== undefined) {
+  //    sdk.showRewarded(function(success) {
+  //        if (success) {
+  //            console.log("Reward granted!");
+              // give coins / items here
+  //        } else {
+  //            console.log("Reward not completed.");
+  //        }
+  //    });
+  //}
+
+</script>
 
   <!-- Yandex Games SDK --> 
 <script>
@@ -153,16 +195,13 @@
 </script>
 
   <!-- Google tag (gtag.js) for google analytics on my private hosting --> 
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script> --> 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script> 
   <script>
-      
-      /*
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-4XTFM74YY1');
-      */
+      
   </script>
     
   <!-- Statically preload all image files-->

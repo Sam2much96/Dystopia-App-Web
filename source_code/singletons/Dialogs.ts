@@ -19,7 +19,10 @@ export class Diaglogs {
     dialog_started : boolean = false;
     dialog_ended : boolean = false;
     //language : string = "";
-    public language : string = (navigator.language || 'ru-RU').replace('-', '_'); //set this from user settings or browser language
+
+    // this need proper regex to account for multiple sub-region languages
+    // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
+    public language : string = (navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
 
     constructor(){
         console.log("language debug: ", this.language);

@@ -7,6 +7,7 @@
  * 
  * To Do:
  * (1) // to do: implement mouse pos for minimap drawing ui
+ * (2) Connect Wallet tab and wallet render function to Wallet singleton to display token data
  * 
  * Bugs:
  * (1) Menu Button icon doesn't render in production
