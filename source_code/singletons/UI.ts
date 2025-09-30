@@ -137,7 +137,7 @@ export class UI  {
         // turn off
         this.InventoryVisible = false;
         
-        this.MenuVisible = true; // make menu initially visible
+        this.MenuVisible = false; // make menu initially invisible
         
         
         // create a div for each of these new UI elements
@@ -387,14 +387,15 @@ export class UI  {
         });
         // to do:
         // (1) lock gameHUD layout into separated css and html files and separte each ui into seprate css object
-        
+        // depreciate wallet button into hud renders
         this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
 
+            console.log("wallet button pressed");
             // to do:
             // (1) implement better wallet singleton to UI class pointer
             // (2) create generic wallet api implementation adaptable for multiple web plaforms not just pera wallet
             window.music.ui_sfx[0].play();
-            window.wallet.__connectToPeraWallet()
+            //window.wallet.__connectToPeraWallet()
         
         });
 

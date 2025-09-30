@@ -13,6 +13,14 @@
 
 'use strict';
 
+
+import * as LittleJS from 'littlejsengine';
+
+
+
+const {EngineObject} = LittleJS;
+
+
 //let box2d;
 let box2dWorld;
 let box2dDebugDraw;
@@ -25,7 +33,7 @@ const box2dBodyTypeDynamic   = 2;
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Object - extend with your own custom physics objects
 
-class Box2dObject extends EngineObject 
+export class Box2dObject extends EngineObject 
 {
     constructor(pos=vec2(), size, tileInfo, angle=0, color, bodyType=box2dBodyTypeDynamic, renderOrder=0)
     {
@@ -294,7 +302,7 @@ class Box2dObject extends EngineObject
 // Box2D Raycasting and Querying
 
 // result info for raycasts
-class Box2dRaycastResult
+export class Box2dRaycastResult
 {
     constructor(fixture, point, normal, fraction)
     {

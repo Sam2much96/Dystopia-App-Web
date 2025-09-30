@@ -20,11 +20,8 @@ import { GenericItem } from '../items/GenericItem';
 import {SideScrollPlayer} from "../Characters/player";
 import { Utils } from '../../singletons/Utils';
 
-//import './box2d'; // this adds globals: box2d, box2dWorld, Box2dObject, etc.
-//import * as Box2D from '../../../source_code/singletons/box2d';
-import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
 
-//const {Box2dObject, box2dEngineInit} = Box2D;
+import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
 
 
 let LevelSize = vec2(overMap.width, overMap.height); // get the level size
@@ -110,6 +107,9 @@ export class OverworldSideScrolling extends EngineObject {
                             return
                         }
                         if (val === 63){ // corner tile
+                            // testing box 2d implementation
+                            //const w = new SlopeObject(vec2(x,y));
+                            //return
                             drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                         }
 
@@ -329,13 +329,15 @@ class SlopeObject extends EngineObject{
     // box2d object documentation
     //documentation : https://github.com/KilledByAPixel/LittleJS/blob/main/examples/box2d/gameObjects.js#L320
 
-    constructor(){
+    constructor(pos : LittleJS.Vector2){
+        //box2dEngineInit()
         super();
         this.size = vec2(5); // where 5 is diameter
-        this.pos = vec2 (5,3.5);
+        this.pos = pos; //vec2 (5,3.5);
         //box2dEngineInit();
-        //const o = new Box2dObject(this.pos, this.size, tile(64,128,2) , 0, LittleJS.RED, 1);
+        const o = new Box2dObject(this.pos, this.size, tile(64,128,2) , 0, LittleJS.RED, 1);
         //o.addCircle(5);
-    //return o;
+        o.addBox(this.size, vec2(),0,0,1, .5,.2);
+        //return o;
     }
 }

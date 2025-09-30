@@ -2,6 +2,8 @@
 import * as LittleJS from 'littlejsengine';
 
 const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData} = LittleJS
+
+
 export class Utils {
 
     /*
@@ -273,6 +275,8 @@ export class Utils {
             //let safe_Wallet ;
             let safe_Inventory = window.inventory;
 
+            //load inventory items into inventory memory
+            //window.inventory.items = saveDict["inventory"] ?? 0;
 
             console.log(`✅ load game successfull`);
         }

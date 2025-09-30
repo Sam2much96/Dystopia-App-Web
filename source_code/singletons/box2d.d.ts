@@ -12,12 +12,12 @@ export function box2dCreateDistanceJoint(objectA: any, objectB: any, anchorA: an
 export function box2dCreateRevoluteJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
 export function box2dCreatePrismaticJoint(objectA: any, objectB: any, anchor: any, worldAxis?: any, collide?: boolean): any;
 export function box2dCreateWheelJoint(objectA: any, objectB: any, anchor: any, worldAxis?: any, collide?: boolean): any;
-declare function box2dCreateWeldJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
-declare function box2dCreateFrictionJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
-declare function box2dCreateRopeJoint(objectA: any, objectB: any, anchorA: any, anchorB: any, extraLength?: number, collide?: boolean): any;
-declare function box2dCreatePulleyJoint(objectA: any, objectB: any, groundAnchorA: any, groundAnchorB: any, anchorA: any, anchorB: any, ratio?: number, collide?: boolean): any;
-declare function box2dCreateMotorJoint(objectA: any, objectB: any): any;
-declare function box2dCreateGearJoint(objectA: any, objectB: any, joint1: any, joint2: any, ratio?: number): any;
+export declare function box2dCreateWeldJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
+export declare function box2dCreateFrictionJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
+export declare function box2dCreateRopeJoint(objectA: any, objectB: any, anchorA: any, anchorB: any, extraLength?: number, collide?: boolean): any;
+export declare function box2dCreatePulleyJoint(objectA: any, objectB: any, groundAnchorA: any, groundAnchorB: any, anchorA: any, anchorB: any, ratio?: number, collide?: boolean): any;
+export declare function box2dCreateMotorJoint(objectA: any, objectB: any): any;
+export declare function box2dCreateGearJoint(objectA: any, objectB: any, joint1: any, joint2: any, ratio?: number): any;
 declare function box2dDestroyJoint(joint: any): void;
 declare function box2dIsNull(object: any): boolean;
 declare function box2dCreateFixtureDef(shape: any, density?: number, friction?: number, restitution?: number, isSensor?: boolean): any;
@@ -39,7 +39,7 @@ declare let box2dStepIterations: number;
 export const box2dBodyTypeStatic: 0;
 export const box2dBodyTypeKinematic: 1;
 export const box2dBodyTypeDynamic: 2;
-export class Box2dObject {
+export declare class Box2dObject {
     constructor(pos: any, size: any, tileInfo: any, angle: number, color: any, bodyType?: number, renderOrder?: number);
     body: any;
     outlineColor: any;

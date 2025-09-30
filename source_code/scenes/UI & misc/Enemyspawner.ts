@@ -30,7 +30,9 @@ export class EnemySpawner extends PhysicsObject {
                 // spawn 2 new enemies if the enemy pool is 0
         if (window.globals.enemies.length < 1 && this.ENABLE) {
             this.enemy1 = new Enemy(this.pos);
-            this.enemy2 = new Enemy(this.pos); 
+            // to do:
+            // (1) implement enemy movment logic with kinematic body object + velocity
+            //this.enemy2 = new Enemy(this.pos); 
  
             // set the player position
             //this.enemy1.setPlayer(window.player)

@@ -63,6 +63,9 @@ import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
 // post processing
 import { initPostProcess } from './source_code/singletons/postProcess';
 
+// advertising
+import { Advertising } from './source_code/scenes/UI & misc/Advertising';
+
 
 
 
@@ -94,11 +97,11 @@ declare global {
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
         simulation: Simulation;
-
+        ads : Advertising;
         //useItem: any; 
-        YaGames?: {
-            init(): Promise<import('ysdk').SDK>;
-        };
+        //YaGames?: {
+        //    init(): Promise<import('ysdk').SDK>;
+        //};
 
     }
 
@@ -118,6 +121,7 @@ declare global {
         z: number;
     }
 
+    // to do: move to networking / simulation class
     interface player_info { 0 :{ //server peer id
         posi:LittleJS.Vector2, // position
         vel:LittleJS.Vector2, // velocity
@@ -165,12 +169,16 @@ function gameInit() {
     //3d Camera Distance Constants
     const CAMERA_DISTANCE = 16;
 
-    /* Create 3D Scenes And Objects*/
+    /* 
+    * Create 3D Scenes And Objects
+    */
+    window.ads = new Advertising("gamemonetize");
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
     window.globals = new Globals();
     window.ui = new UI();
-   
+    window.wallet = new Wallet();
+
     let controls = new Controls(); // set up the engine's controls
 
     // Create & hide Ingame Menu

@@ -17,6 +17,7 @@ import Shop from "./Marketplace.json";
 
 import {TopDownPlayer} from "../Characters/player";
 import {Utils} from "../../singletons/Utils";
+
 // to do : (1) import merchant npc
 // to do : (1) implement decision dialogue
 
