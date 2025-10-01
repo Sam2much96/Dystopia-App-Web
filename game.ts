@@ -158,7 +158,7 @@ function gameInit() {
     // called once after the engine starts up
     // setup the game
     console.log("Game Started!");
-
+    
 
     // use pixelated rendering
     setCanvasPixelated(true);
@@ -173,7 +173,9 @@ function gameInit() {
     * Create 3D Scenes And Objects
     */
     // temporarily disabling ads for faster game prototyping
-    //window.ads = new Advertising("gamemonetize");
+
+    window.ads = new Advertising("gamemonetize");
+    
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
     window.globals = new Globals();

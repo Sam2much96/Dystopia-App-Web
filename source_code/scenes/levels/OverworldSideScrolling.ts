@@ -118,7 +118,9 @@ export class OverworldSideScrolling extends EngineObject {
                             //const w = new SlopeObject(vec2(x,y));
                             //return
                             drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
-                            createBox(); //box2d plugin testing // works
+                            //createBox(); //box2d plugin testing // works
+                            //to do:
+                            // (1) create triangle object with box2d logic
                             return
                         }
 

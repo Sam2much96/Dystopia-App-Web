@@ -74,25 +74,54 @@ export class GameMonetizeAds {
     this.init();
   }
 
-  private init() {
-    // Configure SDK options
-    window.SDK_OPTIONS = {
-      gameId: this.gameId,
-      onEvent: (event: any) => this.handleEvent(event),
-    };
+  private async init() {
+    try{
+      // Configure SDK options
+      window.SDK_OPTIONS = {
+        gameId: this.gameId,
+        onEvent: (event: any) => this.handleEvent(event),
+      };
 
-    // Dynamically load GameMonetize SDK
-    this.loadScript("https://api.gamemonetize.com/sdk.js", "gamemonetize-sdk");
+      // Dynamically load GameMonetize SDK
+      await this.loadScript("https://api.gamemonetize.com/sdk.js", "gamemonetize-sdk");
+
+
+      // SDK should now initialize and eventually trigger SDK_READY
+      console.log("Waiting for GameMonetize SDK to be ready...");
+    }
+    catch(err){
+        console.error("Ads failed to initialize:", err);
+        // Gracefully fallback → continue the game without ads
+    }
   }
 
   private loadScript(src: string, id: string) {
-    if (document.getElementById(id)) return;
+    /**
+     * Loads the gane monetize sdk script with proper error handling
+     */
+    return new Promise<void>((resolve, reject) => {
+        if (document.getElementById(id)) {
+          resolve();
+          return;
+        }
 
-    const script = document.createElement("script");
-    script.id = id;
-    script.src = src;
-    script.async = true;
-    document.head.appendChild(script);
+        const script = document.createElement("script");
+        script.id = id;
+        script.src = src;
+        script.async = true;
+
+        script.onload = () => {
+          console.log("GameMonetize SDK loaded ✅");
+          resolve();
+        };
+
+        script.onerror = (err) => {
+          console.error("Failed to load GameMonetize SDK ❌", err);
+          reject(new Error("adsLoaderPromise failed to load"));
+        };
+
+        document.head.appendChild(script);
+      });
   }
 
   private handleEvent(event: any) {
@@ -115,6 +144,7 @@ export class GameMonetizeAds {
   // === API methods ===
   public showBanner() {
     if (window.sdk?.showBanner) {
+      console.log("Testing showing banner ads");
       window.sdk.showBanner({
         width: "full",
         height: 90,

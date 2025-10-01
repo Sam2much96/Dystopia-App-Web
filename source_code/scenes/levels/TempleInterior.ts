@@ -16,11 +16,11 @@ import { EnemySpawner } from '../UI & misc/Enemyspawner';
  * Temple Interior Scene
  * 
  * 
- * requires:
- * (1) Ladder Object exit scene object (done)
- * (2) NPC aboy
+ * to do:
+ * (1) Quest subsystem
+ * (2) Proper Temple interior collision
  * (3) Fire object (1/2) : Edit Enemy spawner object into 2 inherited objects sharing the fire animations
- * 
+ * (4) Fix missing temple interior frame
  */
 
 
