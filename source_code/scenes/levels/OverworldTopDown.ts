@@ -23,7 +23,7 @@ import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
 import {TopDownPlayer} from "../Characters/player";
-//import {Enemy} from "../Characters/enemy";
+import {OldWoman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 import {Utils} from "../../singletons/Utils";
 import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";
@@ -43,27 +43,12 @@ export class OverWorld extends EngineObject{
         Example 2:  https://github.com/eoinmcg/gator/blob/main/src/levels/loader.js
         Example 3 : https://gitlab.com/gcnet-uk/games/worktime/-/blob/main/src/entities/player.ts?ref_type=heads
 
-        Notes:
-        (1) LJS doesn't support slanted tiles out the box, 
-            youll have to use a custom Engine object with triangle collision for those tiles
-            e.g. : new EngineObject(pos, size, 0, vec2(0,0), 1, triangleShape); 
         Bugs:
-        (1) Doesn't account for tiled 0.11 data type with chunk layers
-        (2) Needs more json debug to recursively adjust logic ( done)
-        (3) The objects layer is offset by a couple of horizontal movements
-         ( This bug was from merging the layers into a single render as androids don't support muliple layer renders)
 
 
          To Do:
-         (1) scene changer for overworld top down/ sidescrolling and 3d scenes
-            -create scene changing static function + logic that works with overworld level instances
-         (2) side scrolling player physics logic (1/2)
-         (3) Parallax background in css logic for overworld sidescrolling levels using background pixel art scaled up
-         
-         (5) create player and enemy spawning tiles and depreciate manual player spawing implementation (done)
-         (6) create exit scene collision object and logic
-         (7) create temple interior pixel art background and tileset (1/3)
-         (8) create NPC
+         (7) create temple interior pixel art background and tileset (2/3)
+
         */
     
     LevelSize: LittleJS.Vector2 | null = null;
@@ -170,7 +155,11 @@ export class OverWorld extends EngineObject{
                             //console.log("player spawn tile debug :", val, "/", x,",", y);
                             window.player = new TopDownPlayer(vec2(x,y));
                             
+                            // old woman npc
+                            const m = new OldWoman(vec2((x + 8), (y +6)));
+
                             this.levelObjects?.push(window.player);
+                            this.levelObjects?.push(m);
                             return
                         }
 

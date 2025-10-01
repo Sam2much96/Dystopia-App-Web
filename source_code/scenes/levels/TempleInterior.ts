@@ -5,8 +5,13 @@ const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, rand,hsl,in
 import templeMap from "./TempleInterior.json";
 import { Utils } from '../../singletons/Utils';
 import {TopDownPlayer} from "../Characters/player";
+import {Shaman} from "../Characters/NPC";
 import { Stairs } from '../UI & misc/Exit';
 import { EnemySpawner } from '../UI & misc/Enemyspawner';
+
+
+//NPC
+//imp
 /**
  * Temple Interior Scene
  * 
@@ -51,6 +56,13 @@ export class TempleInterior extends EngineObject {
 
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                             window.player = new TopDownPlayer(vec2(x,y));
+                            
+                            // spawn the shaman NPC
+                            // the quest giver
+                            const m = new Shaman(vec2((x+2), (y+1)));
+
+                            this.levelObjects?.push(m);
+                            this.levelObjects?.push(window.player);
                             return
                         }
                         //if (val === 0){ // bow object

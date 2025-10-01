@@ -62,6 +62,12 @@ export class Marketplace extends EngineObject{
                                     // (1) Global sprite atlas table for parent class logic
                                     if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                                         window.player = new TopDownPlayer(vec2(x,y));
+
+                                        //spawn merchant npc
+                                        const r = new Merchant(vec2((x + .5),( y + 3.5)));
+                                        console.log("marketplaceplayer spawn position debug: ",x,"/",y);
+
+                                        this.levelObjects?.push(r);
                                         this.levelObjects?.push(window.player);
                                         return
                                     }
@@ -78,6 +84,7 @@ export class Marketplace extends EngineObject{
                                         //console.log("tile debug: ", val);
                                         Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0); // 0 is for no collision, 1 is for collision
                                     }
+                                    
                                     
                                     }})});
                                     
