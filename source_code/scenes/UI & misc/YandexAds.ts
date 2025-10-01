@@ -4,7 +4,11 @@
  * Yandex ads implementation in one script
  * 
  * Docs : https://yandex.ru/dev/games/doc/en/
+ * Docs 2:  https://yandex.com/dev/games/doc/en/sdk/sdk-game-events#gameready.
  * 
+ * To do:
+ * (1) Test on yandex platform
+ * (2) Implement full yandex platform api's
  */
 
 

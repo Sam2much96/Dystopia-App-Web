@@ -1,3 +1,6 @@
+import * as LittleJS from 'littlejsengine';
+
+
 export function box2dRaycastAll(start: any, end: any): any[];
 export function box2dRaycast(start: any, end: any): any;
 export function box2dBoxCastAll(pos: any, size: any): any[];
@@ -12,35 +15,40 @@ export function box2dCreateDistanceJoint(objectA: any, objectB: any, anchorA: an
 export function box2dCreateRevoluteJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
 export function box2dCreatePrismaticJoint(objectA: any, objectB: any, anchor: any, worldAxis?: any, collide?: boolean): any;
 export function box2dCreateWheelJoint(objectA: any, objectB: any, anchor: any, worldAxis?: any, collide?: boolean): any;
-export declare function box2dCreateWeldJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
-export declare function box2dCreateFrictionJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
-export declare function box2dCreateRopeJoint(objectA: any, objectB: any, anchorA: any, anchorB: any, extraLength?: number, collide?: boolean): any;
-export declare function box2dCreatePulleyJoint(objectA: any, objectB: any, groundAnchorA: any, groundAnchorB: any, anchorA: any, anchorB: any, ratio?: number, collide?: boolean): any;
-export declare function box2dCreateMotorJoint(objectA: any, objectB: any): any;
-export declare function box2dCreateGearJoint(objectA: any, objectB: any, joint1: any, joint2: any, ratio?: number): any;
-declare function box2dDestroyJoint(joint: any): void;
-declare function box2dIsNull(object: any): boolean;
-declare function box2dCreateFixtureDef(shape: any, density?: number, friction?: number, restitution?: number, isSensor?: boolean): any;
-declare function box2dCreatePointList(points: any): any;
-declare function box2dCreatePolygonShape(points: any): any;
-declare function box2dCastObject(object: any): any;
-declare function box2dWarmup(frames?: number): void;
-declare function box2dDrawFixture(fixture: any, pos: any, angle: any, fillColor: any, outlineColor: any, lineWidth: any): void;
-declare function box2dDrawCircle(pos: any, radius: any, color: any, outlineColor: any, lineWidth: number, context: any): void;
-declare function box2dDrawPoly(pos: any, angle: any, points: any, color: any, outlineColor: any, lineWidth: number, context: any): void;
-declare function box2dDrawLine(pos: any, angle: any, posA: any, posB: any, color: any, lineWidth: number, context: any): void;
-declare function box2dDrawFillStroke(context: any, color: any, outlineColor: any, lineWidth: any): void;
+export function box2dCreateWeldJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
+export function box2dCreateFrictionJoint(objectA: any, objectB: any, anchor: any, collide?: boolean): any;
+export function box2dCreateRopeJoint(objectA: any, objectB: any, anchorA: any, anchorB: any, extraLength?: number, collide?: boolean): any;
+export function box2dCreatePulleyJoint(objectA: any, objectB: any, groundAnchorA: any, groundAnchorB: any, anchorA: any, anchorB: any, ratio?: number, collide?: boolean): any;
+export function box2dCreateMotorJoint(objectA: any, objectB: any): any;
+export function box2dCreateGearJoint(objectA: any, objectB: any, joint1: any, joint2: any, ratio?: number): any;
+export  function box2dDestroyJoint(joint: any): void;
+export function box2dIsNull(object: any): boolean;
+export  function box2dCreateFixtureDef(shape: any, density?: number, friction?: number, restitution?: number, isSensor?: boolean): any;
+export  function box2dCreatePointList(points: any): any;
+export  function box2dCreatePolygonShape(points: any): any;
+export  function box2dCastObject(object: any): any;
+export  function box2dWarmup(frames?: number): void;
+export  function box2dDrawFixture(fixture: any, pos: any, angle: any, fillColor: any, outlineColor: any, lineWidth: any): void;
+export  function box2dDrawCircle(pos: any, radius: any, color: any, outlineColor: any, lineWidth: number, context: any): void;
+export  function box2dDrawPoly(pos: any, angle: any, points: any, color: any, outlineColor: any, lineWidth: number, context: any): void;
+export  function box2dDrawLine(pos: any, angle: any, posA: any, posB: any, color: any, lineWidth: number, context: any): void;
+export  function box2dDrawFillStroke(context: any, color: any, outlineColor: any, lineWidth: any): void;
 export function box2dEngineInit(gameInit: any, gameUpdate: any, gameUpdatePost: any, gameRender: any, gameRenderPost: any, imageSources: any): void;
-declare let box2d: any;
-declare let box2dWorld: any;
-declare let box2dDebugDraw: any;
-declare let box2dDebug: boolean;
-declare let box2dStepIterations: number;
+export let box2d: any;
+export let box2dWorld: any;
+export let box2dDebugDraw: any;
+export let box2dDebug: boolean;
+export let box2dStepIterations: number;
 export const box2dBodyTypeStatic: 0;
 export const box2dBodyTypeKinematic: 1;
 export const box2dBodyTypeDynamic: 2;
-export declare class Box2dObject {
-    constructor(pos: any, size: any, tileInfo: any, angle: number, color: any, bodyType?: number, renderOrder?: number);
+// to do:
+// (1) add LittleJS types to the declaration
+export class Box2dObject {
+    constructor(
+        pos: LittleJS.Vector2, 
+        size: LittleJS.Vector2, 
+        tileInfo: any, angle: number, color: any, bodyType?: number, renderOrder?: number);
     body: any;
     outlineColor: any;
     destroy(): void;
@@ -102,7 +110,7 @@ export declare class Box2dObject {
     applyTorque(torque: any): void;
     applyAngularAcceleration(acceleration: any): void;
 }
-declare class Box2dRaycastResult {
+export class Box2dRaycastResult {
     constructor(fixture: any, point: any, normal: any, fraction: any);
     fixture: any;
     point: any;

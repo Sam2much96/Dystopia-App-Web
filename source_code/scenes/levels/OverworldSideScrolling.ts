@@ -21,7 +21,13 @@ import {SideScrollPlayer} from "../Characters/player";
 import { Utils } from '../../singletons/Utils';
 
 
-import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
+//import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
+import {
+  Box2dObject,
+  box2dCreateFixtureDef,
+  box2dCreatePolygonShape,
+  box2dBodyTypeDynamic,
+} from "../../singletons/box2d"; // adjust import path to your d.ts/js location
 
 
 let LevelSize = vec2(overMap.width, overMap.height); // get the level size
@@ -111,6 +117,8 @@ export class OverworldSideScrolling extends EngineObject {
                             //const w = new SlopeObject(vec2(x,y));
                             //return
                             drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                            createBox(); //box2d plugin testing // works
+                            return
                         }
 
                         if (val === 64){ // corner tile 2
@@ -340,4 +348,38 @@ class SlopeObject extends EngineObject{
         o.addBox(this.size, vec2(),0,0,1, .5,.2);
         //return o;
     }
+}
+
+
+// Example: create a dynamic box
+// works
+function createBox() {
+    console.log("creating box object")
+  // position and size
+  const pos = vec2(5);
+  const size = vec2(5);
+
+  // Create a new Box2dObject
+  const box = new Box2dObject(
+    pos,          // position
+    size,         // size
+    null,         // tileInfo (can be null if not using tiles)
+    0,            // angle in radians
+    "blue",       // color
+    box2dBodyTypeDynamic // body type: static, kinematic, or dynamic
+  );
+
+  // Define a fixture for collisions
+  const shape = box2dCreatePolygonShape([
+    vec2(-1,-1),
+    vec2(1,-1),
+    vec2(1,1),
+   vec2(-1,1),
+  ]);
+  const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.2, false);
+
+  // Attach fixture to the box body
+  box.addFixture(fixtureDef);
+
+  return box;
 }

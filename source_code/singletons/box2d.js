@@ -16,20 +16,25 @@
 
 import * as LittleJS from 'littlejsengine';
 
+import {Box2D} from "./Box2D_v2.3.1_min.wasm"
+
+const {EngineObject, Vector2, Color, timeDelta, debugPhysics, WHITE, BLACK} = LittleJS;
 
 
-const {EngineObject} = LittleJS;
-
-
-//let box2d;
+let box2d;
 let box2dWorld;
 let box2dDebugDraw;
 let box2dDebug = false;
 let box2dStepIterations = 3;
-const box2dBodyTypeStatic    = 0;
-const box2dBodyTypeKinematic = 1;
-const box2dBodyTypeDynamic   = 2;
+export const box2dBodyTypeStatic    = 0;
+export const box2dBodyTypeKinematic = 1;
+export const box2dBodyTypeDynamic   = 2;
 
+// bug fix 1: (1) create variable objects to overwrite the engine defaults
+let setGravity;
+let vec2;
+let paused;
+let defaultVec2;
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Object - extend with your own custom physics objects
 
@@ -315,7 +320,7 @@ export class Box2dRaycastResult
 }
 
 // raycast and return a list of all the results
-function box2dRaycastAll(start, end)
+export function box2dRaycastAll(start, end)
 {
     const raycastCallback = new box2d.JSRayCastCallback();
     raycastCallback.ReportFixture = function(fixturePointer, point, normal, fraction)
@@ -334,7 +339,7 @@ function box2dRaycastAll(start, end)
 }
 
 // raycast and return the first result
-function box2dRaycast(start, end)
+export function box2dRaycast(start, end)
 {
     const raycastResults = box2dRaycastAll(start, end);
     if (!raycastResults.length)
@@ -343,7 +348,7 @@ function box2dRaycast(start, end)
 }
 
 // box aabb cast and return all the objects
-function box2dBoxCastAll(pos, size)
+export function box2dBoxCastAll(pos, size)
 {
     const queryCallback = new box2d.JSQueryCallback();
     queryCallback.ReportFixture = function(fixturePointer)
@@ -366,7 +371,7 @@ function box2dBoxCastAll(pos, size)
 }
 
 // box aabb cast and return the first object
-function box2dBoxCast(pos, size)
+export function box2dBoxCast(pos, size)
 {
     const queryCallback = new box2d.JSQueryCallback();
     queryCallback.ReportFixture = function(fixturePointer)
@@ -387,7 +392,7 @@ function box2dBoxCast(pos, size)
 }
 
 // circle cast and return all the objects
-function box2dCircleCastAll(pos, diameter)
+export function box2dCircleCastAll(pos, diameter)
 {
     const radius2 = (diameter/2)**2;
     const results = box2dBoxCastAll(pos, vec2(diameter));
@@ -395,7 +400,7 @@ function box2dCircleCastAll(pos, diameter)
 }
 
 // circle cast and return the first object
-function box2dCircleCast(pos, diameter)
+export function box2dCircleCast(pos, diameter)
 {
     const radius2 = (diameter/2)**2;
     let results = box2dBoxCastAll(pos, vec2(diameter));
@@ -414,7 +419,7 @@ function box2dCircleCast(pos, diameter)
 }
 
 // point cast and return the first object
-function box2dPointCast(pos, dynamicOnly=true)
+export function box2dPointCast(pos, dynamicOnly=true)
 {
     const queryCallback = new box2d.JSQueryCallback();
     queryCallback.ReportFixture = function(fixturePointer)
@@ -439,7 +444,7 @@ function box2dPointCast(pos, dynamicOnly=true)
 }
 
 // box aabb cast and return all the fixtures
-function box2dBoxCastAllFixtures(pos, size)
+export function box2dBoxCastAllFixtures(pos, size)
 {
     const queryCallback = new box2d.JSQueryCallback();
     queryCallback.ReportFixture = function(fixturePointer)
@@ -463,7 +468,7 @@ function box2dBoxCastAllFixtures(pos, size)
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Joints
 
-function box2dCreateMouseJoint(object, fixedObject, worldPos)
+export function box2dCreateMouseJoint(object, fixedObject, worldPos)
 {
     object.setAwake();
     const jointDef = new box2d.b2MouseJointDef();
@@ -474,12 +479,12 @@ function box2dCreateMouseJoint(object, fixedObject, worldPos)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreatePinJoint(objectA, objectB, collide=false)
+export function box2dCreatePinJoint(objectA, objectB, collide=false)
 {
     return box2dCreateDistanceJoint(objectA, objectB, objectB.pos, undefined, collide);
 }
 
-function box2dCreateDistanceJoint(objectA, objectB, anchorA, anchorB, collide=false)
+export function box2dCreateDistanceJoint(objectA, objectB, anchorA, anchorB, collide=false)
 {
     anchorA ||= vec2(objectA.body.GetPosition());
     anchorB ||= vec2(objectB.body.GetPosition());
@@ -495,7 +500,7 @@ function box2dCreateDistanceJoint(objectA, objectB, anchorA, anchorB, collide=fa
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateRevoluteJoint(objectA, objectB, anchor, collide=false)
+export function box2dCreateRevoluteJoint(objectA, objectB, anchor, collide=false)
 {
     anchor ||= vec2(objectB.body.GetPosition());
     const localAnchorA = objectA.worldToLocal(anchor);
@@ -510,7 +515,7 @@ function box2dCreateRevoluteJoint(objectA, objectB, anchor, collide=false)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreatePrismaticJoint(objectA, objectB, anchor, worldAxis=vec2(0,1), collide=false)
+export function box2dCreatePrismaticJoint(objectA, objectB, anchor, worldAxis=vec2(0,1), collide=false)
 {
     anchor ||= vec2(objectB.body.GetPosition());
     const localAnchorA = objectA.worldToLocal(anchor);
@@ -527,7 +532,7 @@ function box2dCreatePrismaticJoint(objectA, objectB, anchor, worldAxis=vec2(0,1)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateWheelJoint(objectA, objectB, anchor, worldAxis=vec2(0,1), collide=false)
+export function box2dCreateWheelJoint(objectA, objectB, anchor, worldAxis=vec2(0,1), collide=false)
 {
     anchor ||= vec2(objectB.body.GetPosition());
     const localAnchorA = objectA.worldToLocal(anchor);
@@ -543,7 +548,7 @@ function box2dCreateWheelJoint(objectA, objectB, anchor, worldAxis=vec2(0,1), co
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateWeldJoint(objectA, objectB, anchor, collide=false)
+export function box2dCreateWeldJoint(objectA, objectB, anchor, collide=false)
 {
     anchor ||= vec2(objectB.body.GetPosition());
     const localAnchorA = objectA.worldToLocal(anchor);
@@ -558,7 +563,7 @@ function box2dCreateWeldJoint(objectA, objectB, anchor, collide=false)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateFrictionJoint(objectA, objectB, anchor, collide=false)
+export function box2dCreateFrictionJoint(objectA, objectB, anchor, collide=false)
 {
     anchor ||= vec2(objectB.body.GetPosition());
     const localAnchorA = objectA.worldToLocal(anchor);
@@ -572,7 +577,7 @@ function box2dCreateFrictionJoint(objectA, objectB, anchor, collide=false)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateRopeJoint(objectA, objectB, anchorA, anchorB, extraLength=0, collide=false)
+export function box2dCreateRopeJoint(objectA, objectB, anchorA, anchorB, extraLength=0, collide=false)
 {
     anchorA ||= vec2(objectA.body.GetPosition());
     anchorB ||= vec2(objectB.body.GetPosition());
@@ -588,7 +593,7 @@ function box2dCreateRopeJoint(objectA, objectB, anchorA, anchorB, extraLength=0,
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreatePulleyJoint(objectA, objectB, groundAnchorA, groundAnchorB, anchorA, anchorB, ratio=1, collide=false)
+export function box2dCreatePulleyJoint(objectA, objectB, groundAnchorA, groundAnchorB, anchorA, anchorB, ratio=1, collide=false)
 {
     anchorA ||= vec2(objectA.body.GetPosition());
     anchorB ||= vec2(objectB.body.GetPosition());
@@ -608,7 +613,7 @@ function box2dCreatePulleyJoint(objectA, objectB, groundAnchorA, groundAnchorB, 
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateMotorJoint(objectA, objectB)
+export function box2dCreateMotorJoint(objectA, objectB)
 {
     const linearOffset = objectA.worldToLocal(vec2(objectB.body.GetPosition()));
     const angularOffset = objectB.body.GetAngle() - objectA.body.GetAngle();
@@ -620,7 +625,7 @@ function box2dCreateMotorJoint(objectA, objectB)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dCreateGearJoint(objectA, objectB, joint1, joint2, ratio=1)
+export function box2dCreateGearJoint(objectA, objectB, joint1, joint2, ratio=1)
 {
     const jointDef = new box2d.b2GearJointDef();
     jointDef.set_bodyA(objectA.body);
@@ -631,14 +636,14 @@ function box2dCreateGearJoint(objectA, objectB, joint1, joint2, ratio=1)
     return box2dCastObject(box2dWorld.CreateJoint(jointDef));
 }
 
-function box2dDestroyJoint(joint) { box2dWorld.DestroyJoint(joint); }
+export function box2dDestroyJoint(joint) { box2dWorld.DestroyJoint(joint); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Helper Functions
 
-function box2dIsNull(object) { return !box2d.getPointer(object); }
+export function box2dIsNull(object) { return !box2d.getPointer(object); }
 
-function box2dCreateFixtureDef(shape, density=1, friction=.2, restitution=0, isSensor=false)
+export function box2dCreateFixtureDef(shape, density=1, friction=.2, restitution=0, isSensor=false)
 {
     const fd = new box2d.b2FixtureDef();
     fd.set_shape(shape);
@@ -649,7 +654,7 @@ function box2dCreateFixtureDef(shape, density=1, friction=.2, restitution=0, isS
     return fd;
 }
 
-function box2dCreatePointList(points)
+export function box2dCreatePointList(points)
 {     
     const buffer = box2d._malloc(points.length * 8);
     for (let i=0, offset=0; i<points.length; ++i)
@@ -662,16 +667,16 @@ function box2dCreatePointList(points)
     return box2d.wrapPointer(buffer, box2d.b2Vec2);
 }
 
-function box2dCreatePolygonShape(points)
+export function box2dCreatePolygonShape(points)
 {
-    ASSERT(3 <= points.length && points.length <= 8);
+    LittleJS.ASSERT(3 <= points.length && points.length <= 8);
     const shape = new box2d.b2PolygonShape();    
     const box2dPoints = box2dCreatePointList(points);
     shape.Set(box2dPoints, points.length);
     return shape;
 }
 
-function box2dCastObject(object)
+export function box2dCastObject(object)
 {
     if (object instanceof box2d.b2Shape)
     {
@@ -719,7 +724,7 @@ function box2dCastObject(object)
     ASSERT(false, 'Unknown object type');
 }
 
-function box2dWarmup(frames=100)
+export function box2dWarmup(frames=100)
 {
     // run the sim for a few frames to let objects settle
     for (let i=frames; i--;)
@@ -729,7 +734,7 @@ function box2dWarmup(frames=100)
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Drawing
 
-function box2dDrawFixture(fixture, pos, angle, fillColor, outlineColor, lineWidth)
+export function box2dDrawFixture(fixture, pos, angle, fillColor, outlineColor, lineWidth)
 {
     const shape = box2dCastObject(fixture.GetShape());
     switch (shape.GetType())
@@ -758,7 +763,7 @@ function box2dDrawFixture(fixture, pos, angle, fillColor, outlineColor, lineWidt
     }
 }
 
-function box2dDrawCircle(pos, radius, color=WHITE, outlineColor, lineWidth=.1, context)
+export function box2dDrawCircle(pos, radius, color=WHITE, outlineColor, lineWidth=.1, context)
 {
     drawCanvas2D(pos, vec2(1), 0, 0, context=>
     {
@@ -768,9 +773,9 @@ function box2dDrawCircle(pos, radius, color=WHITE, outlineColor, lineWidth=.1, c
     }, 0, context);
 }
 
-function box2dDrawPoly(pos, angle, points, color=WHITE, outlineColor, lineWidth=.1, context)
+export function box2dDrawPoly(pos, angle, points, color=WHITE, outlineColor, lineWidth=.1, context)
 {
-    drawCanvas2D(pos, vec2(1), angle, 0, context=>
+    LittleJS.drawCanvas2D(pos, vec2(1), angle, 0, context=>
     {
         context.beginPath();
         points.forEach(p=>context.lineTo(p.x, p.y));
@@ -779,7 +784,7 @@ function box2dDrawPoly(pos, angle, points, color=WHITE, outlineColor, lineWidth=
     }, 0, context);
 }
 
-function box2dDrawLine(pos, angle, posA, posB, color=WHITE, lineWidth=.1, context)
+export function box2dDrawLine(pos, angle, posA, posB, color=WHITE, lineWidth=.1, context)
 {
     drawCanvas2D(pos, vec2(1), angle, 0, context=>
     {
@@ -790,7 +795,7 @@ function box2dDrawLine(pos, angle, posA, posB, color=WHITE, lineWidth=.1, contex
     }, 0, context);
 }
 
-function box2dDrawFillStroke(context, color, outlineColor, lineWidth)
+export function box2dDrawFillStroke(context, color, outlineColor, lineWidth)
 {
     if (color)
     {
@@ -809,8 +814,10 @@ function box2dDrawFillStroke(context, color, outlineColor, lineWidth)
 ///////////////////////////////////////////////////////////////////////////////
 // Box2D Setup
 
+
 export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources)
 {
+    // gets the Box2d object from the .wasm object
     Box2D().then(_box2d=>
     {
         // setup box2d
@@ -825,7 +832,7 @@ export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender
         }
 
         // allow passing box2d vectors to vec2
-        const defaultVec2 = vec2;
+        const defaultVec2 = LittleJS.vec2;
         vec2 = function(x, y)
         {
             return (x instanceof box2d.b2Vec2) ? 
@@ -880,7 +887,7 @@ export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender
         box2dWorld.SetDebugDraw(box2dDebugDraw);
 
         // hook up box2d plugin to update and render
-        engineAddPlugin(box2dUpdate, box2dRender);
+        LittleJS.engineAddPlugin(box2dUpdate, box2dRender);
         function box2dUpdate()
         {
             if (!paused)
@@ -893,7 +900,7 @@ export function box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender
         }
 
         // start littlejs
-        engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources);
+        LittleJS.engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, imageSources);
   
         // box2d debug drawing implementation
         function box2dGetDebugDraw()

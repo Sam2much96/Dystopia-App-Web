@@ -71,7 +71,7 @@ import { Advertising } from './source_code/scenes/UI & misc/Advertising';
 
 //import * as Box2D from './source_code/singletons/box2d';
 //const {Box2dObject, box2dEngineInit} = Box2D;
-//import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
+import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
 //import {Ads} from "./source_code/scenes/UI & misc/Advertising";
 'use strict';
 
@@ -172,7 +172,8 @@ function gameInit() {
     /* 
     * Create 3D Scenes And Objects
     */
-    window.ads = new Advertising("gamemonetize");
+    // temporarily disabling ads for faster game prototyping
+    //window.ads = new Advertising("gamemonetize");
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
     window.globals = new Globals();
@@ -395,10 +396,10 @@ function gameRenderPost() {
 
 
 
-// Startup LittleJS Engine
+// Startup LittleJS Engine with Box2d physics
 // I pass in the tilemap and image data directly to the engine as arrays
 
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.webp"]);
+box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.webp"]);
 
 
 
