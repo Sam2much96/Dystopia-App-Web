@@ -16,7 +16,9 @@ const {EngineObject, TileLayer, initTileCollision, tile,vec2} = LittleJS;
 import Shop from "./Marketplace.json";
 
 import {TopDownPlayer} from "../Characters/player";
+import {Merchant} from "../Characters/NPC";
 import {Utils} from "../../singletons/Utils";
+import { Stairs } from '../UI & misc/Exit';
 
 // to do : (1) import merchant npc
 // to do : (1) implement decision dialogue
@@ -25,7 +27,7 @@ export class Marketplace extends EngineObject{
     LevelSize: LittleJS.Vector2 | null = null;
     tileLayer: LittleJS.TileLayer | undefined;
     LevelData: number[][] = []; // matrix data type
-
+    levelObjects : any[] | null = [];
     constructor(){
         super();
         this.loadMap();
@@ -55,11 +57,27 @@ export class Marketplace extends EngineObject{
                                      * 
                                      * 
                                      */
+                                    // temp player spawn tile
+                                    // to do:
+                                    // (1) Global sprite atlas table for parent class logic
+                                    if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
+                                        window.player = new TopDownPlayer(vec2(x,y));
+                                        this.levelObjects?.push(window.player);
+                                        return
+                                    }
 
+                                    // to do:
+                                    // add exit tile for the marketplace
+                                    if (val ===56){ // stairs exit
+                                        const o = new Stairs(vec2(x,y));
+                                        this.levelObjects?.push(o);
+                                        return
+                                    }
             
-                                    
+                                    else{
                                         //console.log("tile debug: ", val);
                                         Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0); // 0 is for no collision, 1 is for collision
+                                    }
                                     
                                     }})});
                                     
@@ -77,9 +95,14 @@ export class Marketplace extends EngineObject{
         destroy(): void {
             
             if (this.tileLayer) this.tileLayer.destroy();
-            
-    
-            
+            Utils.saveGame(); // save the game state once exiting the temple interior map
+            if (this.levelObjects){ // destroy all instanced level objects
+                for (const i of this.levelObjects!){
+                    i.destroy();
+            }
+            this.levelObjects = null;
+            }  
+ 
         }
 
 }

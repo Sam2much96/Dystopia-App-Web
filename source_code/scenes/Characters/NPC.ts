@@ -39,7 +39,16 @@ class NPC extends PhysicsObject {
  * (1)NPC movement logic
  */
 
-class Merchant extends NPC{}
+export class Merchant extends NPC{
+
+    constructor(pos : LittleJS.Vector2){
+        super(pos);
+
+        // to do:
+        //(1) load npc tile
+        //(2)
+    }
+}
 
 /**
  * NPC Old Woman

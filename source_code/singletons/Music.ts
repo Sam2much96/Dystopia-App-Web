@@ -19,6 +19,7 @@ export class Music {
     (6) Music Synthesizer Docs: https://keithclark.github.io/ZzFXM/
     
     TO DO:
+    (0) Compost 3 new tracks for the web game
     (1) All music play in this codebase, should be routed through this object via a function
     (2) separate music and sfx plays funcitionally
     (3) Music should turn off when switching tabs is needed for yandex moderation approval
@@ -32,7 +33,7 @@ export class Music {
     
 
 
-    public enable : boolean = true;
+    public enable : boolean = false; // temporarily turning music off for music audit
     public sfx_on : boolean = true ;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
