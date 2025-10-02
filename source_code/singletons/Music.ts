@@ -33,7 +33,7 @@ export class Music {
     
 
 
-    public enable : boolean = false; // temporarily turning music off for music audit
+    public enable : boolean = true; // temporarily turning music off for music audit
     public sfx_on : boolean = true ;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
