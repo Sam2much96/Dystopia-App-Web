@@ -195,8 +195,8 @@ export class Inventory {
 
         container.innerHTML = `
             <div class="wallet-tab">
-                <p>Wallet address: ${window.wallet.accountAddress}</p>
-                <p>Token balance: ${window.wallet.accountBalance}</p>
+                <p>Wallet address: ${"window.wallet.accountAddress"}</p>
+                <p>Token balance: ${"window.wallet.accountBalance"}</p>
                 <!-- Add more wallet details here -->
             </div>
         `;
