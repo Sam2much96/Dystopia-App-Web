@@ -17,7 +17,7 @@ const {EngineObject,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollisi
 
 import overMap from "./OverworldSideScrolling.json";
 import { GenericItem } from '../items/GenericItem';
-import {SideScrollPlayer} from "../Characters/player";
+import {SideScrollerPlayerBox} from "../Characters/player";
 import { Utils } from '../../singletons/Utils';
 
 
@@ -27,7 +27,9 @@ import {
   box2dCreateFixtureDef,
   box2dCreatePolygonShape,
   box2dBodyTypeDynamic,
+  box2dBodyTypeStatic
 } from "../../singletons/box2d"; // adjust import path to your d.ts/js location
+//import { box2dBodyTypeStatic } from 'source_code/singletons/box2d';
 
 
 let LevelSize = vec2(overMap.width, overMap.height); // get the level size
@@ -103,7 +105,8 @@ export class OverworldSideScrolling extends EngineObject {
                         
                         // temporary player spawn tile
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                            window.player = new SideScrollPlayer(vec2(x,y));
+                            // should be window.player
+                            window.player = new SideScrollerPlayerBox(vec2(x,y));
                             this.levelObjects?.push(window.player);
                             return
                         }
@@ -117,22 +120,33 @@ export class OverworldSideScrolling extends EngineObject {
                             // testing box 2d implementation
                             //const w = new SlopeObject(vec2(x,y));
                             //return
-                            drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                             //createBox(); //box2d plugin testing // works
+                            // buggy collision shape
+                            createLeftTriangle(vec2(x,y));
                             //to do:
                             // (1) create triangle object with box2d logic
                             return
                         }
 
-                        if (val === 64){ // corner tile 2
-                            drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                        if (val === 64){ // box tile
+                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                            createBoxStatic(vec2(x,y), val);
+                            return
                         }
 
                         if (val === 65){ // corner tile 3
-                        drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                            createRightTriangle(vec2(x,y));
+                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                            return
                         }
-                        else{ // every other tile
-                        drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
+                        else{ // every other tile + tileoffset
+                        
+                            // to do:
+                            // modify drawbox to draw different tiles based on tile value
+                            //drawMapTile(vec2((x-.01),(y )), val - 1, this.tileLayer, 1);
+                            createBoxDynamic(vec2(x,y), val);
+                            return
                         }
 
                         //exit tile
@@ -335,50 +349,37 @@ class SpriteParallaxLayer extends EngineObject { // works
     }
 }
 
-
-
-class SlopeObject extends EngineObject{
-    // box2d object documentation
-    //documentation : https://github.com/KilledByAPixel/LittleJS/blob/main/examples/box2d/gameObjects.js#L320
-
-    constructor(pos : LittleJS.Vector2){
-        //box2dEngineInit()
-        super();
-        this.size = vec2(5); // where 5 is diameter
-        this.pos = pos; //vec2 (5,3.5);
-        //box2dEngineInit();
-        const o = new Box2dObject(this.pos, this.size, tile(64,128,2) , 0, LittleJS.RED, 1);
-        //o.addCircle(5);
-        o.addBox(this.size, vec2(),0,0,1, .5,.2);
-        //return o;
-    }
-}
+/**
+ * Box 2D tiles physics
+ * 
+ * 
+ */
 
 
 // Example: create a dynamic box
 // works
-function createBox() {
-    console.log("creating box object")
+function createBoxStatic(pos_ : LittleJS.Vector2, tile_ :number) {
+  //  console.log("creating box object")
   // position and size
-  const pos = vec2(5);
-  const size = vec2(5);
-
+  const pos = pos_.copy();
+  const size = vec2(1);
+  let tiles = tile_ -1; // subtract 1 from the tileset tile val 
   // Create a new Box2dObject
   const box = new Box2dObject(
     pos,          // position
     size,         // size
-    null,         // tileInfo (can be null if not using tiles)
+    tile(tiles,128,2),         // tileInfo (can be null if not using tiles)
     0,            // angle in radians
-    "blue",       // color
-    box2dBodyTypeDynamic // body type: static, kinematic, or dynamic
+    LittleJS.WHITE,       // color
+    box2dBodyTypeStatic // body type: static, kinematic, or dynamic
   );
 
   // Define a fixture for collisions
   const shape = box2dCreatePolygonShape([
-    vec2(-1,-1),
-    vec2(1,-1),
-    vec2(1,1),
-   vec2(-1,1),
+    vec2(-0.5,-0.5),
+    vec2(0.5,-0.5),
+    vec2(0.5,0.5),
+   vec2(-0.5,0.5),
   ]);
   const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.2, false);
 
@@ -387,3 +388,104 @@ function createBox() {
 
   return box;
 }
+
+function createBoxDynamic(pos_ : LittleJS.Vector2, tile_ :number) {
+  //  console.log("creating box object")
+  // position and size
+  const pos = pos_.copy();
+  const size = vec2(1);
+  let tiles = tile_ -1; // subtract 1 from the tileset tile val 
+  // Create a new Box2dObject
+  const box = new Box2dObject(
+    pos,          // position
+    size,         // size
+    tile(tiles,128,2),         // tileInfo (can be null if not using tiles)
+    0,            // angle in radians
+    LittleJS.WHITE,       // color
+    box2dBodyTypeDynamic // body type: static, kinematic, or dynamic
+  );
+
+  // Define a fixture for collisions
+  const shape = box2dCreatePolygonShape([
+    vec2(-0.5,-0.5),
+    vec2(0.5,-0.5),
+    vec2(0.5,0.5),
+   vec2(-0.5,0.5),
+  ]);
+  const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.2, false);
+
+  // Attach fixture to the box body
+  box.addFixture(fixtureDef);
+
+  return box;
+}
+
+
+function createRightTriangle(pos_ : LittleJS.Vector2) {
+  //console.log("creating right triangle slping tile object");
+
+  // position and size
+  const pos = pos_.copy();//vec2(5);
+  const size = vec2(1);
+
+  //ccc
+  // Create a new Box2dObject
+  const triangle = new Box2dObject(
+    pos,                 // position
+    size,                // size
+    tile(64,128,2),                // tileInfo or null
+    0,                   // angle in radians
+    LittleJS.WHITE,              // color
+    box2dBodyTypeStatic // body type: static, kinematic, or dynamic
+  );
+
+  // Define a fixture for collisions - 3 points = right triangle
+  const shape = box2dCreatePolygonShape([
+    vec2(-0.5, -0.5),  // bottom-left
+    vec2( 0.5, -0.5),  // bottom-right
+    vec2(-0.5,  0.5),  // top-left  (forms a right angle at (-1,-1))
+  ]);
+
+  // mass=1.0, friction=0.5, restitution=0.2, isSensor=false
+  const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.2, false);
+
+  // Attach fixture to the body
+  triangle.addFixture(fixtureDef);
+
+  return triangle;
+}
+
+//here's a screenshot of the collision object not marked blue. fix the function so the collision covers the white tiles : 
+function createLeftTriangle(pos_: LittleJS.Vector2) {
+  //console.log("creating left triangle sloping tile object");
+
+  // position and size
+  const pos = pos_.copy();
+  const size = vec2(1);
+
+  // Create a new Box2dObject
+  const triangle = new Box2dObject(
+    pos,                 // position
+    size,                // size
+    tile(62,128,2),      // tileInfo or null
+    0,                   // angle in radians
+    LittleJS.WHITE,      // color
+    box2dBodyTypeStatic  // body type
+  );
+
+  // Define a fixture for collisions - 3 points = left triangle
+  const shape = box2dCreatePolygonShape([
+    vec2(-0.5, -0.5),  // bottom-left
+    vec2( 0.5, -0.5),  // top-right
+    vec2(0.5,  0.5),  // top-left (forms the right angle on the left side)
+  ]);
+
+  // mass=1.0, friction=0.5, restitution=0.2, isSensor=false
+  const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.2, false);
+
+  // Attach fixture to the body
+  triangle.addFixture(fixtureDef);
+
+  return triangle;
+}
+

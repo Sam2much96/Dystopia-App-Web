@@ -18,7 +18,7 @@ import * as LittleJS from 'littlejsengine';
 
 import {Box2D} from "./Box2D_v2.3.1_min.wasm"
 
-const {EngineObject, Vector2, Color, timeDelta, debugPhysics, WHITE, BLACK} = LittleJS;
+const {EngineObject, Vector2, Color, timeDelta, debugPhysics, WHITE, BLACK,rgb} = LittleJS;
 
 
 let box2d;

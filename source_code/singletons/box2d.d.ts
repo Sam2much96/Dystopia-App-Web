@@ -48,7 +48,11 @@ export class Box2dObject {
     constructor(
         pos: LittleJS.Vector2, 
         size: LittleJS.Vector2, 
-        tileInfo: any, angle: number, color: any, bodyType?: number, renderOrder?: number);
+        tileInfo: LittleJS.TileInfo | null, 
+        angle: number, 
+        color: LittleJS.Color | string, 
+        bodyType?: number, 
+        renderOrder?: number);
     body: any;
     outlineColor: any;
     destroy(): void;

@@ -1,12 +1,16 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice, keyDirection, vibrate, mouseIsDown, keyIsDown, gamepadIsDown, isOverlapping,drawTile,tile, vec2} = LittleJS;
+const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isTouchDevice, keyDirection, vibrate, mouseIsDown, keyIsDown, gamepadIsDown, setGravity,isOverlapping,drawTile,tile, vec2} = LittleJS;
 
 
 //import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
 import { OverWorld } from '../levels/OverworldTopDown';
 //import { Enemy } from './enemy';
 import { PhysicsObject } from '../../singletons/Utils';
+import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyTypeKinematic, box2dBodyTypeStatic, box2dBodyTypeDynamic } from '../../singletons/box2d';
+
+
+
 
 export class Player extends PhysicsObject{
 
@@ -466,6 +470,7 @@ export class SideScrollPlayer extends Player {
     /**
      * Side scrolling player
      * 
+     * Depreciated in favour of box 2d variant
      * Features:
      * (1) Gravity physics
      * (2) Jumping physics
@@ -555,6 +560,329 @@ export class SideScrollPlayer extends Player {
     }
 }
 
+// side scrolling player with box2d physics
+export class SideScrollerPlayerBox extends Box2dObject {
+    public size = vec2(1);
+    
+
+    //core player script vaiables required for  window.player class object
+     // Constants
+    public WALK_SPEED: number = 1.65; // pixels per second
+    public ROLL_SPEED: number = 1000; // pixels per second
+    public ATTACK: number = 1; // For Item Equip
+    public pushback: number = 5000;
+
+    // Properties
+    public hitpoints: number = 3;
+    public linear_vel = vec2(0, 0);
+    public roll_direction = vec2(0, 1);
+    public StateBuffer: number[] = [];
+    public item_equip: string = ""; // Unused Item Equip Variant
+
+
+    // State Machines Enumerations
+    public TOP_DOWN: Map<string, number> = new Map([
+            ['STATE_BLOCKED', 0],
+            ['STATE_IDLE', 1],
+            ['STATE_WALKING', 2],
+            ['STATE_ATTACK', 3],
+            ['STATE_ROLL', 4],
+            ['STATE_DIE', 5],
+            ['STATE_HURT', 6],
+            ['STATE_DANCE', 7]
+        ]);
+    ;
+    public FACING: Map<string, number> = new Map([
+            ['UP', 0],
+            ['DOWN', 1],
+            ['LEFT', 2],
+            ['RIGHT', 3],
+        ]);
+    
+    // State Machines Actions
+    public state: Record<string, () => void> | undefined;
+    public facing: Record<number, () => void> | undefined;
+    public facingPos : number = 0; // for storing the current facing positoin
+
+    // References
+    //public local_heart_box: any; // Update type to match UI class
+    public blood: any | undefined;
+    public despawn_particles: any  | undefined;
+    public die_sfx: any | undefined;
+    public hurt_sfx: any = null;
+    public music_singleton_: any = null;
+
+    // Player attributes
+    //public mass: number = 1; //window.simulation.gravity;//this.GRAVITY;
+    public gravityScale: number = -4;
+    
+    //public size: Vector2 = vec2(1);
+    //public tileInfo: LittleJS.TileInfo; // Update type to match tile info structure
+    public animationTimer: LittleJS.Timer = new Timer();
+    public currentFrame: number = 0;
+    public previousFrame: number = 0;
+
+    // Player Animation frame data sorted as arrays
+    public RunUp : Array<number> =[3, 4, 5, 6, 7, 8];
+    public RunDown : Array<number> =[9, 10, 11, 12, 13, 14, 15];
+    public RunLeft : Array<number> =[17, 18, 19, 20, 21, 22];
+    public RunRight : Array<number> =[...this.RunLeft];
+    public IdleUp : Array<number> =[2];
+    public IdleDown : Array<number> =[0];
+    public IdleLeft : Array<number> =[1];
+    public IdleRight : Array<number> =[...this.IdleLeft];
+    public Roll : Array<number> =[0];
+    public AttackUp : Array<number> =[36,37,38,39,40,41,42];
+    public AttackDown : Array<number> =[23,24,25,26,27,28];
+    public AttackLeft : Array<number> =[29,30,31,32,33,34,35]; 
+    public AttackRight : Array<number> =[...this.AttackLeft];
+    public Despawn : Array<number> =[43,44];
+    public Dance : Array<number> = [47,48];
+
+    //public WALKING :number = 0.03; // walking speed
+
+    // input controlls
+    //public moveInput : LittleJS.Vector2 = vec2(0);
+    //public holdingRoll : boolean = false;
+    //public holdingAttack : boolean = false;
+    public animationTime: number = 0; // for timing frame changes to 1 sec or less
+    public mirror: boolean = false; //false
+    public animationInterval : number = 0.1 // 0.1 seconds for each animation
+    //public currentFrame : number = 0;
+    
+
+
+    public Buffer : InputsBuffer = new InputsBuffer();
+
+
+
+    // input controlls
+    public moveInput : LittleJS.Vector2 = vec2(0);
+    public holdingRoll : boolean = false;
+    public holdingAttack : boolean = false;
+
+    // ground collision detection
+    private OnGround : boolean = false;
+    private velocity : LittleJS.Vector2 = vec2();
+
+    // collision angle
+    private playerAngleDeg = this.angle * 180 / Math.PI;
+
+    // side scrolling player with box2d physics logic
+    constructor(pos: LittleJS.Vector2) {
+    // set world gravity
+    //const box2dWorld = new box2d.b2World(new box2d.b2Vec2(0, -9.8));  // Y axis downward
+
+
+    super(
+      pos,
+      vec2(0.8, 0.8),           // player size
+      tile(1,128,0),      // tileInfo or null,
+      0,
+      LittleJS.WHITE,      // red with transparency
+      box2dBodyTypeDynamic      // dynamic body so it collides
+    );
+
+    // Attach a fixture for collisions
+    const shape = box2dCreatePolygonShape([
+      vec2(-0.4,-0.4),
+      vec2( 0.4,-0.4),
+      vec2( 0.4, 0.4),
+      vec2(-0.4, 0.4),
+    ]);
+    const fixtureDef = box2dCreateFixtureDef(shape, 1.0, 0.5, 0.1, false);
+    this.addFixture(fixtureDef);
+
+    this.setMass(0); // set box2d object mass
+    this.setGravityScale(-4);
+
+
+    }
+    animate(currentFrame: number, sequence: number[]): number {
+            /** 
+             * Animation Function
+             * 
+             * Features:
+             * 
+             * (1) Loops through an array sequence and return this current frame
+             * (2) Plays animation loops
+             *
+             *  Usage Examples:
+                 this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
+                this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
+                this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
+    
+            * Bugs :
+            * (1) Doesn't work with enemy run up animation frames 
+            */
+            
+            //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
+            //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
+            let index = sequence.indexOf(currentFrame);
+            
+            if (index === -1) {
+                // Not found in the sequence — maybe default to the first frame or throw an error
+                //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
+                //console.trace("Trace of who called me");
+                //return sequence[0]; // or throw new Error("Invalid currentFrame")
+                index = sequence[0];
+            }
+    
+            return sequence[(index + 1) % sequence.length];
+            
+        }
+    
+     playAnim(anim: Array<number>){
+         
+         // update animation time with the game's delta
+         // play the animation for 0.1 seconds
+         this.animationTime += LittleJS.timeDelta;
+         
+ 
+         if (this.animationTime >= this.animationInterval) {
+             //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
+         
+             //loop animation function
+             this.currentFrame = this.animate(this.currentFrame, anim);
+             //console.log(this.currentFrame);
+             
+             // subtract interval to handle lag gracefully
+             this.animationTime -= this.animationInterval; // Reset timer
+                     
+         }
+     }
+ 
+
+
+    // collision detection variables
+    // bugs :
+    // (1) function is very touchy and trigger happy
+    beginContact(other: any, contact: any): void {
+        // basic check: floor is usually a static body
+        if (other.getIsStatic && other.getIsStatic()) {
+            this.OnGround = true;
+            //console.log("Player touched ground");
+        }
+    }
+
+    endContact(other: any, contact: any): void {
+        if (other.getIsStatic && other.getIsStatic()) {
+        this.OnGround = false;
+        //console.log("Player left ground");
+        }
+    }
+
+    isOnGround(): boolean {
+        return this.OnGround;
+    }
+    
+    update(): void {
+        // get current velocity from Box2D
+        //const vel = this.getLinearVelocity();
+
+        //debug on mobile
+        // Capture movement control
+        // gamepad breaks on itchIO because i used a redirect to dystopia.online
+        // to do : (1) add redundancy code for gamepad logic on different platforms
+        // bug: Game pad stick capture doesnt affect logic
+        
+        if (isTouchDevice){ // touchscreen dpad bindings
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
+            
+            this.holdingRoll = gamepadIsDown(1); 
+            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
+            
+            // for debugging player input on mobile
+            //logToScreen(this.moveInput);
+        }
+
+        else if (!isTouchDevice){ // keyboard and mouse bindings
+            //works
+            this.moveInput = keyDirection().clampLength(1).scale(5);
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+        }
+
+
+        if (this.holdingRoll){
+            
+            this.setLinearVelocity(vec2(this.moveInput.x, 15));
+            //this.applyForce(vec2(0, 15), this.pos); // jump
+        }
+        //if (this.isOnGround()){
+            //reset the player angle
+        //    this.angle = 0;
+        //}
+        if (!this.holdingRoll && !this.isOnGround()){ // gravity
+
+             //moveX = this.moveInput.x
+            // apply velocity from input + gravity
+            //console.log("linear velocity debug: ", this.getLinearVelocity());
+            this.setLinearVelocity(vec2(this.moveInput.x, -4));
+       
+        }
+        this.velocity = this.getLinearVelocity();
+
+
+        super.update();
+
+        //console.log("angle debug: ", this.angle);
+        // fall of stage despawn conditional
+        //console.log("y positional debug: ", this.pos.y, "/", this.velocity.y);
+        if (this.pos.y < -10){ // player falls off ground conditional
+            this.destroy();
+            
+            //destroy the overworld scene and player
+            window.map.destroy();
+            // spawn the top down overworld scene                 
+            console.log("Loading the new level");
+            window.map = new OverWorld();
+
+        }
+
+        
+
+        // animation
+        if (this.velocity.x < 0){ // use Math.ceil for roundups
+
+                    // play run left animation
+                    this.mirror = true;
+                    this.playAnim(this.RunLeft);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 2;
+
+                    this.Buffer.left();
+                }
+
+                if (this.velocity.x > 0){ 
+
+                    // play run right animation
+                    this.mirror = false;
+                    this.playAnim(this.RunLeft);
+
+                    //save previous facing data for idle state
+                    this.facingPos = 2;
+
+                    this.Buffer.right();
+                }
+
+    }
+
+    render() {
+
+        // bug:
+        // (1) player animation frame is iffy
+
+        //// set player's sprite from tile info and animation frames
+        //console.log("frame debug: ",this.currentFrame);
+        //this.currentFrame
+        //console.log("pos debug: ", this.pos);
+
+        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), LittleJS.WHITE, this.angle, this.mirror);
+    }
+
+  }
 
 
 

@@ -51,6 +51,7 @@ import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
 import {Player} from "./source_code/scenes/Characters/player";
+import { SideScrollerPlayerBox } from './source_code/scenes/Characters/player';
 //import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 import { Controls } from './source_code/scenes/UI & misc/Controls';
@@ -92,7 +93,7 @@ declare global {
         music: Music,
         dialogs : Diaglogs,
         //ads: Ads,
-        player: Player,
+        player: Player | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
@@ -174,7 +175,7 @@ function gameInit() {
     */
     // temporarily disabling ads for faster game prototyping
 
-    window.ads = new Advertising("gamemonetize");
+    //window.ads = new Advertising("gamemonetize");
     
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
