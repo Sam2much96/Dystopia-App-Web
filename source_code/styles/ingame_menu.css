@@ -1,7 +1,7 @@
 /* Ingame Menu Styling Sheet self contained*/
 .menu-container {
     display:block;
-    background: rgba(0, 0, 0, 0);
+    background: ("/kenny ui-pack/grey_button08.png");
     width: auto;
     height: auto;
     padding: 30px;

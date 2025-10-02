@@ -787,7 +787,7 @@ export class SideScrollerPlayerBox extends Box2dObject {
         // bug: Game pad stick capture doesnt affect logic
         
         if (isTouchDevice){ // touchscreen dpad bindings
-            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(5) ;
             
             this.holdingRoll = gamepadIsDown(1); 
             this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     

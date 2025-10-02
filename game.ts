@@ -158,7 +158,7 @@ declare global {
 
     // Game Pad on Mobile Devices Settings
     LittleJS.setTouchGamepadEnable(true);
-    LittleJS.setTouchGamepadSize(100); // game pad is too big on some mobile browsers
+    LittleJS.setTouchGamepadSize(150); // game pad is too big on some mobile browsers
     LittleJS.setTouchGamepadAlpha(0.3);
 
     // set dpad configuration on mobile browsers 
