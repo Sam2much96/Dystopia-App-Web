@@ -18,8 +18,9 @@
 
 
 import * as LittleJS from 'littlejsengine';
-import { Player} from './player';
+import { Player, SideScrollerPlayerBox} from './player';
 import { Utils, PhysicsObject } from '../../singletons/Utils';
+import { Side } from 'three';
 
 const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
@@ -98,7 +99,7 @@ export class Enemy extends PhysicsObject {
     public Y : number  = 0; // used for facing animation calculations
 
     // Enemy AI variables
-    public local_player_object : Player | null = null;
+    public local_player_object : Player | SideScrollerPlayerBox | null = null;
     public direction : LittleJS.Vector2 = vec2(0);
     public length : number = 0;
     //private delta : number = 0;
@@ -253,7 +254,7 @@ export class Enemy extends PhysicsObject {
 
     }
 
-    getPlayer() : Player {
+    getPlayer() : Player| SideScrollerPlayerBox {
 
         //(1) Gets the Player Object in the Scene Tree if Player unavailable, get him from the global pointer 
         return this.local_player_object!!;
