@@ -175,7 +175,7 @@ function gameInit() {
     */
     // temporarily disabling ads for faster game prototyping
 
-    //window.ads = new Advertising("gamemonetize");
+    window.ads = new Advertising("gamemonetize");
     
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
