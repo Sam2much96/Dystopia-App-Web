@@ -154,7 +154,16 @@ declare global {
 */
 
 
+    LittleJS.setShowSplashScreen(false);
 
+    // Game Pad on Mobile Devices Settings
+    LittleJS.setTouchGamepadEnable(true);
+    LittleJS.setTouchGamepadSize(100); // game pad is too big on some mobile browsers
+    LittleJS.setTouchGamepadAlpha(0.3);
+
+    // set dpad configuration on mobile browsers 
+    LittleJS.setTouchGamepadAnalog(false);
+    
 function gameInit() {
     // called once after the engine starts up
     // setup the game
@@ -183,7 +192,7 @@ function gameInit() {
     window.ui = new UI();
     window.wallet = new Wallet();
 
-    let controls = new Controls(); // set up the engine's controls
+    //const controls = new Controls(); // set up the engine's controls
 
     // Create & hide Ingame Menu
     window.ui.ingameMenu();

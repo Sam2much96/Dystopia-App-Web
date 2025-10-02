@@ -137,7 +137,7 @@ export class UI  {
         // turn off
         this.InventoryVisible = false;
         
-        this.MenuVisible = false; // make menu initially invisible
+        this.MenuVisible = true; // make menu initially invisible
         
         
         // create a div for each of these new UI elements
