@@ -29,8 +29,9 @@ export class Advertising {
         console.log("Creating Advertising Singleton");
         
         if (platform==="gamemonetize"){
-            const ads = new GameMonetizeAds(); //works
-            ads.showBanner(); //works
+            //const ads = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
+            //ads.showBanner(); //works
+            return
         }
         if (platform ==="yandex")
             {
