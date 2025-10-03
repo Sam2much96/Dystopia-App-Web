@@ -29,6 +29,9 @@ export class Advertising {
         console.log("Creating Advertising Singleton");
         
         if (platform==="gamemonetize"){
+            // to do:
+            // (1) move banner ads logic to shop api
+            // (2) implement shop send transaction functionality
             //const ads = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
             //ads.showBanner(); //works
             return

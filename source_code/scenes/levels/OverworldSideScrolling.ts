@@ -5,6 +5,10 @@
  * (1) Platforming levels
  * (2) Parallax backgrounds
  * 
+ * 
+ * To Do:
+ * (1) use levelBlocks array to dynamically change block object from static to dynamic for destruction physics
+ * 
  * Bugs:
  * (1) Ground layer breaks on mobile browsers and doesn't render
  *      fix: make ground layer area much smaller and resize game level
@@ -57,7 +61,10 @@ export class OverworldSideScrolling extends EngineObject {
 
     //spawned objects
     levelObjects : any[] | null = [];
-
+    
+    // box2d box objects
+    // for iteratively affecting all box objects
+    levelBlocks : any[] | null = [];
 
     constructor(){
         super();
@@ -123,7 +130,8 @@ export class OverworldSideScrolling extends EngineObject {
                             //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                             //createBox(); //box2d plugin testing // works
                             // buggy collision shape
-                            createLeftTriangle(vec2(x,y));
+                            const h= createLeftTriangle(vec2(x,y));
+                            this.levelBlocks?.push(h);
                             //to do:
                             // (1) create triangle object with box2d logic
                             return
@@ -131,12 +139,14 @@ export class OverworldSideScrolling extends EngineObject {
 
                         if (val === 64){ // box tile
                             //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
-                            createBoxStatic(vec2(x,y), val);
+                            const j = createBoxStatic(vec2(x,y), val);
+                            this.levelBlocks?.push(j);
                             return
                         }
 
                         if (val === 65){ // corner tile 3
-                            createRightTriangle(vec2(x,y));
+                            const k =createRightTriangle(vec2(x,y));
+                            this.levelBlocks?.push(k);
                             //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
                             return
                         }
@@ -187,6 +197,11 @@ export class OverworldSideScrolling extends EngineObject {
                 
             }
             this.levelObjects = null;
+        }
+        if (this.levelBlocks){
+            for (const u of this.levelBlocks){
+                u.destroy();
+            }
         }
 
 

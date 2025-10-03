@@ -104,7 +104,7 @@ export class Inventory {
         Object.entries(this.getAllItems()).forEach(([name, count]) => {
             const btn = document.createElement('button');
             // translate inventory items
-            let translateName = window.ui.t(`${name}`, window.dialogs.language)
+            let translateName = window.ui.GameMenu!!.t(`${name}`, window.dialogs.language)
             
             // debug inventory translations
             //console.log("translate Inv debug: ", translateName); //works

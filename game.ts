@@ -12,17 +12,15 @@ Main Game Logic
 Bugs
 
 
-(3) Input is terrible on mobile browsers (1/2)
+(1) Input is terrible on mobile browsers (1/2)
+(2) Game menu UI button is image path broken in production
+(3) overworld level render is buggy on mobile, consider reducing map side
 
 
 To Do:
-(0) Fix UI translations
-(1) Add webhooks for the inventory UI
-(2) Implement yandex ads services
+
 (3) Create global sprite atlas for each tileset in game init
 (4) create Particle fx for hit and bomb explosion
-(5) create npc
-(6) implement item use for bombs and bows
 (7) implement dialogue trigger and dialog box for signpost and NPC merchant
 (8) Implement auto tile procedural levels
 (9) Audit music tracks 
@@ -195,7 +193,7 @@ function gameInit() {
     //const controls = new Controls(); // set up the engine's controls
 
     // Create & hide Ingame Menu
-    window.ui.ingameMenu();
+    window.ui.GameMenu!!.ingameMenu();
     window.ui.gameHUD();
 
 
