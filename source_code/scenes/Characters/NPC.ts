@@ -70,6 +70,7 @@ class NPC extends PhysicsObject {
 export class Merchant extends NPC{
 
     public ADS_TRIGGERED : boolean = false;
+    public adsTimer = new Timer;
 
     constructor(pos : LittleJS.Vector2){
         super(pos);
@@ -91,6 +92,12 @@ export class Merchant extends NPC{
             console.log("Show Ads triggered");
             window.ads.showAds();
             this.ADS_TRIGGERED = true;
+            
+            //create a 15 seconds ads trigger cooldown
+            this.adsTimer.set(15);
+        }
+        if (this.adsTimer.elapsed()){
+            this.ADS_TRIGGERED = false;
         }
     }
 

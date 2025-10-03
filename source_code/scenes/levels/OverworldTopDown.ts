@@ -59,7 +59,10 @@ export class OverWorld extends EngineObject{
 
     constructor() {
         super();
+
+        //load the game map
         this.loadMap();
+        
         
 
 
@@ -449,8 +452,10 @@ export class OverWorld extends EngineObject{
         }
     }
 
+
+
     destroy(): void {
-        
+        // delete all scene objects
         if (this.tempExtLayer) {
             this.tempExtLayer.destroy();
         }

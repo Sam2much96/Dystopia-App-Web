@@ -18,7 +18,7 @@
 
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+const {EngineObject,setGravity,TileLayer,TileLayerData, Timer, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 import overMap from "./OverworldSideScrolling.json";
 import { GenericItem } from '../items/GenericItem';
@@ -34,7 +34,7 @@ import {
   box2dBodyTypeDynamic,
   box2dBodyTypeStatic
 } from "../../singletons/box2d"; // adjust import path to your d.ts/js location
-//import { box2dBodyTypeStatic } from 'source_code/singletons/box2d';
+
 
 
 let LevelSize = vec2(overMap.width, overMap.height); // get the level size
@@ -65,14 +65,20 @@ export class OverworldSideScrolling extends EngineObject {
     
     // box2d box objects
     // for iteratively affecting all box objects
-    levelBlocks : any[] | null = [];
+    levelBlocks : Box2dObject[] | null = [];
 
+    //destruction timer - 10 seconds
+    destTimer = new Timer(15); 
+    LEVEL_DESTROY : boolean = false;
     constructor(){
         super();
-        setGravity(-.035); // apply global gravity
+        setGravity(35); // apply global gravity
 
         //this.y = new ImageParallax(); // parallax testing
+        
         this.loadMap();
+
+        
 
 
         //this.renderOrder = 1001;
@@ -184,6 +190,26 @@ export class OverworldSideScrolling extends EngineObject {
             console.error("Failed to Load Map: ", err);
         }
 
+    }
+
+    update(): void {
+        if (!this.LEVEL_DESTROY && this.destTimer.elapsed()){
+            this.destructionPhysics();
+            this.LEVEL_DESTROY = true;
+            return
+        }
+    }
+
+    destructionPhysics() : void {
+        // triggers destruction physics in all box2d node objects
+        // uses a timer to destroy the scene
+        
+        console.log("Triggering level destruction physics");
+        for (const i of this.levelBlocks!){
+            if (i.getIsStatic()){
+                i.setBodyType(box2dBodyTypeDynamic);
+            }
+        }
     }
 
     destroy(): void {
@@ -420,7 +446,7 @@ function createBoxDynamic(pos_ : LittleJS.Vector2, tile_ :number) {
     tile(tiles,128,2),         // tileInfo (can be null if not using tiles)
     0,            // angle in radians
     LittleJS.WHITE,       // color
-    box2dBodyTypeDynamic // body type: static, kinematic, or dynamic
+    box2dBodyTypeStatic // body type: static, kinematic, or dynamic
   );
 
   // Define a fixture for collisions

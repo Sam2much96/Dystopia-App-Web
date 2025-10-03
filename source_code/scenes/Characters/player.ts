@@ -664,9 +664,13 @@ export class SideScrollerPlayerBox extends Box2dObject {
     // ground collision detection
     private OnGround : boolean = false;
     private velocity : LittleJS.Vector2 = vec2();
+    
+    //gravity timer
+    private gravityTimer = new Timer;
+    private ApplyGravity : boolean = true;
 
     // collision angle
-    private playerAngleDeg = this.angle * 180 / Math.PI;
+    //private playerAngleDeg = this.angle * 180 / Math.PI;
 
     // side scrolling player with box2d physics logic
     constructor(pos: LittleJS.Vector2) {
@@ -803,22 +807,27 @@ export class SideScrollerPlayerBox extends Box2dObject {
             this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
         }
 
+        if (this.gravityTimer.elapsed()){
+            this.ApplyGravity = true;
+        }
 
-        if (this.holdingRoll){
-            
-            this.setLinearVelocity(vec2(this.moveInput.x, 15));
+        if (this.holdingRoll && this.isOnGround()){
+            this.ApplyGravity = false;
+            //jump physics
+            this.setLinearVelocity(vec2(this.moveInput.x, 6));
             //this.applyForce(vec2(0, 15), this.pos); // jump
+            this.gravityTimer.set(1.5); //set a 5 seconds timer
         }
         //if (this.isOnGround()){
             //reset the player angle
         //    this.angle = 0;
         //}
-        if (!this.holdingRoll && !this.isOnGround()){ // gravity
+        if (this.ApplyGravity){ // gravity
 
              //moveX = this.moveInput.x
             // apply velocity from input + gravity
             //console.log("linear velocity debug: ", this.getLinearVelocity());
-            this.setLinearVelocity(vec2(this.moveInput.x, -4));
+            this.setLinearVelocity(vec2(this.moveInput.x, -10));
        
         }
         this.velocity = this.getLinearVelocity();
@@ -829,7 +838,7 @@ export class SideScrollerPlayerBox extends Box2dObject {
         //console.log("angle debug: ", this.angle);
         // fall of stage despawn conditional
         //console.log("y positional debug: ", this.pos.y, "/", this.velocity.y);
-        if (this.pos.y < -10){ // player falls off ground conditional
+        if (this.pos.y < -20){ // player falls off ground conditional
             this.destroy();
             
             //destroy the overworld scene and player
