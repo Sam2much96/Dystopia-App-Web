@@ -438,7 +438,7 @@ export function useItem(type :string, amount : number ) : boolean {
         if (type== "health potion"){
             player.hitpoints += 1;
             window.globals.hp += 1;
-            window.ui.heartbox(window.player.hitpoints)
+            window.ui.HeartBoxHUD!!.heartbox(window.player.hitpoints)
             // update heart box hud
             //player.update_heart_box();
             console.log("to do: implement update heartbox funcitonality on player object");
