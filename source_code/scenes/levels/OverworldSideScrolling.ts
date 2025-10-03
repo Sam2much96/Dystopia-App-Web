@@ -12,6 +12,7 @@
  * Bugs:
  * (1) Ground layer breaks on mobile browsers and doesn't render
  *      fix: make ground layer area much smaller and resize game level
+ * (2) box block saving logic is buggy, and overwrites object name
  * 
  */
 
@@ -155,7 +156,9 @@ export class OverworldSideScrolling extends EngineObject {
                             // to do:
                             // modify drawbox to draw different tiles based on tile value
                             //drawMapTile(vec2((x-.01),(y )), val - 1, this.tileLayer, 1);
-                            createBoxDynamic(vec2(x,y), val);
+                            
+                            const l = createBoxDynamic(vec2(x,y), val);
+                            this.levelBlocks?.push(l);
                             return
                         }
 

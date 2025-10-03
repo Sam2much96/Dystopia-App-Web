@@ -28,12 +28,7 @@ export class UI  {
     /* 
     Game UI System
     
-    Docs: https://github.com/KilledByAPixel/LittleJS/blob/main/examples/uiSystem/game.js 
-
-    The UI uses html objects, html elements and WebGL objects to 
-    render the games different UI elements
-
-    Each UI setup is sepatated into diffferent functions
+    creates all game UI using html and css to create all UI elements
 
     Features:
     (1) in-game menu (done)
@@ -50,8 +45,6 @@ export class UI  {
     To DO:
     (2) Controls Menu
 
-    (10) Separate each Ui element type into different classes with global pointers
-        - game menu, game hud, (done)
     (11) organise heartbox into 64x UI tileset
    
     (13) Fix broken Inventory Ui logic

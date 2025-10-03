@@ -24,15 +24,20 @@ export class Advertising {
      * Facebook Games Integrations
      * (1) Integrates intersitial ads and rewarded videoa ds into the game 
      */
+    public ads : any | undefined;
+    public analytics : any | undefined;
 
+    public platform : string = ''
     constructor(platform: string){
         console.log("Creating Advertising Singleton");
-        
+        // make the hosting platform a class variable
+        this.platform = platform;
+
         if (platform==="gamemonetize"){
             // to do:
             // (1) move banner ads logic to shop api
             // (2) implement shop send transaction functionality
-            //const ads = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
+            this.ads = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
             //ads.showBanner(); //works
             return
         }
@@ -52,7 +57,7 @@ export class Advertising {
 
 
         // Create instance (only runs in production, skips on localhost/dev)
-        const ga = GoogleAnalytics.getInstance("G-4XTFM74YY1");
+        this.analytics = GoogleAnalytics.getInstance("G-4XTFM74YY1");
 
         // Send custom events
         // to do:
@@ -67,7 +72,13 @@ export class Advertising {
 
     }
 
-    
+    showAds(){
+        if (this.platform === "gamemonetize"){
+            // show game monetize banner ads
+            this.ads.showBanner(); //works
+
+        }
+    }
 
 
 }

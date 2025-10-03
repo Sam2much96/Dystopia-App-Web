@@ -136,7 +136,7 @@ export class GameMonetizeAds {
         break;
       case "SDK_READY":
         console.log("GameMonetize SDK ready ✅");
-        this.showBanner();
+        //this.showBanner();
         break;
     }
   }
