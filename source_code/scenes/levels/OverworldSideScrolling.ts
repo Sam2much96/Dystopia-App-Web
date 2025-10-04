@@ -198,17 +198,26 @@ export class OverworldSideScrolling extends EngineObject {
             this.LEVEL_DESTROY = true;
             return
         }
+        else{
+            return
+        }
     }
 
     destructionPhysics() : void {
         // triggers destruction physics in all box2d node objects
         // uses a timer to destroy the scene
         
-        console.log("Triggering level destruction physics");
-        for (const i of this.levelBlocks!){
-            if (i.getIsStatic()){
-                i.setBodyType(box2dBodyTypeDynamic);
+        
+        if (this.levelBlocks != null){
+            console.log("Triggering level destruction physics");
+            for (const i of this.levelBlocks!){
+                if (i && i.getIsStatic()){
+                    i.setBodyType(box2dBodyTypeDynamic);
+                }
             }
+        }
+        else{
+            return
         }
     }
 
@@ -235,6 +244,7 @@ export class OverworldSideScrolling extends EngineObject {
 
 
         setGravity(0);// reset gravity
+        this.LEVEL_DESTROY = true;//stop all processing logic
     }
 
 }

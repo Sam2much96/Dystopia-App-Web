@@ -14,10 +14,11 @@
  * (2) Screen D-Pad controls is laggy, consider debugging enemy A.I. if the cause pf lag is from simulations delta
  * (3) Status HUD buttons aren't working on mobile browsers, duplicate press initialisation from menu UI
  * (4) Fix Yandex moderation issues for IOS & android tv examples : https://github.com/Sam2much96/Dystopia-App-Web/issues/6
+ * (5) Fix translation language logic with regex code for different language locales2
  */
 import { Music } from "./Music";
 import {Simulation} from "./Simulation";
-
+import { DialogBox } from "./Dialogs";
 import {Utils} from "./Utils";
 import * as LittleJS from 'littlejsengine';
 
@@ -56,7 +57,7 @@ export class UI  {
 
 
     // UI components
-    public UI_ROOT: HTMLDivElement;
+    public UI_ROOT: HTMLElement | null;
     public UI_MENU: HTMLDivElement;
     public leftButtons : HTMLElement | null;
     public TopRightUI : HTMLElement | null;
@@ -89,11 +90,12 @@ export class UI  {
     //csv translations settings
     //private translations : Translations  = {};
 
-    private language : string = window.dialogs.language; // fetch language from dialog singleton
+    private language : string = window.dialogs.language; // fetch language from dialog singleton // bug : breaks
     public HeartBoxHUD : HeartBox | undefined;
     public StatusHUD : Stats | undefined ;
-    public InventoryHUD : Inventory | undefined;
+    public InventoryHUD : InventoryHUD | undefined;
     public GameMenu : IngameMenu | undefined;
+    public Dialog : DialogBox | undefined; // dialo
 
     constructor() {
         // testing other languages
@@ -104,9 +106,10 @@ export class UI  {
         // Create Div element for the ui
         // Create UI root object For All UI Scenes
         // set root to attach all ui elements to
-        this.UI_ROOT = document.createElement("div");
-        this.UI_ROOT.id = "ui-root";
-        document.body.appendChild(this.UI_ROOT);
+        //this.UI_ROOT = document.createElement("div");
+        //this.UI_ROOT.id = "ui-root";
+        this.UI_ROOT = document.getElementById("ui-root");
+        //document.body.appendChild(this.UI_ROOT);
 
 
         // Create UI containers
@@ -127,19 +130,21 @@ export class UI  {
         //this.DialogVisible = false; //temporarily hide dialogue box for ui refactor Sept 22, 2025
 
 
-        this.UI_ROOT.append(
+        this.UI_ROOT!!.append(
                     this.UI_MENU
                 );
 
         //this.inventoryContainer?.append(this.UI_STATS);
 
         //console.log("Menu Debug 1: ", this.menuContainer);
-        
+        //create the dialog box object
+        this.Dialog = new DialogBox()
+
         // creates the status hud
         this.StatusHUD = new Stats();
 
         //create the inventory hud
-        this.InventoryHUD = new Inventory();
+        this.InventoryHUD = new InventoryHUD();
 
         
 
@@ -159,12 +164,17 @@ export class UI  {
         //create Heartboxes
         //update & draw heartbox ui every frame
         this.HeartBoxHUD!!.heartbox(window.globals.hp); //create 3 hearboxes
+        
+        //create dialog box object
+        //works
+        //this.Dialog?.dialogueBox("admin","Testing dialogue box");
+        
+        
         console.log("Creating Game HUD Buttons");
         
         // create button icons images
         // to do :
-        // (1) create a panel div for the left buttons
-
+        // (1) organise each button configuration into ther specific classes
         // create buttons and bind their actions
         this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
             //this.stats.bind(this);
@@ -310,7 +320,7 @@ export class Stats {
     }
 }
 
-export class Inventory{
+export class InventoryHUD{
     public inventoryContainer : HTMLElement | null;
     public SHOW_INVENTORY : boolean = true;
     constructor(){
@@ -383,7 +393,7 @@ export class IngameMenu{
 
         // game menu logic
         this.menuContainer = document.getElementById("menu-container");    
-        this.MenuVisible = true; // make menu initially invisible    
+        this.MenuVisible = false; // make menu initially invisible    
         
         (async() =>{
             await this.ingameMenu();
@@ -596,57 +606,9 @@ export class HeartBox{
     
 }
 
-export class DialogBox{
-    public DIALOG_BOX: HTMLDivElement;
-    constructor(){
-        
-        //depreciated dialog box creation October 33rd refactor
-        this.DIALOG_BOX = createPanel("dialog-box");
-        this.DialogVisible = false; //temporarily hide dialogue box for ui refactor Sept 22, 2025
-    }
-
-    dialogueBox() {
-        // old dialogue box implementation
-        // October 3rd refactor
-        // required css refactor
-        // Triggered by Pressing Key E; function called from the Input SIngleton 
-        console.log("Creating Dialgoue Box Instance");
-        //this.timer.set(5);
-        //this.SHOW_DIALOGUE = true;
-        //this.DialogVisible = true;
-
-        this.DIALOG_BOX.innerHTML = `<!-- Dialogue Main Content Container to do: (1) add in styling -->
-            <div class="v1_5">
-
-                <!-- Decorative or Background Element -->
-                <div class="v1_2"></div>
-
-                <!-- Another Decorative Layer or Element -->
-                <div class="v1_3"></div>
-
-                <!-- Text Content -->
-                <span class="v1_4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </span>
-
-            </div>`;
-    }
-
-    get DialogVisible() : boolean {
-
-        return !this.DIALOG_BOX.classList.contains("hidden");
-    }
-
-    set DialogVisible(visible: boolean) {
-        this.DIALOG_BOX.classList.toggle("hidden", !visible);
-    }
 
 
-
-}
-
-
-function createPanel(id: string): HTMLDivElement {
+export function createPanel(id: string): HTMLDivElement {
         const div = document.createElement("div");
         div.id = id;
         div.className = "ui-panel";

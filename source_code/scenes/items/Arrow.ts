@@ -35,7 +35,8 @@ export class Arrow extends EngineObject{
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 
-                console.log("Arrow item collected");
+                window.dialogs.show_dialog("Arrow collected", "");
+                //console.log("Arrow item collected");
                 this.destroy();
 
                 // update bomb count in inventory

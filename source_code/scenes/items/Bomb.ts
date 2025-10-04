@@ -33,7 +33,8 @@ export class Bomb extends EngineObject {
         // set coin idle animation
           if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
             
-            console.log("Bomb item collected");
+            window.dialogs.show_dialog("Bombs collected", "");
+            //console.log("Bomb item collected");
             this.destroy();
 
             // update bomb count in inventory

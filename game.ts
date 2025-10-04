@@ -90,17 +90,12 @@ declare global {
         utils: Utils,
         music: Music,
         dialogs : Diaglogs,
-        //ads: Ads,
         player: Player | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
         simulation: Simulation;
         ads : Advertising;
-        //useItem: any; 
-        //YaGames?: {
-        //    init(): Promise<import('ysdk').SDK>;
-        //};
 
     }
 
@@ -120,26 +115,7 @@ declare global {
         z: number;
     }
 
-    // to do: move to networking / simulation class
-    interface player_info { 0 :{ //server peer id
-        posi:LittleJS.Vector2, // position
-        vel:LittleJS.Vector2, // velocity
-        fr:number, // frame data
-        in:number, // input buffer from input singleton
-        hp:number,
-        st:number, // roll back networking state predictions
-        rd:LittleJS.Vector2, // roll direction
-        dx:number,
-        up:number, //persistent update id across client peers
-        wa:string, //Wallet address
-        ai:number, //Asset ID
-        sc:number, //Dapp ID
-        kc:number, //Client Kill Count
-        inv:string, // Client inventory items
-        rt:number, // respawn timer
-        hash:string, //hash splice for data integrity
-        }
-    }
+    
 }
 
 
@@ -197,10 +173,10 @@ function gameInit() {
     window.ui.gameHUD();
 
 
-    window.inventory = new Inventory;
+    window.inventory = new Inventory();
     
-    window.utils = new Utils;
-    window.music = new Music;
+    window.utils = new Utils();
+    window.music = new Music();
     
 
   
@@ -240,16 +216,6 @@ function gameInit() {
     //draw title screen
     // TO DO :
     // (1) draw dystopia logo with css
-    //(window as any).Box2D = (window as any).Box2D || {};
-    //(window as any).Box2D.locateFile = (path: string) => {
-    //    if (path.endsWith(".wasm")) {
-    //        return "./Box2D_v2.3.1_min.wasm.wasm"; // ✅ correct path to your wasm
-    //    }
-    //    return path;
-    //};
-
-
-    //box2dEngineInit();
 
 }
 

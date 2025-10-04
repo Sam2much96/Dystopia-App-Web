@@ -38,8 +38,8 @@ export class GenericItem extends EngineObject {
             // set player collision to coin object
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-                
-                console.log("Generic item collected");
+                window.dialogs.show_dialog("Generic Item collected", "");
+                //console.log("Generic item collected");
                 this.destroy();
 
                 // update bomb count in inventory

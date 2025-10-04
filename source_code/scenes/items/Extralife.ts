@@ -35,7 +35,8 @@ export class HealthPotion extends EngineObject{
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 
-                console.log("Health Potion item collected");
+                window.dialogs.show_dialog("Health potion collected", "");
+                //console.log("Health Potion item collected");
                 this.destroy();
 
                 // update bomb count in inventory

@@ -2,7 +2,26 @@ import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, Color,vec2,setGravity} = LittleJS
 
-
+// to do: move to networking / simulation class
+interface player_info { 0 :{ //server peer id
+        posi:LittleJS.Vector2, // position
+        vel:LittleJS.Vector2, // velocity
+        fr:number, // frame data
+        in:number, // input buffer from input singleton
+        hp:number,
+        st:number, // roll back networking state predictions
+        rd:LittleJS.Vector2, // roll direction
+        dx:number,
+        up:number, //persistent update id across client peers
+        wa:string, //Wallet address
+        ai:number, //Asset ID
+        sc:number, //Dapp ID
+        kc:number, //Client Kill Count
+        inv:string, // Client inventory items
+        rt:number, // respawn timer
+        hash:string, //hash splice for data integrity
+        }
+    }
 // For Simulation singleton multiplayer logic
 //type PlayerInfoDictionary = { [id: number]: player_info };
 

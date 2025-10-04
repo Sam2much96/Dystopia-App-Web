@@ -31,8 +31,8 @@ export class Coins extends EngineObject {
             // set player collision to coin object
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-
-                console.log("coin collected, creating atc txn");
+                window.dialogs.show_dialog("sud coins collected", ""); // to do: should ideally be item hud, requires implement stats hud for item collect
+                //console.log("coin collected, creating atc txn");
                 this.destroy();
 
                 window.music.item_pickup.play();

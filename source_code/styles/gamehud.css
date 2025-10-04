@@ -2,11 +2,11 @@
 .menu-btn {
     width: 48px;
     height: 48px;
-    background: none no-repeat center center;
+ 
     background-size: contain;
     position: absolute;
     top: 50px;
     left: 35px;
-    box-shadow: 2 8px 2px rgba(128, 128, 128, 0.3); /* Drop shadow added */
+   
 
 }

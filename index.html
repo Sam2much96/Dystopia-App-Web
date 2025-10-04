@@ -11,10 +11,11 @@
     <meta name=apple-mobile-web-app-capable content=yes>
     <meta name=mobile-web-app-capable content=yes>
     <link rel=icon type=image/png href=./favicon.png>
-    
+    <!-- Every UI element styling-->
     <link rel="stylesheet" href="source_code/styles/styles.css">
     <link rel="stylesheet" href="source_code/styles/stats.css">
     <link rel="stylesheet" href="source_code/styles/heartbox.css">
+    <link rel="stylesheet" href="source_code/styles/dialogue.css">
     <link rel="stylesheet" href="source_code/styles/gamehud.css">
     <link rel="stylesheet" href="source_code/styles/ingame_menu.css">
     
@@ -23,7 +24,7 @@
     <meta name="keywords"
         content="Dystopia App, game, webgame ,cyberpunk, webcomic, noir, 8-bit, adventure, anime, cartoon">
     <meta property="og:title" content="Dystopia App - Gameboy Survival RPG Game">
-    <meta property="og:description" content="A thrilling cyberpunk web game about survival in a application.">
+    <meta property="og:description" content="You lost a duel to a government's shaman and ended up sealed in a Cell Phone application. Explore Dungeons, Combat monsters, Trade Items, Glitch the game & break free.">
     <meta property="og:image" content="./title-art_2.jpg">
     <meta property="og:url" content="">
 
@@ -50,7 +51,8 @@
     <canvas id="littlejs-2d-layer" class="layer"></canvas>
     
 
-
+    <!-- UI root object for all UI scenes -->
+    <div id="ui-root"></div>
         <!-- UI Container -->
     <!-- Left Column: Wallet, Dialogue, Status -->
     <div id="left-buttons" class="left-buttons">  </div>
@@ -92,15 +94,7 @@
 
 
 
-  <!-- Google tag (gtag.js) for google analytics on my private hosting --> 
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XTFM74YY1"></script> 
-  <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-4XTFM74YY1');
-      
-  </script>
+
     
   <!-- Statically preload all image files-->
   <img src="./player_tileset_128x128.webp" style="display:none">

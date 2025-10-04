@@ -1,57 +1,93 @@
-* {
-  box-sizing: border-box;
-}
-body {
-  font-size: 14px;
-}
-.v1_5 {
-  width: 50%;
-  height: 326px;
-  background: url("../../v1_5.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  opacity: 1;
-  position: relative;
-  top: 0px;
-  left: 0px;
-  overflow: hidden;
-}
-.v1_2 {
-  width: 50%;
-  height: 326px;
-  background: url("../../v1_2.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  opacity: 1;
-  position: relative;
-  top: 0px;
-  left: 0px;
-  overflow: hidden;
-}
-.v1_3 {
-  width: 85px;
-  height: 56px;
-  background: url("../../public/v1_3.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  opacity: 1;
-  position: absolute;
-  top: 245px;
-  left: 425px;
-  overflow: hidden;
-}
-.v1_4 {
-  width: 100%;
-  color: rgb(159, 159, 159);
-  position: absolute;
-  top: 65px;
-  left: 147px;
-  font-family: Lohit Bengali; /* to do: change font family*/
-  font-weight: Regular;
-  font-size: 48px;
-  opacity: 1;
+.dialog-speaker {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000; /* gold for visibility */
+  margin-bottom: 10px;
   text-align: left;
+ 
+}
+
+/* Base dialog container */
+#dialog-box {
+  font-family: "Comic Andy",Arial, sans-serif;
+  font-size: 10px;
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  max-width: 800px;
+  background: rgb(255, 255, 255); /* semi-transparent black */
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 12px;
+  padding: 20px;
+  color: rgb(0, 0, 0);
+  z-index: 1000;
+
+  /* start hidden */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.95);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* When visible */
+#dialog-box.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Decorative layers */
+.v1_2 {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+  z-index: -2;
+}
+
+.v1_3 {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) inset;
+  z-index: -1;
+}
+
+/* Text styling */
+.v1_4 {
+  display: block;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  animation: textFade 0.6s ease forwards;
+}
+
+/* Continue pointer */
+#dialog-box::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  background: url("/v1_3.png") no-repeat center center;
+  background-size: contain;
+
+  /* blinking animation */
+  animation: blink 1s step-start infinite;
+}
+
+/* Keyframes for fade in text */
+@keyframes textFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Keyframes for blinking pointer */
+@keyframes blink {
+  50% { opacity: 0; }
 }
