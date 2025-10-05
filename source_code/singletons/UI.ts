@@ -44,14 +44,17 @@ export class UI  {
     (6) All UI elements Play UI sounds from singleton class (2/2)
 
     To DO:
-    (2) Controls Menu
+    (1) Controls Menu
 
-    (11) organise heartbox into 64x UI tileset
+    (2) organise heartbox into 64x UI tileset (not needed)
    
-    (13) Fix broken Inventory Ui logic
-    (14) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
-    (15) Each UI item should be in separate classes/ scripts
-    (16) Map UI language controls to a controller UI
+    (3) Fix broken Inventory Ui logic
+    (4) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
+        -create form and control scenes with kenny ui template
+
+    (5) Each UI item should be in separate classes/ scripts
+    (6) Map UI language controls to a controller UI
+    (7) Only render game hud once the game has started 
     
     */
 
@@ -72,7 +75,10 @@ export class UI  {
     public statsButton: HTMLButtonElement | null = null; // button triggered from input via stats() method
     public dialogButton: HTMLButtonElement | null = null;
     public comicsButton: HTMLButtonElement | null = null;
-    public menuButton: HTMLButtonElement | null = null;
+    
+    //public menuButton: HTMLButtonElement | null = null; // old menu button
+    public menuButton : MenuButton | null = null;
+    
     public walletButton: HTMLButtonElement | null = null;
 
 
@@ -150,6 +156,13 @@ export class UI  {
 
         }
    
+    menu(){
+        //works
+        //console.log("creating the menu button");
+        //render the menu button
+        this.menuButton = new MenuButton();
+        //console.log("menu button debug: ",this.menu);
+    }
 
     gameHUD() {
         /*  
@@ -176,7 +189,7 @@ export class UI  {
         // to do :
         // (1) organise each button configuration into ther specific classes
         // create buttons and bind their actions
-        this.statsButton = this.createTextureButton("./btn-stats.png","ui-button", () =>{
+        this.statsButton = createTextureButton("./btn-stats.png","ui-button", () =>{
             //this.stats.bind(this);
             console.log("stats button pressed");
             //this.InventoryVisible = !this.InventoryVisible;
@@ -213,7 +226,7 @@ export class UI  {
         // to do:
         // (1) lock gameHUD layout into separated css and html files and separte each ui into seprate css object
         // depreciate wallet button into hud renders
-        this.walletButton = this.createTextureButton("./btn-mask.png","ui-button", () => {
+        this.walletButton = createTextureButton("./btn-mask.png","ui-button", () => {
 
             console.log("wallet button pressed");
             // to do:
@@ -224,17 +237,18 @@ export class UI  {
         
         });
 
-        this.dialogButton = this.createTextureButton("./btn-interact.png", "ui-button", ()=>{
-            //this.dialogueBox.bind(this);
-            console.log("dialog pressed : to do: trigger dialogue box render function");
-            //this.dialogueBox();
+        this.dialogButton = createTextureButton("./btn-interact.png", "ui-button", ()=>{
+            //
+            //console.log("dialog pressed : to do: trigger dialogue box render function");
+            //
+            window.dialogs.show_dialog("...", "Aarin: ...");
         });
         
-        this.menuButton = this.createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
-            window.music.ui_sfx[2].play();
-            this.GameMenu!!.MenuVisible = !this.GameMenu!!.MenuVisible;
-            //console.log("menu pressed");
-        });
+        //this.menuButton = this.createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
+        //    window.music.ui_sfx[2].play();
+        //    this.GameMenu!!.MenuVisible = !this.GameMenu!!.MenuVisible;
+        //    //console.log("menu pressed");
+        //});
         
         
 
@@ -242,33 +256,11 @@ export class UI  {
         this.leftButtons!.append( this.statsButton,this.walletButton, this.dialogButton);
         
         // this is also the centerer position of the canvas
-        this.TopRightUI!.append(this.menuButton);
+        //this.TopRightUI!.append(this.menuButton);
     }
 
 
-    /**
-     * Core UI Class
-     * 
-     * @param text 
-     * @param onClick 
-     * @returns 
-     */
-    private createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement { // creates hud buttons. buggy
-        const btn = document.createElement("button");
-        
-        //btn.textContent = text;
-        btn.className = className;
-        btn.addEventListener("pointerdown", onPress);
-        const img = document.createElement("img");
-        img.src = imgSrc;
-        img.style.width = "100%";
-        img.style.height = "100%";
-        img.style.objectFit = "cover";
-        img.style.pointerEvents = "auto";
-        btn.appendChild(img);
-        
-        return btn;
-    }
+
 
 
    
@@ -365,6 +357,30 @@ export class InventoryHUD{
 
 }
 
+export class MenuButton{
+    /**
+     * to do:
+     * (1) add menu text to button object
+     * 
+     */
+
+    public menuButton: HTMLButtonElement | null = null;
+    constructor(){
+
+           
+        //render the menu button separately from all other ui
+        this.menuButton = createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
+            window.music.ui_sfx[2].play();
+            window.ui.GameMenu!!.MenuVisible = !window.ui.GameMenu!!.MenuVisible;
+            //console.log("menu pressed");
+        });
+
+        //window.ui.leftButtons?.append(this.menuButton);
+        window.ui.TopRightUI?.append(this.menuButton);
+    }
+    
+}
+
 export class IngameMenu{
     // buggy, code, does not work! October 3rd refactor
     public SHOW_MENU: boolean = true;
@@ -372,6 +388,7 @@ export class IngameMenu{
     // in one class
         // UI Buttons
     // menu buttons
+    //public menuButton: HTMLButtonElement | null = null;
     public menuContainer: HTMLElement | null;
     //public inventoryContainer : HTMLElement | null;
 
@@ -389,7 +406,7 @@ export class IngameMenu{
 
     constructor(){
         //debug ingame menu
-        console.log("creating ingame menu");
+        //console.log("creating ingame menu");
 
         // game menu logic
         this.menuContainer = document.getElementById("menu-container");    
@@ -400,6 +417,8 @@ export class IngameMenu{
         })
         
     }
+    
+
 
     async ingameMenu() {
         /*
@@ -411,9 +430,11 @@ export class IngameMenu{
         */
 
 
+        // this is also the centerer position of the canvas
+        //this.TopRightUI!.append(this.menuButton);
+
         await this.loadTranslations(); //load the translations csv
-        
-            if (this.newGame) return; // guard clause
+        if (this.newGame) return; // guard clause
             console.log("Creating Ingame Menu");
         
             // note : (1) ingame menu translations is buggy
@@ -443,11 +464,11 @@ export class IngameMenu{
         });
         
        
-        this.Controls = this.createMenuOption(this.t("controls", this.language), "#", () => {
-            window.music.sound_start.play();
+        //this.Controls = this.createMenuOption(this.t("controls", this.language), "#", () => {
+        //    window.music.sound_start.play();
 
-             window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
-        });
+        //     window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+        //});
 
         this.Quit = this.createMenuOption(this.t("quit", this.language), "#", () => {
             window.music.sound_start.play();
@@ -467,7 +488,7 @@ export class IngameMenu{
                 this.newGame,
                 this.contGame,
                 this.Comics,
-                this.Controls,
+                //this.Controls,
                 this.Quit
             );
         
@@ -619,3 +640,26 @@ export function createPanel(id: string): HTMLDivElement {
         return div;
     }
 
+    /**
+     * Core UI Class
+     * 
+     * @param text 
+     * @param onClick 
+     * @returns 
+     */
+    export function createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement { // creates hud buttons. buggy
+        const btn = document.createElement("button");
+        
+        //btn.textContent = text;
+        btn.className = className;
+        btn.addEventListener("pointerdown", onPress);
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";
+        img.style.pointerEvents = "auto";
+        btn.appendChild(img);
+        
+        return btn;
+    }

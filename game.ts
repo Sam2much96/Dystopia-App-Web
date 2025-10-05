@@ -38,7 +38,7 @@ const {setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, 
 
 
 import {Music} from "./source_code/singletons/Music";
-
+import {Quest} from "./source_code/singletons/Quest";
 import {Wallet} from "./source_code/scenes/Wallet/Wallet";
 import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
@@ -90,6 +90,7 @@ declare global {
         utils: Utils,
         music: Music,
         dialogs : Diaglogs,
+        quest : Quest,
         player: Player | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
@@ -141,7 +142,7 @@ declare global {
 function gameInit() {
     // called once after the engine starts up
     // setup the game
-    console.log("Game Started!");
+    //console.log("Game Started!");
     
 
     // use pixelated rendering
@@ -156,8 +157,9 @@ function gameInit() {
     /* 
     * Create 3D Scenes And Objects
     */
-    // temporarily disabling ads for faster game prototyping
-
+    // Game Advertising singleton for gamemonetize & Yandex
+    // 
+    // 
     window.ads = new Advertising("gamemonetize");
     
     window.THREE_RENDER = new ThreeRender();
@@ -170,7 +172,12 @@ function gameInit() {
 
     // Create & hide Ingame Menu
     window.ui.GameMenu!!.ingameMenu();
-    window.ui.gameHUD();
+    
+    // to do:
+    // (1) separate game menu object from game hud into the game menu script class (done)
+    // (2) Create game menu only when game starts (done)
+    window.ui.menu();
+    //window.ui.gameHUD();
 
 
     window.inventory = new Inventory();
@@ -216,6 +223,7 @@ function gameInit() {
     //draw title screen
     // TO DO :
     // (1) draw dystopia logo with css
+    //window.dialogs.show_dialog("Game Started","");
 
 }
 
@@ -310,6 +318,7 @@ function gameRender() {
             // currently testing temple interior
             window.map = new OverWorld();
            
+            window.ui.gameHUD(); //render the game hud
             
             window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing

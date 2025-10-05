@@ -81,7 +81,7 @@ export class Player extends PhysicsObject{
         ]);
     
     // State Machines Actions
-    public state: Record<string, () => void> | undefined;
+    public _state: Record<string, () => void> | undefined;
     public facing: Record<number, () => void> | undefined;
     public facingPos : number = 0; // for storing the current facing positoin
 
@@ -138,13 +138,8 @@ export class Player extends PhysicsObject{
         window.globals.players.push(this);
 
         this.hitpoints = window.globals.hp; // global hp singleton 
-        // player GUI
-        //this.local_heart_box = window.ui.HEART_BOX; // Pointer To Heart Box HUD from the UI Class
-        //this.isSolid = true;
-
-        //touch device debug
-        //console.log("Touch device debug: ", isTouchDevice);
-
+        //to do:
+        // (1) player object should have the responsibility of drawing the heartbox ui object
     }
 
     update(): void {

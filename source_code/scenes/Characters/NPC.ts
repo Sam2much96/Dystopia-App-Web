@@ -15,6 +15,8 @@ const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
  * To do:
  * (1) Implement wallet api into script for sending txn to chain
  * (2) Implement decision dialogue box 
+ * (3) Implement NPC dialogue
+ * (4) Implement NPC dialogue translations via dialogue singleton
  */
 
 
@@ -89,12 +91,12 @@ export class Merchant extends NPC{
         // (1) add cooldown timer for ads trigger checker
         if (!this.ADS_TRIGGERED && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
             //show banner ads
-            console.log("Show Ads triggered");
+            window.dialogs.show_dialog("You have no coins, and you want to earn free coins from ads? Okay", "Merchant");
             window.ads.showAds();
             this.ADS_TRIGGERED = true;
             
-            //create a 15 seconds ads trigger cooldown
-            this.adsTimer.set(15);
+            //create a 8 minutes 20 seconds ads trigger cooldown
+            this.adsTimer.set(500);
         }
         if (this.adsTimer.elapsed()){
             this.ADS_TRIGGERED = false;
