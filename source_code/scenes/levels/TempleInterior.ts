@@ -53,6 +53,10 @@ export class TempleInterior extends EngineObject {
                     val = parseInt(val, 10);
                     if (val) {
 
+                        // to do:
+                        // (1) structure the level collision data properly
+                        // (2) NPC shaman collision should trigger the quest sub system
+                        // (3) Add fire object with no collisions to layer 2 object positions
 
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                             window.player = new TopDownPlayer(vec2(x,y));
@@ -68,9 +72,7 @@ export class TempleInterior extends EngineObject {
                         //if (val === 0){ // bow object
                             
                         //}
-                        //if (val === 0){ // NPC quest giver
-                            
-                        //}
+                    
                         // to do: (1) fire object
                         if (val === 35){ // first fire tile as enemy spawner placeholder
                             const i = new EnemySpawner(vec2(x, y));
@@ -83,16 +85,19 @@ export class TempleInterior extends EngineObject {
                             return
 
                         }
-                        if (val === 69){ // no collision tiles
+                        if (val === 69){ // no collision temple interior tiles
                             Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
+                            return
                         }
-                        if (val === 70){ // collision walls
+                        if (val === 70){ // collision walls temple interior tiles
                             Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+                            return
                         }
                         // to do :
                         // (1) write item spawner for enemy random drops
                         else{ // every other tile
                             Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
+                            return
                         }
 
                     }

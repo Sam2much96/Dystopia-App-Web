@@ -80,7 +80,8 @@ export class Merchant extends NPC{
         this.setCollision(false,false,false,false); // make object not collide
         // to do:
         //(1) load npc tile (done)
-        //(2) trigger ads api upon collision
+        //(2) trigger ads api upon collision (done)
+        //(3) Smart  contract escrow
     }
 
     update(): void {
@@ -136,5 +137,20 @@ export class Shaman extends NPC{
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 0;
+        this.setCollision(false,false,false,false); // make object not solid
+
+
+    }
+
+    update(): void {
+         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) {
+
+            // shaman dialogue
+            // to do:
+            // (1) test quest subsystem
+            //(2) connect quest subsystem
+            window.dialogs.show_dialog("shaman","quest update coming soon! ");
+         }
+        
     }
 }
