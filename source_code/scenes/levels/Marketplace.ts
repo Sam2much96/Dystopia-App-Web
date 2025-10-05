@@ -1,11 +1,19 @@
 /**
  * Top Down Marketplace/ Shop
  * 
+ * Features:
+ * (1) Connects the game to the blockchain via hot wallet api functionality
+ * 
  * requires:
- * (1) Shop Exit Object
- * (2) NPC Merchant
- * (3) Decision Dialogue box
- * (4) UI Translations
+ * (1) Shop Exit Object (done)
+ * (2) NPC Merchant (done)
+ * (3) Decision Dialogue box (1/3)
+ * (4) UI Translations (1/3)
+ * (5) hot wallet api
+ * 
+ * to do:
+ * (1) add money burning functionality into shop merchant logic
+ * (2)
  */
 
 import * as LittleJS from 'littlejsengine';
@@ -20,8 +28,9 @@ import {Merchant} from "../Characters/NPC";
 import {Utils} from "../../singletons/Utils";
 import { Stairs } from '../UI & misc/Exit';
 
-// to do : (1) import merchant npc
-// to do : (1) implement decision dialogue
+// to do : (1) import merchant npc (done)
+// to do : (1) implement decision dialogue (1/2)
+// to do
 
 export class Marketplace extends EngineObject{
     LevelSize: LittleJS.Vector2 | null = null;
@@ -73,12 +82,22 @@ export class Marketplace extends EngineObject{
                                     }
 
                                     // to do:
-                                    // add exit tile for the marketplace
+                                    // add exit tile for the marketplace (done)
                                     if (val ===56){ // stairs exit
                                         const o = new Stairs(vec2(x,y));
                                         this.levelObjects?.push(o);
                                         return
                                     }
+                                    //70 is temple interior collision walls
+                                    // 83 is the first white tile
+                                    // 84 is the seconde white tiles
+                                    if (val===84){
+                                        //draw white tiles with collisions in the marketplace
+                                        Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1); // 0 is for no collision, 1 is for collision
+                                    }
+
+                                    // to do:
+                                    // (1) add collision tiles for the white tiles  in this level
             
                                     else{
                                         //console.log("tile debug: ", val);
