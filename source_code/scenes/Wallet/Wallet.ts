@@ -44,9 +44,17 @@ interface AssetPrice {
   total_lockup: number;
 }
 
+//admin api price structure
+interface WalletAPI {
+    admin_account: number, 
+    balance: string , 
+    ASA_id : string, 
+    ASA_amount: number, 
+}
+
 // Generic API Price response with error handling
 type PriceApiResponse = AssetPrice[];
-
+type WalletAPIResponse = WalletAPI[];
 
 export class Wallet {
     //public network: Map<string, number> = new Map([
@@ -62,8 +70,8 @@ export class Wallet {
         // Fetch Sud token price from vestige
         // works
         // to do: 
-        // (1) call function once when showing wallet render in stats hud
-        // (2) serialise token price into stats wallet hud render
+        // (1) call function once when showing wallet render in stats hud (1/2)
+        // (2) serialise token price into stats wallet hud render (1/2)
         //this.fetchPrice();
     }
 
@@ -74,11 +82,19 @@ export class Wallet {
 
     // use algokit sdk to construct transactions
     // sign a transaction
-    async signTransaction() {
+    async sendAPITransaction() {
+        const url = "https://dystopia-app.site/api/admin";
+        console.log("pinging admin wallet for mainnet testing");
+        return apiGet<WalletAPI>(url);
     }
 
     async walletConnect(){
 
+    }
+    fetchAdmin(){
+        (async () => {
+
+        })();
     }
 
     fetchPrice(){

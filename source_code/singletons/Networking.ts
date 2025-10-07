@@ -23,6 +23,7 @@ class HTTPError extends Error {
   }
 }
 
+// generic api get Method
 export async function apiGet<T>(url: string): Promise<T> {
   const resp = await fetch(url, {
     method: "GET",

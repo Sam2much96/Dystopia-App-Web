@@ -61,7 +61,11 @@ export class OverWorld extends EngineObject{
         super();
 
         //load the game map
-        this.loadMap();
+        (async () => {
+            this.loadMap();
+        })();
+        
+        
         
         
 

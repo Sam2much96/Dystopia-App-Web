@@ -1,6 +1,7 @@
 import * as LittleJS from 'littlejsengine';
 import { Player} from './player';
 import { Utils, PhysicsObject  } from '../../singletons/Utils';
+import { QuestGivers } from '../../singletons/Quest';
 
 const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
@@ -21,6 +22,9 @@ const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
 
 class NPC extends PhysicsObject {
+    public questTimer = new Timer(); // for stopping quest process spam in collision detection
+    public timeout : number = 10; // timer timeout
+    public QuestTriggered: boolean = false; // quest trigger checker
     constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;
@@ -40,14 +44,21 @@ class NPC extends PhysicsObject {
     
     update() : void {
         //trigger hit collision detection for NPC
-        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
-            console.log("NPC Hit Collision Detection Triggered");
+        //if (!this.QuestTriggered && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
+       //     console.log("NPC Hit Collision Detection Triggered");
             // to do:
-            // (1) trigger dialogue box
-            // (2) implement dialogue translation
+            // (1) trigger dialogue box (done)
+            // (2) implement dialogue translation (1/2)
             // (3) implement decision dialogue
             //enemy.hitCollisionDetected();
-        }
+        //    this.QuestTriggered = true // softlock this logic
+        //    this.questTimer.set(this.timeout);
+
+           
+        //}
+        //if (this.questTimer.elapsed()){
+        //    this.QuestTriggered = false;
+        //}
     }
 
 }
@@ -98,6 +109,10 @@ export class Merchant extends NPC{
             
             //create a 8 minutes 20 seconds ads trigger cooldown
             this.adsTimer.set(500);
+
+            // 
+            // reward player with some coin tokens
+            //window.inventory.set("suds", 5_000);
         }
         if (this.adsTimer.elapsed()){
             this.ADS_TRIGGERED = false;
@@ -121,9 +136,14 @@ export class OldWoman extends NPC{
         //this.isSolid = false;
         this.setCollision(false,false,false,false); // make object not collide
     }
-    //update(): void {
-    //    super.update();
-    //}
+    update(): void {
+        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) {
+            // to do
+            //(1) implement dialogue translation as a dialogue singleton subsystem
+            window.dialogs.show_dialog("old woman","I wouldn't jump into that hole if i were you! the ground there's not stable at all!" );
+        }
+
+    }
 }
 
 /**
@@ -143,14 +163,23 @@ export class Shaman extends NPC{
     }
 
     update(): void {
-         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) {
+        //super.update();
+         if (!this.QuestTriggered && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) {
 
             // shaman dialogue
             // to do:
-            // (1) test quest subsystem
-            //(2) connect quest subsystem
-            window.dialogs.show_dialog("shaman","quest update coming soon! ");
-         }
+            // (1) test quest subsystem (done)
+            //(2) connect quest subsystem (done)
+            // (3) create quest giver with timeout to stop quest spamming
+            //window.dialogs.show_dialog("shaman","quest update coming soon! ");
+             // trigger quest giver logic to fetch the appropriate dialogue text
+            let quest_diag=QuestGivers.process("fetch quest 1","hey! can get me 1 bomb? thanks", "Bomb", 1, "Arrow",5,"Thank you for the bomb", "please, remember to get me 1 Bomb!");
+            window.dialogs.show_dialog("shaman",quest_diag); // print the dialogue text out to the player
+            this.QuestTriggered = true;
+            this.questTimer.set(this.timeout);
+            return
+        }
+        if (this.questTimer.elapsed()){this.QuestTriggered = false; return}
         
     }
 }

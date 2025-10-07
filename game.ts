@@ -164,6 +164,7 @@ function gameInit() {
     
     window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
+    window.quest = new Quest();
     window.globals = new Globals();
     window.ui = new UI();
     window.wallet = new Wallet();

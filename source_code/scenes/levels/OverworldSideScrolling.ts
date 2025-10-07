@@ -95,15 +95,15 @@ export class OverworldSideScrolling extends EngineObject {
 
             initTileCollision(LevelSize);
 
-
-            const drawMapTile = (pos : any, i = 80, layer : any, collision = 1) => {
-                const tileIndex = i;
-                const data = new TileLayerData(tileIndex);
-                layer.setData(pos, data);
-                if (collision) {
-                setTileCollisionData(pos, collision);
-                }
-            }
+            //depreciated draw time function
+            //const drawMapTile = (pos : any, i = 80, layer : any, collision = 1) => {
+            //    const tileIndex = i;
+            //    const data = new TileLayerData(tileIndex);
+            //    layer.setData(pos, data);
+            //    if (collision) {
+            //    setTileCollisionData(pos, collision);
+            //    }
+            //}
 
             // load level data as chunks
             this.ground_layer = Utils.chunkArray(overMap.layers[3].data ?? [], overMap.layers[3].width ?? 64).reverse();

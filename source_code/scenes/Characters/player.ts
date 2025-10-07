@@ -81,7 +81,7 @@ export class Player extends PhysicsObject{
         ]);
     
     // State Machines Actions
-    public _state: Record<string, () => void> | undefined;
+    public state: Record<string, () => void> | undefined;
     public facing: Record<number, () => void> | undefined;
     public facingPos : number = 0; // for storing the current facing positoin
 

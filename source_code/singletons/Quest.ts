@@ -105,10 +105,17 @@ export class Quest {
 
 }
 
-class QuestGivers {
+export class QuestGivers {
 
     /**
      * Process a quest interaction from a quest-giver NPC.
+     * 
+     * Features:
+     * (1) documentation
+     * 
+     * Bugs:
+     * (1) quest collision spammer on collision
+     *  - this bug hides most of the quest initial quests
      */
     static process(
         questName: string,
@@ -124,25 +131,28 @@ class QuestGivers {
         let inventory : Inventory =window.inventory;
         let quest : Quest = window.quest; 
         const questStatus = quest.get_status(questName);
-        console.debug("Quest Debug 1:", questStatus);
+//        console.debug("Quest Debug 1:", questStatus, "/", quest);
 
+        // Quest state machine
         switch (questStatus) {
+            //New quest logic
             case quest.STATUS.get("NONEXISTENT"):
                 quest.accept_quest(questName);
                 return initialText;
 
+            // Quest started logic
             case quest.STATUS.get("STARTED"):
                 if (inventory.get(requiredItem) >= requiredAmount) {
                     inventory.set(requiredItem, requiredAmount);
                     quest.change_status(questName, quest.STATUS.get("COMPLETE") ?? 2);
                     inventory.set(rewardItem, rewardAmount);
-                    return deliveredText;
+                    return `${deliveredText}. here's your rewards ${rewardAmount} ${rewardItem} `;
                 } else {
                     return pendingText;
                 }
-
+            // Quest completed logic
             case quest.STATUS.get("COMPLETE"):
-                return "Quest Completed";
+                return `Quest already completed. ${deliveredText}`;
 
             default:
                 return "";
