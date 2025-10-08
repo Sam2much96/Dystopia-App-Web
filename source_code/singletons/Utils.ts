@@ -243,7 +243,7 @@ export class Utils {
         let safe_Globals = window.globals;
         let safe_Diag = window.dialogs;
         let safe_Music = window.music;
-        //let safe_Quest ;
+        let safe_Quest = window.quest;
         //let safe_Wallet ;
         let safe_Inventory = window.inventory;
         
@@ -253,6 +253,7 @@ export class Utils {
         data["language"] = safe_Diag.language;
         data["death_count"] = safe_Globals.death_count;
         data["inventory"] = safe_Inventory.getAllItems();
+        data["quest"] = safe_Quest.get_quest_list();
         data.music = Number(safe_Music.enable);
         sessionStorage.setItem('savegame', JSON.stringify(data));
         console.log(`✅ save game successfull`);

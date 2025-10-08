@@ -98,8 +98,8 @@ export class UI  {
 
     private language : string = window.dialogs.language; // fetch language from dialog singleton // bug : breaks
     public HeartBoxHUD : HeartBox | undefined;
-    public StatusHUD : Stats | undefined ;
-    public InventoryHUD : InventoryHUD | undefined;
+    public StatusTabs : StatsTabs | undefined ;
+    public StatsHUD : StatsHUD | undefined;
     public GameMenu : IngameMenu | undefined;
     public Dialog : DialogBox | undefined; // dialo
 
@@ -147,10 +147,10 @@ export class UI  {
         this.Dialog = new DialogBox()
 
         // creates the status hud
-        this.StatusHUD = new Stats();
+        this.StatusTabs = new StatsTabs();
 
         //create the inventory hud
-        this.InventoryHUD = new InventoryHUD();
+        this.StatsHUD = new StatsHUD();
 
         
 
@@ -205,7 +205,7 @@ export class UI  {
 
 
             // fetch all inventory items
-            console.log("Inventory Items", window.inventory.getAllItems());
+            //console.log("Inventory Items", window.inventory.getAllItems());
 
 
             //button action
@@ -219,8 +219,8 @@ export class UI  {
             // Logic:
             // 
             // renders the inventory and shows the inventory tab
-            window.inventory.render(); // old inventory render is depreciated
-            this.InventoryHUD!!.InventoryVisible = !this.InventoryHUD!!.InventoryVisible; // toggle ui visible / invisible
+            //window.inventory.render(); // old inventory render is depreciated
+            this.StatsHUD!!.InventoryVisible = !this.StatsHUD!!.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
         });
         // to do:
@@ -269,7 +269,7 @@ export class UI  {
 
 
 
-export class Stats {
+export class StatsTabs {
     //separate GameHUD code into separate class
         // tab button elements
     public statsTab : HTMLButtonElement | null = null;
@@ -289,11 +289,16 @@ export class Stats {
         // (4) add tab button sound fx
         // (5) fix stats UI items overlap
         // (6) change even handler from click to on button down (done)
+        // (7) add a state machine for the stats hud for each tab option and connect to different singletons for data serialisation
+        // (8) implement item status hud
+        // (9) connect item status hud to the inventory singleton via game hud
         this.statsTab = document.querySelector('.v12_14');
         this.walletTab = document.querySelector('.v12_15');
         this.inventoryTab = document.querySelector('.v12_16');
         this.questTab = document.querySelector('.v12_17');
         
+        // to do:
+        // (1) connect each tab button to different statsHUD states
         // connect button click events to render functions via global singletons -> local object pointers
         // depreciate default inventory renderer
         this.statsTab?.addEventListener("pointerdown", () => { this.debugTab("v12_14 stats tab")});
@@ -312,15 +317,36 @@ export class Stats {
     }
 }
 
-export class InventoryHUD{
+export class StatsHUD{
+    /**
+     * The game's inventory HUD
+     * 
+     * to do:
+     * (1) create a state machine of multiple stats states (1/2)
+     * (2) connect the state machine to all singletons serialising data to the player
+     * (3) connect the state machine state so to their corresponting stats tab buttons
+     * 
+     */
     public inventoryContainer : HTMLElement | null;
     public SHOW_INVENTORY : boolean = true;
+
+    //status hud simple state machine
+       public enum: Map<string, number> = new Map([
+            ['STATE_INVENTORY', 0],
+            ['STATE_WALLET', 1],
+            ['STATE_QUEST', 2],
+            ["STATE_STATS", 3]
+    ]);
+    // state machine variables
+    public state : number = this.enum.get("STATE_INVENTORY") ?? 0;
+    public stateMachine = this.StateMachine(); //make the state Machine global in class
     constructor(){
         // inventory tab logic
         this.inventoryContainer = document.getElementById("hud");
         
-        // turn off
+        // turn off hud visibility
         this.InventoryVisible = false;
+        this.stateMachine[this.state](); // works
         
     }
 
@@ -335,6 +361,7 @@ export class InventoryHUD{
     set InventoryVisible(visible_: boolean) {
         // Toggles Menu Visibility by editing the html element's css style
         this.SHOW_INVENTORY = visible_;
+        //console.log("triggering stats hud"); // works
         LittleJS.setPaused(visible_);
 
         // play toggle sfx
@@ -354,6 +381,54 @@ export class InventoryHUD{
 
 
     };
+
+    // State Machines
+    // enemy state machine
+    // describes each states and is assigned to a class variable in the consstructor
+    StateMachine(): Record<number, () => void>  {
+
+        // cheat sheet for statemachine enum
+        //['STATE_IDLE', 0],
+        //['STATE_WALKING', 1],
+        //['STATE_ATTACK', 2],
+        //["STATE_ROLL", 3],
+        //["STATE_DIE", 4],
+        //["STATE_HURT", 5],
+        //["STATE_MOB", 6],
+        //["STATE_PROJECTILE", 7],
+        //["STATE_PLAYER_SIGHTED", 8],
+        //["STATE_PLAYER_HIDDEN", 9],
+        //["STATE_NAVIGATION_AI", 10]
+        // to do:
+        // (1) populate state machine with all hud states
+        // (2) properly name state enums
+        // (3) investigate if there's a html5 native way of rendering tab with panels
+
+        return {
+            0 : () => { // inventory state
+                // trigger inventory render function
+                console.log("Inventory state triggered");
+                window.inventory.render(); // old inventory render is depreciated
+
+            },
+            1: () =>{
+                console.log("Wallet state triggered");
+                // trigger wallet render fuction
+
+            },
+            2: () =>{ 
+                console.log("Quest state tringgered");
+                // trigger quest render function
+       
+            },
+            3: () =>{
+                console.log("Stats state triggered");
+                // trigger stats render function
+            }
+        }
+    }
+
+    
 
 }
 
@@ -432,15 +507,12 @@ export class IngameMenu{
 
         // this is also the centerer position of the canvas
         //this.TopRightUI!.append(this.menuButton);
-       // if (window.dialogs.translations === {}){}
-        // check if the dialog tranlsations has been loaded in the dialogs singleton
-        //if (Object.keys(window.dialogs.translations).length === 0) {
-        //    console.log("loading translations from game UI");
-        //await window.dialogs.loadTranslations(); //load the translations csv
+
 
             //debug the translations csv
-        console.log("translations debug: ",window.dialogs.translations);
-        //}
+            //works        
+            //console.log("translations debug: ",window.dialogs.translations);
+
 
 
         
