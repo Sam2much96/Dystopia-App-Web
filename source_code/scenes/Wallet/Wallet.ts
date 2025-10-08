@@ -8,21 +8,21 @@
      * 
      * To Do:
      * (1) Implement Wallet Connect Defly
-     * (2) Create Wallet on game start & only trigger connect with button press (done)
-     * (3) Implement Algod Client & Smart Contract Factory
-     * (4) Get Total Assets Being held by this address using algod indexer
-     * (5) Get Total Apps Created By this address
-     * (6) Port Digital Marketplace smartcontract & finish mapping all frontend functions
-     * (7) Map Wallet Stats to Inventory & Stats UI (1/2)
-     * (8) Port Escrow Smart Contract to Algokit
-     * (9) Test Tokenized Asset UI/UX for Bow Item (1/2)
-     * (10) Test Save / Load game Mechanics using local state save, web cache
+     * (2) Create Wallet on game start & only trigger connect with button press (depreciated)
+     * (3) Implement Algod Client & Smart Contract Factory (1/2)
+     * (4) Get Total Assets Being held by this address using algod indexer (done with admin wallet hot wallet impl)
+     * (5) Get Total Apps Created By this address (not needed)
+     * (6) Port Digital Marketplace smartcontract & finish mapping all frontend functions (0/5)
+     * (7) Map Wallet Stats to Inventory & Stats UI (2/2)
+     * (8) Port Escrow Smart Contract to Algokit (0/5)
+     * (9) Test Tokenized Asset UI/UX for Bow Item (0/2)
+     * (10) Test Save / Load game Mechanics using local state save, web cache (1/3)
      * (11) Optimize pera wallet connect to serialize data to wallet class with objects accessible outside the class
      *      - Save Account Address
-     * (12) Implement yandex payment api
-     * (13) Implement game Monetize payment api and ads api
-     * (14) Implement database for storing player wallet data and synchronizing with onchain data
-     * (15) Connect with advertising singleton for ads / blockchain ads for gass fee payment
+     * (12) Implement yandex payment api (1/2)
+     * (13) Implement game Monetize payment api and ads api (done, duplicate)
+     * (14) Implement database for storing player wallet data and synchronizing with onchain data (1/5)
+     * (15) Connect with advertising singleton for ads / blockchain ads for gass fee payment (1/2)
      * (16) Implement vestige token api (1/2)
      * (17) Implement Tinyman pool api
      */
@@ -46,10 +46,10 @@ interface AssetPrice {
 
 //admin api price structure
 interface WalletAPI {
-    admin_account: number, 
+    admin_account: string, 
     balance: string , 
     ASA_id : string, 
-    ASA_amount: number, 
+    ASA_amount: string, 
 }
 
 // Generic API Price response with error handling
@@ -63,10 +63,18 @@ export class Wallet {
     //    ["BetaNet", 416003],
     //    ["All Networks", 4160]
     //]) ;
-    public Price : any | undefined;
+    //public Price : string | undefined;
     public statsUI: HTMLElement | null = null;
     public suds : number = 0;
-    public sudsPrice : number = 0;
+    public sudsPrice : string = "0";
+
+    //admin hot wallet data serialised
+    public adminWalletAddress : string = "EBRLA42MWQPHHX3J5WF22ODGEDO6ZUG4DLP3FBOPBPQIMP55EFWGR55EZA";
+    public adminWalletbalance : string = "2200000000000000";
+    public coin_asa_id : string = "2717482658";
+
+    // to do:
+    // (1) fetch price data from the vestige to draw price line chart
 
     constructor() {
         // Fetch Sud token price from vestige
@@ -76,6 +84,10 @@ export class Wallet {
         // (2) serialise token price into stats wallet hud render (1/2)
         //this.fetchPrice();
         this.statsUI = document.querySelector('.v11_5');
+
+        //get the API data
+        this.fetchPrice();
+        this.fetchAdmin();
     }
 
 
@@ -90,19 +102,20 @@ export class Wallet {
 
         this.statsUI.innerHTML = ""; // clear UI
 
-        //const container = document.getElementById("inventory-items");
-        //if (!container) return;
         // to do:
         // (1) data to serialise: 
         // a) admin wallet api stats
         // b) local sud
         // c) database sud
         // d) sud current prices
+        // e) fix price logic to use integers instead of strings
         this.statsUI.innerHTML = `
             <div class="wallet-tab">
-                <p>Wallet address: ${"window.wallet.accountAddress"}</p>
-                <p>Token balance: ${"window.wallet.accountBalance"}</p>
-                <!-- Add more wallet details here -->
+                <p>Wallet address: ${this.adminWalletAddress}</p>
+                <p>Coins balance: ${this.suds} Suds</p>
+                <p>Coin Price : ${this.sudsPrice}</p>
+                <p>Coin ID : ${this.coin_asa_id}</p>
+                <!-- Add more wallet details below here -->
             </div>
         `;
     }
@@ -110,19 +123,23 @@ export class Wallet {
 
 
 
-    // use algokit sdk to construct transactions
-    // sign a transaction
-    async sendAPITransaction() {
-        const url = "https://dystopia-app.site/api/admin";
-        console.log("pinging admin wallet for mainnet testing");
-        return apiGet<WalletAPI>(url);
-    }
 
     async walletConnect(){
 
     }
     fetchAdmin(){
         (async () => {
+            try{
+                // fetch admin wallet data from the chain
+                const result = await sendAPITransaction();
+                console.log("Result:", result);
+                //this.adminWalletAddress = result["admin_ account"]
+                }
+            catch (err){
+                console.error("Failed to fetch admin wallet data", err);
+
+                }
+
 
         })();
     }
@@ -130,15 +147,16 @@ export class Wallet {
     fetchPrice(){
         (async () => {
             try {
-                console.log("fetching asset price >>>>");
+                //console.log("fetching asset price >>>>");
                 const result = await getAssetPrice();
                 //console.log("Result:", result); //works
                 
                 const priceString = result[0].price;
-                this.Price = priceString.toFixed(12);
+                this.sudsPrice = priceString.toFixed(12);
                 
-                console.log("sud price: ", this.Price);
+                //console.log("sud price: ", this.Price);
                 // e.g. access result.data[0].price
+                return this.sudsPrice;
             } catch (err) {
                 console.error("Failed to fetch asset price:", err);
             }
@@ -155,3 +173,11 @@ async function getAssetPrice(): Promise<PriceApiResponse> {
   return apiGet<PriceApiResponse>(url);
 }
 
+    // sendiing an api ping response to the site's hot wallet
+    // use algokit sdk to construct transactions
+    // sign a transaction
+async function sendAPITransaction() : Promise<WalletAPIResponse> {
+        const url = "https://dystopia-app.site/api/admin";
+        //console.log("pinging admin wallet for mainnet testing");
+        return apiGet<WalletAPIResponse>(url);
+    }
