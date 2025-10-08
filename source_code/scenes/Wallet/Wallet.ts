@@ -65,6 +65,8 @@ export class Wallet {
     //]) ;
     public Price : any | undefined;
     public statsUI: HTMLElement | null = null;
+    public suds : number = 0;
+    public sudsPrice : number = 0;
 
     constructor() {
         // Fetch Sud token price from vestige
@@ -90,7 +92,12 @@ export class Wallet {
 
         //const container = document.getElementById("inventory-items");
         //if (!container) return;
-
+        // to do:
+        // (1) data to serialise: 
+        // a) admin wallet api stats
+        // b) local sud
+        // c) database sud
+        // d) sud current prices
         this.statsUI.innerHTML = `
             <div class="wallet-tab">
                 <p>Wallet address: ${"window.wallet.accountAddress"}</p>
