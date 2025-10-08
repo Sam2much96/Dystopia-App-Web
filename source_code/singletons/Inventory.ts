@@ -23,13 +23,13 @@ export class Inventory {
     */
 
     public items: Record<string, number>; // Dictionary to store inventory items
-    public inventoryUI: HTMLElement | null = null;
+    public statsUI: HTMLElement | null = null;
     constructor() {
         console.log("Loading Inventory Singleton");
         this.items = {};
     }
 
-    render(): void {
+    renderInventory(): void {
         /**
          * Inventory Renderer
          * 
@@ -54,7 +54,7 @@ export class Inventory {
         //this.inventoryUI = document.getElementById("v12_23");
 
         // Select the element
-        this.inventoryUI = document.querySelector('.v11_5');
+        this.statsUI = document.querySelector('.v11_5');
 
             // Change the text
             //if (statsTitle) {
@@ -64,9 +64,9 @@ export class Inventory {
             //}
 
 
-        if (!this.inventoryUI) return console.warn("debug Inventory UI");
+        if (!this.statsUI) return console.warn("debug Inventory UI");
 
-        this.inventoryUI.innerHTML = ""; // clear UI
+        this.statsUI.innerHTML = ""; // clear UI
 
          // Inventory tab categories
          //each maps to an inventory item icon in the home and public directory
@@ -122,7 +122,7 @@ export class Inventory {
             });
 
             // Add button to inventory UI container
-            this.inventoryUI?.appendChild(btn);
+            this.statsUI?.appendChild(btn);
         });
         
 

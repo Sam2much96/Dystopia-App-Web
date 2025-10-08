@@ -301,12 +301,30 @@ export class StatsTabs {
         // (1) connect each tab button to different statsHUD states
         // connect button click events to render functions via global singletons -> local object pointers
         // depreciate default inventory renderer
-        this.statsTab?.addEventListener("pointerdown", () => { this.debugTab("v12_14 stats tab")});
-        this.walletTab?.addEventListener("pointerdown", () => {this.debugTab("v12_15 wallet tab")});
-        this.inventoryTab?.addEventListener("pointerdown", () => {this.debugTab("v12_16 inventory tab")});
-        this.questTab?.addEventListener("pointerdown", () => {this.debugTab("v12_17 quests tab")});
+        this.statsTab?.addEventListener("pointerdown", () => { 
+            this.debugTab("v12_14 stats tab")
+            //trigger stats render state machine
+            window.ui.StatsHUD?.stateMachine[3]();
+        });
+        this.walletTab?.addEventListener("pointerdown", () => {
+            this.debugTab("v12_15 wallet tab")
+            //trigger wallet render satate machine
+            //trigger stats render state machine
+            window.ui.StatsHUD?.stateMachine[1]();
+        });
+        this.inventoryTab?.addEventListener("pointerdown", () => {
+            this.debugTab("v12_16 inventory tab")
+            //trigger inventory render state machine
+            window.ui.StatsHUD?.stateMachine[0]();
+        });
+        this.questTab?.addEventListener("pointerdown", () => {
+            this.debugTab("v12_17 quests tab")
+            //trigger quests render state machine
+            window.ui.StatsHUD?.stateMachine[2]();
 
-        console.log("tabs debug 2: ", this.statsTab);
+        });
+
+        //console.log("tabs debug 2: ", this.statsTab);
     }
 
     debugTab(log : string){
@@ -327,6 +345,7 @@ export class StatsHUD{
      * (3) connect the state machine state so to their corresponting stats tab buttons
      * 
      */
+    public statsUI: HTMLElement | null = null;
     public inventoryContainer : HTMLElement | null;
     public SHOW_INVENTORY : boolean = true;
 
@@ -343,6 +362,7 @@ export class StatsHUD{
     constructor(){
         // inventory tab logic
         this.inventoryContainer = document.getElementById("hud");
+        this.statsUI = document.querySelector('.v11_5');
         
         // turn off hud visibility
         this.InventoryVisible = false;
@@ -387,45 +407,62 @@ export class StatsHUD{
     // describes each states and is assigned to a class variable in the consstructor
     StateMachine(): Record<number, () => void>  {
 
-        // cheat sheet for statemachine enum
-        //['STATE_IDLE', 0],
-        //['STATE_WALKING', 1],
-        //['STATE_ATTACK', 2],
-        //["STATE_ROLL", 3],
-        //["STATE_DIE", 4],
-        //["STATE_HURT", 5],
-        //["STATE_MOB", 6],
-        //["STATE_PROJECTILE", 7],
-        //["STATE_PLAYER_SIGHTED", 8],
-        //["STATE_PLAYER_HIDDEN", 9],
-        //["STATE_NAVIGATION_AI", 10]
         // to do:
-        // (1) populate state machine with all hud states
+        // (1) populate state machine with all hud states (done)
         // (2) properly name state enums
         // (3) investigate if there's a html5 native way of rendering tab with panels
-
+        // (4) fix each render function's code and test
         return {
             0 : () => { // inventory state
                 // trigger inventory render function
                 console.log("Inventory state triggered");
-                window.inventory.render(); // old inventory render is depreciated
+                window.inventory.renderInventory(); // old inventory render is depreciated
 
             },
             1: () =>{
                 console.log("Wallet state triggered");
                 // trigger wallet render fuction
+                window.wallet.renderWallet();
 
             },
             2: () =>{ 
                 console.log("Quest state tringgered");
                 // trigger quest render function
+                window.quest.renderQuests();
        
             },
             3: () =>{
                 console.log("Stats state triggered");
                 // trigger stats render function
+                this.renderStats();
             }
         }
+    }
+
+    // render player stats fetched from the player object and the globals singleton
+    // to do:
+    // (1) test render function
+    // (2) connect render function to stats hud
+    private renderStats(): void {
+        //const container = document.getElementById("inventory-items");
+        //if (!container) return;
+        
+        if (!this.statsUI) return console.warn("debug Inventory UI");
+
+        this.statsUI.innerHTML = ""; // clear UI
+
+        // serialise global info to the stats ui
+        let hp : number = window.globals.hp;
+        let kc : number = window.globals.kill_count;
+        this.statsUI.innerHTML = `
+            <div class="stats-tab">
+                <h2>Player Stats</h2>
+                <p>Level: ${kc}</p>
+                <p>HP: ${hp}</p>
+                <p>Attack: 0</p>
+                <p>Defense: 100</p>
+            </div>
+        `;
     }
 
     

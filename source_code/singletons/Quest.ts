@@ -24,8 +24,11 @@ export class Quest {
         ]);
 
     public questList: Record<string, number> = {}; // quest name → status code
+    public statsUI: HTMLElement | null = null;
 
-   constructor(){}
+   constructor(){
+    this.statsUI = document.querySelector('.v11_5'); // fetch the status hud ui element
+   }
 
    // Get the status of a quest. If it's not found it returns STATUS.NONEXISTENT
    get_status(quest_name : string) : number{
@@ -103,6 +106,65 @@ export class Quest {
     }
 
 
+
+    renderQuests(): void {
+        /**
+         * Features:
+         * (1) serialise quest singleton data to the stats game hud
+         * 
+         * to do:
+         * (1) fix code bloc to fetch quest data from class and render 
+         * (2) connect code bloc to the statsHUD UI state machine (done)
+         * 
+         */
+        // Select the element
+        //this.statsUI = document.querySelector('.v11_5');
+        if (!this.statsUI) return console.warn("debug Inventory UI");
+
+        this.statsUI.innerHTML = ""; // clear UI
+        
+        //debug quest list
+        console.log(this.get_quest_list());
+        // to do :
+        // (1) serialise the quest data into this function
+        //const questStatus = quest.get_status(questName);
+//        console.debug("Quest Debug 1:", questStatus, "/", quest);
+
+        // Quest state machine
+        // to do:
+        // (1) format logic to categorize all quests into the game UI
+        //switch (questStatus) {
+            //New quest logic
+       //     case quest.STATUS.get("NONEXISTENT"):
+       //         quest.accept_quest(questName);
+       //         return initialText;
+
+            // Quest started logic
+       //     case quest.STATUS.get("STARTED"):
+       //         if (inventory.get(requiredItem) >= requiredAmount) {
+       //             inventory.set(requiredItem, requiredAmount);
+       //             quest.change_status(questName, quest.STATUS.get("COMPLETE") ?? 2);
+       //             inventory.set(rewardItem, rewardAmount);
+       //             return `${deliveredText}. here's your rewards ${rewardAmount} ${rewardItem} `;
+       //         } else {
+       //             return pendingText;
+       //         }
+       //     // Quest completed logic
+       //     case quest.STATUS.get("COMPLETE"):
+       //         return `Quest already completed. ${deliveredText}`;
+        
+        this.statsUI.innerHTML = `
+            <div class="quests-tab">
+                <h2>Quest Log</h2>
+                <ul>
+                    <li>🗺️ Main Quest: Explore the world</li>
+                    <li>📜 Side Quest: ${"fetch quest : 1 Bomb"}</li>
+                    <li>✅ Completed: None</li>
+                </ul>
+            </div>
+        `;
+    }
+
 }
 
 export class QuestGivers {
@@ -113,9 +175,9 @@ export class QuestGivers {
      * Features:
      * (1) documentation
      * 
-     * Bugs:
-     * (1) quest collision spammer on collision
-     *  - this bug hides most of the quest initial quests
+     * to do:
+     * (1) serialise quest logic to map quest states to the stats HUD
+     *  
      */
     static process(
         questName: string,

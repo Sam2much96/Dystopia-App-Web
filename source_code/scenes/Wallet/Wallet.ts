@@ -64,7 +64,7 @@ export class Wallet {
     //    ["All Networks", 4160]
     //]) ;
     public Price : any | undefined;
-
+    public statsUI: HTMLElement | null = null;
 
     constructor() {
         // Fetch Sud token price from vestige
@@ -73,9 +73,32 @@ export class Wallet {
         // (1) call function once when showing wallet render in stats hud (1/2)
         // (2) serialise token price into stats wallet hud render (1/2)
         //this.fetchPrice();
+        this.statsUI = document.querySelector('.v11_5');
     }
 
 
+
+    renderWallet(): void {
+        // to do:
+        // (1) port wallet button from game hud to here using Connected and a trigger parameter (done)
+        
+        // Select the element
+        //this.statsUI = document.querySelector('.v11_5');
+        if (!this.statsUI) return console.warn("debug Inventory UI");
+
+        this.statsUI.innerHTML = ""; // clear UI
+
+        //const container = document.getElementById("inventory-items");
+        //if (!container) return;
+
+        this.statsUI.innerHTML = `
+            <div class="wallet-tab">
+                <p>Wallet address: ${"window.wallet.accountAddress"}</p>
+                <p>Token balance: ${"window.wallet.accountBalance"}</p>
+                <!-- Add more wallet details here -->
+            </div>
+        `;
+    }
 
 
 
