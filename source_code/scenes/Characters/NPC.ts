@@ -110,8 +110,10 @@ export class Merchant extends NPC{
             //create a 8 minutes 20 seconds ads trigger cooldown
             this.adsTimer.set(500);
 
-            // 
-            // reward player with some coin tokens
+            // to do:
+            // (1) reward player with some coin tokens
+            // (2) implement item hud ui for inventory hud updates
+            // (3) serialise wallet data and wallet api to game hud 
             //window.inventory.set("suds", 5_000);
         }
         if (this.adsTimer.elapsed()){

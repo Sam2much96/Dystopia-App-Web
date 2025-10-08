@@ -23,7 +23,7 @@ import {Utils} from "./Utils";
 import * as LittleJS from 'littlejsengine';
 
 
-type Translations = Record<string, Record<string, string>>;
+
 
 export class UI  {
     /* 
@@ -106,7 +106,7 @@ export class UI  {
     constructor() {
         // testing other languages
         // works
-        console.log("language debug:", this.language);
+        console.log("UI singleton language debug:", this.language);
 
         
         // Create Div element for the ui
@@ -399,7 +399,7 @@ export class IngameMenu{
     public Wallet: HTMLAnchorElement | null = null;
     public Quit: HTMLAnchorElement | null = null;
 
-    public translations : Translations  = {};
+    //public translations : Translations  = {};
 
     private language : string = window.dialogs.language; // fetch language from dialog singleton
 
@@ -432,13 +432,24 @@ export class IngameMenu{
 
         // this is also the centerer position of the canvas
         //this.TopRightUI!.append(this.menuButton);
+       // if (window.dialogs.translations === {}){}
+        // check if the dialog tranlsations has been loaded in the dialogs singleton
+        //if (Object.keys(window.dialogs.translations).length === 0) {
+        //    console.log("loading translations from game UI");
+        //await window.dialogs.loadTranslations(); //load the translations csv
 
-        await this.loadTranslations(); //load the translations csv
+            //debug the translations csv
+        console.log("translations debug: ",window.dialogs.translations);
+        //}
+
+
+        
         if (this.newGame) return; // guard clause
             console.log("Creating Ingame Menu");
         
-            // note : (1) ingame menu translations is buggy
-            this.newGame = this.createMenuOption(this.t("new game", this.language), "#", () => {
+            // note : 
+            // (1) ingame menu translations is buggy
+            this.newGame = this.createMenuOption(window.dialogs.t("new game", this.language), "#", () => {
                 window.music.sound_start.play();
                 console.log('creating new game simulation');
                 window.simulation = new Simulation();
@@ -448,7 +459,7 @@ export class IngameMenu{
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         });
 
-        this.contGame = this.createMenuOption(this.t("continue", this.language), "#", () => {
+        this.contGame = this.createMenuOption(window.dialogs.t("continue", this.language), "#", () => {
                     window.music.sound_start.play();
                     // logic
                     // (1) should fetch save game .save and load the current level in the global singleton
@@ -457,20 +468,21 @@ export class IngameMenu{
                      window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
                 });
 
-        // testing for yandex games implementation
+        // disable for yyandex updates
                  
-        this.Comics = this.createMenuOption("Comics", "#", () => {
+        this.Comics = this.createMenuOption(window.dialogs.t("Comics",this.language), "#", () => {
             window.open("https://dystopia-app.site", "_blank");
         });
         
        
-        //this.Controls = this.createMenuOption(this.t("controls", this.language), "#", () => {
+        // to do: (1) create controls UI
+        //this.Controls = this.createMenuOption(window.dialogs.t("controls", this.language), "#", () => {
         //    window.music.sound_start.play();
 
-        //     window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+            // window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         //});
 
-        this.Quit = this.createMenuOption(this.t("quit", this.language), "#", () => {
+        this.Quit = this.createMenuOption(window.dialogs.t("quit", this.language), "#", () => {
             window.music.sound_start.play();
             window.THREE_RENDER.showThreeLayer();// doesn;t work
             
@@ -496,43 +508,6 @@ export class IngameMenu{
     }
 
 
-    async loadTranslations() : Promise<void>{
-        //translations[key][lang]
-        console.log("UI Translations initialised");
-        const response  = await fetch ("./Translation_1.csv"); // works
-        const csvText = await response.text(); // works
-
-        // to do: 
-        // (1) rework this logic so it parses the translations csv properly
-        // (2) fix translations bug
-        // (3) add conditional for failed async fetch
-        const lines = csvText.trim().split("\n");
-        const headers = lines[0].split(',');
-            for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
-        const key = cols[0];
-        this.translations[key] = {};
-        for (let j = 1; j < headers.length; j++) {
-                this.translations[key][headers[j]] = cols[j];
-            }
-        }   
-        //debug language translations
-        //console.log("translations debg: ", this.translations); // works
-        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
-    }
-
-    t(word : string, lang: string) : string { // translates the string file
-        // doesn't work for other translations
-        // bug: returns the key without actually translating
-        // bug: function doesn't wait for finished loading translations to translate and so breaks
-        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
-        if (!this.translations){ return word} // guard clause 
-        //console.log("word debug: ", word);
-        var y = this.translations[word][lang];        
-        //console.log("lang debug 2: ", y, "/ key: ", lang);
-        return y
-        
-    }
 
 
     private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement { // creates menu buttons

@@ -19,6 +19,7 @@
     (5) Implement decision tree backend
     */
 import { createPanel } from "./UI";
+type Translations = Record<string, Record<string, string>>;
 
 export class Diaglogs {
 
@@ -30,9 +31,18 @@ export class Diaglogs {
     // this need proper regex to account for multiple sub-region languages
     // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
     public language : string = (navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
+    public translations : Translations  = {};
 
     constructor(){
-        console.log("language debug: ", this.language);
+        console.log("Dialogs singleton language debug: ", this.language);
+        
+        //load the translation files into memory
+        //(async () => {
+        //    if (Object.keys(this.translations).length === 0) {
+        //        console.log("loading translations");
+        this.loadTranslations();
+        //    }
+       // })();
     }
 
     show_dialog(text: string, speaker: string){
@@ -45,6 +55,51 @@ export class Diaglogs {
     // hide_dialogue(){}
 
     translate_to(_language: string, locale : string){}
+
+
+    async loadTranslations() : Promise<Translations>{
+        //translations[key][lang]
+        //console.log("fetching translations file");
+        const response  = await fetch ("./Translation_1.csv"); // works
+        const csvText = await response.text(); // works
+
+        // to do: 
+        // (1) rework this logic so it parses the translations csv properly
+        // (2) fix translations bug
+        // (3) add conditional for failed async fetch
+        const lines = csvText.trim().split("\n");
+        const headers = lines[0].split(',');
+            for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        const key = cols[0];
+        this.translations[key] = {};
+        for (let j = 1; j < headers.length; j++) {
+                this.translations[key][headers[j]] = cols[j];
+            }
+        }   
+        //debug language translations
+        //console.log("translations debg: ", this.translations); // works
+        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
+        return this.translations;
+    }
+
+    t(word : string, lang: string) : string { // translates the string file
+        // doesn't work for other translations
+        // bug: returns the key without actually translating
+        // bug: function doesn't wait for finished loading translations to translate and so breaks
+        // bug : breaks when translations is moved from ui clss to dialogs singleton
+        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
+        //if (!this.translations){ return word} // guard clause 
+        //console.log("word debug: ", word);
+        // guard clause
+        if (Object.keys(this.translations).length === 0) {
+            return word;
+        }
+        var y = this.translations[word][lang];        
+        //console.log("lang debug 2: ", y, "/ key: ", lang);
+        return y
+        
+    }
 
 
 }
@@ -67,6 +122,7 @@ export class DialogBox{
      * 
      */
     public DIALOG_BOX: HTMLDivElement;
+
     constructor(){
         
         //if (!window.dialogs.dialogBox){
@@ -121,6 +177,8 @@ export class DialogBox{
         }, 5000);
     }
     }
+
+
 
 
 

@@ -160,32 +160,25 @@ function gameInit() {
     // Game Advertising singleton for gamemonetize & Yandex
     // 
     // 
-    window.ads = new Advertising("gamemonetize");
-    
-    window.THREE_RENDER = new ThreeRender();
     window.dialogs = new Diaglogs();
+    window.ads = new Advertising("gamemonetize");
+    window.THREE_RENDER = new ThreeRender();
     window.quest = new Quest();
     window.globals = new Globals();
-    window.ui = new UI();
     window.wallet = new Wallet();
+    window.inventory = new Inventory(); 
+    window.utils = new Utils();
+    window.music = new Music();
+    window.ui = new UI();
+    
 
     //const controls = new Controls(); // set up the engine's controls
 
-    // Create & hide Ingame Menu
-    window.ui.GameMenu!!.ingameMenu();
-    
-    // to do:
-    // (1) separate game menu object from game hud into the game menu script class (done)
-    // (2) Create game menu only when game starts (done)
-    window.ui.menu();
-    //window.ui.gameHUD();
 
 
-    window.inventory = new Inventory();
-    
-    window.utils = new Utils();
-    window.music = new Music();
-    
+
+
+
 
   
 
@@ -211,15 +204,13 @@ function gameInit() {
     //window.THREE_RENDER.addToScene(c1);
     // window.THREE_RENDER.addToScene(c2);
     window.THREE_RENDER.setCamera(CAMERA_DISTANCE);
-
     window.THREE_RENDER.animate();
 
-    //Ads
-    // to do: 
-    // (1) port ads mediator to yandex
   
 
-
+    // Create & hide Ingame Menu
+    window.ui.GameMenu!!.ingameMenu();
+    window.ui.menu();
 
     //draw title screen
     // TO DO :
