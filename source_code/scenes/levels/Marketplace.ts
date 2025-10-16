@@ -28,6 +28,7 @@ import {Merchant} from "../Characters/NPC";
 import {Utils} from "../../singletons/Utils";
 import { Stairs } from '../UI & misc/Exit';
 
+
 // to do : (1) import merchant npc (done)
 // to do : (1) implement decision dialogue (1/2)
 // to do
@@ -37,6 +38,7 @@ export class Marketplace extends EngineObject{
     tileLayer: LittleJS.TileLayer | undefined;
     LevelData: number[][] = []; // matrix data type
     levelObjects : any[] | null = [];
+    collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
         this.loadMap();

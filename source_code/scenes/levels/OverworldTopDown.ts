@@ -56,6 +56,7 @@ export class OverWorld extends EngineObject{
     ground_layer: number[][] = []; // matrix data type
     
     levelObjects : any[] | null = []; // for storing all the spawned object
+    collisionGrid: number[][] = []; // for enemy navigation logic
 
     constructor() {
         super();
@@ -96,7 +97,10 @@ export class OverWorld extends EngineObject{
             
             initTileCollision(vec2(overMap.width,overMap.height));
             
-                    
+            //initialise an empty collision grid for enemy nav logic
+            this.collisionGrid = Array(overMap.height)
+                .fill(null)
+                .map(() => Array(overMap.width).fill(0));
 
             
             
@@ -375,6 +379,10 @@ export class OverWorld extends EngineObject{
                         
             this.tempExtLayer.redraw();
 
+            //Debug or save your collision grid for pathfinding ai
+            // works
+            //console.log(JSON.stringify(this.collisionGrid));
+
         }
         catch(err){
             console.error("Failed to Load Map: ", err);
@@ -452,7 +460,11 @@ export class OverWorld extends EngineObject{
 
         if (collision) {
             setTileCollisionData(pos,1);
-        
+
+                // ✅ Record in grid
+            if (this.collisionGrid)
+            {this.collisionGrid[pos.y][pos.x] = 1;}
+                
         }
     }
 

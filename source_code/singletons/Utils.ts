@@ -244,10 +244,10 @@ export class Utils {
         let safe_Diag = window.dialogs;
         let safe_Music = window.music;
         let safe_Quest = window.quest;
-        //let safe_Wallet ;
+        let safe_Wallet = window.wallet ;
         let safe_Inventory = window.inventory;
         
-        data["suds"] = safe_Globals.suds;
+        data["suds"] = safe_Wallet.suds;
         data["kill_count"] = safe_Globals.kill_count;
         data["hp"] = safe_Globals.hp;
         data["language"] = safe_Diag.language;
@@ -286,6 +286,9 @@ export class Utils {
         }
         // (2)
     }
+
+
+    
 }
 
 
@@ -383,3 +386,20 @@ export class PhysicsObject extends EngineObject {
     
 }
 
+
+/** Pathfinding Helper functions */
+export function worldToGrid(pos: LittleJS.Vector2, tileSize: number): LittleJS.Vector2 {
+    // grid logic debug
+    let x = Math.floor(pos.x /tileSize);
+    let y = Math.floor(pos.y /tileSize);
+  
+    //console.log(x,y);
+    return vec2(x,y);
+}
+
+export function gridToWorld(cell: [number, number], tileSize: number): LittleJS.Vector2 {
+  return new LittleJS.Vector2(
+    cell[0] * tileSize + tileSize / 2,
+    cell[1] * tileSize + tileSize / 2
+  );
+}

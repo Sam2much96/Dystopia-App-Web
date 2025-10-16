@@ -31,6 +31,7 @@ export class TempleInterior extends EngineObject {
     tileLayer : LittleJS.TileLayer | null = null; // create a tile layer for drawing the lvl
     levelData: number[][] = []; // matrix data type
     levelObjects : any[] | null = [];
+    collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
         setGravity(0);
@@ -86,17 +87,17 @@ export class TempleInterior extends EngineObject {
 
                         }
                         if (val === 69){ // no collision temple interior tiles
-                            Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
                             return
                         }
                         if (val === 70){ // collision walls temple interior tiles
-                            Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
                             return
                         }
                         // to do :
                         // (1) write item spawner for enemy random drops
                         else{ // every other tile
-                            Utils.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
+                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
                             return
                         }
 
@@ -127,4 +128,31 @@ export class TempleInterior extends EngineObject {
         }
         }
     }
+
+    drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {
+            
+            // docs:
+            // (1) tile index is the current tile to draw on the tile layer
+            //   it is mapped to e the environment layer's tilesheet
+    
+            // bugs:
+            // (1) does not draw 4 tiles after the temple tile
+            const tileIndex = i;
+            
+            const data = new TileLayerData(tileIndex);
+            
+            //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
+            layer.setData(pos, data);
+    
+            if (collision) {
+                setTileCollisionData(pos,1);
+    
+                    // ✅ Record in grid
+                if (this.collisionGrid)
+                {this.collisionGrid[pos.y][pos.x] = 1;}
+                    
+            }
+        }
+    
+    
 }

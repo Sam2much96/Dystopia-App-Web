@@ -70,6 +70,9 @@ export class OverworldSideScrolling extends EngineObject {
     //destruction timer - 10 seconds
     destTimer = new Timer(15); 
     LEVEL_DESTROY : boolean = false;
+
+    //pathfinding 
+    collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
         setGravity(35); // apply global gravity

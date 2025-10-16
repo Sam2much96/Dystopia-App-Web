@@ -171,7 +171,8 @@ function gameInit() {
     window.music = new Music();
     window.ui = new UI();
     
-
+    // to do:
+    // (1) move controls ui to the ui singleton
     //const controls = new Controls(); // set up the engine's controls
 
 

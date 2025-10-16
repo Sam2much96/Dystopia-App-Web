@@ -560,8 +560,12 @@ export class IngameMenu{
             // (1) ingame menu translations is buggy
             this.newGame = this.createMenuOption(window.dialogs.t("new game", this.language), "#", () => {
                 window.music.sound_start.play();
+                window.ads.showAds();
                 console.log('creating new game simulation');
                 window.simulation = new Simulation();
+
+                // to do :
+                // (1) expand on save game and load game functionality
                 Utils.saveGame();
 
                 //hide menu
@@ -570,6 +574,7 @@ export class IngameMenu{
 
         this.contGame = this.createMenuOption(window.dialogs.t("continue", this.language), "#", () => {
                     window.music.sound_start.play();
+                    window.ads.showAds();
                     // logic
                     // (1) should fetch save game .save and load the current level in the global singleton
                     Utils.loadGame();

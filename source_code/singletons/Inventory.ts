@@ -28,7 +28,7 @@ export class Inventory {
         console.log("Loading Inventory Singleton");
         this.items = {};
     }
-
+    // version 1 inventory render with words
     renderInventory(): void {
         /**
          * Inventory Renderer
@@ -48,7 +48,7 @@ export class Inventory {
          * (6) 
         */
          
-        console.log("rendering inventory UI database");
+        //console.log("rendering inventory UI database");
 
         // consider rewriting this to call a get class from the UI class object
         //this.inventoryUI = document.getElementById("v12_23");
@@ -186,24 +186,11 @@ export class Inventory {
 
     }
 
-    private renderWallet(): void {
-        // to do:
-        // (1) port wallet button from game hud to here using Connected and a trigger parameter
-        
-        const container = document.getElementById("inventory-items");
-        if (!container) return;
 
-        container.innerHTML = `
-            <div class="wallet-tab">
-                <p>Wallet address: ${"window.wallet.accountAddress"}</p>
-                <p>Token balance: ${"window.wallet.accountBalance"}</p>
-                <!-- Add more wallet details here -->
-            </div>
-        `;
-    }
-
-
-    // Render items (filtered by category)
+    // Version 2 Inventory Render with items (filtered by category)
+    // to do:
+    // (1) fix code bloc
+    // (2) test code bloc
     private renderItems(category: string) : void {
             // gets the inventory items grid created above
             const container = document.getElementById("inventory-items");
@@ -235,55 +222,9 @@ export class Inventory {
             });
         };
 
-    private renderMap(): void {
-        const container = document.getElementById("inventory-items");
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="map-tab">
-                <h2>World Map</h2>
-                <!-- mini map placeholder -->
-                <img src="map ui 64x64.webp" alt="Mini Map" class="map-image">
-                
-            </div>
-        `;
-    }
 
 
-    private renderQuests(): void {
-        const container = document.getElementById("inventory-items");
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="quests-tab">
-                <h2>Quest Log</h2>
-                <ul>
-                    <li>🗺️ Main Quest: Explore the world</li>
-                    <li>📜 Side Quest: Kill some monsters</li>
-                    <li>✅ Completed: None</li>
-                </ul>
-            </div>
-        `;
-    }
-
-    private renderStats(): void {
-        const container = document.getElementById("inventory-items");
-        if (!container) return;
-
-        // serialise global info to the stats ui
-        let hp : number = window.globals.hp;
-        let kc : number = window.globals.kill_count;
-        container.innerHTML = `
-            <div class="stats-tab">
-                <h2>Player Stats</h2>
-                <p>Level: ${kc}</p>
-                <p>HP: ${hp}</p>
-                <p>Attack: 0</p>
-                <p>Defense: 100</p>
-            </div>
-        `;
-    }
-
+    
 
     // sorts items by categories to inventory ui
     // category cheat sheet:

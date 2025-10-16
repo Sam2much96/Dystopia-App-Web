@@ -152,13 +152,15 @@ export class Quest {
        //     // Quest completed logic
        //     case quest.STATUS.get("COMPLETE"):
        //         return `Quest already completed. ${deliveredText}`;
-        
+        //to do:
+        // (1) serialise quest data into ui to replace placeholder
+        // (2) use the commented logic above + web hooks for this render code
         this.statsUI.innerHTML = `
             <div class="quests-tab">
                 <h2>Quest Log</h2>
                 <ul>
                     <li>🗺️ Main Quest: Explore the world</li>
-                    <li>📜 Side Quest: ${"fetch quest : 1 Bomb"}</li>
+                    <li>📜 Side Quest: ${"fetch quest for 1 Bomb"}</li>
                     <li>✅ Completed: None</li>
                 </ul>
             </div>

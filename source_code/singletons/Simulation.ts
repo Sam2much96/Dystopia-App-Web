@@ -195,6 +195,26 @@ export class Simulation extends EngineObject {
         return this.frame_counter;
     }
 
+    // UI render code
+
+    // to do:
+    // (1) port function to simulation singleton
+    // (2) implement map drawing with pointer device and map icons e.g. players and enemies 
+    renderMap(): void {
+        const container = document.getElementById("inventory-items");
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="map-tab">
+                <h2>World Map</h2>
+                <!-- mini map placeholder -->
+                <img src="map ui 64x64.webp" alt="Mini Map" class="map-image">
+                
+            </div>
+        `;
+    }
+
+
 
     // Multiplayer Code
 

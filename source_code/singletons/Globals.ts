@@ -23,7 +23,7 @@ export class Globals {
     public death_count : number;
     public GAME_START: boolean;
     public current_level : String = "";
-    public suds : number = 0;
+    
 
     constructor() {
 
