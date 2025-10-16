@@ -10,7 +10,7 @@
  * To DO :
  * (1) Randomize enemy speed
  * (2) Velocity logic for enemy movement in mob state
- * (3) Enemy State Machine (1/3)
+ * (3) Enemy State Machine (done)
  * (4) Implement Enemy idle state with animations
  * (5) Implement Enemy idle to Enemy mob to Enemy Idle animation states
  * (6) Synchronize enemy and player state machine enumerations
@@ -21,9 +21,10 @@
  * (11) implement attack logic
  * (12) implement despawn and attack particles
  * (13) implement camera shake on attacks
- * (14) implment collision data on all overworld scenes for enemy pathfinding
+ * (14) implment collision data on all overworld scenes for enemy pathfinding (done)
  * (15) fix path finding ignoring tile collision by a few pixels
  * (16) put a visibility timer for turning enemy invisible after a certain range or time
+ * (17) implement walk animation on enemy navigation state
  */
 
 
@@ -243,7 +244,8 @@ export class Enemy extends PhysicsObject {
                 this.playerVisible = true; // trigger the mob logic
 
                 // start visibility timer for ten seconds
-                this.visibilitiyTimer.set(5);
+                // does not work
+                //this.visibilitiyTimer.set(5);
 
 
                 // TO DO: 
@@ -251,7 +253,7 @@ export class Enemy extends PhysicsObject {
                 // (2) Add Raycast for detection
                 //return 0;
         }
-        if (this.visibilitiyTimer.elapsed()) this.playerVisible = false;
+        //if (this.visibilitiyTimer.elapsed()) this.playerVisible = false;
 
 
         // to do:
