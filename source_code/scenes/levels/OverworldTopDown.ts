@@ -27,6 +27,7 @@ import {OldWoman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 import {Utils} from "../../singletons/Utils";
 import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";
+import { Signpost } from '../items/Signpost';
 
 export class OverWorld extends EngineObject{
     /*
@@ -80,18 +81,12 @@ export class OverWorld extends EngineObject{
         //all assets are also preloaded        
         try {
 
-            
-            //console.log('Map data:', overMap);
-
             this.LevelSize = vec2(overMap.width, overMap.height);
-
-            //if (!this.tempExtLayer) throw new Error("Layer Loading Error");
             
             // drawing more than one tile bugs out on mobile browsers
             this.tempExtLayer = new TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0), vec2(1));
-            //this.tempExtLayer = tempExtLayer;
             
-            console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
+           // console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
 
 
             
@@ -129,10 +124,13 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val ===3 ){ // signpost
-                            // signpost tile draws with collision
-                            // to do : (1) replace tile collision with signpost object that triggers a dialog box
-                            console.log("to do : (1) replace tile collision with signpost object that triggers a dialog box"); 
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            // signpost object 
+                            //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            // to do: (1) use a signpost counter for different dialogue per signpost object instance
+                            const p = new Signpost(vec2(x,y), "North: Abbi City / South: Temple");
+                            //p.dialogue = ; // overworld top down signpost dialogue
+                            this.levelObjects?.push(p);
+                            return;
                         }
 
                         if (val ===4){ // hole object
@@ -370,6 +368,10 @@ export class OverWorld extends EngineObject{
                         if (val === 90){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
+
+                        // to do:
+                        // (1) Cityscape map collisions
+                        // (2) city scape tiles
 
                         else {
                             //console.log("tile debug: ", val);

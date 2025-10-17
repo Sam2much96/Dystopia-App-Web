@@ -18,6 +18,9 @@
     (4) Implement decision dialog box
     (5) Implement decision tree backend
     */
+import * as LittleJS from 'littlejsengine';
+const { isOverlapping,EngineObject, Color} = LittleJS;
+//import { EngineObject, Color, isOverlapping } from "littlejsengine";
 import { createPanel } from "./UI";
 type Translations = Record<string, Record<string, string>>;
 
@@ -184,5 +187,37 @@ export class DialogBox{
 
 }
 
+
+export class DialogTrigger extends EngineObject{
+    /**
+     * 
+     * Features:
+     * (1) acts as a child of any object that triggers a dialogue event instead of adding the collision logic on the Object iteslf
+     * 
+     * to do:
+     * (1) implement as child of the NPC object and the Signpost object
+     */
+
+    public enabled : boolean = true;
+    public dialogue : string = "Lorem Ipsum"; // the dialogue to show
+    public speaker : string = "Lorem Ipsum";
+    constructor(pos: any, size :any){
+        super();
+        // make the object take it's parent's pos and size
+        this.pos = pos;
+        this.size = size;
+
+        this.color = new Color(0, 0, 0, 0); // make object invisible
+
+        // make object invisible
+    }
+    update(): void {
+        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
+            // if is colliding with player show this object's dialogue
+            window.dialogs.show_dialog(this.speaker, this.dialogue);
+        }
+    }
+
+}
 
 export class DecisionDialogue{}

@@ -2,6 +2,7 @@ import * as LittleJS from 'littlejsengine';
 import { Player} from './player';
 import { Utils, PhysicsObject  } from '../../singletons/Utils';
 import { QuestGivers } from '../../singletons/Quest';
+import { DialogTrigger } from '../../singletons/Dialogs';
 
 const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
@@ -84,15 +85,24 @@ export class Merchant extends NPC{
 
     public ADS_TRIGGERED : boolean = false;
     public adsTimer = new Timer;
+    private dialogue = new DialogTrigger(this.pos, this.size); //dialogue trigger works
 
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 2; // frame 2 (counting from 0) is supposed to be the merchant tile
         this.setCollision(false,false,false,false); // make object not collide
+        
+        //set the npc dialogue
+        this.dialogue.dialogue = "You have no coins, and you want to earn free coins from ads? Okay";
+        this.dialogue.speaker = "merchant";
+
+        //parent the dialogue trigger
+        this.addChild(this.dialogue);
+
         // to do:
         //(1) load npc tile (done)
         //(2) trigger ads api upon collision (done)
-        //(3) Smart  contract escrow
+        //(3) Smart  contract escrow (0/3)
     }
 
     update(): void {
@@ -102,8 +112,10 @@ export class Merchant extends NPC{
         // to do:
         // (1) add cooldown timer for ads trigger checker
         if (!this.ADS_TRIGGERED && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
+            
+            // testing dialogues trigger 
             //show banner ads
-            window.dialogs.show_dialog("You have no coins, and you want to earn free coins from ads? Okay", "Merchant");
+           // window.dialogs.show_dialog("You have no coins, and you want to earn free coins from ads? Okay", "Merchant");
             window.ads.showAds();
             this.ADS_TRIGGERED = true;
             

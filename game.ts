@@ -20,10 +20,11 @@ Bugs
 To Do:
 
 (3) Create global sprite atlas for each tileset in game init
-(4) create Particle fx for hit and bomb explosion
-(7) implement dialogue trigger and dialog box for signpost and NPC merchant
+(4) create Particle fx for hit and bomb explosion (1/3)
+(7) implement dialogue trigger and dialog box for signpost and NPC merchant (2/3)
 (8) Implement auto tile procedural levels
 (9) Audit music tracks 
+(10) implement Rain particle fx
 
 */
 
@@ -308,8 +309,7 @@ function gameRender() {
             // to do: (1) create exit scene
             //window.ads.showAds(); // activate when shipping to game monetize
             
-            // overworld map 1 works
-            // currently testing temple interior
+            // overworld map 1 
             window.map = new OverWorld();
            
             window.ui.gameHUD(); //render the game hud

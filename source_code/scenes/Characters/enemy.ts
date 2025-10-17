@@ -580,6 +580,33 @@ export class Enemy extends PhysicsObject {
         }
         }
 
+    attack_logic(X : number, Y: number){
+        //play attack animation
+                // serialise the facing logic to play the correct animation
+               if (X == 0 && Y == 1){
+                //console.log("facing right"); // up
+                
+                    this.playAnim(this.AttackRight);
+                
+                }
+
+                if (X == 1 && Y == 0){
+                 //console.log("facing up");
+
+                    this.playAnim(this.AttackUp);
+                }
+
+                if (X == -1 && Y == 0){
+                    //console.log("facing left");
+                    this.playAnim(this.AttackLeft);
+                }
+
+                if (X == 0 && Y == -1){
+                    //console.log("facing down"); //down
+                    this.playAnim(this.AttackDown);
+                    
+                }
+    }
 
     // State Machines
     // 
@@ -608,7 +635,13 @@ export class Enemy extends PhysicsObject {
             },
             1: () =>{},
             2: () =>{ // attack state
-                console.log("attacking player");
+                //console.log("attacking player: ", this.X, "/", this.Y);
+                // trigger the attack state logic with the facing variables from the mob state
+                this.attack_logic(this.X, this.Y);
+                
+                
+               
+                //this.playAnim(this.AttackDown);
 
                 // Enemy hit collision detection
                 // todo : 
