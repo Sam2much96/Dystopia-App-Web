@@ -372,6 +372,12 @@ export class Enemy extends PhysicsObject {
 
         // Increment progress along this segment
         this.segmentProgress += (pathSpeed * delta) / segmentLength;
+        
+        //test the animation
+        //this.update_facing(this.pos.x, this.pos.y);
+        
+        // to do: (1) update the class direction from the pathfinder in this state
+        //console.log(this.direction);
 
         if (this.segmentProgress >= 1) {
             // Move to next segment
@@ -386,9 +392,23 @@ export class Enemy extends PhysicsObject {
             }
         }
 
+
         // Interpolate position along current segment
         this.pos.x = start.x + dx * this.segmentProgress;
         this.pos.y = start.y + dy * this.segmentProgress;
+
+        //log the position
+        //console.log(dy,dx); // direction
+        //
+        // cheat sheet:
+        // up:
+        // down: 
+        // left:
+        // right:
+        //
+        // create a v2 update_facing logic that works with this code bloc
+        this.update_facing_V2(dy, dx);
+
 
         // Draw path for debugging
         if (this.DebugPath){
@@ -489,6 +509,7 @@ export class Enemy extends PhysicsObject {
         return 0;
     }
 
+    // enemy mob state update facing function
     update_facing(X : number, Y : number){
         // Updates the enemy object's facing parameter for animation
         //
@@ -525,10 +546,49 @@ export class Enemy extends PhysicsObject {
         }
         }
 
+    // enemy navigation ai state update facing function
+    update_facing_V2(X : number, Y : number){
+        // Updates the enemy object's facing parameter for animation
+        //
+        //console.log("Updating facing");
+        
+        if (X == 0 && Y == 1){
+            //console.log("facing right"); // up
+            
+            const y = this.facing_enum.get("right")!;
+            this.facing[y]();
+            
+
+            
+        }
+
+        if (X == 1 && Y == 0){
+            //console.log("facing up");
+
+            const x = this.facing_enum.get("up")!;
+            this.facing[x]();
+            
+        }
+        if (X == -1 && Y == 0){
+            //console.log("facing left");
+            const a = this.facing_enum.get("down")!;
+            this.facing[a]();
+            
+        }
+        if (X == 0 && Y == -1){
+            //console.log("facing down"); //down
+            const b = this.facing_enum.get("left")!;
+            this.facing[b]();
+            
+        }
+        }
+
 
     // State Machines
-    // enemy state machine
-    // describes each states and is assigned to a class variable in the consstructor
+    // 
+    // Features :
+    // (1) enemy state machine
+    // (2) describes each states and is assigned to a class variable in the consstructor
     StateMachine(): Record<number, () => void>  {
 
         // cheat sheet for statemachine enum
@@ -599,7 +659,7 @@ export class Enemy extends PhysicsObject {
                 // temporarily disabled for path finding refactoring
                 this.update_facing(this.X, this.Y);
                 
-                //super.update();// update the parent class to save the physics
+                // update the parent class to save the physics
                 // get initial direction to player
                 this.direction = Utils.restaVectores(this.local_player_object!.pos, this.pos);
 
@@ -680,7 +740,8 @@ export class Enemy extends PhysicsObject {
     //["down",1],
     //["left", 2],
     //["right",3]
-
+    //
+    //movement animation + facing animation in one state
     Facing(): Record < number, () =>void>{
         return{
         0 : () => {

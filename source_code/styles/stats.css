@@ -362,7 +362,7 @@ body {
   opacity: 1;
   position: absolute;
   top: 98px;
-  left: 38px;
+  left: 40%;
   overflow: hidden;
   
 }
@@ -376,7 +376,7 @@ body {
   opacity: 1;
   position: absolute;
   top: 98px;
-  left: 109px;
+  left: 45%;
   overflow: hidden;
 }
 .v12_16 { /* sword tab button */
@@ -389,7 +389,7 @@ body {
   opacity: 1;
   position: absolute;
   top: 96px;
-  left: 181px;
+  left: 50%;
   overflow: hidden;
 }
 .v12_17 { /*stats tab button */
@@ -402,6 +402,6 @@ body {
   opacity: 1;
   position: absolute;
   top: 96px;
-  left: 128px;
+  left: 55%;
   overflow: hidden;
 }

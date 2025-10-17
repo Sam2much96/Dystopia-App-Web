@@ -190,18 +190,14 @@ export class UI  {
         // (1) organise each button configuration into ther specific classes
         // create buttons and bind their actions
         this.statsButton = createTextureButton("./btn-stats.png","ui-button", () =>{
-            //this.stats.bind(this);
-            console.log("stats button pressed");
+            //
+            //console.log("stats button pressed");
             //this.InventoryVisible = !this.InventoryVisible;
             // Triggers stats ui
             // to do :
-            // (1) on & off (done)
-            // (2) game pause (done)
-            // (3) UI text fix (done)
+
             // (4) Drag and Drop Items
-            // (5) Status UI Buttons (dialogue, comics, menu, stats) (Done)
             // (6) Game Menu Shouldn't trigger once stats is showing
-            // (8) Fetch & seriealize ASA data from wallet address(nft, memecoins,etc) (done)
 
 
             // fetch all inventory items
@@ -215,11 +211,6 @@ export class UI  {
             // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
             // (3) Inventory Item Call Example is in Input under I Press
             
-            //this.statsHUD(); //renders the stats hud (1/2) todo: connect functionality and fix positioning
-            // Logic:
-            // 
-            // renders the inventory and shows the inventory tab
-            //window.inventory.render(); // old inventory render is depreciated
             this.StatsHUD!!.InventoryVisible = !this.StatsHUD!!.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
         });
@@ -230,10 +221,10 @@ export class UI  {
 
             console.log("wallet button pressed");
             // to do:
-            // (1) implement better wallet singleton to UI class pointer
-            // (2) create generic wallet api implementation adaptable for multiple web plaforms not just pera wallet
-            window.music.ui_sfx[0].play();
-            //window.wallet.__connectToPeraWallet()
+            // (1) 
+            // (2) create generic wallet api implementation adaptable for multiple web plaforms not just pera wallet (1/3)
+            window.music.ui_sfx[0].play(); 
+            
         
         });
 
@@ -244,19 +235,12 @@ export class UI  {
             window.dialogs.show_dialog("...", "Aarin: ...");
         });
         
-        //this.menuButton = this.createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
-        //    window.music.ui_sfx[2].play();
-        //    this.GameMenu!!.MenuVisible = !this.GameMenu!!.MenuVisible;
-        //    //console.log("menu pressed");
-        //});
-        
-        
+  
 
         // left buttons on the ui
         this.leftButtons!.append( this.statsButton,this.walletButton, this.dialogButton);
         
-        // this is also the centerer position of the canvas
-        //this.TopRightUI!.append(this.menuButton);
+
     }
 
 
@@ -284,7 +268,7 @@ export class StatsTabs {
         // currently unimplemented
         // to do : 
         // (1) organise button layout
-        // (2) add proper documentation and function calls (1/2)
+        // (2) add proper documentation and function calls (done)
         // (3) create class pointer objects for each tab butten and placeholder functions (done)
         // (4) add tab button sound fx
         // (5) fix stats UI items overlap
@@ -302,23 +286,27 @@ export class StatsTabs {
         // connect button click events to render functions via global singletons -> local object pointers
         // depreciate default inventory renderer
         this.statsTab?.addEventListener("pointerdown", () => { 
-            this.debugTab("v12_14 stats tab")
+            window.music.ui_sfx[0].play();
+            //this.debugTab("v12_14 stats tab")
             //trigger stats render state machine
             window.ui.StatsHUD?.stateMachine[3]();
         });
         this.walletTab?.addEventListener("pointerdown", () => {
-            this.debugTab("v12_15 wallet tab")
+            window.music.ui_sfx[0].play();
+            //this.debugTab("v12_15 wallet tab")
             //trigger wallet render satate machine
             //trigger stats render state machine
             window.ui.StatsHUD?.stateMachine[1]();
         });
         this.inventoryTab?.addEventListener("pointerdown", () => {
-            this.debugTab("v12_16 inventory tab")
+            window.music.ui_sfx[0].play();
+            //this.debugTab("v12_16 inventory tab")
             //trigger inventory render state machine
             window.ui.StatsHUD?.stateMachine[0]();
         });
         this.questTab?.addEventListener("pointerdown", () => {
-            this.debugTab("v12_17 quests tab")
+            window.music.ui_sfx[0].play();
+            //this.debugTab("v12_17 quests tab")
             //trigger quests render state machine
             window.ui.StatsHUD?.stateMachine[2]();
 
@@ -327,7 +315,7 @@ export class StatsTabs {
         //console.log("tabs debug 2: ", this.statsTab);
     }
 
-    debugTab(log : string){
+    debugTab(log : string){ // delete later
         // for debugging tab button presses
         // to do: (1) connect to different stats UI render
         window.music.ui_sfx[0].play();
@@ -415,24 +403,24 @@ export class StatsHUD{
         return {
             0 : () => { // inventory state
                 // trigger inventory render function
-                console.log("Inventory state triggered");
+                //console.log("Inventory state triggered");
                 window.inventory.renderInventory(); // old inventory render is depreciated
 
             },
             1: () =>{
-                console.log("Wallet state triggered");
+                //console.log("Wallet state triggered");
                 // trigger wallet render fuction
                 window.wallet.renderWallet();
 
             },
             2: () =>{ 
-                console.log("Quest state tringgered");
+                //console.log("Quest state tringgered");
                 // trigger quest render function
                 window.quest.renderQuests();
        
             },
             3: () =>{
-                console.log("Stats state triggered");
+                //console.log("Stats state triggered");
                 // trigger stats render function
                 this.renderStats();
             }

@@ -93,12 +93,16 @@ function reconstructPath(node: Node): [number, number][] {
 
 /** A star pathfinding algorithm */
 // Non-LJS Implementation
+// to do:
+// (1) Code only runs once and cannot run multiple tiles
+// (2) implement djiskra pathfinding
+
 export function aStarV1(grid: Grid, 
   start: [number, number], 
   goal: [number, number]): [number, number][] | null {
   
-  console.log("running astar v1 path finding code"); //works
-  console.log("start: ",start," goal: ", goal)
+  //console.log("astar v1 path finding triggered"); //works
+  //console.log("start: ",start," goal: ", goal)
   const open: Node[] = [];
   const closed = new Set<string>();
 

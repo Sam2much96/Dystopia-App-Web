@@ -14,7 +14,7 @@ export class Quest {
     To Do:
     (1) Implement quest translations
     (2) IMplement csv parsing
-    (3) Add 100 and 200 enemies kill coint quests
+    (3) Add 100 and 200 enemies kill coint quests from new NPC's
     */
 
     public STATUS: Map<string, number> = new Map([
