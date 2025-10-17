@@ -344,7 +344,7 @@ export class TopDownPlayer extends Player {
     }
 
     respawn() {
-        //if (this.despawnTimer.elapsed()){
+        //
         //
         // delete player object
         this.destroy();
@@ -922,8 +922,8 @@ export class SideScrollerPlayerBox extends Box2dObject {
         else if (!isTouchDevice){ // keyboard and mouse bindings
             //works
             this.moveInput = keyDirection().clampLength(1).scale(5);
-            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
-            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(0);
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(1) ; // player cannot attack while in sidescroller
         }
 
         if (this.gravityTimer.elapsed()){
