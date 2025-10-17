@@ -149,7 +149,7 @@ export class Enemy extends PhysicsObject {
 
     private PathTimer : LittleJS.Timer = new Timer(); //path finding update path timmer
     private PathTimeOut : number = 30;
-    private DebugPath : boolean = true; // for printing out the movement path with a red line
+    private DebugPath : boolean = false; // for printing out the movement path with a red line
     constructor(pos: LittleJS.Vector2) {
         super();
         //(1) set the Enemy object's position (done)
@@ -234,26 +234,23 @@ export class Enemy extends PhysicsObject {
 
             
  
-            // Enemy hit collision detection
-            // todo : 
-            // (1) connect both player and enemy state machines to simulation collision detection
-            // (2) implement raycast into enemy detection logic
-            // (3) implement hurt and attack states into enemy collision logic
+
+        // collision logic when player is not visible, it triggers the enemy mob a.i
         if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size)) {
-                console.log("ENemy Hit Collision Detection Triggered "); // works
                 this.playerVisible = true; // trigger the mob logic
+            }
 
-                // start visibility timer for ten seconds
-                // does not work
-                //this.visibilitiyTimer.set(5);
+        // collision logic when the player is visible, it triggers the enemy attack state
+         if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && this.playerVisible) {
+                this.stateMachine[2]() // trigger the attack state
+     
+            }
 
 
-                // TO DO: 
-                // (1) Trigger Kickback Logic
-                // (2) Add Raycast for detection
-                //return 0;
-        }
-        //if (this.visibilitiyTimer.elapsed()) this.playerVisible = false;
+
+        // TO DO: 
+        // (1) Trigger Kickback Logic
+        // (2) Add Raycast for detection
 
 
         // to do:
@@ -610,7 +607,17 @@ export class Enemy extends PhysicsObject {
                 //console.log("idle state triggered");
             },
             1: () =>{},
-            2: () =>{},
+            2: () =>{ // attack state
+                console.log("attacking player");
+
+                // Enemy hit collision detection
+                // todo : 
+                // (1) connect both player and enemy state machines to simulation collision detection
+                // (2) implement raycast into enemy detection logic
+                // (3) implement hurt and attack states into enemy collision logic
+   
+
+            },
             3: () => {},
             
             4: () =>{ // die state
@@ -696,7 +703,7 @@ export class Enemy extends PhysicsObject {
 
                     //enemy AI variables
                     this.local_player_object = window.player;
-                    console.log("enemy player debug: ", this.local_player_object);
+                    //console.log("enemy player debug: ", this.local_player_object);
 
                 }
 
