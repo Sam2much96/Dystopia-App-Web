@@ -75,7 +75,7 @@ export class Advertising {
 
     }
 
-    showAds_v1(){
+    showAds(){
         if (this.platform === "gamemonetize"){
             // show game monetize banner ads
             this.ads.showBanner(); //works
