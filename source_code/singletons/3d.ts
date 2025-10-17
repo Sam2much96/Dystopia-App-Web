@@ -13,7 +13,8 @@ Features
 (2) Overlays 3d rendering to The viewport via css-style sheet ID canvas
 (3) TO DO: Load GLTF Models
 
-Bugs
+Bugs:
+(0) loads the 3d model too slow and is a latency bottleneck for the whole game
 (1) The 3d Renderer should ideally be in a separate class
 (2) This codebase runs littlejs as a module to allow importing Threejs
 (3) Is a performance hog, should be used sparingly/ optimised for mobi

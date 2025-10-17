@@ -8,7 +8,7 @@ import {TopDownPlayer} from "../Characters/player";
 import {Shaman} from "../Characters/NPC";
 import { Stairs } from '../UI & misc/Exit';
 import { EnemySpawner } from '../UI & misc/Enemyspawner';
-
+//import {Signpost} from '../items/Signpost';
 
 //NPC
 //imp
@@ -17,10 +17,11 @@ import { EnemySpawner } from '../UI & misc/Enemyspawner';
  * 
  * 
  * to do:
- * (1) Quest subsystem
+ * (1) Quest subsystem (done)
  * (2) Proper Temple interior collision
  * (3) Fire object (1/2) : Edit Enemy spawner object into 2 inherited objects sharing the fire animations
  * (4) Fix missing temple interior frame
+ * (5) fix temple dungeon scene break
  */
 
 
@@ -35,20 +36,31 @@ export class TempleInterior extends EngineObject {
     constructor(){
         super();
         setGravity(0);
-        this.loadMap();
+        //this.loadMap();
+
+        //load the game map
+        (async () => {
+            await this.loadMap();
+        })();
 
     }
     
     async loadMap(){
         try {
 
-            console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
+            //console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
             this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0), vec2(1), 2); // create a tile layer for drawing the lvl
             initTileCollision(LevelSize);
+
+            //initialise an empty collision grid for enemy nav logic
+            this.collisionGrid = Array(templeMap.height)
+                .fill(null)
+                .map(() => Array(templeMap.width).fill(0));
+
             // load level data as chunks
             this.levelData = Utils.chunkArray(templeMap.layers[0].data , templeMap.layers[0].width ).reverse();
             //debug level data
-            console.log("level data debug: ", this.levelData);
+           // console.log("level data debug: ", this.levelData);
             this.levelData.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
                     val = parseInt(val, 10);
@@ -107,6 +119,9 @@ export class TempleInterior extends EngineObject {
             )})
 
             this.tileLayer.redraw();
+            //Debug or save your collision grid for pathfinding ai
+            // 
+            //console.log(JSON.stringify(this.collisionGrid));
 
         }
         catch(err){
@@ -148,8 +163,7 @@ export class TempleInterior extends EngineObject {
                 setTileCollisionData(pos,1);
     
                     // ✅ Record in grid
-                if (this.collisionGrid)
-                {this.collisionGrid[pos.y][pos.x] = 1;}
+                if (this.collisionGrid)this.collisionGrid[pos.y][pos.x] = 1;
                     
             }
         }

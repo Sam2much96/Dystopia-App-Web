@@ -548,8 +548,8 @@ export class IngameMenu{
             // (1) ingame menu translations is buggy
             this.newGame = this.createMenuOption(window.dialogs.t("new game", this.language), "#", () => {
                 window.music.sound_start.play();
-                window.ads.showAds();
-                console.log('creating new game simulation');
+                
+                //console.log('creating new game simulation');
                 window.simulation = new Simulation();
 
                 // to do :
@@ -724,7 +724,7 @@ export function createPanel(id: string): HTMLDivElement {
      * @param onClick 
      * @returns 
      */
-    export function createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement { // creates hud buttons. buggy
+export function createTextureButton(imgSrc: string, className: string, onPress: () => void): HTMLButtonElement { // creates hud buttons. buggy
         const btn = document.createElement("button");
         
         //btn.textContent = text;

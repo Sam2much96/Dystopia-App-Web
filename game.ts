@@ -306,6 +306,7 @@ function gameRender() {
 
         if (!window.map){
             // to do: (1) create exit scene
+            //window.ads.showAds(); // activate when shipping to game monetize
             
             // overworld map 1 works
             // currently testing temple interior
