@@ -2,7 +2,7 @@
  * The Game's Top Down Overworld Map
  * 
  * Bugs:
- * (1) Breaks on mobile browsers when changing scenes
+ * (1) Breaks on mobile browsers when changing scenes (not sure why it breaks, i've tried resizing the level into 2, and it didn't work)
  * (2) Takes too long to load the entire overmap level in mobile browser
  */
 import * as LittleJS from 'littlejsengine';
@@ -62,6 +62,9 @@ export class OverWorld extends EngineObject{
 
     constructor() {
         super();
+        console.log('Level reload triggered');
+        console.log('Number of gameObjects:', LittleJS.engineObjects.length);
+        console.log('Globals:', window.globals);
 
         //load the game map
         (async () => {

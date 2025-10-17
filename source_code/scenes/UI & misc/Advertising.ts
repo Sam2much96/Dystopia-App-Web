@@ -23,6 +23,9 @@ export class Advertising {
      * 
      * Facebook Games Integrations
      * (1) Integrates intersitial ads and rewarded videoa ds into the game 
+     * 
+     * Bugs :
+     * (1) Ads skip button doesn't work
      */
     public ads : any | undefined;
     public analytics : any | undefined;
@@ -72,7 +75,7 @@ export class Advertising {
 
     }
 
-    showAds(){
+    showAds_v1(){
         if (this.platform === "gamemonetize"){
             // show game monetize banner ads
             this.ads.showBanner(); //works

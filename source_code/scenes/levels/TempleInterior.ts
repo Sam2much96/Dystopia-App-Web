@@ -142,6 +142,8 @@ export class TempleInterior extends EngineObject {
             this.levelObjects = null;
         }
         }
+
+        LittleJS.engineObjects.length = 0;// clear existing objects
     }
 
     drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {

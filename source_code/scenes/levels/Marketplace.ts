@@ -139,6 +139,7 @@ export class Marketplace extends EngineObject{
             }
             this.levelObjects = null;
             }  
+            LittleJS.engineObjects.length = 0; // clear existing objects
  
         }
 

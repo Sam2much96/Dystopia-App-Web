@@ -253,6 +253,7 @@ export class OverworldSideScrolling extends EngineObject {
 
         setGravity(0);// reset gravity
         this.LEVEL_DESTROY = true;//stop all processing logic
+        LittleJS.engineObjects.length = 0; // clear existing objects
     }
 
 }
