@@ -2,6 +2,13 @@
  * Game Monetize
  * 
  * Game Monetize Ads implementation in a single script 
+ * 
+ * Features:
+ * (1) works on personal website and itchIO
+ * 
+ * To Do:
+ * (1) explore sdk implementation and export sdk state to global advertising singleton
+ * 
  */
 
 // Version 1.0 Implementation places the code in the index.html

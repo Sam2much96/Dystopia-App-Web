@@ -36,8 +36,8 @@ export class Player extends PhysicsObject{
     * (9) The current frame is the sprite id that would be rendered in the render() function
     *
     * to do: 
-    * (1) 
-    * (2) 
+    * (1) fix enemy pathfinding second run bug
+    * (2) implement all game item objects
     * (3) Port player's movement physics from it's current implementation to LittleJS implementation
     *   -docs:
     *   (1) https://gitlab.com/gcnet-uk/games/worktime/-/blob/main/src/entities/player.ts?ref_type=heads
