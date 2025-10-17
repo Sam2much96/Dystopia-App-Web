@@ -30,7 +30,7 @@
 
 
 import * as LittleJS from 'littlejsengine';
-import { Player, SideScrollerPlayerBox} from './player';
+import { Player, SideScrollerPlayerBox, TopDownPlayer} from './player';
 import { Utils, PhysicsObject, worldToGrid, gridToWorld } from '../../singletons/Utils';
 import { Side } from 'three'; // what's this used for?
 import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart for navigation server logic
@@ -114,7 +114,7 @@ export class Enemy extends PhysicsObject {
     public Y : number  = 0; // used for facing animation calculations
 
     // Enemy AI variables
-    public local_player_object : Player | SideScrollerPlayerBox | null = null;
+    public local_player_object : TopDownPlayer | SideScrollerPlayerBox | null = null;
     public direction : LittleJS.Vector2 = vec2(0);
     public length : number = 0;
     //private delta : number = 0;
@@ -416,12 +416,12 @@ export class Enemy extends PhysicsObject {
     }
 
 
-    setPlayer(obj : Player ){
+    setPlayer(obj : TopDownPlayer ){
         this.local_player_object = obj
 
     }
 
-    getPlayer() : Player | SideScrollerPlayerBox {
+    getPlayer() : TopDownPlayer | SideScrollerPlayerBox {
 
         //(1) Gets the Player Object in the Scene Tree if Player unavailable, get him from the global pointer 
         return this.local_player_object!!;
@@ -433,6 +433,10 @@ export class Enemy extends PhysicsObject {
         //sfx
         window.music.hit_sfx[2].play();
         this.kickback();
+
+        // to do: 
+        // (1) play a despawn animation
+        // (2) use a despawn timer to finish playing the animation and trigger the object destruction
     }
 
     kickback() {
@@ -639,7 +643,11 @@ export class Enemy extends PhysicsObject {
                 // trigger the attack state logic with the facing variables from the mob state
                 this.attack_logic(this.X, this.Y);
                 
+                // trigger the hit collision detection on the player objec
+                this.local_player_object?.hit_collision_detected(vec2(this.X, this.Y));
                 
+                // exit the state to the mob state
+                this.stateMachine[6]();
                
                 //this.playAnim(this.AttackDown);
 
@@ -647,7 +655,7 @@ export class Enemy extends PhysicsObject {
                 // todo : 
                 // (1) connect both player and enemy state machines to simulation collision detection
                 // (2) implement raycast into enemy detection logic
-                // (3) implement hurt and attack states into enemy collision logic
+                // (3) implement hurt and attack states into enemy collision logic (1/2)
    
 
             },
@@ -717,13 +725,14 @@ export class Enemy extends PhysicsObject {
 
                 
 
-                            
-                // Add movement to ai position
-                // to do: 
-                //(1) use velocity logic for positional movement to implement collisions
-                //(2) note that animationTime is the engine's delta time saved from the parent class
-                this.pos.x += this.direction.x * this.speed * this.animationTime;
-                this.pos.y += this.direction.y * this.speed * this.animationTime;
+                           
+                    // Add movement to ai position
+                    // to do: 
+                    //(1) use velocity logic for positional movement to implement collisions
+                    //(2) note that animationTime is the engine's delta time saved from the parent class
+                    this.pos.x += this.direction.x * this.speed * this.animationTime;
+                    this.pos.y += this.direction.y * this.speed * this.animationTime;
+                
 
             },
 

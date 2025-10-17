@@ -360,6 +360,10 @@ export class Inventory {
  * To Do:
  * (1) Implement ring item
  * (2)
+ * 
+ * Bugs:
+ * (1) item use logic is infinite and broken
+ * (2) not all item use items are implemented
  */
 
 export function useItem(type :string, amount : number ) : boolean {
@@ -376,13 +380,14 @@ export function useItem(type :string, amount : number ) : boolean {
         let new_amt = old_amt = amount;
         local_inv.set(type, new_amt); 
         
-        if (type== "health potion"){
+        if (type== "Health Potion"){
+            //console.log("hp+ use debug: ", player);
             player.hitpoints += 1;
             window.globals.hp += 1;
-            window.ui.HeartBoxHUD!!.heartbox(window.player.hitpoints)
+            window.ui.HeartBoxHUD!!.heartbox(window.globals.hp)
             // update heart box hud
             //player.update_heart_box();
-            console.log("to do: implement update heartbox funcitonality on player object");
+            //console.log("to do: implement update heartbox funcitonality on player object");
         }
         
         if (type == "Generic Item"){

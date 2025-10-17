@@ -15,13 +15,14 @@ Bugs
 (1) Input is terrible on mobile browsers (1/2)
 (2) Game menu UI button is image path broken in production
 (3) overworld level render is buggy on mobile, consider reducing map side
+    - i used async method to load the map, i'm yet to test the fix on mobile Oct 17/ 2025
 
 
 To Do:
 
 (3) Create global sprite atlas for each tileset in game init
 (4) create Particle fx for hit and bomb explosion (1/3)
-(7) implement dialogue trigger and dialog box for signpost and NPC merchant (2/3)
+(7) implement dialogue trigger and dialog box for signpost and NPC merchant (done)
 (8) Implement auto tile procedural levels
 (9) Audit music tracks 
 (10) implement Rain particle fx
@@ -49,7 +50,7 @@ import { Diaglogs } from './source_code/singletons/Dialogs';
 import {UI} from "./source_code/singletons/UI";
 import {Utils} from "./source_code/singletons/Utils";
 
-import {Player} from "./source_code/scenes/Characters/player";
+import {Player, TopDownPlayer} from "./source_code/scenes/Characters/player";
 import { SideScrollerPlayerBox } from './source_code/scenes/Characters/player';
 //import {Enemy} from "./source_code/scenes/Characters/enemy";
 
@@ -92,7 +93,7 @@ declare global {
         music: Music,
         dialogs : Diaglogs,
         quest : Quest,
-        player: Player | SideScrollerPlayerBox,
+        player: TopDownPlayer | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
         map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
@@ -320,16 +321,16 @@ function gameRender() {
         }
 
         // formerly screen class
-        if (window.player){
+       // if (window.player){
 
             //console.log("window player exists debug");
             // Track player
             // set camera position to player position
-            setCameraPos(window.player.pos);
-            setCameraScale(128);  // zoom camera to 128 pixels per world unit
+            //setCameraPos(window.player.pos);
+            //setCameraScale(128);  // zoom camera to 128 pixels per world unit
                             // 1. draw background image
             
-        }
+        //}
 
         //yandex sdk game start logic
    

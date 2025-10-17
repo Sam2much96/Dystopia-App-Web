@@ -69,16 +69,16 @@ class NPC extends PhysicsObject {
  * NPC Trader
  * 
  * Requires:
- * (1) Dialogs subsystem
- * (2) Decision Dialog
- * (3) Translated Dialogs
+ * (1) Dialogs subsystem (done)
+ * (2) Decision Dialog (0/3)
+ * (3) Translated Dialogs (0/3)
  * (4) Ads API (done)
- * (5) Database implementation
- * (6) Shop API & Documentation (1/5)
- * (7) Updated Enemy Movement Logic
+ * (5) Database implementation (1/3)
+ * (6) Shop API & Documentation (2/5)
+ * (7) Updated Enemy Movement Logic (2/3)
  * 
  * To Do:
- * (1)NPC movement logic
+ * (1)NPC movement logic (2/3)
  */
 
 export class Merchant extends NPC{
@@ -144,20 +144,19 @@ export class Merchant extends NPC{
 
 
 export class OldWoman extends NPC{
+    private dialogue = new DialogTrigger(this.pos, this.size); //dialogue trigger works
+
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 1; // frame 1 is for the npc in the NPC tileset
         //this.isSolid = false;
         this.setCollision(false,false,false,false); // make object not collide
-    }
-    update(): void {
-        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) {
-            // to do
-            //(1) implement dialogue translation as a dialogue singleton subsystem
-            window.dialogs.show_dialog("old woman","I wouldn't jump into that hole if i were you! the ground there's not stable at all!" );
-        }
 
+        //set the npc dialogue
+        this.dialogue.dialogue = "I wouldn't jump into that hole if i were you! ground there's not stable at all!";
+        this.dialogue.speaker = "old woman";
     }
+
 }
 
 /**
@@ -183,8 +182,10 @@ export class Shaman extends NPC{
             // shaman dialogue
             // to do:
             // (1) test quest subsystem (done)
-            //(2) connect quest subsystem (done)
+            // (2) connect quest subsystem (done)
             // (3) create quest giver with timeout to stop quest spamming
+            // (4) fix quest ui quest serialisation
+
             //window.dialogs.show_dialog("shaman","quest update coming soon! ");
              // trigger quest giver logic to fetch the appropriate dialogue text
             let quest_diag=QuestGivers.process("fetch quest 1","hey! can get me 1 bomb? thanks", "Bomb", 1, "Arrow",5,"Thank you for the bomb", "please, remember to get me 1 Bomb!");

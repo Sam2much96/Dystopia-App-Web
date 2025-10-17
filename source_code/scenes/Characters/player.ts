@@ -5,6 +5,9 @@ const {EngineObject,Timer,isUsingGamepad, gamepadStick,  touchGamepadEnable, isT
 
 //import { logToScreen } from '../../singletons/Debug'; // for mobile debugging only
 import { OverWorld } from '../levels/OverworldTopDown';
+import { Marketplace } from '../levels/Marketplace';
+import { TempleInterior } from '../levels/TempleInterior';
+import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
 //import { Enemy } from './enemy';
 import { PhysicsObject } from '../../singletons/Utils';
 import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyTypeKinematic, box2dBodyTypeStatic, box2dBodyTypeDynamic } from '../../singletons/box2d';
@@ -22,29 +25,30 @@ export class Player extends PhysicsObject{
     * THe Core Player Script
     *
     * Features
-    * (1) THe world's camera
-    * (2) Player hitboxes
+    * (1) Controls The world's camera
+    * (2) Implements Player hitboxes, collision detection and state machine
     * (3) It's a class and stores variables to the UI, Globals singleton, PlayersSave Files, and the Debug SIngleton
-    * (4) Extend input from Global Input Singleton
+    * (4) Extend input from Input Buffer class
     * (5) Extends to Top DOwn and SideScrolling Player Scripts
-    * (6) Player & Enemy SFX is handled by simulation singleton
-    * (7) Connects Dialog Signals From Dialogs Singleton
-    * (8) Collision detectin is done from simulation singleton
+    * (6) Player & Enemy SFX is handled by music singleton
+    * (7) 
+    * (8) Collision detection
     * (9) The current frame is the sprite id that would be rendered in the render() function
     *
     * to do: 
-    * (1) set player's initial state to idle down not run up
-    * (2) decouple player code from input singleton to remove player position bug on item use
-    *   - the input singleton is a game object which position gradually deviates from player's position causing this bug
+    * (1) 
+    * (2) 
     * (3) Port player's movement physics from it's current implementation to LittleJS implementation
     *   -docs:
     *   (1) https://gitlab.com/gcnet-uk/games/worktime/-/blob/main/src/entities/player.ts?ref_type=heads
     *   (2) https://gitlab.com/gcnet-uk/games/worktime/~/blob/main/src/entity.ts
     *   (3) https://github.com/KilledByAPixel/LittleJS/blob/main/examples/shorts/topDown.js
-    *   use velocity to alter player's movement, set gravity to zero, call engine update first then increase/decrease/cap your velocity
+    *   
         
-    * (4) Fix attack animation bug
-    * (5) Create sidescrolling player physics object
+    * (4) 
+    * (5) 
+    * (6) implement input buffer mechanics in class for mobile devices
+    * (7) implement player impact shader and call in on player collision with enemy
     */
 
     // Constants
@@ -54,7 +58,7 @@ export class Player extends PhysicsObject{
     public pushback: number = 5000;
 
     // Properties
-    public hitpoints: number = 3;
+    public hitpoints: number = window.globals.hp;
     public linear_vel = vec2(0, 0);
     public roll_direction = vec2(0, 1);
     public StateBuffer: number[] = [];
@@ -86,7 +90,7 @@ export class Player extends PhysicsObject{
     public facingPos : number = 0; // for storing the current facing positoin
 
     // References
-    //public local_heart_box: any; // Update type to match UI class
+    public local_heart_box = window.ui.HeartBoxHUD;
     public blood: any | undefined;
     public despawn_particles: any  | undefined;
     public die_sfx: any | undefined;
@@ -129,6 +133,15 @@ export class Player extends PhysicsObject{
 
     public Buffer : InputsBuffer = new InputsBuffer();
 
+    //camera controllers
+    //
+    private cameraShakeTime = 0;
+    private cameraShakeIntensity = 0;
+
+    // despawn/ respawn variables
+    public despawnTimer : LittleJS.Timer = new Timer();
+    public deSpawn : boolean = false
+
     constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;
@@ -138,8 +151,14 @@ export class Player extends PhysicsObject{
         window.globals.players.push(this);
 
         this.hitpoints = window.globals.hp; // global hp singleton 
-        //to do:
-        // (1) player object should have the responsibility of drawing the heartbox ui object
+
+        // create Heartbox UI
+        // to do: (1) update & draw heartbox ui with timer
+        // heartbox render function has been moved to the player object
+        window.ui.HeartBoxHUD!!.heartbox(this.hitpoints); //create 3 hearboxes
+     
+
+        LittleJS.setCameraScale(128);  // zoom camera to 128 pixels per world unit
     }
 
     update(): void {
@@ -165,12 +184,30 @@ export class Player extends PhysicsObject{
             this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
         }
 
-
+        // Camera Controls & Camera Capture
+        // 
+        //
+         if (this.cameraShakeTime > 0) {
+            this.cameraShakeTime -= LittleJS.timeDelta;
+            const shakeAmount = this.cameraShakeIntensity * (this.cameraShakeTime / 0.3); // fade out
+            const offsetX = (Math.random() - 0.5) * shakeAmount;
+            const offsetY = (Math.random() - 0.5) * shakeAmount;
+            LittleJS.setCameraPos( this.pos.add(vec2(offsetX, offsetY)));
+        } else {
+            LittleJS.setCameraPos(this.pos); // normal follow
+        }
+        
 
         super.update();
     }
 
+    // Call this to start the shake
+    shakeCameraV1(intensity = 0.3, duration = 0.1) {
+        this.cameraShakeIntensity = intensity;
+        this.cameraShakeTime = duration;
+    }
     
+
 
 }
 
@@ -199,7 +236,7 @@ export class TopDownPlayer extends Player {
 
         // TO DO:
         // (1) Connect to Mini Map UI
-        // (2) Write an Input State Machine for attack input capture
+        // (2) Write an Input State Machine for attack input capture (done)
 
         // Connect Heart box signals
 
@@ -207,8 +244,7 @@ export class TopDownPlayer extends Player {
         // PLAYER'S FACING
 
         // set initial player's default state
-        //this.state = this.matchState(); // the top down player logic //= this.TOP_DOWN.get("STATE_IDLE")!;
-        //this.facing = this.matchInputs(); // the input state machine / facing logic  //= this.FACING.get("DOWN")!;
+        //
         
         //PLAYER'S PARTICLE AND SOUND FX POINTERS
         // TO DO:
@@ -227,16 +263,6 @@ export class TopDownPlayer extends Player {
 
 
 
-    hurt() {
-
-        //use a timer to flash the player object colour from orig  -> white -> orig
-        //(1) Play Hurt Animation
-        //(2) Trigger kickback
-        //(3) Update Player health
-        //(4) Emit blood fx particle fx
-        this.hitpoints -= 1;
-        console.log("Player hit: ", this.hitpoints);
-    }
 
     
 
@@ -278,43 +304,120 @@ export class TopDownPlayer extends Player {
 
         }
         
-        if (this.holdingAttack){
+        if (this.holdingAttack && !this.deSpawn){
             //bug: (1) attack down animation has a stuck frame bug?
             //console.log("attack debug: ", this.holdingAttack); // works
             this.State()["STATE_ATTACK"]();
         }
 
-        // velocity logic
-        // move input is the key direction serialised in to vector 2 positions
-        // apply walking physics
-        this.State()["STATE_WALKING"]();
-        
+         if (this.deSpawn && !this.despawnTimer.elapsed()){
+            this.despawn(); // trigger the despawn state
+        }
+        //return
 
+        if (this.deSpawn && this.despawnTimer.elapsed() ){
+            this.despawn();
+            this.respawn();
+        }
+
+
+        if (!this.deSpawn){ // can only move when not despawning
+            // velocity logic
+            // move input is the key direction serialised in to vector 2 positions
+            // apply walking physics
+            this.State()["STATE_WALKING"]();
+        
+        }
 
     }
 
     despawn() {
-        // (1) Play Despawn Animation
-        if (this.hitpoints <= 0) {
-            // delete player object
-            this.destroy();
+        // Play Despawn Animation
+        this.playAnim(this.Despawn);
 
-            // set the global player to null
-            //window.player = null;
-        }
+        // to do: 
+        // (1) replace with better despawn sfx from zzfx music synthesizer
+        window.music.punch_sfx_3.play();
+        
+        
+        
     }
 
     respawn() {
-        return 0;
+        //if (this.despawnTimer.elapsed()){
+        //
+        // delete player object
+        this.destroy();
+        
+        //reset the globals hp to 3
+        window.globals.hp = 5;
+
+        // check which map the player is on and create a new instance
+        if (window.map instanceof OverWorld) {
+         //console.log("Current map is OverWorld");
+        //destroy the overworld scene and player
+        window.map.destroy();
+        window.map = new OverWorld()
+         }
+        else if (window.map instanceof OverworldSideScrolling) {
+           // console.log("Current map is OverworldSideScrolling");
+            window.map.destroy();
+            window.map = new OverworldSideScrolling();
+        }
+        else if (window.map instanceof Marketplace) {
+            //console.log("Current map is Marketplace");
+            window.map.destroy();
+            window.map = new Marketplace();
+        }
+        else if (window.map instanceof TempleInterior) {
+            //console.log("Current map is TempleInterior");
+            window.map.destroy();
+            window.map = new TempleInterior();
+        }
+
     }
 
-    shake() {
-        // shaky cam fx
-        return 0;
-    }
+
 
     update_heart_box(){
         console.log("update heart box function is unimplemented. Fix heartbox bug");
+    }
+
+    hit_collision_detected(dir : LittleJS.Vector2){
+    	//Player Hit Collision Detection logic: 
+	    //
+        //(1) reduce player hitpoint by 1 (done)
+        //(2) trigger a shaky cam fx via editting the ljs camera position (done)
+        //(3) play the attack hit and sword sfx 
+        //(4) create blood spatter particles
+        //(5) trigger player kickback (done)
+        //(6) trigger the despawn state if hp is les than zero (1/2)
+        //(7) trigger and implement hurt state in the enemy state machine
+        //(8) play despawn animation and trigger level respawn (done)
+        this.hitpoints -= 1;
+        window.globals.hp -= 1;
+        
+        this.shakeCameraV1(); // intensity 0.3, lasts half a second
+        this.Kickback(dir); // apply kickback physics
+        window.music.punch_sfx_2.play(); // play hit sfx
+        this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
+        
+
+        //instance blood particle fx
+        if (this.hitpoints<0 && !this.deSpawn){
+            this.despawnTimer.set(2); // set a despawn timer for 3 seconds
+            this.deSpawn = true;
+            this.playAnim(this.Despawn);
+        }
+       
+        
+
+    }   
+    
+    Kickback(direction: LittleJS.Vector2, strength = 10) {
+        // direction = Vector2 (normalized)
+        // strength = how strong the kick is
+        this.velocity = this.velocity.add(direction.scale(strength));
     }
 
     /**
@@ -332,6 +435,8 @@ export class TopDownPlayer extends Player {
             },
 
             "STATE_IDLE" : () => {
+                // to do:
+                // (1) draw player idle tiles
 
                 // logic:
                 // get the current facing direction
@@ -413,10 +518,14 @@ export class TopDownPlayer extends Player {
                 // rolling state machine currently unimplemented
 
             },
+            "STATE_HURT" : () => { // player hurt states
+
+
+            },
 
             "STATE_ATTACK" : () => {
-                // temporarily disabled for itchIO build
-                //console.log("attack state triggered: ", window.globals.enemies);
+                // 
+                //
                 // input buffer
                 this.Buffer.attack();
 
@@ -633,6 +742,7 @@ export class SideScrollerPlayerBox extends Box2dObject {
     public AttackRight : Array<number> =[...this.AttackLeft];
     public Despawn : Array<number> =[43,44];
     public Dance : Array<number> = [47,48];
+    public Hurt : any;
 
     //public WALKING :number = 0.03; // walking speed
 
@@ -666,6 +776,12 @@ export class SideScrollerPlayerBox extends Box2dObject {
 
     // collision angle
     //private playerAngleDeg = this.angle * 180 / Math.PI;
+
+    //camera controllers
+    //
+    private cameraShakeTime = 0;
+    private cameraShakeIntensity = 0;
+
 
     // side scrolling player with box2d physics logic
     constructor(pos: LittleJS.Vector2) {
@@ -774,6 +890,14 @@ export class SideScrollerPlayerBox extends Box2dObject {
     isOnGround(): boolean {
         return this.OnGround;
     }
+    // unused hit collision function for side scrolling combat
+    hit_collision_detected(){}
+    
+    // Camera shake 
+    shakeCameraV1(intensity = 0.3, duration = 0.1) {
+        this.cameraShakeIntensity = intensity;
+        this.cameraShakeTime = duration;
+    }
     
     update(): void {
         // get current velocity from Box2D
@@ -844,8 +968,6 @@ export class SideScrollerPlayerBox extends Box2dObject {
 
         }
 
-        
-
         // animation
         if (this.velocity.x < 0){ // use Math.ceil for roundups
 
@@ -870,8 +992,25 @@ export class SideScrollerPlayerBox extends Box2dObject {
 
                     this.Buffer.right();
                 }
+        // Camera Controls & Camera Capture
+        // 
+        //
+         if (this.cameraShakeTime > 0) {
+            this.cameraShakeTime -= LittleJS.timeDelta;
+            const shakeAmount = this.cameraShakeIntensity * (this.cameraShakeTime / 0.3); // fade out
+            const offsetX = (Math.random() - 0.5) * shakeAmount;
+            const offsetY = (Math.random() - 0.5) * shakeAmount;
+            LittleJS.setCameraPos( this.pos.add(vec2(offsetX, offsetY)));
+        } else {
+            LittleJS.setCameraPos(this.pos); // normal follow
+        }
+        
+        
+        
+     }
 
-    }
+         
+    
 
     render() {
 
@@ -904,6 +1043,7 @@ export class InputsBuffer  {
     
     TO DO:
     (1) Map and Test Gamepad implementation in the wild
+    (2) reimplement Inputs Buffer logic in new UI subsystem
 
     Bugs:
     (1) Input buffer spamming

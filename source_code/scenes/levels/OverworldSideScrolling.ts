@@ -207,17 +207,22 @@ export class OverworldSideScrolling extends EngineObject {
     }
 
     destructionPhysics() : void {
-        // triggers destruction physics in all box2d node objects
-        // uses a timer to destroy the scene
+        // Features: 
+        // (1) triggers destruction physics in all box2d node objects
+        // (2) uses a timer to destroy the scene
+        // (3) triggers camera shake on player object
         
         
         if (this.levelBlocks != null){
-            console.log("Triggering level destruction physics");
+            //console.log("Triggering level destruction physics");
             for (const i of this.levelBlocks!){
                 if (i && i.getIsStatic()){
                     i.setBodyType(box2dBodyTypeDynamic);
                 }
             }
+            // trigger player effects
+             window.player.shakeCameraV1(1,0.5);
+             window.globals.hp -=1;
         }
         else{
             return

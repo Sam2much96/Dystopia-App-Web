@@ -32,7 +32,7 @@ export class EnemySpawner extends PhysicsObject {
             this.enemy1 = new Enemy(this.pos);
             // to do:
             // (1) implement enemy movment logic with kinematic body object + velocity
-            //this.enemy2 = new Enemy(this.pos); 
+            this.enemy2 = new Enemy(vec2(this.pos.x + 5, this.pos.y)); 
  
             // set the player position
             //this.enemy1.setPlayer(window.player)

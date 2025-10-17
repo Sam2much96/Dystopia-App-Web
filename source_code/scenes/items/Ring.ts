@@ -2,13 +2,13 @@ import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
 
-export class GenericItem extends EngineObject {
+export class Ring extends EngineObject {
     /**
      * 
-     * Game Generic Item (collect)
+     * Ring Item (collect)
      * 
      * Features:
-     * (1) Increases Player's walk and roll speed
+     * (1) A collectible ring item
      * 
      * TO DO:
      * (1) parse item collect to status queue ui
@@ -19,9 +19,8 @@ export class GenericItem extends EngineObject {
     constructor(posi : LittleJS.Vector2){
 
         super()
-        //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
         this.pos = posi;
-        //this.size = vec2(0.7);  
+        this.size = vec2(0.5);  
 
     }
 
@@ -36,6 +35,10 @@ export class GenericItem extends EngineObject {
             // set player collision to coin object
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+                // to do:
+                // (1) implement status text hud
+                // (2) parse all item use implementations through status use hud (done)
+                // (3) add ring translation to translation csv
                 window.dialogs.show_dialog("Ring collected", "");
                 //console.log("Generic item collected");
                 this.destroy();

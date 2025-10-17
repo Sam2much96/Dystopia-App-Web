@@ -22,6 +22,7 @@ import { HealthPotion } from '../items/Extralife';
 import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
+import {Ring} from "../items/Ring";
 import {TopDownPlayer} from "../Characters/player";
 import {OldWoman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
@@ -125,7 +126,7 @@ export class OverWorld extends EngineObject{
 
                         if (val ===3 ){ // signpost
                             // signpost object 
-                            //this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                            //
                             // to do: (1) use a signpost counter for different dialogue per signpost object instance
                             const p = new Signpost(vec2(x,y), "North: Abbi City / South: Temple");
                             //p.dialogue = ; // overworld top down signpost dialogue
@@ -239,6 +240,11 @@ export class OverWorld extends EngineObject{
                             this.levelObjects?.push(i);
                             return
                         }
+                        if (val === 28){
+                            const r = new Ring(vec2(x,y));
+                            this.levelObjects?.push(r);
+                            return
+                        }
                         if (val === 29){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
@@ -335,11 +341,11 @@ export class OverWorld extends EngineObject{
                         if (val === 62){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
                         }
-                        if (val === 71){ // temple exterior
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                        if (val === 71){ // temple exterior no collision edges
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
-                        if (val === 72){ // temple exterior
-                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                        if (val === 72){ // temple exterior no collision edges
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                         }
                         if (val === 73){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);

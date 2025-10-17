@@ -193,14 +193,14 @@ export class DialogTrigger extends EngineObject{
      * 
      * Features:
      * (1) acts as a child of any object that triggers a dialogue event instead of adding the collision logic on the Object iteslf
+     * (2) implemented as child of the NPC static object and the Signpost object
+     * (3) should be added as a child of any object that wants to make a dialogue
      * 
-     * to do:
-     * (1) implement as child of the NPC object and the Signpost object
      */
 
     public enabled : boolean = true;
     public dialogue : string = "Lorem Ipsum"; // the dialogue to show
-    public speaker : string = "Lorem Ipsum";
+    public speaker : string = "Lorem Ipsum"; // dialogue speaker to show
     constructor(pos: any, size :any){
         super();
         // make the object take it's parent's pos and size

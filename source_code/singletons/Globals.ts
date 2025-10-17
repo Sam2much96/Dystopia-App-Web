@@ -29,7 +29,7 @@ export class Globals {
 
         // All Global Variables 
 
-        this.hp = 3;
+        this.hp = 5;
         this.players = []; // internal array to hold all playe objects
         this.enemies = []; // internal global array to hold all enemy types
         this.scenes = {};// holds pointers to all scenes
