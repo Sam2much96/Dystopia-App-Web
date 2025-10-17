@@ -149,7 +149,7 @@ export class Enemy extends PhysicsObject {
 
     private PathTimer : LittleJS.Timer = new Timer(); //path finding update path timmer
     private PathTimeOut : number = 30;
-    private DebugPath : boolean = false; // for printing out the movement path with a red line
+    private DebugPath : boolean = true; // for printing out the movement path with a red line
     constructor(pos: LittleJS.Vector2) {
         super();
         //(1) set the Enemy object's position (done)
