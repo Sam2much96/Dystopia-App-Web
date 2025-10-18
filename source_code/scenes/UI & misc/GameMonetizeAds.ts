@@ -77,10 +77,12 @@ export class GameMonetizeAds {
   private gameId: string;
   private canvas: HTMLCanvasElement | null = null;
   private canvasId = "littlejs-2d-layer";
+  private loaded : boolean = false;
   constructor() {
     this.gameId = "2s3jqh4cymu086cf9m1kmmm9cm52hdj2";
     this.canvas = document.getElementById(this.canvasId) as HTMLCanvasElement | null;
-    this.init();
+    
+    //this.init();
   }
 
   private async init() {
@@ -91,12 +93,14 @@ export class GameMonetizeAds {
         onEvent: (event: any) => this.handleEvent(event),
       };
 
-      // Dynamically load GameMonetize SDK
-      await this.loadScript("https://api.gamemonetize.com/sdk.js", "gamemonetize-sdk");
-
+      //if (!this.loaded){
+        // Dynamically load GameMonetize SDK
+        await this.loadScript("https://api.gamemonetize.com/sdk.js", "gamemonetize-sdk");
+          
+      //}
 
       // SDK should now initialize and eventually trigger SDK_READY
-      console.log("Waiting for GameMonetize SDK to be ready...");
+      //console.log("Waiting for GameMonetize SDK to be ready...");
 
       this.ensureIframeStyle(); // prepare CSS to let skip button work
     }
@@ -122,7 +126,8 @@ export class GameMonetizeAds {
         script.async = true;
 
         script.onload = () => {
-          console.log("GameMonetize SDK loaded ✅");
+          console.log("GameMonetize SDK loaded");
+          this.loaded = true;
           resolve();
         };
 
@@ -146,9 +151,10 @@ export class GameMonetizeAds {
         // resume game logic / unmute audio here
         break;
       case "SDK_READY":
-        console.log("GameMonetize SDK ready ✅");
+        //console.log("GameMonetize SDK ready ✅");
         //this.showBanner();
-        this.prepareForAd();
+        this.ensureIframeStyle(); // prepare CSS to let skip button work
+        //this.prepareForAd(); // function might be causing accidental trigger on mobile chrome browsers
         break;
     }
   }
@@ -157,6 +163,8 @@ export class GameMonetizeAds {
   public showBanner() {
     if (window.sdk?.showBanner) {
       console.log("Testing showing banner ads");
+      this.prepareForAd();
+      
       window.sdk.showBanner({
         width: "full",
         height: 90,

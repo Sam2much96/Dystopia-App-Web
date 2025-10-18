@@ -91,7 +91,7 @@ export class Wallet {
 
         //get the API data
         this.fetchPrice();
-        this.fetchAdmin();
+        //this.fetchAdmin(); // buggy
     }
 
 

@@ -85,7 +85,7 @@ export class Simulation extends EngineObject {
         //return 0;
 
         // side scrolling settings
-        setGravity(0);
+        //setGravity(0);
 
         //simulation singleton state machine
         this.state = new Map([
@@ -95,9 +95,15 @@ export class Simulation extends EngineObject {
 
             
 
+        
+        
+    }
+
+    multiplayer(){
         // multiplayer
         // server's data serialization of current player's info
-        
+        // to do:
+        // (1) disable variable instance when not in use
         this.player_info[0] = {0:{            
             posi: vec2(0),
             vel:vec2(0),
@@ -116,7 +122,6 @@ export class Simulation extends EngineObject {
             rt:60,
             hash:""}
         };
-        
     }
 
     
@@ -200,6 +205,7 @@ export class Simulation extends EngineObject {
     // to do:
     // (1) port function to simulation singleton
     // (2) implement map drawing with pointer device and map icons e.g. players and enemies 
+    // (3) expose function in UI tab buttons singleton
     renderMap(): void {
         const container = document.getElementById("inventory-items");
         if (!container) return;

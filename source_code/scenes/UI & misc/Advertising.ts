@@ -25,12 +25,13 @@ export class Advertising {
      * (1) Integrates intersitial ads and rewarded videoa ds into the game 
      * 
      * Bugs :
-     * (1) Ads skip button doesn't work
+     * (1) Ads skip button doesn't work on mobile when it's first created, only when the game is resumed
      */
     public ads : any | undefined;
     public analytics : any | undefined;
 
     public platform : string = ''
+    public initialized : boolean = false; // each ad singleton initialisation state checker
     constructor(platform: string){
         console.log("Creating Advertising Singleton");
         // make the hosting platform a class variable
@@ -73,6 +74,14 @@ export class Advertising {
         //ga.sendEvent("level_start", { level: 1 });
         //ga.sendEvent("purchase", { item: "Health Potion", price: 50 });
 
+    }
+
+    initialize(){
+        if (this.initialized) return
+        if (this.platform === "gamemonetize"){
+            this.ads.init(); // initialize the game monetize sdk
+            this.initialized = true;
+        }
     }
 
     showAds(){

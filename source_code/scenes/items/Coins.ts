@@ -36,6 +36,10 @@ export class Coins extends EngineObject {
                 this.destroy();
 
                 window.music.item_pickup.play();
+
+                // to do : 
+                // (1) implement game coin render
+                // (2) implement game coin price statistics calculation
                 
             }
         }

@@ -99,6 +99,10 @@ export class Merchant extends NPC{
         //parent the dialogue trigger
         this.addChild(this.dialogue);
 
+        // initilize ads singleton for the first time
+        // initilisez the ads singleton ad triggers one auto ads on chrome devices    
+        window.ads.initialize(); 
+
         // to do:
         //(1) load npc tile (done)
         //(2) trigger ads api upon collision (done)
