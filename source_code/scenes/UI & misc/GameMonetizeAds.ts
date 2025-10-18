@@ -75,9 +75,11 @@ declare global {
 
 export class GameMonetizeAds {
   private gameId: string;
-
+  private canvas: HTMLCanvasElement | null = null;
+  private canvasId = "littlejs-2d-layer";
   constructor() {
     this.gameId = "2s3jqh4cymu086cf9m1kmmm9cm52hdj2";
+    this.canvas = document.getElementById(this.canvasId) as HTMLCanvasElement | null;
     this.init();
   }
 
@@ -95,6 +97,8 @@ export class GameMonetizeAds {
 
       // SDK should now initialize and eventually trigger SDK_READY
       console.log("Waiting for GameMonetize SDK to be ready...");
+
+      this.ensureIframeStyle(); // prepare CSS to let skip button work
     }
     catch(err){
         console.error("Ads failed to initialize:", err);
@@ -144,6 +148,7 @@ export class GameMonetizeAds {
       case "SDK_READY":
         console.log("GameMonetize SDK ready ✅");
         //this.showBanner();
+        this.prepareForAd();
         break;
     }
   }
@@ -171,4 +176,48 @@ export class GameMonetizeAds {
       window.sdk.showRewarded(callback);
     }
   }
+
+  // === Internal helpers ===
+
+  /** Exit fullscreen if active (mobile browsers block overlay clicks) */
+private exitFullscreen() {
+if (document.fullscreenElement) {
+document.exitFullscreen().catch(() => {});
+}
+}
+
+
+
+  /** Temporarily disable canvas input so skip button is clickable */
+  private disableCanvasInput(disabled: boolean) {
+    if (!this.canvas) return;
+    this.canvas.style.pointerEvents = disabled ? "none" : "auto";
+  }
+
+  /** Prepare before showing any ad */
+  private prepareForAd() {
+    this.disableCanvasInput(true);
+    this.exitFullscreen();
+  }
+
+  /** Ensure ad iframe always sits above game canvas */
+  private ensureIframeStyle() {
+    const style = document.createElement("style");
+    const iframe = document.querySelector("iframe[src*='gamemonetize']") as HTMLIFrameElement | null;
+
+    style.innerHTML = `
+  iframe[src*="gamemonetize"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
+  }
+  `;
+
+    document.head.appendChild(style);
+  }
+  
 }
