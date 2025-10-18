@@ -25,6 +25,10 @@
      * (15) Connect with advertising singleton for ads / blockchain ads for gass fee payment (1/2)
      * (16) Implement vestige token api (1/2)
      * (17) Implement Tinyman pool api
+     * 
+     * Bugs:
+     * (1) Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://dystopia-app.site/api/admin. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+            Failed to fetch admin wallet data TypeError: NetworkError when attempting to fetch resource.
      */
 
 
