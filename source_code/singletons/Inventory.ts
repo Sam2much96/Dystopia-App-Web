@@ -112,7 +112,7 @@ export class Inventory {
             btn.classList.add('inventory-item'); // optional CSS styling
 
             // add use item for each button
-            btn.addEventListener('click', () => {
+            btn.addEventListener("pointerdown", () => {
                 //console.log(`Used 1 x ${name} of ${count}`);
                 
                 // You can trigger item usage, show details, etc. here

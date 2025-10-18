@@ -13,16 +13,17 @@ Bugs
 
 
 (1) Input is terrible on mobile browsers (1/2)
-(2) Game menu UI button is image path broken in production
-(3) overworld level render is buggy on mobile, consider reducing map side
+(2) 
+(3) overworld level render is buggy on mobile, consider reducing map side (1/2)
     - i used async method to load the map, i'm yet to test the fix on mobile Oct 17/ 2025
+(4) gameplay hangs ever odd seconds or so on mobile devices
 
 
 To Do:
 
 (3) Create global sprite atlas for each tileset in game init
 (4) create Particle fx for hit and bomb explosion (1/3)
-(7) implement dialogue trigger and dialog box for signpost and NPC merchant (done)
+(7) 
 (8) Implement auto tile procedural levels
 (9) Audit music tracks 
 (10) implement Rain particle fx
@@ -35,7 +36,7 @@ import * as LittleJS from 'littlejsengine';
 
 
 
-const {setShowSplashScreen,setCanvasPixelated, setTilesPixelated, setCameraPos, setCameraScale, engineInit , setTouchGamepadAlpha, setTouchGamepadAnalog,setTouchGamepadSize, setTouchGamepadEnable} = LittleJS;
+//const {setCanvasPixelated, setTilesPixelated} = LittleJS;
 
 
 
@@ -148,8 +149,8 @@ function gameInit() {
     
 
     // use pixelated rendering
-    setCanvasPixelated(true);
-    setTilesPixelated(false);
+    LittleJS.setCanvasPixelated(true);
+   LittleJS.setTilesPixelated(false);
 
 
 
@@ -238,6 +239,10 @@ function gameUpdatePost() {
 
 
 // tv shader post processing
+// to do:
+// (1) port impact shader implementation from godot engine
+// (2) test impact shader performance
+// (3) implement impact shader on player hit_collision detection
 function setupPostProcess()
 {
     const televisionShader = `
@@ -292,14 +297,14 @@ function setupPostProcess()
 }
 
 function gameRender() {
-    // Temporary Game Manger + simulations
+    // 
     // triggers the LittleJS renderer
-    // called before objects are rendered
-    // draw any background effects that appear behind objects
+    // 
+    // 
     // handles what gets rendered and what doesn't get rendered
     // triggers srart of game loop from simulation singleton
-    // The third tile parameter constrols which tile object to draw
-    // draw tile allows for better object scalling
+    // 
+    // 
 
     // start game logic
     if (window.globals.GAME_START) {
@@ -320,19 +325,7 @@ function gameRender() {
             return;
         }
 
-        // formerly screen class
-       // if (window.player){
 
-            //console.log("window player exists debug");
-            // Track player
-            // set camera position to player position
-            //setCameraPos(window.player.pos);
-            //setCameraScale(128);  // zoom camera to 128 pixels per world unit
-                            // 1. draw background image
-            
-        //}
-
-        //yandex sdk game start logic
    
         //create global player object
         if (!window.player) {
