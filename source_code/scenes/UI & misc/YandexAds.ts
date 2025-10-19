@@ -10,6 +10,8 @@
  * (1) Test on yandex platform
  * (2) Implement full yandex platform api's
  * (3) implement yandex typescript sdk functionality into this class
+ * (4) implement ie8N yandex automatic language detection
+ * (5) render highquality videos of 30 seconds with each supported language for the game's promotional videos
  */
 
 

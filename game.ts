@@ -170,7 +170,7 @@ function gameInit() {
     //load the translation files first
     //
     window.dialogs = new Diaglogs();
-    window.ads = new Advertising("gamemonetize");
+    window.ads = new Advertising("yandex");
     window.THREE_RENDER = new ThreeRender();
     window.quest = new Quest();
     window.globals = new Globals();

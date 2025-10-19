@@ -380,9 +380,9 @@ export class StatsHUD{
 
     // ui translations
     // UI translations
-  private stsdiag?: string;
-  private kcdiag?: string;
-  private dcdiag?: string;
+    private stsdiag?: string;
+    private kcdiag?: string;
+    private dcdiag?: string;
 
     constructor(){
         console.log("creating status hud");
@@ -656,9 +656,9 @@ export class IngameMenu{
 
         // disable for yyandex updates
                  
-        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
-            window.open("https://dystopia-app.site", "_blank");
-        });
+        //this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
+        //    window.open("https://dystopia-app.site", "_blank");
+        //});
         
        
         // to do: (1) create controls UI
@@ -670,7 +670,7 @@ export class IngameMenu{
 
         this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
-            window.THREE_RENDER.showThreeLayer();// doesn;t work
+            //window.THREE_RENDER.showThreeLayer();// doesn;t work
             
             //to do :
             // (1) implement close browser tab
@@ -685,7 +685,7 @@ export class IngameMenu{
         this.menuContainer!.append(
                 this.newGame,
                 this.contGame,
-                this.Comics,
+                //this.Comics,
                 //this.Controls,
                 this.Quit
             );
