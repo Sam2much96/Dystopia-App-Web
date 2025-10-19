@@ -2,8 +2,13 @@
 /**
  * Android Singleton
  * 
+ * Unused singleton class
+ * 
  * Features:
  * (1) All optimizations for mobile browser in a single class
+ * 
+ * to do:
+ * (1) implement overworld level optimizations for mobiles
  */
 
 class Android {

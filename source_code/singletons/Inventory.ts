@@ -367,7 +367,7 @@ export class Inventory {
  */
 
 export function useItem(type :string, amount : number ) : boolean {
-    console.log("Use item function called :", type);
+    //console.log("Use item function called :", type);
     
 
     window.music.item_use_sfx.play();

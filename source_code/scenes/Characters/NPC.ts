@@ -123,6 +123,13 @@ export class Merchant extends NPC{
             window.ads.showAds();
             this.ADS_TRIGGERED = true;
             
+            window.dialogs.show_dialog("Here's your reward, 500 Suds", "Merhcant");
+            // to do:
+            // (1) implement coin logic
+            // (2) implement coin calculation
+            // (3) fix wallet api
+            // (4) implement random enemy item drops
+
             //create a 8 minutes 20 seconds ads trigger cooldown
             this.adsTimer.set(500);
 

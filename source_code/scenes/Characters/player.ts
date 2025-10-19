@@ -338,13 +338,16 @@ export class TopDownPlayer extends Player {
         // to do: 
         // (1) replace with better despawn sfx from zzfx music synthesizer
         window.music.punch_sfx_3.play();
-        
+        window.globals.death_count += 1;
         
         
     }
 
     respawn() {
-        //
+        // Respawn logic
+        // 
+        // bugs:
+        // (1) doesn't respawn the enemies
         //
         // delete player object
         this.destroy();

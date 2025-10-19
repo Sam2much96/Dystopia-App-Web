@@ -5,9 +5,13 @@
  * (1) Renders all game UI and huds
  * (2) Uses stats.css and dialog.css for UI object styling
  * 
+ * 
  * To Do:
  * (1) // to do: implement mouse pos for minimap drawing ui
  * (2) Connect Wallet tab and wallet render function to Wallet singleton to display token data
+ * (3) implement renderMinimap function from simulation singleton
+ * (4) implement status text UI
+ * 
  * 
  * Bugs:
  * (1) Menu Button icon doesn't render in production
@@ -34,9 +38,9 @@ export class UI  {
     Features:
     (1) in-game menu (done)
     (3) Game HUD 
-        -inventory ui (1/3)
-        -quest ui
-        -mini-map ui
+        -inventory ui (2/3)
+        -quest ui (done)
+        -mini-map ui (1/3)
     (4) Dialogs Box (1/3)
         -map dialogue text to dialog box boundaries
         
@@ -170,13 +174,14 @@ export class UI  {
         * Their SIgnals on start of the game 
         * 
         * To do:
-        * (1) lock game hud designs into html and css class
+        * (1) lock game hud designs into html and css class (done)
         * (2) include logic to hide the game hud once game menu is visible to prevent UI overlap
         */
 
         //create Heartboxes
         //update & draw heartbox ui every frame
-        this.HeartBoxHUD!!.heartbox(window.globals.hp); //create 3 hearboxes
+        // heartbox render function has been moved to the player object
+        //this.HeartBoxHUD!!.heartbox(window.globals.hp); //create 3 hearboxes
         
         //create dialog box object
         //works
@@ -442,13 +447,23 @@ export class StatsHUD{
         // serialise global info to the stats ui
         let hp : number = window.globals.hp;
         let kc : number = window.globals.kill_count;
+        let dc : number = window.globals.death_count;
+        // todo:
+        // (1) save the map data to globals from the exit objects
+        // (2) show map data here in states Level data
+        // (3) save map data in Utils save game function
+        // (4) load level from map data when continue button is pressed
+        // (5) fix coin collect subsystem & ui
+
         this.statsUI.innerHTML = `
             <div class="stats-tab">
                 <h2>Player Stats</h2>
-                <p>Level: ${kc}</p>
+                <p>Kill Count: ${kc}</p>
+                <p>Death Count: ${dc}</p>
                 <p>HP: ${hp}</p>
-                <p>Attack: 0</p>
-                <p>Defense: 100</p>
+                <p>Level: ${dc}</p>
+                
+     
             </div>
         `;
     }
@@ -524,23 +539,9 @@ export class IngameMenu{
         /*
         * Creates the Ingame Menu UI Object
         *
-        * To Do:
-        * (1) ingame menu scaling via android singletons
-        * (2) menu translations
+        * 
         */
 
-
-        // this is also the centerer position of the canvas
-        //this.TopRightUI!.append(this.menuButton);
-
-
-            //debug the translations csv
-            //works        
-            //console.log("translations debug: ",window.dialogs.translations);
-
-
-
-        
         if (this.newGame) return; // guard clause
             console.log("Creating Ingame Menu");
         
@@ -562,7 +563,7 @@ export class IngameMenu{
 
         this.contGame = this.createMenuOption(window.dialogs.t("continue", this.language), "#", () => {
                     window.music.sound_start.play();
-                    window.ads.showAds();
+                    //window.ads.showAds();
                     // logic
                     // (1) should fetch save game .save and load the current level in the global singleton
                     Utils.loadGame();

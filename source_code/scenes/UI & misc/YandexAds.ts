@@ -9,6 +9,7 @@
  * To do:
  * (1) Test on yandex platform
  * (2) Implement full yandex platform api's
+ * (3) implement yandex typescript sdk functionality into this class
  */
 
 
@@ -87,6 +88,11 @@ declare global {
  //   init: () => Promise<any>;
  // };
 }
+// yandex typescript sdk
+// to do:
+// (1) implement all ysdk functionality and expose it in this class
+
+import type { SDK, Player } from 'ysdk';
 
 export class YandexAds {
   private static instance: YandexAds;
@@ -132,11 +138,25 @@ export class YandexAds {
 
   private async initSDK(): Promise<void> {
     try {
+      // initialises yandex sdk
       const sdk = await (window as any).YaGames.init();
       window.ysdk = sdk;
       this.initialized = true;
       console.log("✅ Yandex SDK initialized");
-      sdk.features.LoadingAPI?.ready();
+      sdk.features.LoadingAPI?.ready(); // call the ready api
+
+      //automatically detect the user language
+      const env = sdk.environment();
+      const detectedLang = env?.i18n?.lang || "en";
+      console.log(`🌐 Yandex SDK initialized | Language detected: ${detectedLang}`);
+
+      // save the language detected to the dialog singleton
+      // supported languages include : ["en", "ru", "tr", "es", "fr"]
+      // to do:
+      // (1) implement regex for converting these into the localisation files (done)
+      window.dialogs.language = window.dialogs.normalizeLocale(detectedLang);
+
+      
     } catch (err) {
       console.error("❌ Yandex SDK init failed:", err);
     }
@@ -150,4 +170,6 @@ export class YandexAds {
     }
     await window.ysdk.adv.showFullscreenAdv();
   }
+
+
 }

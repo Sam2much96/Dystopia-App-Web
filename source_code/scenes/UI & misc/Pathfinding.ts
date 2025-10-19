@@ -1,18 +1,27 @@
-// pathfinding algorithms in typescript
-// features:
-// (1) computationally expensive
-// (2) generally untested
-// to do:
-// (1) optimise for mobile preformance. i.e. don't call every frame and replace open.sort() with a priority queue
-// (2) generate visual display for path if necessary to debug
-// (3) connect a* movement logic to player character and Dijsktra movement logic to NPC characters
-// note:
-// (1) godot's navigation layer uses astar pathfinding for navigation, audit both code logics in the mobile and web build for similar behaviours
-// (2) implement enemy collision for better movement behaviour in environment
+/**
+ * Pathfinding Algorithm
+ * 
+ * Features:
+ * (1) Calculates a path across the levels to the player
+ * (2) computationally expensive
+ * (3) generate visual display for path that is necessary to debug
+ * 
+ * To do:
+ * (1) optimise for mobile preformance. i.e. don't call every frame and replace open.sort() with a priority queue
+ * (2) Implement pathfinding algorithm on players
+ * (3) fix enemy pathfinding collision
+ * (4) fix enemy pathfinding movement glitch
+ * (5) fix enemy movement using positional changes instead of velocity applications
+ * (6) implement and test Dijsktra movement logic to NPC characters
+ * 
+ * Bugs:
+ * (1) astart pathfinding only works once and fails on the second run
+ * (2) enemy movements entirely stops once the enemy object is at the movement goal using astar pathfinding
+ */
 
 import * as LittleJS from 'littlejsengine';
 
-const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData} = LittleJS;
+//const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData} = LittleJS;
 
 type Node = {
   x: number;

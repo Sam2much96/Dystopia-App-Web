@@ -14,7 +14,7 @@
  * (4) Implement Enemy idle state with animations
  * (5) Implement Enemy idle to Enemy mob to Enemy Idle animation states
  * (6) Synchronize enemy and player state machine enumerations
- * (7) update documentation (1/3)
+ * (7) update documentation (2/3)
  * (8) implement enemy path finding (done)
  * (9) implement enemy velocity movements (1/3)
  * (10) implement despawn timer
@@ -24,7 +24,9 @@
  * (14) implment collision data on all overworld scenes for enemy pathfinding (done)
  * (15) fix path finding ignoring tile collision by a few pixels
  * (16) put a visibility timer for turning enemy invisible after a certain range or time
- * (17) implement walk animation on enemy navigation state
+ * (17) implement walk animation on enemy navigation state (done)
+ * (18) Implement enemy item drops
+ * (19) organinze monolith code bloc into separate individual classes
  */
 
 
@@ -32,8 +34,9 @@
 import * as LittleJS from 'littlejsengine';
 import { Player, SideScrollerPlayerBox, TopDownPlayer} from './player';
 import { Utils, PhysicsObject, worldToGrid, gridToWorld } from '../../singletons/Utils';
-import { Side } from 'three'; // what's this used for?
+//import { Side } from 'three'; // what's this used for?
 import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart for navigation server logic
+import { ItemSpawner } from '../items/ItemSpawner';
 
 const {vec2, drawTile, drawLine, isOverlapping, Timer,tile} = LittleJS;
 
@@ -48,6 +51,8 @@ export class Enemy extends PhysicsObject {
     public minDistance: number;
     public wanderCooldown: number;
     private targetPos: LittleJS.Vector2;
+
+    
     
     private type_enum: Map<string, number> = new Map([
             ['EASY', 0],
@@ -124,10 +129,13 @@ export class Enemy extends PhysicsObject {
     private isDead : boolean = false;
     private isStunned : boolean = false;
 
-    // Enemy FX
+
+    // Enemy Despawn and Attack FX
     // todo:
     //public despawn_particles : ParticleFX| null = null; 
-
+    //private lifetime: number = 1; // seconds before destruction
+    private lifetime :number = 0.15;
+    private Alive : boolean = true;
     // path finding variables
     //path finding checker
     private isPath : boolean = false;
@@ -136,20 +144,17 @@ export class Enemy extends PhysicsObject {
     private visibilitiyTimer : LittleJS.Timer = new Timer(); // triggers player visible boolean off after a time
     private path: [number, number][] = [];
     private currentPathIndex : number = 0;
-    //private target?: LittleJS.Vector2;
 
-    //path interpolation variables, delete later if not working
-    // Path interpolation helpers
-    //private pathDistances: number[] = [];
-    //private totalPathLength: number = 0;
-    //private pathTravelled: number = 0;
-        // Add these class properties at the top of Enemy class://
-    //private currentPathIndex: number = 0; // current segment
+    
     private segmentProgress: number = 0;   // progress along current segment (0 → 1)
 
     private PathTimer : LittleJS.Timer = new Timer(); //path finding update path timmer
     private PathTimeOut : number = 30;
     private DebugPath : boolean = false; // for printing out the movement path with a red line
+
+
+    private item_spawner : ItemSpawner | null = new ItemSpawner() ;
+
     constructor(pos: LittleJS.Vector2) {
         super();
         //(1) set the Enemy object's position (done)
@@ -199,6 +204,8 @@ export class Enemy extends PhysicsObject {
         //this.despawn_timer = new Timer;    // creates a timer that is not set
         this.kick_back_distance = Utils.calcRandNumber();
 
+        // add item spawner as child
+        if (this.item_spawner) this.addChild(this.item_spawner);
      
 
     }
@@ -219,18 +226,37 @@ export class Enemy extends PhysicsObject {
 
         // trigger Navigation logic when player and enemey havent collided yet
         // 
-        if (!this.playerVisible) this.stateMachine[10]();
+        if (!this.playerVisible && this.Alive) {this.stateMachine[10]();}
 
 
         //trigger the mob state once the player is visible
-        if (this.playerVisible) this.stateMachine[6]();
+        if (this.playerVisible && this.Alive) {this.stateMachine[6]();}
         
 
         // Despawn logic
-        if (this.hitpoints <= 0) {
+        if (this.hitpoints <= 0 ) {
+            //spawn a random item
+            this.item_spawner?.spawn();
+            
             this.despawn(); // trigger despawn timer
+            this.Alive = false; // in alive
+            
+            //stop a despawn spammer
 
+             // call the destruction function after a time lag
+            // destroy when time runs out
+            this.lifetime -= LittleJS.timeDelta;
+                
+            if (this.lifetime <= 0) {
+                    this.destroy();
+            }
+
+            //return
+                  
+
+                
         }
+
 
             
  
@@ -488,14 +514,8 @@ export class Enemy extends PhysicsObject {
 
         this.state = this.enum.get("STATE_DIE")!;
         this.stateMachine[this.state](); 
-        // call the destruction function after a time lag
-        
-        //this.despawn_timer.set(3);
-        //this.despawn_particles!.destroy();
         
 
-  
-        //this.destroy();
         
 
         
@@ -662,10 +682,11 @@ export class Enemy extends PhysicsObject {
             3: () => {},
             
             4: () =>{ // die state
-                        
+                //this.local_player_object = null;
+                // player is stuck in the mob and attack state  loop
                 this.playAnim(this.Despawn);
                 this.isDead =true;
-                console.log("Destroying Enemy");
+                console.log("Destroying This Enemy");
                 
                 // remove object from global object pool
                 // remove object from global array
@@ -675,7 +696,12 @@ export class Enemy extends PhysicsObject {
                 //}
                 window.globals.enemies = window.globals.enemies.filter(e => !e.isDead);
 
-                this.destroy();
+       
+               
+         
+
+
+                //this.destroy();
 
                 // debug the enemy object
                 //console.log("enemy despawn debug: ",window.globals.enemies.indexOf(this));

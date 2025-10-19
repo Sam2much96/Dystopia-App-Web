@@ -6,6 +6,10 @@
  *  to do:
  * (1) finish writing and implementing dungeon 1 data into the game
  * (2) add vec2(0.45, 0.5) offset to every exit object parent class to fix an offset bug
+ * (3) implement exit to 3d overworld levels
+ * 
+ * bug:
+ * (1) auto deletes enemies, and bugs out level reloads
  * 
  */
 
