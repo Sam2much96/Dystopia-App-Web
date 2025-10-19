@@ -62,9 +62,14 @@ export class OverWorld extends EngineObject{
 
     constructor() {
         super();
-        console.log('Level reload triggered');
+        //save current level to globals
+        window.globals.current_level ="Overworld";
+
+        console.log('Level load triggered');
         console.log('Number of gameObjects:', LittleJS.engineObjects.length);
         console.log('Globals:', window.globals);
+
+        Utils.saveGame();
 
         //load the game map
         (async () => {
@@ -130,8 +135,9 @@ export class OverWorld extends EngineObject{
                         if (val ===3 ){ // signpost
                             // signpost object 
                             //
-                            // to do: (1) use a signpost counter for different dialogue per signpost object instance
-                            const p = new Signpost(vec2(x,y), "North: Abbi City / South: Temple");
+                            // to do: 
+                            // (1) use global current level and map data to trigger differnt signpost dialogue
+                            const p = new Signpost(vec2(x,y));
                             //p.dialogue = ; // overworld top down signpost dialogue
                             this.levelObjects?.push(p);
                             return;
@@ -486,19 +492,32 @@ export class OverWorld extends EngineObject{
         if (this.tempExtLayer) {
             this.tempExtLayer.destroy();
         }
-        Utils.saveGame(); // save the game state once exiting the overworld map
+        // to do:
+        // (1) save overworld.map data to the globals scenes
+        //Utils.saveGame(); // save the game state once exiting the overworld map
 
+        // destroy all enemy objects
         for (const enemy of window.globals.enemies){
 
-            enemy.despawn();
+            enemy.destroy();
+        }
+
+        //destroy all player objects
+        for (const players of window.globals.players){
+            players.destroy();
         }
         
+
         if (this.levelObjects){ // destroy all instanced level objects
             for (const i of this.levelObjects!){
                 i.destroy();
                 
             }}
             this.levelObjects = null;
+
+        LittleJS.engineObjects.length = 0;        // clear existing objects
+
+        
     }
 }
 

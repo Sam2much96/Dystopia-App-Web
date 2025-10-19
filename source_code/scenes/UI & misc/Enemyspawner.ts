@@ -63,6 +63,6 @@ export class EnemySpawner extends PhysicsObject {
         drawTile(this.pos, this.size, tile(this.currentFrame, 128, 2, 0), this.color, 0, this.mirror);
 
     }
-
+    
 
 }

@@ -11,13 +11,19 @@ Features
 (0) Maps to the background layer
 (1) Uses WebGL and Maths for 3d rendering
 (2) Overlays 3d rendering to The viewport via css-style sheet ID canvas
-(3) TO DO: Load GLTF Models
+(3) TO DO: Load GLTF Models (1/2)
 
 Bugs:
 (0) loads the 3d model too slow and is a latency bottleneck for the whole game
 (1) The 3d Renderer should ideally be in a separate class
 (2) This codebase runs littlejs as a module to allow importing Threejs
-(3) Is a performance hog, should be used sparingly/ optimised for mobi
+(3) Is a performance hog, should be used sparingly/ optimised for mobilw
+
+to do:
+(1) implement simple 3d overworld scene
+(2) fix all 3d rendering loading performance hogs
+(3) implement 3d overworld loading scene via spaceship objects
+(4) implement 3d level collisions
 */
 
 
@@ -110,7 +116,7 @@ export class ThreeRender {
                                    
                 this.cube = gltf.scene;
                     
-                console.log("Finished loading model", this.cube);
+                //console.log("Finished loading model", this.cube);
                 
 
                 //this.cube = gltf.scene; // save scene as global pointer
@@ -255,7 +261,9 @@ export class ThreeRender {
 
     hasCube(): boolean {
         // Exported safe function to check if there is a cube instance
-        return !!this.cube;
+        if (this.cube) return true
+        else return false
+       // return !!this.cube;
 
     }
 
@@ -304,6 +312,11 @@ export class ThreeRender {
         if (layer) {
             layer.style.visibility = "hidden";
         }
+
+        // delete the cube
+        console.log("deleting the loaded model");
+        this.deleteCube();
+        
     }
 
     showThreeLayer() {

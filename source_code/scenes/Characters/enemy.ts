@@ -126,7 +126,7 @@ export class Enemy extends PhysicsObject {
     private random_walk_direction : LittleJS.Vector2 = vec2(100);
 
     // unused important boolean
-    private isDead : boolean = false;
+    //private isDead : boolean = false;
     private isStunned : boolean = false;
 
 
@@ -310,7 +310,7 @@ export class Enemy extends PhysicsObject {
     // bug:
     // (1) path finding logic only works once on scene start, after which it breaks
     // (2) path logic updater boolean doesn't work because of bug (1)
-    updatePathV1(){ //path finding movement logic 1 : works
+    updatePathV1() : boolean{ //path finding movement logic 1 : works
         // logic completely ignores start and goal
         // using aStar Pathfinding algorithm
         // world to grid does not work, depreciate those functions
@@ -320,15 +320,6 @@ export class Enemy extends PhysicsObject {
         let goal: [number, number] = [window.player.pos.x, window.player.pos.y]; //worldToGrid(window.player.pos, this.tileSize);
         
 
-        // the goal is always the player location yeah?
-       // console.log('Enemy world:', this.pos, 'start:', start,"/ goal: ", goal);
-        //console.log('Player world:', window.player.pos);
-
-        // bug: 
-        // (1) enemy object ignores goal position
-        //console.log(start,goal); //debug paths
-        // works 
-        //drawLine(start, goal,0.05, LittleJS.RED);// works
     
         // the purpose of using astar is to test trigger the enemy object env collisions and pathfinding logic
         // new astar function is buggy
@@ -339,11 +330,11 @@ export class Enemy extends PhysicsObject {
             this.path = path;
             //this.currentPathIndex = 0; 
             let x = this.path[0][0];
-             let y = this.path[0][1]; 
-                
-            //console.log("path debug: ", path, "/", x,",",y, this.pos);
-
-             
+            let y = this.path[0][1];     
+            return true;
+        }
+        else {
+            return false
         }
 
     }
@@ -468,7 +459,7 @@ export class Enemy extends PhysicsObject {
     kickback() {
         //console.log("kickback called / hp: ", this.hitpoints);
           // Prevent kickback if enemy is already stunned or dead
-        if (this.isDead || this.isStunned) return 0;
+        if (this.Alive || this.isStunned) return 0;
 
         // Mark as stunned temporarily
         //this.isStunned = true;
@@ -685,7 +676,7 @@ export class Enemy extends PhysicsObject {
                 //this.local_player_object = null;
                 // player is stuck in the mob and attack state  loop
                 this.playAnim(this.Despawn);
-                this.isDead =true;
+                this.Alive =false;
                 console.log("Destroying This Enemy");
                 
                 // remove object from global object pool
@@ -694,7 +685,7 @@ export class Enemy extends PhysicsObject {
                 //if (index !== -1) {
                 //    window.globals.enemies.splice(index, 1);
                 //}
-                window.globals.enemies = window.globals.enemies.filter(e => !e.isDead);
+                window.globals.enemies = window.globals.enemies.filter(e => !e.Alive);
 
        
                
@@ -782,13 +773,22 @@ export class Enemy extends PhysicsObject {
 
             },
             10 : () => { // navigation ai aStar
-                        // pathfinding ai trigger
+                // pathfinding ai trigger
+                // bug : 
+                // (1) only works once
                 if (!this.isPath && this.local_player_object){
-                    console.log("updating enemy path");
-                    this.updatePathV1(); // works, generates a 45 step path to do: implement a name + timer based path update trigger 
-                    this.isPath = true;
+                    console.log("updating enemy path 2");
+                    this.isPath = this.updatePathV1(); // works, generates a 45 step path to do: implement a name + timer based path update trigger 
+                    //this.isPath = true;
+                    
+                    
+                }
+                if (this.isPath){
                     //create a timer with the same TimeOut time as the movement speed time
                     this.PathTimer.set(this.PathTimeOut);
+                    
+                    // move along the path
+                    this.moveAlongPathV3(); // works fully
                 }
 
                 // reset the path finder to get the updated player paths
@@ -798,8 +798,7 @@ export class Enemy extends PhysicsObject {
                 }
 
 
-                // move along the path
-                this.moveAlongPathV3(); // works fully
+                
 
 
 

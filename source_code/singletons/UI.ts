@@ -18,12 +18,22 @@
  * (2) Screen D-Pad controls is laggy, consider debugging enemy A.I. if the cause pf lag is from simulations delta
  * (3) Status HUD buttons aren't working on mobile browsers, duplicate press initialisation from menu UI
  * (4) Fix Yandex moderation issues for IOS & android tv examples : https://github.com/Sam2much96/Dystopia-App-Web/issues/6
- * (5) Fix translation language logic with regex code for different language locales2
+ * (5) Fix translation language logic with regex code for different language locales2 (done)
+ * (6) Status HUD only updates oncec the tab buttons are pressed, but it should be update once the status HUD is visible
+ * (7) Continue game logic is buggy and needs a structured way of saving the map name data into memory
+ *      - the current implementaiton is very hacky
  */
 import { Music } from "./Music";
 import {Simulation} from "./Simulation";
 import { DialogBox } from "./Dialogs";
 import {Utils} from "./Utils";
+
+import { OverWorld } from "../scenes/levels/OverworldTopDown";//'../levels/OverworldTopDown';
+import { OverworldSideScrolling } from '../scenes/levels/OverworldSideScrolling';
+import { Marketplace } from '../scenes/levels/Marketplace';
+import { TempleInterior } from '../scenes/levels/TempleInterior';
+
+
 import * as LittleJS from 'littlejsengine';
 
 
@@ -127,8 +137,7 @@ export class UI  {
         this.TopRightUI = document.getElementById("top-right-ui"); 
 
         
-        //create the game menu
-        this.GameMenu = new IngameMenu();
+        
         this.HeartBoxHUD = new HeartBox();
         // create a div for each of these new UI elements
         this.UI_MENU = createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
@@ -153,8 +162,8 @@ export class UI  {
         // creates the status hud
         this.StatusTabs = new StatsTabs();
 
-        //create the inventory hud
-        this.StatsHUD = new StatsHUD();
+        
+        
 
         
 
@@ -166,6 +175,19 @@ export class UI  {
         //render the menu button
         this.menuButton = new MenuButton();
         //console.log("menu button debug: ",this.menu);
+    }
+    stats(){
+        console.log("creating the stats hud 1");
+        //create the inventory hud
+        this.StatsHUD = new StatsHUD();
+
+    }
+
+    gameMenu(){
+        console.log("creating the game menu 1");
+        //create the game menu
+        this.GameMenu = new IngameMenu();
+
     }
 
     gameHUD() {
@@ -337,6 +359,9 @@ export class StatsHUD{
      * (2) connect the state machine to all singletons serialising data to the player
      * (3) connect the state machine state so to their corresponting stats tab buttons
      * 
+     * Bug:
+     * (1) this ui renders before the translations file is finished loading
+     * 
      */
     public statsUI: HTMLElement | null = null;
     public inventoryContainer : HTMLElement | null;
@@ -352,7 +377,15 @@ export class StatsHUD{
     // state machine variables
     public state : number = this.enum.get("STATE_INVENTORY") ?? 0;
     public stateMachine = this.StateMachine(); //make the state Machine global in class
+
+    // ui translations
+    // UI translations
+  private stsdiag?: string;
+  private kcdiag?: string;
+  private dcdiag?: string;
+
     constructor(){
+        console.log("creating status hud");
         // inventory tab logic
         this.inventoryContainer = document.getElementById("hud");
         this.statsUI = document.querySelector('.v11_5');
@@ -360,6 +393,20 @@ export class StatsHUD{
         // turn off hud visibility
         this.InventoryVisible = false;
         this.stateMachine[this.state](); // works
+
+        //(async () => {
+               
+           //console.log("translating stats hud: ", window.dialogs.t('Stats', window.dialogs.language));
+        
+      this.stsdiag = window.dialogs.t('Stats', window.dialogs.language);
+      this.kcdiag = window.dialogs.t('kill_count', window.dialogs.language);
+      this.dcdiag = window.dialogs.t('death_count', window.dialogs.language);
+         //})();
+
+        
+        //this.stsdiag = window.dialogs.t("Stats", window.dialogs.language);
+        //this.kcdiag = window.dialogs.t("kill_count", window.dialogs.language);
+        //this.dcdiag = window.dialogs.t("death_count", window.dialogs.language);
         
     }
 
@@ -395,6 +442,7 @@ export class StatsHUD{
 
     };
 
+
     // State Machines
     // enemy state machine
     // describes each states and is assigned to a class variable in the consstructor
@@ -425,7 +473,7 @@ export class StatsHUD{
        
             },
             3: () =>{
-                //console.log("Stats state triggered");
+                console.log("Stats state triggered");
                 // trigger stats render function
                 this.renderStats();
             }
@@ -448,22 +496,22 @@ export class StatsHUD{
         let hp : number = window.globals.hp;
         let kc : number = window.globals.kill_count;
         let dc : number = window.globals.death_count;
+        let lvl : String = window.globals.current_level;
         // todo:
         // (1) save the map data to globals from the exit objects
         // (2) show map data here in states Level data
         // (3) save map data in Utils save game function
         // (4) load level from map data when continue button is pressed
         // (5) fix coin collect subsystem & ui
+        // (6) translate all status ui
 
         this.statsUI.innerHTML = `
             <div class="stats-tab">
-                <h2>Player Stats</h2>
-                <p>Kill Count: ${kc}</p>
-                <p>Death Count: ${dc}</p>
+                <h2>${this.stsdiag}</h2>
+                <p> ${this.kcdiag}: ${kc}</p>
+                <p>${this.dcdiag}: ${dc}</p>
                 <p>HP: ${hp}</p>
-                <p>Level: ${dc}</p>
-                
-     
+                <p>${lvl}</p>
             </div>
         `;
     }
@@ -527,15 +575,14 @@ export class IngameMenu{
         this.menuContainer = document.getElementById("menu-container");    
         this.MenuVisible = false; // make menu initially invisible    
         
-        (async() =>{
-            await this.ingameMenu();
-        })
+        this.ingameMenu();
+        
         
     }
     
 
 
-    async ingameMenu() {
+    ingameMenu() {
         /*
         * Creates the Ingame Menu UI Object
         *
@@ -547,33 +594,69 @@ export class IngameMenu{
         
             // note : 
             // (1) ingame menu translations is buggy
-            this.newGame = this.createMenuOption(window.dialogs.t("new game", this.language), "#", () => {
+            this.newGame = this.createMenuOption(window.dialogs.t("new game"), "#", () => {
                 window.music.sound_start.play();
                 
                 //console.log('creating new game simulation');
                 window.simulation = new Simulation();
 
-                // to do :
-                // (1) expand on save game and load game functionality
+                // save fresh game data to memory
                 Utils.saveGame();
 
                 //hide menu
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         });
 
-        this.contGame = this.createMenuOption(window.dialogs.t("continue", this.language), "#", () => {
+        this.contGame = this.createMenuOption(window.dialogs.t("continue"), "#", () => {
                     window.music.sound_start.play();
                     //window.ads.showAds();
                     // logic
                     // (1) should fetch save game .save and load the current level in the global singleton
+                    // to do:
+                    // (1) implement load game funcitionality (1/3)
+                    // (2) simulation object to collect the load game object parameter to load last player scene from memory (done)
+                    // bugs:
+                    // (1) load scene logic is buggy because current level save is not properly done
                     Utils.loadGame();
+                    if (window.map){
+                        //destroy the overworld scene and player
+                        window.map.destroy();
+                    }
+                    let curr_lvl = window.globals.current_level;
+                    window.globals.GAME_START = true;
+                    window.THREE_RENDER.deleteCube();
+                    window.THREE_RENDER.hideThreeLayer();
+                    if (curr_lvl !== ""){
+                        
+                        
+                        if (curr_lvl === "Overworld"){
+                            console.log("Loading Overworld level");
+                            window.map = new OverWorld();
+                            
+                        }
+                        else if(curr_lvl ==="Overworld 2"){
+                            console.log("Loading Overworld 2");
+                            window.map = new OverworldSideScrolling();
+                        }
+                        else if (curr_lvl === "Temple"){
+                            console.log("Loading Temple Level")
+                             
+                            
+                            // spawn the new overworld scene 
+                                            
+                            console.log("Loading Temple Interior");
+                            window.map = new TempleInterior()
+                        }
+                        else return
+                        // you cannot load into the shop level unfortunately so no functionality for that
+                    }
 
                      window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
                 });
 
         // disable for yyandex updates
                  
-        this.Comics = this.createMenuOption(window.dialogs.t("Comics",this.language), "#", () => {
+        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
             window.open("https://dystopia-app.site", "_blank");
         });
         
@@ -585,7 +668,7 @@ export class IngameMenu{
             // window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         //});
 
-        this.Quit = this.createMenuOption(window.dialogs.t("quit", this.language), "#", () => {
+        this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
             window.THREE_RENDER.showThreeLayer();// doesn;t work
             
@@ -741,3 +824,19 @@ export function createTextureButton(imgSrc: string, className: string, onPress: 
         
         return btn;
     }
+
+async function waitForTranslations(): Promise<void> {
+    // Wait until window.dialogs.loadedTranslations is true
+        return new Promise((resolve) => {
+            const check = () => {
+            if (window.dialogs.loadedTranslations) {
+                console.log("translations check 6: ", window.dialogs.translations["Stats"]["ru_RU"]); // works
+                
+                resolve();
+            } else {
+            requestAnimationFrame(check);
+            }
+        };
+        check();
+        });
+  }

@@ -12,6 +12,8 @@ export class Bomb extends EngineObject {
      * (2) port status queue ui from godot to typescript
      * 
      */
+    public collect_diag : String ;
+    private amount : number = 1;
 
     constructor(posi : LittleJS.Vector2){
 
@@ -19,6 +21,8 @@ export class Bomb extends EngineObject {
         //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
         this.pos = posi;
         //this.size = vec2(0.7);  
+        // tranlated item collected dialogue
+        this.collect_diag = window.dialogs.t("Bomb") + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
 
     }
 
@@ -33,13 +37,13 @@ export class Bomb extends EngineObject {
         // set coin idle animation
           if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
             
-            window.dialogs.show_dialog("Bombs collected", "");
+            window.dialogs.show_dialog("",this.collect_diag.toString());
             //console.log("Bomb item collected");
             this.destroy();
 
             // update bomb count in inventory
             let y : number = window.inventory.get("Bomb");
-            let z : number = y + 1;
+            let z : number = y + this.amount;
             window.inventory.set("Bomb", z);
             window.music.item_pickup.play();
             

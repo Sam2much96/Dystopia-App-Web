@@ -27,6 +27,9 @@ To Do:
 (8) Implement auto tile procedural levels
 (9) Audit music tracks 
 (10) implement Rain particle fx
+(11) create grass and flower objects
+(12) add grass  and flower objects to shader scene
+(13)
 
 */
 
@@ -162,7 +165,10 @@ function gameInit() {
     */
     // Game Advertising singleton for gamemonetize & Yandex
     // 
-    // 
+    //
+    
+    //load the translation files first
+    //
     window.dialogs = new Diaglogs();
     window.ads = new Advertising("gamemonetize");
     window.THREE_RENDER = new ThreeRender();
@@ -213,7 +219,9 @@ function gameInit() {
   
 
     // Create & hide Ingame Menu
-    window.ui.GameMenu!!.ingameMenu();
+    // game menu and status hud are created by the dialogs singleton
+    // this is because the translation files are needed for them
+    //window.ui.GameMenu!!.ingameMenu();
     window.ui.menu();
 
     //draw title screen
@@ -310,20 +318,24 @@ function gameRender() {
     if (window.globals.GAME_START) {
         
 
-
-        if (!window.map){
+        // new game logic
+        if (!window.map && window.globals.current_level === ""){
+            // to do:
+            // (1) rework game start logic to also load game levelfrom memory
             // 
-            //
             
             // overworld map 1 
             window.map = new OverWorld();
-           
+            window.globals.current_level = "Overworld";
             window.ui.gameHUD(); //render the game hud
             
             window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing
             return;
         }
+
+        // load game logic
+
 
 
    

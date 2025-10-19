@@ -78,7 +78,9 @@ class NPC extends PhysicsObject {
  * (7) Updated Enemy Movement Logic (2/3)
  * 
  * To Do:
- * (1)NPC movement logic (2/3)
+ * (1) NPC movement logic (2/3)
+ * (2) Give NPC Oldwoman Kill Count Quest
+ * (3) Give NPC Merchant decision dialogue
  */
 
 export class Merchant extends NPC{
@@ -86,15 +88,16 @@ export class Merchant extends NPC{
     public ADS_TRIGGERED : boolean = false;
     public adsTimer = new Timer;
     private dialogue = new DialogTrigger(this.pos, this.size); //dialogue trigger works
-
+    private diag1 : string  = window.dialogs.t("diag1", window.dialogs.language) ;
+    private speaker : string = window.dialogs.t("Merchant", window.dialogs.language) ;
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 2; // frame 2 (counting from 0) is supposed to be the merchant tile
         this.setCollision(false,false,false,false); // make object not collide
         
         //set the npc dialogue
-        this.dialogue.dialogue = "You have no coins, and you want to earn free coins from ads? Okay";
-        this.dialogue.speaker = "merchant";
+        this.dialogue.dialogue = this.diag1;
+        this.dialogue.speaker = this.speaker;
 
         //parent the dialogue trigger
         this.addChild(this.dialogue);
@@ -118,12 +121,14 @@ export class Merchant extends NPC{
         if (!this.ADS_TRIGGERED && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
             
             // testing dialogues trigger 
+            // dialogue trigger handles this dialogue
+
             //show banner ads
-           // window.dialogs.show_dialog("You have no coins, and you want to earn free coins from ads? Okay", "Merchant");
+           // 
             window.ads.showAds();
             this.ADS_TRIGGERED = true;
             
-            window.dialogs.show_dialog("Here's your reward, 500 Suds", "Merhcant");
+            //
             // to do:
             // (1) implement coin logic
             // (2) implement coin calculation
@@ -151,21 +156,28 @@ export class Merchant extends NPC{
  * 
  * Features:
  * (1) spawns in overworld top down levels
+ * 
+ * To Do:
+ * (1) Implement kill count quest for this NPC
  */
 
 
 export class OldWoman extends NPC{
-    private dialogue = new DialogTrigger(this.pos, this.size); //dialogue trigger works
-
+    private dialogueTrigger = new DialogTrigger(this.pos, this.size); //dialogue trigger works
+    private dialogue : string = window.dialogs.t("diag2");
+    private speaker : string = window.dialogs.t("old_woman");
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 1; // frame 1 is for the npc in the NPC tileset
         //this.isSolid = false;
         this.setCollision(false,false,false,false); // make object not collide
+        
 
         //set the npc dialogue
-        this.dialogue.dialogue = "I wouldn't jump into that hole if i were you! ground there's not stable at all!";
-        this.dialogue.speaker = "old woman";
+        // to do:
+        // (1) dialogue translations
+        this.dialogueTrigger.dialogue = this.dialogue;
+        this.dialogueTrigger.speaker =this.speaker;
     }
 
 }
@@ -178,6 +190,13 @@ export class OldWoman extends NPC{
  * (2) Spawns in Temple interior level
  */
 export class Shaman extends NPC{
+    private item_needed : string = window.dialogs.t("Bomb") ;
+    private amount : number = 1;
+    private npcName :string = window.dialogs.t("shaman"); 
+    private quest : string = window.dialogs.t("quest");
+    private questdiag : string = window.dialogs.t("questdiag1") + " " + this.item_needed + "x " + this.amount + "?";
+    private questdiag2 : string = window.dialogs.t("questdiag2") +" " + this.item_needed
+    private questdiag3 : string = window.dialogs.t("questdiag3") + " " + this.amount + " " + this.item_needed;
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 0;
@@ -199,8 +218,8 @@ export class Shaman extends NPC{
 
             //window.dialogs.show_dialog("shaman","quest update coming soon! ");
              // trigger quest giver logic to fetch the appropriate dialogue text
-            let quest_diag=QuestGivers.process("fetch quest 1","hey! can get me 1 bomb? thanks", "Bomb", 1, "Arrow",5,"Thank you for the bomb", "please, remember to get me 1 Bomb!");
-            window.dialogs.show_dialog("shaman",quest_diag); // print the dialogue text out to the player
+            let quest_diag=QuestGivers.process(this.quest,this.questdiag, "Bomb", 1, "Arrow",5,this.questdiag2, this.questdiag3);
+            window.dialogs.show_dialog(this.npcName,quest_diag); // print the dialogue text out to the player
             this.QuestTriggered = true;
             this.questTimer.set(this.timeout);
             return

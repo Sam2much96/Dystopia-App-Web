@@ -5,47 +5,56 @@
     (1) Dialog box extents UI class
 
     Required:
-    (1) Diaglog box UI + CSS (1/5)
-    (2) Quest giver NPC
-    (3) Signpost Object + collision trigger
-    (4) lock dialog box design into css and html
+    (1) Diaglog box UI + CSS (3/5)
+    (2) Decision dialog box
+    (3) 
+    (4) 
     (5)
 
     To Do:
-    (1) Move translation logic to the dialogs singleton
+    (1) Move translation logic to the dialogs singleton (done)
     (2) Implement translation dialogues
-    (3) Implement Merchant NPC dialogues
+    (3) Implement Merchant NPC dialogues (done)
     (4) Implement decision dialog box
     (5) Implement decision tree backend
+    (6) Implement Regex code to fix dialogue language mismatch with translations csv (done) 
+    (7) Implement Yandex automatic language detection from yandex sdk (done)
+
+    Bugs:
+    (1) load translations csv doesn't read data properly and mashes different languages together
+
     */
 import * as LittleJS from 'littlejsengine';
 const { isOverlapping,EngineObject, Color} = LittleJS;
-//import { EngineObject, Color, isOverlapping } from "littlejsengine";
 import { createPanel } from "./UI";
 type Translations = Record<string, Record<string, string>>;
 
 export class Diaglogs {
 
     public dialogBox : DialogBox = new DialogBox();
-    dialog_started : boolean = false;
-    dialog_ended : boolean = false;
-    //language : string = "";
-
-    // this need proper regex to account for multiple sub-region languages
+    private dialog_started : boolean = false;
+    private dialog_ended : boolean = false;
+    public loadedTranslations : boolean = false;
+    
+    // to do: 
+    // (1) this need proper regex to account for multiple sub-region languages
     // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
-    public language : string = (navigator.language || 'en-US').replace('-', '_'); //set this from user settings or browser language
+    public language : string = this.normalizeLocale(navigator.language); //set this from user settings or browser language
     public translations : Translations  = {};
 
     constructor(){
         console.log("Dialogs singleton language debug: ", this.language);
         
         //load the translation files into memory
-        //(async () => {
-        //    if (Object.keys(this.translations).length === 0) {
-        //        console.log("loading translations");
-        this.loadTranslations();
-        //    }
-       // })();
+        //
+        // 
+        //
+        //load the game map
+        (async () => {
+            await this.loadTranslations();
+        })();
+        
+
     }
 
     show_dialog(text: string, speaker: string){
@@ -62,7 +71,7 @@ export class Diaglogs {
 
     async loadTranslations() : Promise<Translations>{
         //translations[key][lang]
-        //console.log("fetching translations file");
+        console.log("fetching translations file");
         const response  = await fetch ("./Translation_1.csv"); // works
         const csvText = await response.text(); // works
 
@@ -82,11 +91,17 @@ export class Diaglogs {
         }   
         //debug language translations
         //console.log("translations debg: ", this.translations); // works
-        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
+        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
+
+        //create all the game ui menus with translations
+        window.ui.gameMenu();
+        window.ui.stats();
+
+        this.loadedTranslations = true;
         return this.translations;
     }
 
-    t(word : string, lang: string) : string { // translates the string file
+    t(word : string, lang: string = this.language) : string { // translates the string file
         // doesn't work for other translations
         // bug: returns the key without actually translating
         // bug: function doesn't wait for finished loading translations to translate and so breaks
@@ -95,13 +110,73 @@ export class Diaglogs {
         //if (!this.translations){ return word} // guard clause 
         //console.log("word debug: ", word);
         // guard clause
-        if (Object.keys(this.translations).length === 0) {
-            return word;
-        }
+        //console.log("translations debug: ",this.translations); // works
+        //console.log("translations debug 2 ", this.translations['Stats']); 
+        //console.log("translatiing ", word);
+        //if (Object.keys(this.translations).length === 0 && !this.loadedTranslations) {
+        //    return word;
+        //}
+        //console.log("word debug: ", word);
         var y = this.translations[word][lang];        
-        //console.log("lang debug 2: ", y, "/ key: ", lang);
+        //console.log("lang debug 2: ", y, "/ key: ", lang, "/ word: ", word);
         return y
         
+    }
+
+
+
+    normalizeLocale(input: string): string {
+        /**
+         * Normalize locale to match translation file formats.
+         *
+         * Supported locales:
+         * en_US, pt_BR, fr, te_IN, hi_IN, yo_NG, ha_NG, ig_NG, ja, zh_CN, ar, ru_RU
+         *
+         * Examples:
+         *  - "en"     => "en_US"
+         *  - "ru"     => "ru_RU"
+         *  - "tr"     => "pt_BR"
+         *  - "en_UK"  => "en_US"
+         *  - "ru_UK"  => "ru_RU"
+         *  - "es"     => "pt_BR"
+         */
+        
+        // Lowercase and normalize separators
+        const locale = input.trim().replace(/-/g, "_").toLowerCase();
+
+        // Base mapping table
+        // maps specialisad translations to their supported translations
+        const map: Record<string, string> = {
+            en: "en_US",
+            en_uk: "en_US",
+            en_us: "en_US",
+            ru: "ru_RU",
+            ru_uk: "ru_RU",
+            ru_ru: "ru_RU",
+            tr: "pt_BR",
+            es: "pt_BR",
+            fr: "fr",
+            te: "te_IN",
+            hi: "hi_IN",
+            yo: "yo_NG",
+            ha: "ha_NG",
+            ig: "ig_NG",
+            ja: "ja",
+            zh: "zh_CN",
+            ar: "ar",
+        };
+
+        // Try exact match
+        if (map[locale]) return map[locale];
+
+        // Try to match just the language code (e.g. "en" from "en_CA")
+        const langMatch = locale.match(/^([a-z]{2})/);
+        if (langMatch && map[langMatch[1]]) {
+            return map[langMatch[1]];
+        }
+
+        // Default fallback
+        return "en_US";
     }
 
 
@@ -220,4 +295,6 @@ export class DialogTrigger extends EngineObject{
 
 }
 
+// to do:
+// (1) implement decision dialogue ui
 export class DecisionDialogue{}

@@ -13,13 +13,16 @@ export class HealthPotion extends EngineObject{
      * (2) port status queue ui from godot to typescript
      * 
      */
-
+    public collect_diag : String 
+    private amount : number = 1;
     constructor(posi : LittleJS.Vector2){
 
         super()
         //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
         this.pos = posi;
         this.size = vec2(0.7);  
+        // tranlated item collected dialogue
+        this.collect_diag = window.dialogs.t("Health Potion", window.dialogs.language) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
 
     }
 
@@ -35,7 +38,8 @@ export class HealthPotion extends EngineObject{
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 
-                window.dialogs.show_dialog("Health potion collected", "");
+                //window.dialogs.show_dialog("Health potion collected", "");
+                window.dialogs.show_dialog("",this.collect_diag.toString());
                 //console.log("Health Potion item collected");
                 this.destroy();
 

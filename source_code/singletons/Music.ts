@@ -23,6 +23,7 @@ export class Music {
     (1) All music play in this codebase, should be routed through this object via a function
     (2) separate music and sfx plays funcitionally
     (3) Music should turn off when switching tabs is needed for yandex moderation approval
+    (4) Add player death and despawn sfx
 
     Notes:
     (1) The SFX and Music Use 2 Different Systems, SFX USes ZzFX a js midi engine

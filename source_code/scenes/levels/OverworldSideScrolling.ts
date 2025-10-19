@@ -78,7 +78,9 @@ export class OverworldSideScrolling extends EngineObject {
         setGravity(35); // apply global gravity
 
         //this.y = new ImageParallax(); // parallax testing
-        
+
+        //save current level to globals
+        window.globals.current_level ="Overworld 2";
         this.loadMap();
 
         
@@ -254,6 +256,11 @@ export class OverworldSideScrolling extends EngineObject {
         setGravity(0);// reset gravity
         this.LEVEL_DESTROY = true;//stop all processing logic
         LittleJS.engineObjects.length = 0; // clear existing objects
+        
+        // this is the only level where the save game function
+        // needs to be called because there's no exit object
+        // for this scene, exit is calculated based on the player posiition
+        //Utils.saveGame();
     }
 
 }

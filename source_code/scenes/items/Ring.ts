@@ -15,12 +15,16 @@ export class Ring extends EngineObject {
      * (2) port status queue ui from godot to typescript
      * 
      */
-
+    public collect_diag : String ;
+    private amount : number = 1;
     constructor(posi : LittleJS.Vector2){
 
         super()
         this.pos = posi;
         this.size = vec2(0.5);  
+        // tranlated item collected dialogue
+        this.collect_diag = window.dialogs.t("Ring", window.dialogs.language) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
+
 
     }
 
@@ -38,14 +42,15 @@ export class Ring extends EngineObject {
                 // to do:
                 // (1) implement status text hud
                 // (2) parse all item use implementations through status use hud (done)
-                // (3) add ring translation to translation csv
-                window.dialogs.show_dialog("Ring collected", "");
+                // (3) add ring translation to translation csv (done)
+                //window.dialogs.show_dialog("Ring collected", "");
+                window.dialogs.show_dialog("",this.collect_diag.toString());
                 //console.log("Generic item collected");
                 this.destroy();
 
                 // update ring count in inventory
                 let y : number = window.inventory.get("Ring");
-                let z : number = y + 1;
+                let z : number = y + this.amount;
                 window.inventory.set("Ring", z);
                 window.music.item_pickup.play();
                 

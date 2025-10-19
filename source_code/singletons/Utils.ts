@@ -209,6 +209,7 @@ export class Utils {
                 })
         }
     
+        // depreciated draw tile function
         static drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {
             
             // docs:
@@ -238,7 +239,9 @@ export class Utils {
         // save game state to a session token
         // serialises game state from each autoload singleton
         // To do:
-        // (1) Quest and dialog subsystems are unwritten as at the time of writing this on Sept 20, 2025
+        // (1) save quests and level data
+        // (2) load level data with continue button
+        
         let data : { [key: string]: any } = {};
         let safe_Globals = window.globals;
         let safe_Diag = window.dialogs;
@@ -252,34 +255,53 @@ export class Utils {
         data["hp"] = safe_Globals.hp;
         data["language"] = safe_Diag.language;
         data["death_count"] = safe_Globals.death_count;
+        data["current_level"] = safe_Globals.current_level; // to do: shorten current level acronym to save data byte transfered in multiplayer gameplay matches
         data["inventory"] = safe_Inventory.getAllItems();
         data["quest"] = safe_Quest.get_quest_list();
         data.music = Number(safe_Music.enable);
+        
         sessionStorage.setItem('savegame', JSON.stringify(data));
-        console.log(`✅ save game successfull`);
-        //ddddd
-        // (1) get all required global singletons
-        //
+        console.log(`save game successfull`);
+        
 
     }
 
     static loadGame(){
+        // to do:
+        // (1) finish load game implementation
+        // (2) connect load game function to ingame menu
+        //
         // load game state function
-        // load function
+        //
+        // Features:
+        // (1) load function fetches the game data from memory and loads them into the individual singletons
+        // (2) fetches the last player level before quiting the game and should load it
+
         let saveDict = sessionStorage.getItem('savegame');
         if (saveDict){
-            console.log("save game debug: ", saveDict);
+            //;
+            // to do: 
+            // (1) serialise session json data back into the globals singleton
+            let cleanJson = JSON.parse(saveDict)
+            console.log(`load game data successfull: `, cleanJson);
+            
             let safe_Globals = window.globals;
-            //let safe_Diag;
+            let safe_Diag = window.dialogs;
             let safe_Music = window.music;
-            //let safe_Quest ;
-            //let safe_Wallet ;
+            let safe_Quest = window.quest ;
+            let safe_Wallet = window.wallet;
             let safe_Inventory = window.inventory;
 
             //load inventory items into inventory memory
             //window.inventory.items = saveDict["inventory"] ?? 0;
+            
+            // load last level played into  memory
+            safe_Globals.current_level = cleanJson["current_level"];
 
-            console.log(`✅ load game successfull`);
+            /// to do:
+            // (1) laod suds, inventory and quest data into memory
+            
+      
         }
         else {
             console.warn("save file is not detected")

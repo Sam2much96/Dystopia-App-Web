@@ -36,7 +36,10 @@ export class TempleInterior extends EngineObject {
     constructor(){
         super();
         setGravity(0);
-        //this.loadMap();
+        
+        console.log('Level load triggered');
+        console.log('Number of gameObjects:', LittleJS.engineObjects.length);
+        console.log('Globals:', window.globals);
 
         //load the game map
         (async () => {
@@ -133,7 +136,7 @@ export class TempleInterior extends EngineObject {
         if (this.tileLayer){
             this.tileLayer.destroy();
 
-        Utils.saveGame(); // save the game state once exiting the temple interior map
+        //Utils.saveGame(); // save the game state once exiting the temple interior map
         if (this.levelObjects){ // destroy all instanced level objects
             for (const i of this.levelObjects!){
                 i.destroy();

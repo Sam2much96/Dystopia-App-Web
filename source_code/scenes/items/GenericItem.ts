@@ -16,13 +16,16 @@ export class GenericItem extends EngineObject {
      * (3) Implement translations to items UI (done)
      * 
      */
-
+    public collect_diag : String ;
+    private amount : number = 1;
     constructor(posi : LittleJS.Vector2){
 
         super()
         //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
         this.pos = posi;
         //this.size = vec2(0.7);  
+        // tranlated item collected dialogue
+        this.collect_diag = window.dialogs.t("Generic Item", window.dialogs.language) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
 
     }
 
@@ -38,13 +41,15 @@ export class GenericItem extends EngineObject {
             // set player collision to coin object
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-                window.dialogs.show_dialog("Generic Item collected", "");
+                window.dialogs.show_dialog("",this.collect_diag.toString());
+                
+                //window.dialogs.show_dialog("Generic Item collected", "");
                 //console.log("Generic item collected");
                 this.destroy();
 
                 // update bomb count in inventory
                 let y : number = window.inventory.get("Generic Item");
-                let z : number = y + 1;
+                let z : number = y + this.amount;
                 window.inventory.set("Generic Item", z);
                 window.music.item_pickup.play();
                 

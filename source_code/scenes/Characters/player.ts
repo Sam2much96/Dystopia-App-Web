@@ -967,6 +967,9 @@ export class SideScrollerPlayerBox extends Box2dObject {
             window.map.destroy();
             // spawn the top down overworld scene                 
             console.log("Loading the new level");
+            
+            // save the to scene to globals
+            window.globals.current_level = "Overworld";
             window.map = new OverWorld();
 
         }

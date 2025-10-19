@@ -26,7 +26,7 @@ export class Quest {
 
     public questList: Record<string, number> = {}; // quest name → status code
     public statsUI: HTMLElement | null = null;
-
+    public questUITranslate? :string; 
    constructor(){
     this.statsUI = document.querySelector('.v11_5'); // fetch the status hud ui element
    }
@@ -80,6 +80,17 @@ export class Quest {
         return { ...this.questList };
     }
 
+      // Convert quest to json string
+    toStringData(): string {
+        return JSON.stringify(this.questList);
+    }
+
+    // Restore quest json from string
+    fromStringData(data: string) {
+        this.questList = JSON.parse(data);
+    }
+
+
     remove_quest(quest_name: string): boolean {
         if (quest_name in this.questList) {
             delete this.questList[quest_name];
@@ -123,9 +134,10 @@ export class Quest {
         if (!this.statsUI) return console.warn("debug Inventory UI");
 
         this.statsUI.innerHTML = ""; // clear UI
-        
+        this.questUITranslate = window.dialogs.t("Quests");
+
         //debug quest list
-        console.log(this.get_quest_list());
+        //console.log("render quests triggered: ",this.get_quest_list());
         // to do :
         // (1) serialise the quest data into this function
         //const questStatus = quest.get_status(questName);
@@ -156,16 +168,27 @@ export class Quest {
         //to do:
         // (1) serialise quest data into ui to replace placeholder
         // (2) use the commented logic above + web hooks for this render code
+        let y = this.toStringData();
         this.statsUI.innerHTML = `
             <div class="quests-tab">
-                <h2>Quest Log</h2>
+                <h2> ${this.questUITranslate}</h2>
                 <ul>
-                    <li>🗺️ Main Quest: Explore the world</li>
-                    <li>📜 Side Quest: ${"fetch quest for 1 Bomb"}</li>
-                    <li>✅ Completed: None</li>
+                    <li>🗺️ </li>
+                    <li>📜 ${y}</li>
+                    
                 </ul>
             </div>
         `;
+
+        //old render
+                  //  <div class="quests-tab">
+                //<h2>Quest Log</h2>
+                //<ul>
+                 //   <li>🗺️ Started: Explore the world</li>
+                 //   <li>📜 Ongoing: ${y}</li>
+                 //   <li>✅ Failed: None</li>
+                //</ul>
+            //</div>
     }
 
 }

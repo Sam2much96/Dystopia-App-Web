@@ -174,24 +174,22 @@ export class Simulation extends EngineObject {
 
             // hide threejs layer once game starts
             // is always true once game has started
-            // todo: does code account for game quiting?
+            // 
             if (cubePosition.y < this.groundLevel) {
                 this.local_3d_engine.hideThreeLayer();
+                
+                
 
                 // save to global conditional for rendering game backgrounds and starting core game loop
                 window.globals.GAME_START = true;
 
+                this.destroy(); // object not needed in the current state 
+               // if (this.local_3d_engine.hasCube()){
+               //     this.local_3d_engine.deleteCube()
+                //}
+
             }
         }
-
-        // to do :
-        // (1) for this logic,add a cube debug to check if the 3d model is loaded initially
-        //if (cubePosition!){ // redundancy code for low latency browsers
-
-            // save to global conditional for rendering game backgrounds and starting core game loop
-        //    window.globals.GAME_START = true;
-
-        //}
 
 
     }

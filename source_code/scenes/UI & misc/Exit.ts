@@ -21,8 +21,29 @@ import { OverWorld } from '../levels/OverworldTopDown';
 import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
 import { Marketplace } from '../levels/Marketplace';
 import { TempleInterior } from '../levels/TempleInterior';
+import {Utils} from "../../singletons/Utils";
 
-export class Hole extends EngineObject {
+
+// Base Exit Class
+// Features:
+// (1) saves the to scene to globals singleton
+class Exit extends EngineObject{
+    public ENABLE : boolean = true
+    public to_scene_as_str : string = ""
+    //private to_scene : any = null;
+
+    destroy(){
+
+        //this.destroy();
+        // save the scene to the globals
+        window.globals.current_level = this.to_scene_as_str;
+
+        Utils.saveGame();
+    }
+}
+
+
+export class Hole extends Exit {
     /**
      * 
      * Level Exit Collision Object
@@ -31,13 +52,14 @@ export class Hole extends EngineObject {
      * (1) 
      * (2)  
      */
-    ENABLE : boolean = true;
+    //ENABLE : boolean = true;
     constructor(posi : LittleJS.Vector2){
 
         super()
         this.tileInfo = tile(3, 128, 2, 4); // set hole tile 22
         this.pos = posi.add(vec2(0.45, 0.5)); // add offset
         this.size = vec2(1);  
+        this.to_scene_as_str = "Overworld 2";
 
     }
 
@@ -52,7 +74,7 @@ export class Hole extends EngineObject {
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
 
-                console.log("Player Entered Exit");
+                console.log("Player Entered ", this.to_scene_as_str);
                 
 
                 
@@ -71,7 +93,7 @@ export class Hole extends EngineObject {
     }
 }
 
-export class House1 extends EngineObject {
+export class House1 extends Exit {
     /**
      * 
      * Level Exit Collision Object
@@ -80,7 +102,7 @@ export class House1 extends EngineObject {
      * (1) temporarily disabled for Marketplace and translations implementation
      * (2)  
      */
-    ENABLE : boolean = true;
+    //ENABLE : boolean = true;
     tileNumber : number;
     constructor(posi : LittleJS.Vector2){
 
@@ -89,6 +111,7 @@ export class House1 extends EngineObject {
         this.tileInfo = tile(this.tileNumber, 128, 2, 4); // set house 1 tile 48
         this.pos = posi;
         this.size = vec2(1);  
+        this.to_scene_as_str = "Marketplace";
 
     }
 
@@ -103,7 +126,7 @@ export class House1 extends EngineObject {
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
 
-                console.log("Player Entered Exit");
+                //console.log("Player Entered Exit");
                 
 
                 
@@ -130,12 +153,13 @@ export class House2 extends House1 {
     }
 }
 
-export class Stairs extends EngineObject { // temple interior exit scene
-    ENABLE : boolean = true;
+export class Stairs extends Exit { // temple interior exit scene
+    //ENABLE : boolean = true;
 
     constructor(pos : LittleJS.Vector2){
         super()
         this.pos = pos.add(vec2(0.45, 0.5)); // add offset
+        this.to_scene_as_str = "Overworld";
     }
 
 
@@ -169,14 +193,15 @@ export class Stairs extends EngineObject { // temple interior exit scene
     }
 }
 
-export class TempleDoor extends EngineObject{ // temple exterior door
-ENABLE : boolean = true;
+export class TempleDoor extends Exit{ // temple exterior door
+
     constructor(posi : LittleJS.Vector2){
 
         super()
         this.tileInfo = tile(44, 128, 2, 0); // set Temple ext door tile 44
         this.pos = posi;
         //this.size = vec2(1);  
+        this.to_scene_as_str = "Temple";
 
     }
 
@@ -191,7 +216,7 @@ ENABLE : boolean = true;
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
 
-                console.log("Player Entered Temple Entrance");
+                console.log("Player Entered", this.to_scene_as_str);
                 
 
                 
@@ -200,6 +225,7 @@ ENABLE : boolean = true;
                 window.player.destroy();
                 //destroy the overworld scene and player
                 window.map.destroy();
+                
                 // spawn the new overworld scene 
                 
                 console.log("Loading Temple Interior");

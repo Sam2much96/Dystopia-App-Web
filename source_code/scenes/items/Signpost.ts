@@ -20,7 +20,7 @@
  */
 import * as LittleJS from 'littlejsengine';
 import { DialogTrigger } from '../../singletons/Dialogs';
-const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
+const {EngineObject,tile} = LittleJS;
 
 export class Signpost extends EngineObject {
 
@@ -29,24 +29,22 @@ export class Signpost extends EngineObject {
     // (2) trigger the dialogue singleton on collision with class text
     // (3) spawn signpost object on overworld map
     //public dialogue : string = ""; //placeholder text for all signpost
-    private speaker : string = "Signpost";
+    private speaker : string = window.dialogs.t("dir3", window.dialogs.language) ;//"Signpost"; // to do: translate Signpost too
     private dialogueTrigger = new DialogTrigger(this.pos, this.size);
 
-    constructor(pos : LittleJS.Vector2,dialogue :string){
+    private dialogue = window.dialogs.t("dir2", window.dialogs.language);
+    constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;
         this.tileInfo = tile(2, 128, 2, 0);
         // add the dialogue event trigger
         this.addChild(this.dialogueTrigger);
-        this.dialogueTrigger.dialogue = dialogue;
+        this.dialogueTrigger.dialogue = this.dialogue;
         this.dialogueTrigger.speaker = this.speaker;
         
 
     }
 
-    //render(){
-    //    // render the signpost tile which is tile 2 counting from zero
-    //     drawTile(this.pos, this.size, tile(2, 128, 2, 0), this.color, 0, this.mirror);
-    //}
+
 
 }
