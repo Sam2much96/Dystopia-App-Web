@@ -1,4 +1,15 @@
 import * as LittleJS from 'littlejsengine';
+/**
+ * 
+ * Enemy Spawner
+ * 
+ * Features:
+ * (1) spawns 2 enemies into the map
+ * 
+ * Bug:
+ * (1) breaks on enemy respawn
+ * 
+ */
 
 const {EngineObject, Vector2,vec2, drawTile, tile, isOverlapping} = LittleJS;
 

@@ -38,3 +38,18 @@ export class Controls {
     }
 
 }
+
+
+/**
+ * 
+ * Drop down element to trigger translations
+ * 
+ * const languageSelector = document.getElementById("lang-select");
+languageSelector?.addEventListener("change", async (e) => {
+  const lang = (e.target as HTMLSelectElement).value;
+  window.dialogs.language = lang;
+  await translateUIElements(lang);
+});
+
+ * 
+ */

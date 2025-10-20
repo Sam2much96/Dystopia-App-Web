@@ -10,6 +10,7 @@ export class Bomb extends EngineObject {
      * TO DO:
      * (1) parse item collect to status queue ui
      * (2) port status queue ui from godot to typescript
+     * (3) implement all item use effects
      * 
      */
     public collect_diag : String ;

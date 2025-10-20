@@ -9,7 +9,7 @@
 
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject,ParticleEmitter, vec2, tile,hsl, PI} = LittleJS;
+const {EngineObject,ParticleEmitter, Timer, Color,vec2, tile,hsl, PI} = LittleJS;
 
 
 class ParticleFX extends EngineObject {
@@ -24,15 +24,17 @@ class ParticleFX extends EngineObject {
      * @param {*} pos 
      * @param {*} size 
      */
+        // unused
 
-
-    public color: any;
+    public color: any ;
     public trailEffect: any;
+    public TimerOut : number = 2; // timer timeout to despawn the particle fx
+    private particleTimer : LittleJS.Timer = new Timer();
 
     /** */
     constructor(pos: Vector2, size: Vector2) {
         super();
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        this.color = LittleJS.RED; // make object invisible
 
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new LittleJS.ParticleEmitter(
@@ -46,18 +48,30 @@ class ParticleFX extends EngineObject {
             .1, .5, true, true        // fade, randomness, collide, additive
         );
 
+        this.particleTimer.set(this.TimerOut);
 
+    }
+    update(): void {
+        
+        // self despawn
+        if (this.particleTimer.elapsed()){
+            this.destroy(); // delete the object
+        }
     }
 }
 
-class Blood_splatter_fx extends ParticleFX {
-     public color: any;
-    //private trailEffect: any;
+export class Blood_splatter_fx extends LittleJS.ParticleEmitter {
+     //public color: any;
+    private trailEffect: any;
+    public TimerOut : number = 0.5; // timer timeout to despawn the particle fx
+    private particleTimer : LittleJS.Timer = new Timer();
 
-    constructor(pos: Vector2, size: Vector2) {
-        super(vec2(),vec2());
-        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
-
+    constructor(pos: LittleJS.Vector2, size: number) {
+        super(pos,size);
+        //console.log("creating blood splatter fx", this.color);
+        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        this.setCollision(false,false,false,false);
+        this.particleTimer.set(this.TimerOut);
         const color__ = hsl(0, 0, .2);
         this.trailEffect = new ParticleEmitter(
             this.pos, 0,                          // pos, angle
@@ -70,6 +84,15 @@ class Blood_splatter_fx extends ParticleFX {
             .1, .5, false, false        // fade, randomness, collide, additive
         );
 
+        
+    }
+    update(): void {
+                // self despawn
+        if (this.particleTimer.elapsed()){
+            console.log("particle timer elapsed");
+            this.trailEffect.destroy();
+            this.destroy(); // delete the object
+        }     
     }
 
 

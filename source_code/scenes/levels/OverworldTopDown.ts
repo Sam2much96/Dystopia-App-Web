@@ -78,8 +78,10 @@ export class OverWorld extends EngineObject{
         
         
         
-        
-
+        //testing runtime ui transalations
+        //delete later
+        // works (1/2)
+        //window.ui.translateUIElements(window.dialogs.normalizeLocale("ru_RU"));
 
 
     }

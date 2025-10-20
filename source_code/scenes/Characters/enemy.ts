@@ -37,6 +37,8 @@ import { Utils, PhysicsObject, worldToGrid, gridToWorld } from '../../singletons
 //import { Side } from 'three'; // what's this used for?
 import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart for navigation server logic
 import { ItemSpawner } from '../items/ItemSpawner';
+//blood particle fx
+import { Blood_splatter_fx } from '../UI & misc/Blood_Splatter_FX';
 
 const {vec2, drawTile, drawLine, isOverlapping, Timer,tile} = LittleJS;
 
@@ -222,17 +224,7 @@ export class Enemy extends PhysicsObject {
         
         // detect player
         this.stateMachine[8]();
-        //trigger mob logic
-
-        // trigger Navigation logic when player and enemey havent collided yet
-        // 
-        if (!this.playerVisible && this.Alive) {this.stateMachine[10]();}
-
-
-        //trigger the mob state once the player is visible
-        if (this.playerVisible && this.Alive) {this.stateMachine[6]();}
         
-
         // Despawn logic
         if (this.hitpoints <= 0 ) {
             //spawn a random item
@@ -250,12 +242,21 @@ export class Enemy extends PhysicsObject {
             if (this.lifetime <= 0) {
                     this.destroy();
             }
-
-            //return
                   
-
-                
         }
+        
+        //trigger mob logic
+
+        // trigger Navigation logic when player and enemey havent collided yet
+        // 
+        if (!this.playerVisible && this.Alive) {this.stateMachine[10]();}
+
+
+        //trigger the mob state once the player is visible
+        if (this.playerVisible && this.Alive) {this.stateMachine[6]();}
+        
+
+
 
 
             
@@ -449,7 +450,10 @@ export class Enemy extends PhysicsObject {
         //hit register
         //sfx
         window.music.hit_sfx[2].play();
+        //create a blood splatter fx
+        new Blood_splatter_fx(this.pos, 2);
         this.kickback();
+        
 
         // to do: 
         // (1) play a despawn animation

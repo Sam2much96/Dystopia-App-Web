@@ -27,7 +27,8 @@ export class Advertising {
      * Bugs :
      * (1) Ads skip button doesn't work on mobile when it's first created, only when the game is resumed
      */
-    public ads : any | undefined;
+    public ads1? : GameMonetizeAds ;
+    public ads2? : YandexAds;
     public analytics : any | undefined;
 
     public platform : string = ''
@@ -41,17 +42,17 @@ export class Advertising {
             // to do:
             // (1) move banner ads logic to shop api
             // (2) implement shop send transaction functionality
-            this.ads = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
+            this.ads1 = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
             //ads.showBanner(); //works
             return
         }
         if (platform ==="yandex")
             {
             // Get the singleton instance
-            const yads = YandexAds.getInstance();
+            this.ads2 = YandexAds.getInstance();
 
             // Show fullscreen ad
-            yads.showFullscreenAd();
+            this.ads2.showFullscreenAd();
             
             // Show rewarded ad (for shop/reward system)
             //yads.showRewardedAd();
@@ -79,7 +80,7 @@ export class Advertising {
     initialize(){
         if (this.initialized) return
         if (this.platform === "gamemonetize"){
-            this.ads.init(); // initialize the game monetize sdk
+            this.ads1!!.init(); // initialize the game monetize sdk
             this.initialized = true;
         }
     }
@@ -87,7 +88,7 @@ export class Advertising {
     showAds(){
         if (this.platform === "gamemonetize"){
             // show game monetize banner ads
-            this.ads.showBanner(); //works
+            this.ads1!!.showBanner(); //works
 
         }
     }

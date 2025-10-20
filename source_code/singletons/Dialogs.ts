@@ -43,7 +43,14 @@ export class Diaglogs {
     public translations : Translations  = {};
 
     constructor(){
-        console.log("Dialogs singleton language debug: ", this.language);
+
+        // fetch the local translation from ads singleton if playing on yandex
+
+        // bugs out
+        // to do:
+        // (1) implement global translation function for each core ui element after detection
+       
+        //console.log("Dialogs singleton language debug: ", this.language);
         
         //load the translation files into memory
         //
@@ -93,15 +100,19 @@ export class Diaglogs {
         //console.log("translations debg: ", this.translations); // works
         console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
 
-        //create all the game ui menus with translations
-        window.ui.gameMenu();
-        window.ui.stats();
+        // to do:
+        // (1) depreciate this functionality
+        // (2) create run time translation functions not just constructor translations
+        // (3) call run time translations function from yandex ads 
+
+        window.ui.translateUIElements(window.dialogs.normalizeLocale(this.language));
+        
 
         this.loadedTranslations = true;
         return this.translations;
     }
 
-    t(word : string, lang: string = this.language) : string { // translates the string file
+    t(word : string, lang: string = this.language!!) : string { // translates the string file
         // doesn't work for other translations
         // bug: returns the key without actually translating
         // bug: function doesn't wait for finished loading translations to translate and so breaks
@@ -113,10 +124,10 @@ export class Diaglogs {
         //console.log("translations debug: ",this.translations); // works
         //console.log("translations debug 2 ", this.translations['Stats']); 
         //console.log("translatiing ", word);
-        //if (Object.keys(this.translations).length === 0 && !this.loadedTranslations) {
-        //    return word;
-        //}
-        //console.log("word debug: ", word);
+        if (Object.keys(this.translations).length === 0 && !this.loadedTranslations) {
+            return word;
+        }
+        //console.log("word debug: ", word); // for debug purposes only
         var y = this.translations[word][lang];        
         //console.log("lang debug 2: ", y, "/ key: ", lang, "/ word: ", word);
         return y

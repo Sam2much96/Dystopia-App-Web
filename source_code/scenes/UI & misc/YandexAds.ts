@@ -12,6 +12,9 @@
  * (3) implement yandex typescript sdk functionality into this class
  * (4) implement ie8N yandex automatic language detection
  * (5) render highquality videos of 30 seconds with each supported language for the game's promotional videos
+ * 
+ * 
+ *  (6) implement all ysdk functionality and expose it in this class
  */
 
 
@@ -86,13 +89,8 @@ declare global {
     ysdk: any;
   }
 
- // const YaGames: {
- //   init: () => Promise<any>;
- // };
 }
-// yandex typescript sdk
-// to do:
-// (1) implement all ysdk functionality and expose it in this class
+
 
 import type { SDK, Player } from 'ysdk';
 
@@ -100,10 +98,13 @@ export class YandexAds {
   private static instance: YandexAds;
   private initialized = false;
 
+  //public variables for use by other objects
+  //public detectedLang? : string;
+
   private constructor() {
     if (this.isYandexPlatform()) {
       this.loadScript("/sdk.js", "yandex-sdk")
-        .then(() => this.initSDK())
+        .then(() => this.init())
         .catch(err => console.error("⚠️ Failed to load Yandex SDK:", err));
     } else {
       console.warn("⏩ Skipping Yandex SDK init (not running on Yandex)");
@@ -138,25 +139,35 @@ export class YandexAds {
     });
   }
 
-  private async initSDK(): Promise<void> {
+  public async init(): Promise<void> {
     try {
-      // initialises yandex sdk
-      const sdk = await (window as any).YaGames.init();
-      window.ysdk = sdk;
-      this.initialized = true;
-      console.log("✅ Yandex SDK initialized");
-      sdk.features.LoadingAPI?.ready(); // call the ready api
+        // initialises yandex sdk
+        const sdk = await (window as any).YaGames.init();
+        window.ysdk = sdk;
+        this.initialized = true;
+        console.log("✅ Yandex SDK initialized");
+        sdk.features.LoadingAPI?.ready(); // call the ready api
 
-      //automatically detect the user language
-      const env = sdk.environment();
-      const detectedLang = env?.i18n?.lang || "en";
-      console.log(`🌐 Yandex SDK initialized | Language detected: ${detectedLang}`);
+        //automatically detect the user language from yandex
+        const env = sdk.environment;
 
-      // save the language detected to the dialog singleton
-      // supported languages include : ["en", "ru", "tr", "es", "fr"]
-      // to do:
-      // (1) implement regex for converting these into the localisation files (done)
-      window.dialogs.language = window.dialogs.normalizeLocale(detectedLang);
+        const detectedLang = env?.i18n?.lang || "en";
+        
+        
+        // save the language detected to the dialog singleton
+        // supported languages include : ["en", "ru", "tr", "es", "fr"]
+        // to do:
+        // (1) implement regex for converting these into the localisation files (done)
+        // (2) implement runtime translation functions for all ui elements with text and call it here
+        window.dialogs.language = window.dialogs.normalizeLocale(detectedLang);
+        
+        //works but requires runtime translations functions to use the sdk for auto translations
+        //
+        window.dialogs.show_dialog("",`🌐 Yandex SDK initialized | Language detected: ${detectedLang}, / dialogs lang: ${window.dialogs.language}`);
+        // to do:
+        // (1) trigger ui translation from here (1/2)
+        await window.ui.translateUIElements(window.dialogs.normalizeLocale(detectedLang));
+
 
       
     } catch (err) {
@@ -164,8 +175,10 @@ export class YandexAds {
     }
   }
 
-  // Example ad call
+  // ad call for full screen ads
   public async showFullscreenAd(): Promise<void> {
+
+    // shows full screen ads
     if (!this.initialized || !window.ysdk) {
       console.warn("⚠️ Yandex SDK not initialized (local mode?)");
       return;
@@ -173,5 +186,8 @@ export class YandexAds {
     await window.ysdk.adv.showFullscreenAdv();
   }
 
+
+  //unimplemented ad call for banner ads
+  public async showBanner(){}
 
 }

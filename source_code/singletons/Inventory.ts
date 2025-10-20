@@ -20,6 +20,10 @@ export class Inventory {
     * (1) player stats render function should renderer different pages, not categories
     * (2) Map render functions to ui buttons
     * (3) Inventory Translations
+    * (4) fix item use logic so it doesn't multiply the inventory items
+    * (5) fix ui render to update once status hud is visible not when the tab buttons is clicked
+    * 
+    * 
     */
 
     public items: Record<string, number>; // Dictionary to store inventory items

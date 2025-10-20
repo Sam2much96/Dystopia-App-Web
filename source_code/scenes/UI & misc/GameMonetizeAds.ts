@@ -85,7 +85,7 @@ export class GameMonetizeAds {
     //this.init();
   }
 
-  private async init() {
+  public async init() {
     try{
       // Configure SDK options
       window.SDK_OPTIONS = {

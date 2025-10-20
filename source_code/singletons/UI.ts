@@ -11,6 +11,7 @@
  * (2) Connect Wallet tab and wallet render function to Wallet singleton to display token data
  * (3) implement renderMinimap function from simulation singleton
  * (4) implement status text UI
+ * (5) implement runtime ui translations and not only creation ui translations 
  * 
  * 
  * Bugs:
@@ -110,7 +111,7 @@ export class UI  {
     //csv translations settings
     //private translations : Translations  = {};
 
-    private language : string = window.dialogs.language; // fetch language from dialog singleton // bug : breaks
+    private language : string = window.dialogs.language!!; // fetch language from dialog singleton // bug : breaks
     public HeartBoxHUD : HeartBox | undefined;
     public StatusTabs : StatsTabs | undefined ;
     public StatsHUD : StatsHUD | undefined;
@@ -197,46 +198,18 @@ export class UI  {
         * 
         * To do:
         * (1) lock game hud designs into html and css class (done)
-        * (2) include logic to hide the game hud once game menu is visible to prevent UI overlap
+        * (2) include logic to hide the game hud once game menu is visible to prevent UI overlap (1/2)
         */
 
-        //create Heartboxes
-        //update & draw heartbox ui every frame
-        // heartbox render function has been moved to the player object
-        //this.HeartBoxHUD!!.heartbox(window.globals.hp); //create 3 hearboxes
+
         
-        //create dialog box object
-        //works
-        //this.Dialog?.dialogueBox("admin","Testing dialogue box");
-        
-        
-        console.log("Creating Game HUD Buttons");
-        
-        // create button icons images
-        // to do :
-        // (1) organise each button configuration into ther specific classes
-        // create buttons and bind their actions
+        // console.log("Creating Game HUD Buttons");
+        // 
+        // create texture buttons and bind their actions
         this.statsButton = createTextureButton("./btn-stats.png","ui-button", () =>{
             //
             //console.log("stats button pressed");
-            //this.InventoryVisible = !this.InventoryVisible;
-            // Triggers stats ui
-            // to do :
-
-            // (4) Drag and Drop Items
-            // (6) Game Menu Shouldn't trigger once stats is showing
-
-
-            // fetch all inventory items
-            //console.log("Inventory Items", window.inventory.getAllItems());
-
-
-            //button action
-            //console.log("stats button pressed, Use Inventory item");
-            //}
-            // (1) Create / Show New UI Board
-            // (2) Create UI Buttons for every inventroy item (Requires UITexture Button Implementation)
-            // (3) Inventory Item Call Example is in Input under I Press
+            //
             
             this.StatsHUD!!.InventoryVisible = !this.StatsHUD!!.InventoryVisible; // toggle ui visible / invisible
             window.music.ui_sfx[1].play();
@@ -257,7 +230,7 @@ export class UI  {
 
         this.dialogButton = createTextureButton("./btn-interact.png", "ui-button", ()=>{
             //
-            //console.log("dialog pressed : to do: trigger dialogue box render function");
+            // show placeholder dialog
             //
             window.dialogs.show_dialog("...", "Aarin: ...");
         });
@@ -269,6 +242,47 @@ export class UI  {
         
 
     }
+
+
+  /**
+ * Translates all HTML elements at runtime by using their data-i18n keys.
+ * 
+ * Works for:
+ * - HTMLAnchorElement (links, buttons)
+ * - HTMLElement (divs, spans, etc.)
+ *
+ * Usage:
+ *   1. Add data-i18n="translation_key" to any HTML element
+ *   2. Call translateUI(runtimeLanguage)
+ */
+async translateUIElements(language: string) {
+  if (!window.dialogs || !window.dialogs.t) {
+    console.warn("Translation system not ready yet.");
+    return;
+  }
+
+  //// Wait until translations file is loaded
+  await waitForTranslations();
+
+  // Select all elements marked for translation
+  const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
+
+  elements.forEach((el) => {
+    const key = el.dataset.i18n;
+    if (!key) return;
+
+    // Translate text content using your existing system
+    const translatedText = window.dialogs.t(key, language);
+    if (translatedText) {
+      // Handles <a>, <button>, <div>, <span> etc.
+      el.textContent = translatedText;
+    }
+  });
+
+  console.log(`✅ UI translated to ${language}`);
+
+
+}
 
 
 
@@ -301,7 +315,7 @@ export class StatsTabs {
         // (5) fix stats UI items overlap
         // (6) change even handler from click to on button down (done)
         // (7) add a state machine for the stats hud for each tab option and connect to different singletons for data serialisation
-        // (8) implement item status hud
+        // (8) implement item status text hud
         // (9) connect item status hud to the inventory singleton via game hud
         this.statsTab = document.querySelector('.v12_14');
         this.walletTab = document.querySelector('.v12_15');
@@ -386,9 +400,16 @@ export class StatsHUD{
 
     constructor(){
         console.log("creating status hud");
+
+        
+        
         // inventory tab logic
         this.inventoryContainer = document.getElementById("hud");
         this.statsUI = document.querySelector('.v11_5');
+
+        //mark this element for translations
+        this.statsUI!.dataset.i18n = "Stats";
+
         
         // turn off hud visibility
         this.InventoryVisible = false;
@@ -498,10 +519,6 @@ export class StatsHUD{
         let dc : number = window.globals.death_count;
         let lvl : String = window.globals.current_level;
         // todo:
-        // (1) save the map data to globals from the exit objects
-        // (2) show map data here in states Level data
-        // (3) save map data in Utils save game function
-        // (4) load level from map data when continue button is pressed
         // (5) fix coin collect subsystem & ui
         // (6) translate all status ui
 
@@ -545,16 +562,12 @@ export class MenuButton{
 }
 
 export class IngameMenu{
-    // buggy, code, does not work! October 3rd refactor
+    
     public SHOW_MENU: boolean = true;
-    // in game menu hud logic
-    // in one class
-        // UI Buttons
-    // menu buttons
-    //public menuButton: HTMLButtonElement | null = null;
-    public menuContainer: HTMLElement | null;
-    //public inventoryContainer : HTMLElement | null;
 
+    // menu buttons
+    //
+    public menuContainer: HTMLElement | null;
     public newGame: HTMLAnchorElement | null = null;
     public contGame: HTMLAnchorElement | null = null;
     public Comics: HTMLAnchorElement | null = null;
@@ -564,7 +577,7 @@ export class IngameMenu{
 
     //public translations : Translations  = {};
 
-    private language : string = window.dialogs.language; // fetch language from dialog singleton
+    private language : string = window.dialogs.language!!; // fetch language from dialog singleton
 
 
     constructor(){
@@ -606,6 +619,10 @@ export class IngameMenu{
                 //hide menu
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         });
+
+        // mark element for translations
+        //this.newGame.dataset.i18n = "new_game";
+
 
         this.contGame = this.createMenuOption(window.dialogs.t("continue"), "#", () => {
                     window.music.sound_start.play();
@@ -670,13 +687,8 @@ export class IngameMenu{
 
         this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
-            //window.THREE_RENDER.showThreeLayer();// doesn;t work
-            
-            //to do :
-            // (1) implement close browser tab
             window.location.href = "about:blank";   // leaves your game
 
-            //window.open('', '_self')?.close();  // only works if your game opened its own window
 
         });
 
@@ -701,7 +713,12 @@ export class IngameMenu{
         option.href = href;
         option.className = "menu-option";
         option.innerText = text;
+        // mark element for translations
+        //this.newGame.dataset.i18n = "new_game";
         
+        //mark element for translations
+        option.dataset.i18n = text;
+
         // to do: use event handler architecture for stats UI buttons
         const handler = (event: Event) => {
             event.preventDefault(); // Prevent navigation
@@ -840,3 +857,4 @@ async function waitForTranslations(): Promise<void> {
         check();
         });
   }
+

@@ -73,7 +73,6 @@ import { Advertising } from './source_code/scenes/UI & misc/Advertising';
 
 
 
-
 //import * as Box2D from './source_code/singletons/box2d';
 //const {Box2dObject, box2dEngineInit} = Box2D;
 import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
@@ -169,8 +168,8 @@ function gameInit() {
     
     //load the translation files first
     //
-    window.dialogs = new Diaglogs();
     window.ads = new Advertising("yandex");
+    window.dialogs = new Diaglogs();
     window.THREE_RENDER = new ThreeRender();
     window.quest = new Quest();
     window.globals = new Globals();
@@ -187,7 +186,12 @@ function gameInit() {
 
 
 
+    //create all the game ui menus with translations
+    window.ui.gameMenu();
 
+    // to do:
+    // (1) port the stats html into this function
+    window.ui.stats(); // takes control of the stats hud and turns it invisible until the gamehud is rendered
 
 
   
@@ -202,7 +206,7 @@ function gameInit() {
     
 
     //Initialise 3d scene render
-    // It can set 2 cubes but only animate 1 cuz of this.cube pointer limitations
+    // 
 
     // Bug:
     // (1) there's a bug, if model is not loaded, game startup logic is broken 
@@ -331,6 +335,8 @@ function gameRender() {
             
             window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing
+
+            
             return;
         }
 
@@ -345,9 +351,7 @@ function gameRender() {
             
 
             
-            //blood fx testing
-            // bug : (1) doesn't render now, not sure why yet
-            //const q = new Blood_splatter_fx(vec2(10,10),vec2(5));
+            
             
             
             // setup the screen and camera

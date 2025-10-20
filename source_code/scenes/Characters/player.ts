@@ -12,6 +12,9 @@ import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
 import { PhysicsObject } from '../../singletons/Utils';
 import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyTypeKinematic, box2dBodyTypeStatic, box2dBodyTypeDynamic } from '../../singletons/box2d';
 
+//blood particle fx
+import { Blood_splatter_fx } from '../UI & misc/Blood_Splatter_FX';
+
 
 
 
@@ -207,6 +210,9 @@ export class Player extends PhysicsObject{
         this.cameraShakeTime = duration;
     }
     
+    destroy(){
+        // despawn logic
+    }
 
 
 }
@@ -216,7 +222,7 @@ export class TopDownPlayer extends Player {
     
     constructor(pos : LittleJS.Vector2) {
         //console.log("player pos debug :", pos);
-
+        //console.log(`objject debug: ${window.globals.players} / ${window.globals.enemies}`);
         super(pos);
         this.renderOrder = 1;
         //this.pos = pos; //vec2(0,0); // 7,10 for overmap 1
@@ -279,8 +285,8 @@ export class TopDownPlayer extends Player {
         //
         // To DO:
         // (1) Idle animation
-        // (2) Attack animation
-        // (3) Dance animation
+        // (2) Attack animation (done)
+        // (3) Dance animation 
 
         /**
          * Delta Time Calculation
@@ -310,13 +316,15 @@ export class TopDownPlayer extends Player {
             this.State()["STATE_ATTACK"]();
         }
 
+        // despawn animation
          if (this.deSpawn && !this.despawnTimer.elapsed()){
             this.despawn(); // trigger the despawn state
         }
-        //return
-
+        
+        // respawn logic
+        // (1) doesn't respawn enemies
         if (this.deSpawn && this.despawnTimer.elapsed() ){
-            this.despawn();
+            //this.despawn();
             this.respawn();
         }
 
@@ -349,8 +357,7 @@ export class TopDownPlayer extends Player {
         // bugs:
         // (1) doesn't respawn the enemies
         //
-        // delete player object
-        this.destroy();
+       
         
         //reset the globals hp to 3
         window.globals.hp = 5;
@@ -360,21 +367,30 @@ export class TopDownPlayer extends Player {
          //console.log("Current map is OverWorld");
         //destroy the overworld scene and player
         window.map.destroy();
+         
+        // delete player object
+        this.destroy();
         window.map = new OverWorld()
          }
         else if (window.map instanceof OverworldSideScrolling) {
            // console.log("Current map is OverworldSideScrolling");
             window.map.destroy();
+             // delete player object
+            this.destroy();
             window.map = new OverworldSideScrolling();
         }
         else if (window.map instanceof Marketplace) {
             //console.log("Current map is Marketplace");
             window.map.destroy();
+             // delete player object
+            this.destroy();
             window.map = new Marketplace();
         }
         else if (window.map instanceof TempleInterior) {
             //console.log("Current map is TempleInterior");
             window.map.destroy();
+             // delete player object
+            this.destroy();
             window.map = new TempleInterior();
         }
 
@@ -397,14 +413,23 @@ export class TopDownPlayer extends Player {
         //(6) trigger the despawn state if hp is les than zero (1/2)
         //(7) trigger and implement hurt state in the enemy state machine
         //(8) play despawn animation and trigger level respawn (done)
+        
+        // to do:
+        // implement invisibility frames for the player
+        
         this.hitpoints -= 1;
         window.globals.hp -= 1;
         
         this.shakeCameraV1(); // intensity 0.3, lasts half a second
         this.Kickback(dir); // apply kickback physics
+        //create blood splatter fx 
+        // works
+        new Blood_splatter_fx(this.pos, 2);
+        
         window.music.punch_sfx_2.play(); // play hit sfx
         this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
         
+        this.triggerHurt(1); // trigger invincibility frame for 1 seconds
 
         //instance blood particle fx
         if (this.hitpoints<0 && !this.deSpawn){
@@ -417,10 +442,17 @@ export class TopDownPlayer extends Player {
 
     }   
     
-    Kickback(direction: LittleJS.Vector2, strength = 10) {
+    Kickback(direction: LittleJS.Vector2, strength = 15) {
         // direction = Vector2 (normalized)
         // strength = how strong the kick is
         this.velocity = this.velocity.add(direction.scale(strength));
+    }
+
+    triggerHurt(x : number){
+        //triggers a hurt frame for a couple of seconds that makes the player invincible to further attacks
+        // to do:
+        // (1) implement a hurt state and animations
+        console.log("Trigger Invincibility State");
     }
 
     /**
@@ -552,7 +584,8 @@ export class TopDownPlayer extends Player {
                     this.mirror = false;
                     this.playAnim(this.AttackRight);
                 }
-
+                // debug the ememy collisions
+                //console.log(`hit collision debug: ${window.globals.players} / ${window.globals.enemies}`);
                 for (const player of window.globals.players) { // checks for all player objects
                    for (const enemy of window.globals.enemies){ // checks for all enemy objects
                         //console.log("eneemy debug: ", enemy.pos);
