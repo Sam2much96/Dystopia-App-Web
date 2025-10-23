@@ -1,8 +1,10 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
+//const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
+import { PhysicsObject } from '../../singletons/Utils';
+import { Items } from '../../singletons/Utils';
 
-export class Bomb extends EngineObject {
+export class Bomb extends Items {
     /**
      * 
      * Game Bomb Item (collect)
@@ -13,43 +15,38 @@ export class Bomb extends EngineObject {
      * (3) implement all item use effects
      * 
      */
-    public collect_diag : String ;
-    private amount : number = 1;
+    
+     constructor(pos : LittleJS.Vector2,tileIndex = 20){
+            super(pos,tileIndex, "Bomb");
+        }
+}
 
-    constructor(posi : LittleJS.Vector2){
 
+export class BombExplosion extends PhysicsObject{
+    // the implementation of the Bomb item use
+    // logic
+    // (1) explosion sfx
+    // (2) fire animation (done)
+    // (3) impact shader vfx
+    // (4) destruction of all non player items in the object's collision shape
+    // (5) smoke particle sfx
+    private fireAnimation : Array<number> =[34,35,36,37,38,39]; // fire animation
+    constructor(){
         super()
-        //this.tileInfo = tile(22, 128, 1, 4); // set coin tile 22
-        this.pos = posi;
-        //this.size = vec2(0.7);  
-        // tranlated item collected dialogue
-        this.collect_diag = window.dialogs.t("Bomb") + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
-
-    }
-
-    render(){
-        drawTile(this.pos, this.size, tile(20, 128, 2, 0), this.color, 0, this.mirror);
+        
+        //trigger the shake anmatoin
     }
 
     update(){
+        // play the fire animation
+        this.playAnim(this.fireAnimation);
 
-        if (window.player){
-        // set player collision to coin object
-        // set coin idle animation
-          if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
-            
-            window.dialogs.show_dialog("",this.collect_diag.toString());
-            //console.log("Bomb item collected");
-            this.destroy();
+        // trigger the camera shake
+        window.player.shakeCameraV1(0.5,1);
 
-            // update bomb count in inventory
-            let y : number = window.inventory.get("Bomb");
-            let z : number = y + this.amount;
-            window.inventory.set("Bomb", z);
-            window.music.item_pickup.play();
-            
-            }
-        }
+        // despawn any enemy objects overlapping
+
+        //if isOverlapping()
 
     }
-}
+}   

@@ -383,34 +383,54 @@ export class Items extends EngineObject {
      * (1) lock all core item behaviour into this class object
      * (2) replace all the items boilerplate script with this code base class
      */
-
-    constructor(posi : LittleJS.Vector2){
+    name  : string ;
+    amount : number = 1;
+    tileIndx : number;
+    collect_diag : string;
+    despawn : boolean = false;
+    constructor(posi : LittleJS.Vector2, tileIndx : number = 50, name : string = "Generic Item"){
 
         super()
-        this.tileInfo = tile(22, 128, 2, 4); // set coin tile 22
+        this.tileInfo = tile(tileIndx, 128, 2, 4); // set coin tile 22
         this.pos = posi;
         this.size = vec2(0.7);  
+        this.name = window.dialogs.t(name);
+        this.tileIndx = tileIndx; // set the tile index (frame number) to render
+        // tranlated item collected dialogue
+        this.collect_diag = window.dialogs.t(this.name) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
+
 
     }
 
     render(){
-        drawTile(this.pos, this.size, tile(22, 128, 2, 0), this.color, 0, this.mirror);
+        drawTile(this.pos, this.size, tile(this.tileIndx, 128, 2, 0), this.color, 0, this.mirror);
     }
 
     update(){
 
-        if (window.player){
+        if (window.player && !this.despawn){
             // set player collision to coin object
             // set coin idle animation
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 // to do:
-                // (1) implement diag translation functionality
+                // (1) implement diag translation functionality (done)
                 
-                window.dialogs.show_dialog("sud coins collected", ""); // to do: should ideally be item hud, requires implement stats hud for item collect
+                window.dialogs.show_dialog("",`${this.collect_diag}`); // to do: should ideally be item hud, requires implement stats hud for item collect
+                
+                // add the item to the inventory
+                window.music.item_pickup.play();
+
+                // update item count in inventory
+                let y : number = window.inventory.get(this.name);
+                let z : number = y + this.amount;
+                window.inventory.set(this.name, z);
+                
+
                 //console.log("coin collected, creating atc txn");
                 this.destroy();
+                this.despawn = true;
+                return
 
-                window.music.item_pickup.play();
 
                 // to do : 
                 // (1) implement game coin render
@@ -418,6 +438,7 @@ export class Items extends EngineObject {
                 
             }
         }
+        else return
     }
 }
 
