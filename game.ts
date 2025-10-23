@@ -304,6 +304,8 @@ function setupPostProcess()
         c *= 1.-pow((dx*dx + dy*dy)/vignette, vignettePow);
     }`;
 
+    
+
     const includeOverlay = true;
     initPostProcess(televisionShader, includeOverlay);
 }

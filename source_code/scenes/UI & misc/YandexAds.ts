@@ -161,12 +161,12 @@ export class YandexAds {
         // (2) implement runtime translation functions for all ui elements with text and call it here
         window.dialogs.language = window.dialogs.normalizeLocale(detectedLang);
         
-        //works but requires runtime translations functions to use the sdk for auto translations
+        //works 
         //
-        window.dialogs.show_dialog("",`🌐 Yandex SDK initialized | Language detected: ${detectedLang}, / dialogs lang: ${window.dialogs.language}`);
+       // window.dialogs.show_dialog("",`🌐 Yandex SDK initialized | Language detected: ${detectedLang}, / dialogs lang: ${window.dialogs.language}`);
         // to do:
-        // (1) trigger ui translation from here (1/2)
-        await window.ui.translateUIElements(window.dialogs.normalizeLocale(detectedLang));
+        // (1) trigger ui translation from here (done)
+        await window.ui.translateUIElements(window.dialogs.language);
 
 
       

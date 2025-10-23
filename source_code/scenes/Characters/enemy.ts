@@ -482,11 +482,11 @@ export class Enemy extends PhysicsObject {
 
         this.playAnim(this.Despawn);
         
-        return 1;
+        return ; //1;
     }
 
     despawn() {
-        //console.log("Enemy Despawn Logic Triggered");
+        console.log("Enemy Despawn Logic Triggered");
         
         // The Enemy Despawn animation
         // bug :
@@ -751,8 +751,8 @@ export class Enemy extends PhysicsObject {
                     // to do: 
                     //(1) use velocity logic for positional movement to implement collisions
                     //(2) note that animationTime is the engine's delta time saved from the parent class
-                    this.pos.x += this.direction.x * this.speed * this.animationTime;
-                    this.pos.y += this.direction.y * this.speed * this.animationTime;
+                    this.pos.x += this.direction.x * this.speed //* this.animationTime;
+                    this.pos.y += this.direction.y * this.speed //* this.animationTime;
                 
 
             },

@@ -1,7 +1,7 @@
 
 import * as LittleJS from 'littlejsengine';
 
-const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData} = LittleJS
+const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData, isOverlapping} = LittleJS
 
 
 export class Utils {
@@ -317,97 +317,43 @@ export class Utils {
 
 
 export class PhysicsObject extends EngineObject {
-    /**
-     * LittleJS physics object for player and enemy physics & collisions
-     * 
- 
-     */
+/**
+* LittleJS physics object for player and enemy physics & collisions
+*/
 
-    public animationTime: number = 0; // for timing frame changes to 1 sec or less
-    public mirror: boolean = false; //false
-    public animationInterval : number = 0.1 // 0.1 seconds for each animation
-    public currentFrame : number = 0;
-    
+public mirror: boolean = false;
+public currentFrame: number = 0;
+public animationSpeed: number = 7; // how many times per second the frame changes
+public animationSequence: number[] = [0]; // default animation sequence
 
-    constructor()
-    {
-        super();
-        this.setCollision(true,true,true,true); // make object collide
-        this.mass = 0; // make object have static physics
-
-
-        
-    }
-
-    animate(currentFrame: number, sequence: number[]): number {
-        /** 
-         * Animation Function
-         * 
-         * Features:
-         * 
-         * (1) Loops through an array sequence and return this current frame
-         * (2) Plays animation loops
-         *
-         *  Usage Examples:
-            this.currentFrame = getNextFrame(this.currentFrame, [3, 4, 5]); // Loops 3 → 4 → 5 → 3
-            this.currentFrame = getNextFrame(this.currentFrame, [1, 2, 3]); // Loops 1 → 2 → 3 → 1
-            this.currentFrame = getNextFrame(this.currentFrame, [6, 7, 8]); // Loops 6 → 7 → 8 → 6
-
-        * Bugs :
-        * (1) Doesn't work with enemy run up animation frames 
-        */
-       
-        //const index = sequence.indexOf(currentFrame); // Find the current position in the sequence
-        //return sequence[(index + 1) % sequence.length]; // Move to the next frame, looping back if needed
-        let index = sequence.indexOf(currentFrame);
-        
-        if (index === -1) {
-            // Not found in the sequence — maybe default to the first frame or throw an error
-            //  console.warn(`Frame ${currentFrame} not in sequence`, sequence);
-            //console.trace("Trace of who called me");
-            //return sequence[0]; // or throw new Error("Invalid currentFrame")
-            index = sequence[0];
-        }
-
-        return sequence[(index + 1) % sequence.length];
-        
-    }
-
-    playAnim(anim: Array<number>){
-        
-        // update animation time with the game's delta
-        // play the animation for 0.1 seconds
-        this.animationTime += LittleJS.timeDelta;
-        
-
-        if (this.animationTime >= this.animationInterval) {
-            //console.log("animation debug: ", this.frameCounter, "/", this.animationCounter);    
-        
-            //loop animation function
-            this.currentFrame = this.animate(this.currentFrame, anim);
-            //console.log(this.currentFrame);
-            
-            // subtract interval to handle lag gracefully
-            this.animationTime -= this.animationInterval; // Reset timer
-                    
-        }
-    }
-
-    render() {
-
-        // bug:
-        // (1) player animation frame is iffy
-
-        //// set player's sprite from tile info and animation frames
-        //console.log("frame debug: ",this.currentFrame);
-        //this.currentFrame
-        //console.log("pos debug: ", this.pos);
-
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
-    }
-    
+constructor() {
+    super();
+    this.setCollision(true, true, true, true); // make object collide
+    this.mass = 0; // make object static by default
 }
 
+/**
+ * Update the animation frame based on global LittleJS time
+ * @param {number[]} sequence - list of tile frame indices, e.g. [3,4,5]
+ * @param {number} speed - how many times per second the animation should loop through frames
+ */
+playAnim(sequence: number[], speed: number = this.animationSpeed) {
+    this.animationSequence = sequence;
+    this.animationSpeed = speed;
+
+    // Compute which frame index to use based on time
+    const frameIndex = (LittleJS.time * speed) % sequence.length | 0;
+    this.currentFrame = sequence[frameIndex];
+}
+
+render() {
+    drawTile(this.pos, this.size, tile(this.currentFrame, 128, 0, 0), this.color, 0, this.mirror);
+}
+
+
+
+
+}
 
 /** Pathfinding Helper functions */
 export function worldToGrid(pos: LittleJS.Vector2, tileSize: number): LittleJS.Vector2 {
@@ -425,3 +371,53 @@ export function gridToWorld(cell: [number, number], tileSize: number): LittleJS.
     cell[1] * tileSize + tileSize / 2
   );
 }
+
+
+
+export class Items extends EngineObject {
+    /**
+     * 
+     * Core Items Class, Expanded by All Game Items
+     * 
+     * to do:
+     * (1) lock all core item behaviour into this class object
+     * (2) replace all the items boilerplate script with this code base class
+     */
+
+    constructor(posi : LittleJS.Vector2){
+
+        super()
+        this.tileInfo = tile(22, 128, 2, 4); // set coin tile 22
+        this.pos = posi;
+        this.size = vec2(0.7);  
+
+    }
+
+    render(){
+        drawTile(this.pos, this.size, tile(22, 128, 2, 0), this.color, 0, this.mirror);
+    }
+
+    update(){
+
+        if (window.player){
+            // set player collision to coin object
+            // set coin idle animation
+            if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
+                // to do:
+                // (1) implement diag translation functionality
+                
+                window.dialogs.show_dialog("sud coins collected", ""); // to do: should ideally be item hud, requires implement stats hud for item collect
+                //console.log("coin collected, creating atc txn");
+                this.destroy();
+
+                window.music.item_pickup.play();
+
+                // to do : 
+                // (1) implement game coin render
+                // (2) implement game coin price statistics calculation
+                
+            }
+        }
+    }
+}
+

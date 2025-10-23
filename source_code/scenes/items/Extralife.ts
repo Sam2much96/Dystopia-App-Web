@@ -27,6 +27,8 @@ export class HealthPotion extends EngineObject{
     }
 
     render(){
+        
+
         drawTile(this.pos, this.size, tile(21, 128, 2, 0), this.color, 0, this.mirror);
     }
 

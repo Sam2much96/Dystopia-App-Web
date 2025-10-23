@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
+const {EngineObject,vec2, drawTile, tile, isOverlapping} = LittleJS;
 
 export class GenericItem extends EngineObject {
     /**
@@ -30,10 +30,16 @@ export class GenericItem extends EngineObject {
     }
 
     render(){
+
         drawTile(this.pos, this.size, tile(50, 128, 2, 0), this.color, 0, this.mirror);
     }
 
     update(){
+
+        // animate with stretch and squash
+        const s = Math.sin(LittleJS.time*9)*.5;
+        this.size = vec2(7-s,7+s);
+        this.pos = vec2(5,this.size.y-7);
 
         // item hit collision
         if (window.player){

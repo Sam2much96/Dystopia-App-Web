@@ -121,7 +121,7 @@ export class Player extends PhysicsObject{
     public IdleRight : Array<number> =[...this.IdleLeft];
     public Roll : Array<number> =[0];
     public AttackUp : Array<number> =[36,37,38,39,40,41,42];
-    public AttackDown : Array<number> =[23,24,25,26,27,28];
+    public AttackDown : Array<number> =[23,24,25,26,27, 27,28];
     public AttackLeft : Array<number> =[29,30,31,32,33,34,35]; 
     public AttackRight : Array<number> =[...this.AttackLeft];
     public Despawn : Array<number> =[43,44];
@@ -219,6 +219,14 @@ export class Player extends PhysicsObject{
 
 
 export class TopDownPlayer extends Player {
+    /**
+     * Top Down Player Object
+     * 
+     * @param pos 
+     * 
+     * Featues:
+     * (1) Implements all top down player physics and animation
+     */
     
     constructor(pos : LittleJS.Vector2) {
         //console.log("player pos debug :", pos);
@@ -429,7 +437,7 @@ export class TopDownPlayer extends Player {
         window.music.punch_sfx_2.play(); // play hit sfx
         this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
         
-        this.triggerHurt(1); // trigger invincibility frame for 1 seconds
+       //this.triggerHurt(1); // trigger invincibility frame for 1 seconds
 
         //instance blood particle fx
         if (this.hitpoints<0 && !this.deSpawn){
@@ -452,6 +460,7 @@ export class TopDownPlayer extends Player {
         //triggers a hurt frame for a couple of seconds that makes the player invincible to further attacks
         // to do:
         // (1) implement a hurt state and animations
+        // (2) use hurt state to fix overpowered enemy bug
         console.log("Trigger Invincibility State");
     }
 
@@ -591,7 +600,7 @@ export class TopDownPlayer extends Player {
                         //console.log("eneemy debug: ", enemy.pos);
                         //bug: checks for only one player and doesn't account for multiple players
                         if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
-                            //console.log("Player Hit Collision Detection Triggered");
+                            console.log("Player Hit Collision Detection Triggered");
                             enemy.hitCollisionDetected();
                         }
                      }
@@ -1055,6 +1064,7 @@ export class SideScrollerPlayerBox extends Box2dObject {
 
         // bug:
         // (1) player animation frame is iffy
+        // (2) player's animation movement is very floaty
 
         //// set player's sprite from tile info and animation frames
         //console.log("frame debug: ",this.currentFrame);

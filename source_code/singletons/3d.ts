@@ -20,7 +20,7 @@ Bugs:
 (3) Is a performance hog, should be used sparingly/ optimised for mobilw
 
 to do:
-(1) implement simple 3d overworld scene
+(1) implement simple 3d overworld scene (1/5)
 (2) fix all 3d rendering loading performance hogs
 (3) implement 3d overworld loading scene via spaceship objects
 (4) implement 3d level collisions

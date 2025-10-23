@@ -22,6 +22,8 @@ import { EnemySpawner } from '../UI & misc/Enemyspawner';
  * (3) Fire object (1/2) : Edit Enemy spawner object into 2 inherited objects sharing the fire animations
  * (4) Fix missing temple interior frame
  * (5) fix temple dungeon scene break
+ * (6) blood splatter fx tiles are now enemy objects
+ * (7) finish tiemple interior wall collisions
  */
 
 

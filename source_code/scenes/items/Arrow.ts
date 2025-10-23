@@ -57,3 +57,11 @@ export class Arrow extends EngineObject{
     }
 
 }
+
+
+export class Bullet extends EngineObject{
+    // Bullet class object shared by all projectile objects
+    // implements the arrow item use
+    // spawns a projectile that moves in a straight line and despawns all enemy objects in it's path
+
+}
