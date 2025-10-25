@@ -38,7 +38,7 @@ import { Utils, PhysicsObject, worldToGrid, gridToWorld } from '../../singletons
 import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart for navigation server logic
 import { ItemSpawner } from '../items/ItemSpawner';
 //blood particle fx
-import { Blood_splatter_fx } from '../UI & misc/Blood_Splatter_FX';
+import { Blood_splatter_fx, DespawnFx } from '../UI & misc/Blood_Splatter_FX';
 
 const {vec2, drawTile, drawLine, isOverlapping, Timer,tile} = LittleJS;
 
@@ -682,6 +682,7 @@ export class Enemy extends PhysicsObject {
                 this.playAnim(this.Despawn);
                 this.Alive =false;
                 console.log("Destroying This Enemy");
+                new DespawnFx(this.pos, 0.5); // create a despawn fx
                 
                 // remove object from global object pool
                 // remove object from global array

@@ -3,7 +3,8 @@ import * as LittleJS from 'littlejsengine';
 const {vec2} = LittleJS;
 
 
-import {Bombexplosion} from "../scenes/UI & misc/Blood_Splatter_FX";
+
+//import {Bombexplosion} from "../scenes/UI & misc/Blood_Splatter_FX";
 
 
 export class Inventory {
@@ -22,7 +23,8 @@ export class Inventory {
     * (3) Inventory Translations
     * (4) fix item use logic so it doesn't multiply the inventory items
     * (5) fix ui render to update once status hud is visible not when the tab buttons is clicked
-    * 
+    * (6) implement bomb explosion item from bomb class
+    * (7) implement bullet item from arrow class
     * 
     */
 
@@ -407,9 +409,9 @@ export function useItem(type :string, amount : number ) : boolean {
         }
 
         if (type == "Bomb"){
-            const bomb = new Bombexplosion(player.pos, vec2());
-
-            console.log("bomb debug: ", bomb);
+            //const bomb = new Bombexplosion(player.pos, vec2());
+            console.log("Bomb use item triggered")
+            //console.log("bomb debug: ", bomb);
         }
 
         if (type == "Arrow" && local_inv.has("Bow")){

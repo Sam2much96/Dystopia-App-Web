@@ -27,8 +27,12 @@ import {TopDownPlayer} from "../Characters/player";
 import {OldWoman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 import {Utils} from "../../singletons/Utils";
-import {Hole, House1, House2, TempleDoor} from "../UI & misc/Exit";
+import {Hole, House1, House2, TempleDoor, Spaceship1, Spaceship2} from "../UI & misc/Exit";
 import { Signpost } from '../items/Signpost';
+
+
+//test the fire fx
+import {Firefx1} from "../UI & misc/Blood_Splatter_FX";
 
 export class OverWorld extends EngineObject{
     /*
@@ -175,6 +179,12 @@ export class OverWorld extends EngineObject{
                             
                             //console.log("player spawn tile debug :", val, "/", x,",", y);
                             window.player = new TopDownPlayer(vec2(x,y));
+
+                            //test the fire fx
+                            // doesnt work
+                            // to do:
+                            // (1) fix fx implementation from example testing
+                            //const u = new Firefx1(vec2(x,y),2);
                             
                             // old woman npc
                             const m = new OldWoman(vec2((x + 8), (y +6)));
@@ -384,6 +394,17 @@ export class OverWorld extends EngineObject{
                         }
                         if (val === 90){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
+                        }
+                        if (val === 97){ // overworld 3d exit collision 1 works
+                            const c = new Spaceship1(vec2(x,y));
+                            this.levelObjects?.push(c);
+                            return
+
+                        }
+                        if (val === 98){ // overworld 3d exit collision 2 works
+                            const z = new Spaceship2(vec2(x,y));
+                            this.levelObjects?.push(z);
+                            return
                         }
 
                         // to do:
