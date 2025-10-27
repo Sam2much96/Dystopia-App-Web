@@ -4,7 +4,7 @@ const {vec2} = LittleJS;
 
 
 
-//import {Bombexplosion} from "../scenes/UI & misc/Blood_Splatter_FX";
+import {BombExplosion} from "../scenes/items/Bomb";
 
 
 export class Inventory {
@@ -409,8 +409,8 @@ export function useItem(type :string, amount : number ) : boolean {
         }
 
         if (type == "Bomb"){
-            //const bomb = new Bombexplosion(player.pos, vec2());
-            console.log("Bomb use item triggered")
+            new BombExplosion(player.pos.copy());
+            //console.log("Bomb use item triggered")
             //console.log("bomb debug: ", bomb);
         }
 

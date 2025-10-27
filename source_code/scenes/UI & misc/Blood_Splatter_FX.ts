@@ -70,6 +70,7 @@ export class Blood_splatter_fx extends LittleJS.ParticleEmitter {
             console.log("particle timer elapsed");
             this.trailEffect.destroy();
             this.destroy(); // delete the object
+            return;
         }     
     }
 

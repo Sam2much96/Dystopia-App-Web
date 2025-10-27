@@ -47,7 +47,7 @@ const {vec2, drawTile, drawLine, isOverlapping, Timer,tile} = LittleJS;
 
 export class Enemy extends PhysicsObject {
 
-    public hitpoints: number = 5;
+    public hitpoints: number = 1;
     public speed: number = 1.5;
     public detectionRange: number;
     public minDistance: number;
@@ -454,6 +454,7 @@ export class Enemy extends PhysicsObject {
         new Blood_splatter_fx(this.pos, 2);
         this.kickback();
         
+        //console.log("enemy hitpoints debug: ", this.hitpoints);
 
         // to do: 
         // (1) play a despawn animation
@@ -682,7 +683,7 @@ export class Enemy extends PhysicsObject {
                 this.playAnim(this.Despawn);
                 this.Alive =false;
                 console.log("Destroying This Enemy");
-                new DespawnFx(this.pos, 0.5); // create a despawn fx
+                new DespawnFx(this.pos.copy(), 0.5); // create a despawn fx
                 
                 // remove object from global object pool
                 // remove object from global array
