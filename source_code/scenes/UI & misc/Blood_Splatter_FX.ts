@@ -81,7 +81,7 @@ export class Blood_splatter_fx extends LittleJS.ParticleEmitter {
 
 export class DespawnFx extends LittleJS.ParticleEmitter {
     // to do:
-    // (1) test particle fx
+    // (1) test particle fx (works)
     private trailEffect: any;
     public TimerOut : number = 0.5; // timer timeout to despawn the particle fx
     private particleTimer : LittleJS.Timer = new Timer();

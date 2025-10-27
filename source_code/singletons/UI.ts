@@ -23,6 +23,8 @@
  * (6) Status HUD only updates oncec the tab buttons are pressed, but it should be update once the status HUD is visible
  * (7) Continue game logic is buggy and needs a structured way of saving the map name data into memory
  *      - the current implementaiton is very hacky
+ * (8) fix status ui translations for yandex moderation
+ * (9) hide the quit button for yandex moderation
  */
 import { Music } from "./Music";
 import {Simulation} from "./Simulation";
@@ -283,10 +285,6 @@ async translateUIElements(language: string) {
 
 
 }
-
-
-
-
 
    
 }
@@ -673,9 +671,9 @@ export class IngameMenu{
 
         // disable for yyandex updates
                  
-        //this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
-        //    window.open("https://dystopia-app.site", "_blank");
-        //});
+        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
+            window.open("https://dystopia-app.site", "_blank");
+        });
         
        
         // to do: (1) create controls UI
@@ -685,10 +683,13 @@ export class IngameMenu{
             // window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
         //});
 
+        // hiding the quit button for yandex platform moderation
+        // it triggers a non compliance of game stutering
+        //
         this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
-            window.location.href = "about:blank";   // leaves your game
-
+            //window.location.href = "about:blank";   // leaves your game
+            window.close();
 
         });
 
@@ -697,7 +698,7 @@ export class IngameMenu{
         this.menuContainer!.append(
                 this.newGame,
                 this.contGame,
-                //this.Comics,
+                this.Comics,
                 //this.Controls,
                 this.Quit
             );

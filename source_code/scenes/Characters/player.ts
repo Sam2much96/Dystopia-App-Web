@@ -226,6 +226,10 @@ export class TopDownPlayer extends Player {
      * 
      * Featues:
      * (1) Implements all top down player physics and animation
+     * 
+     * Bug:
+     * (1) stuck hit collision state
+     * (2) hit collision only works for one enemy, any more and the collision detection logic breaks
      */
     
     constructor(pos : LittleJS.Vector2) {
@@ -445,7 +449,8 @@ export class TopDownPlayer extends Player {
             this.deSpawn = true;
             this.playAnim(this.Despawn);
         }
-       
+        
+        return;
         
 
     }   

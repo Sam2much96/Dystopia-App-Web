@@ -8,6 +8,7 @@ import {TopDownPlayer} from "../Characters/player";
 import {Shaman} from "../Characters/NPC";
 import { Stairs } from '../UI & misc/Exit';
 import { EnemySpawner } from '../UI & misc/Enemyspawner';
+import {Enemy} from "../Characters/enemy";
 //import {Signpost} from '../items/Signpost';
 
 //NPC
@@ -87,13 +88,17 @@ export class TempleInterior extends EngineObject {
                             this.levelObjects?.push(window.player);
                             return
                         }
-                        //if (val === 0){ // bow object
-                            
-                        //}
+                        if (val === 26){ // blood splatter fx marker
+                            let r = new Enemy(vec2(x,y));
+                            this.levelObjects?.push(r);
+                            return                            
+                        }
                     
                         // to do: (1) fire object
+                        // to do : (2) set blood fx positions to enemy spawn points
                         if (val === 35){ // first fire tile as enemy spawner placeholder
                             const i = new EnemySpawner(vec2(x, y));
+                            //const i = new Enemy(vec2(x,y));
                             this.levelObjects?.push(i);
                             return
                         }

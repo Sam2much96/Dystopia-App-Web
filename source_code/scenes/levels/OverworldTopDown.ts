@@ -292,7 +292,7 @@ export class OverWorld extends EngineObject{
                         // // supposed to be enemy spawner object but instead it's a single enemy spawner
                             //const y = new Enemy(vec2(5, 10));   
                             //window.globals.enemies.push(y);
-                            const i = new EnemySpawner(vec2(x, y));
+                            const i = new EnemySpawner(vec2(x, y), true);
                             this.levelObjects?.push(i);
                             return
                         }
