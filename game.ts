@@ -185,7 +185,7 @@ function gameInit() {
 
     // initilize ads singleton for the first time
     // initilisez the ads singleton ad triggers one auto ads on chrome devices    
-    window.ads.initialize(); 
+    //window.ads.initialize(); 
 
 
     //create all the game ui menus with translations
@@ -333,7 +333,7 @@ function gameRender() {
             // 
             //window.ads.showAds();
             
-            window.ads.showAds();
+            //window.ads.showAds();
             
             // overworld map 1 
             window.map = new OverWorld();
