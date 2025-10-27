@@ -327,12 +327,13 @@ public animationSpeed: number = 7; // how many times per second the frame change
 public animationSequence: number[];// = [0]; // default animation sequence
 public textureIndex : number = 0; // which tile to use, default is player tile
 
-constructor(currentFrame : number = 0,animationSequence: number [] = [0]) {
+constructor(currentFrame : number = 0,animationSequence: number [] = [0], textureIndex : number = 0) {
     super();
     this.setCollision(true, true, true, true); // make object collide
     this.mass = 0; // make object static by default
     this.animationSequence = animationSequence ; //set the default animation and frame
     this.currentFrame = currentFrame;
+    this.textureIndex = textureIndex;
 }
 
 /**

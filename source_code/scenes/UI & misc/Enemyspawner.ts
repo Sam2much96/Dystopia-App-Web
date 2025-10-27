@@ -21,6 +21,7 @@ export class EnemySpawner extends PhysicsObject {
      * 
      * to do:
      * (1) fix enemy respawn bug
+     * (2) second enemy collision detection doesn't work
      */
     public ENABLE: boolean;
     private COUNTER: number;
@@ -31,7 +32,7 @@ export class EnemySpawner extends PhysicsObject {
     public enemy2 : Enemy | undefined;
 
     constructor(pos: LittleJS.Vector2, ENABLE = true) {
-        super();
+        super(34,[34,35,36,37,38,39],2);
         this.tileInfo = tile(2,128,2,0);
         this.pos = pos;
         //this.pos = pos;

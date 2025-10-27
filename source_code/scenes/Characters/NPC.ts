@@ -26,24 +26,24 @@ class NPC extends PhysicsObject {
     public questTimer = new Timer(); // for stopping quest process spam in collision detection
     public timeout : number = 10; // timer timeout
     public QuestTriggered: boolean = false; // quest trigger checker
-    constructor(pos : LittleJS.Vector2){
-        super();
+    constructor(pos : LittleJS.Vector2, currentFrame : number = 1, animationseq = [0], textureIndex : number = 3){
+        super(currentFrame,animationseq,textureIndex);
         this.pos = pos;
         this.mass = 0; // static mass
         this.currentFrame = 1; // set the current frame for the object
 
     }
 
-    render(){
+   // render(){
         // draw the Merchant tiles (3)
         // this is gotten from the arrangement of tile data in game.ts engine init
         // where tileset 3 is the npc tileset
         //console.log(this.currentFrame); 
-        drawTile(this.pos, this.size, tile(this.currentFrame, 128, 3, 0), this.color, 0, this.mirror);
+   //     drawTile(this.pos, this.size, tile(this.currentFrame, 128, 3, 0), this.color, 0, this.mirror);
 
-    }
+    //}
     
-    update() : void {
+    //update() : void {
         //trigger hit collision detection for NPC
         //if (!this.QuestTriggered && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
        //     console.log("NPC Hit Collision Detection Triggered");
@@ -60,7 +60,7 @@ class NPC extends PhysicsObject {
         //if (this.questTimer.elapsed()){
         //    this.QuestTriggered = false;
         //}
-    }
+    //}
 
 }
 
@@ -91,7 +91,7 @@ export class Merchant extends NPC{
     private diag1 : string  = window.dialogs.t("diag1", window.dialogs.language) ;
     private speaker : string = window.dialogs.t("Merchant", window.dialogs.language) ;
     constructor(pos : LittleJS.Vector2){
-        super(pos);
+        super(pos,2,[2]);
         this.currentFrame = 2; // frame 2 (counting from 0) is supposed to be the merchant tile
         this.setCollision(false,false,false,false); // make object not collide
         
@@ -167,7 +167,7 @@ export class OldWoman extends NPC{
     private dialogue : string = window.dialogs.t("diag2");
     private speaker : string = window.dialogs.t("old_woman");
     constructor(pos : LittleJS.Vector2){
-        super(pos);
+        super(pos,1, [1],3);
         this.currentFrame = 1; // frame 1 is for the npc in the NPC tileset
         //this.isSolid = false;
         this.setCollision(false,false,false,false); // make object not collide

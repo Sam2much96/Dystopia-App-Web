@@ -158,7 +158,7 @@ export class Enemy extends PhysicsObject {
     private item_spawner : ItemSpawner | null = new ItemSpawner() ;
 
     constructor(pos: LittleJS.Vector2) {
-        super();
+        super(0,[28],1);
         //(1) set the Enemy object's position (done)
         //(2) set the Enemy object's type which determines the logic (1/3)
 
@@ -454,7 +454,7 @@ export class Enemy extends PhysicsObject {
         new Blood_splatter_fx(this.pos, 2);
         this.kickback();
         
-        //console.log("enemy hitpoints debug: ", this.hitpoints);
+        console.log("enemy hitpoints debug: ", this.hitpoints);
 
         // to do: 
         // (1) play a despawn animation
