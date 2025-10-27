@@ -183,7 +183,9 @@ function gameInit() {
     // (1) move controls ui to the ui singleton
     //const controls = new Controls(); // set up the engine's controls
 
-
+    // initilize ads singleton for the first time
+    // initilisez the ads singleton ad triggers one auto ads on chrome devices    
+    window.ads.initialize(); 
 
 
     //create all the game ui menus with translations
@@ -329,6 +331,9 @@ function gameRender() {
             // to do:
             // (1) rework game start logic to also load game levelfrom memory
             // 
+            //window.ads.showAds();
+            
+            window.ads.showAds();
             
             // overworld map 1 
             window.map = new OverWorld();

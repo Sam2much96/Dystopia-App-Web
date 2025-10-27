@@ -43,7 +43,7 @@ export class Advertising {
             // (1) move banner ads logic to shop api
             // (2) implement shop send transaction functionality
             this.ads1 = new GameMonetizeAds(); //works // temporarily disabled for better ux testing
-            this.ads1.showBanner(); //works
+            //this.ads1.showBanner(); //works
             return
         }
         if (platform ==="yandex")
@@ -90,6 +90,9 @@ export class Advertising {
             // show game monetize banner ads
             this.ads1!!.showBanner(); //works
 
+        }
+        else if (this.platform === "yandex"){
+            this.ads2?.showFullscreenAd();
         }
     }
 
