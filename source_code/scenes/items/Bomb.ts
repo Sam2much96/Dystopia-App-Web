@@ -111,6 +111,7 @@ export class BombExplosion extends PhysicsObject{
                             if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
                                 console.log("Enemy Hit Collision Detection Triggered");
                                 enemy.hitCollisionDetected();
+                                enemy.despawn();
                                 }
                             }
                         }

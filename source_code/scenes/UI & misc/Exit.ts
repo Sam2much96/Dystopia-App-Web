@@ -21,6 +21,7 @@ import { OverWorld } from '../levels/OverworldTopDown';
 import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
 import { Marketplace } from '../levels/Marketplace';
 import { TempleInterior } from '../levels/TempleInterior';
+import { OverWorld3D } from '../levels/Overworld3D';
 import {Utils} from "../../singletons/Utils";
 
 
@@ -88,6 +89,9 @@ class Exit extends EngineObject{
                 }
                 else if (this.to_scene_as_str === "Overworld 2"){
                     window.map = new OverworldSideScrolling();
+                }
+                else if (this.to_scene_as_str === "Overworld 3"){
+                    window.map = new OverWorld3D();
                 }
                 else if (this.to_scene_as_str === "Marketplace"){
                     window.map = new Marketplace();

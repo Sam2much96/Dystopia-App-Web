@@ -235,6 +235,7 @@ export class TopDownPlayer extends Player {
     constructor(pos : LittleJS.Vector2) {
         //console.log("player pos debug :", pos);
         //console.log(`objject debug: ${window.globals.players} / ${window.globals.enemies}`);
+        //console.log("LJS Cam size debug: ",LittleJS.getCameraSize());
         super(pos);
         this.renderOrder = 1;
         //this.pos = pos; //vec2(0,0); // 7,10 for overmap 1

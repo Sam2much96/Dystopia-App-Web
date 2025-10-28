@@ -39,6 +39,8 @@ import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart fo
 import { ItemSpawner } from '../items/ItemSpawner';
 //blood particle fx
 import { Blood_splatter_fx, DespawnFx } from '../UI & misc/Blood_Splatter_FX';
+import { OverWorld } from '../levels/OverworldTopDown';
+import { TempleInterior } from '../levels/TempleInterior';
 
 const {vec2, drawTile, drawLine, isOverlapping, Timer,tile} = LittleJS;
 
@@ -312,31 +314,40 @@ export class Enemy extends PhysicsObject {
     // (1) path finding logic only works once on scene start, after which it breaks
     // (2) path logic updater boolean doesn't work because of bug (1)
     updatePathV1() : boolean{ //path finding movement logic 1 : works
-        // logic completely ignores start and goal
-        // using aStar Pathfinding algorithm
-        // world to grid does not work, depreciate those functions
-        
-        // convert tile based vector to 32 array grid based vectors for the pathfinding algorithm
-        let start: [number, number] = [this.pos.x, this.pos.y]; //worldToGrid(this.pos,this.tileSize );
-        let goal: [number, number] = [window.player.pos.x, window.player.pos.y]; //worldToGrid(window.player.pos, this.tileSize);
-        
 
-    
-        // the purpose of using astar is to test trigger the enemy object env collisions and pathfinding logic
-        // new astar function is buggy
-        //let path = aStar(window.map.collisionGrid, start, goal);  
-        let path = aStarV1(window.map.collisionGrid,start,goal);
-        //console.log(path); // fro debugging path data only // works
-        if (path) {
-            this.path = path;
-            //this.currentPathIndex = 0; 
-            let x = this.path[0][0];
-            let y = this.path[0][1];     
-            return true;
-        }
-        else {
-            return false
-        }
+        //error catcher for pathfinding map
+        // path finding should only work on the temple interior and overworld map
+        if (window.map instanceof OverWorld || window.map instanceof TempleInterior) {
+            // your code here
+
+            // logic completely ignores start and goal
+            // using aStar Pathfinding algorithm
+            // world to grid does not work, depreciate those functions
+            
+            // convert tile based vector to 32 array grid based vectors for the pathfinding algorithm
+            let start: [number, number] = [this.pos.x, this.pos.y]; //worldToGrid(this.pos,this.tileSize );
+            let goal: [number, number] = [window.player.pos.x, window.player.pos.y]; //worldToGrid(window.player.pos, this.tileSize);
+            
+
+        
+            // the purpose of using astar is to test trigger the enemy object env collisions and pathfinding logic
+            // new astar function is buggy
+            //let path = aStar(window.map.collisionGrid, start, goal);  
+            let path = aStarV1(window.map.collisionGrid,start,goal);
+            //console.log(path); // fro debugging path data only // works
+            if (path) {
+                this.path = path;
+                //this.currentPathIndex = 0; 
+                let x = this.path[0][0];
+                let y = this.path[0][1];     
+                return true;
+            }
+            else {
+                    return false
+                }
+            }
+
+        else {return false}
 
     }
 
@@ -454,7 +465,7 @@ export class Enemy extends PhysicsObject {
         new Blood_splatter_fx(this.pos, 2);
         this.kickback();
         
-        console.log("enemy hitpoints debug: ", this.hitpoints);
+        //console.log("enemy hitpoints debug: ", this.hitpoints);
 
         // to do: 
         // (1) play a despawn animation

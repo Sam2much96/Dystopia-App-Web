@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-const { Scene, PerspectiveCamera, WebGLRenderer,BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh } = THREE;
+const { Scene, PerspectiveCamera, WebGLRenderer,BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh, TextureLoader } = THREE;
 /*
 
 3d Rendering Engine
@@ -20,17 +20,18 @@ Bugs:
 (3) Is a performance hog, should be used sparingly/ optimised for mobilw
 
 to do:
-(1) implement simple 3d overworld scene (1/5)
+(1) implement simple 3d overworld scene (2/5)
 (2) fix all 3d rendering loading performance hogs
-(3) implement 3d overworld loading scene via spaceship objects
-(4) implement 3d level collisions
+(3) implement 3d overworld loading scene via spaceship objects (1/2)
+(4) implement 3d level collisions (0/5)
+(5) expand 3d object functionality
 */
 
 
 
 export class ThreeRender {
 
-    //private THREE: typeof THREE;
+    
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
@@ -38,9 +39,7 @@ export class ThreeRender {
     private gltf: any | undefined;
     private threejsLayer : HTMLElement | null = document.getElementById("threejs-layer"); // get the renderer's DOM element 
     constructor() {
-        //super();
-        // create a global threejs object
-        //this.THREE = THREE;
+  
 
         //console.log("Three JS Debug 1: ", this.THREE); // works
 
@@ -79,8 +78,21 @@ export class ThreeRender {
         this.renderer.render(this.scene, this.camera);
 
     }
+    addLDR(): void {
+        // adds the enviroment hdr background
+        const loaderTex = new TextureLoader(); // for loading the LDR
+        loaderTex.load('./550px-TLoZTWW_Vr_boxcloud1.png', (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        //texture.encoding = THREE.sRGBEncoding; // important for correct colors
 
-    LoadModel(): void {
+        this.scene.background = texture;
+        this.scene.environment = texture; // still usable for reflections, though LDR
+});
+
+
+    }
+
+    LoadModel(path = "./overworld_map.glb"): void {
         /**
          * Loads A 3D Gltf model via script
          * Works
@@ -90,10 +102,13 @@ export class ThreeRender {
         //const { GLTFLoader } = this.GLTF;
 
 
-        const loader = new GLTFLoader;
+        const loader = new GLTFLoader(); // for loading the gltf models
+        
+
         const DEBUG = false;
+
         loader.load(
-            './overworld_map.glb',
+            path, // loads the default overworld path if no path is set
             (gltf) => {
                 if (DEBUG) {
 

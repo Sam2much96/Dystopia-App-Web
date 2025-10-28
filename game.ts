@@ -64,6 +64,7 @@ import {OverWorld} from "./source_code/scenes/levels/OverworldTopDown";
 import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideScrolling";
 import { Marketplace } from './source_code/scenes/levels/Marketplace';
 import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
+import { OverWorld3D } from './source_code/scenes/levels/Overworld3D';
 
 // post processing
 import { initPostProcess } from './source_code/singletons/postProcess';
@@ -99,7 +100,7 @@ declare global {
         player: TopDownPlayer | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
-        map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior; // all implemented map levels
+        map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior | OverWorld3D; // all implemented map levels
         simulation: Simulation;
         ads : Advertising;
 
@@ -143,6 +144,8 @@ declare global {
 
     // set dpad configuration on mobile browsers 
     LittleJS.setTouchGamepadAnalog(false);
+    //LittleJS.setCameraScale(16);
+    
     
 function gameInit() {
     // called once after the engine starts up
@@ -209,7 +212,9 @@ function gameInit() {
 
     //Initialise 3d scene render
     // 
-
+    // to do: 
+    // (1) lock render logic into a scene object like the overworld game levels
+    // (2)
     // Bug:
     // (1) there's a bug, if model is not loaded, game startup logic is broken 
     window.THREE_RENDER.LoadModel();
@@ -220,8 +225,8 @@ function gameInit() {
     //window.THREE_RENDER.addToScene(c1);
     // window.THREE_RENDER.addToScene(c2);
     window.THREE_RENDER.setCamera(CAMERA_DISTANCE);
-    window.THREE_RENDER.animate();
-
+    window.THREE_RENDER.animate(); // to do: lock the model movement and the render binding into separate functions to fix stuck render and animate bug
+    //window.THREE_RENDER.renderStill();
   
 
     // Create & hide Ingame Menu
@@ -308,8 +313,8 @@ function setupPostProcess()
 
     
 
-    const includeOverlay = true;
-    initPostProcess(televisionShader, includeOverlay);
+    //const includeOverlay = true;
+    //initPostProcess(televisionShader, includeOverlay);
 }
 
 function gameRender() {
@@ -321,6 +326,8 @@ function gameRender() {
     // triggers srart of game loop from simulation singleton
     // 
     // 
+    // to do:
+    // (1) create a game manager parent class and lock the game logic into it
 
     // start game logic
     if (window.globals.GAME_START) {
