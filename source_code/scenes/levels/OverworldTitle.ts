@@ -1,0 +1,118 @@
+/**
+ * 
+ * The 3d title loading animation locked into a class
+ * for easier code modularity 
+ * 
+ * works
+ * to do:
+ * (1) depreciate global three render class for proper debugging
+ * (2) rewrite simulation logic to instead use local set pointers to the current 3d renderer
+ * 
+ * 
+ */
+
+import { EngineObject,Color } from "littlejsengine";
+import {ThreeRender, CAMERA_DISTANCE} from "../../singletons/3d";
+import { OverWorld } from "./OverworldTopDown";
+
+export class OverworldTile extends EngineObject{
+    private THREE_RENDER : any;
+    private local_3d_engine : any;
+
+    private groundLevel: number = -4; // ground position for stopping Gravity on Cube
+    constructor(){
+        super();
+        this.color = new Color(0, 0, 0, 0); // make object invisible
+        // bug:
+        // (1) the three renderer doesn't free the class
+        this.THREE_RENDER = new ThreeRender();
+        this.local_3d_engine = this.THREE_RENDER;
+        //window.simulation.local_3d_engine = this.THREE_RENDER;
+        // load the 3d model
+        //load the game 3d map
+        let t = null;
+        (async () => {
+                t = await this.THREE_RENDER.LoadModelV1();
+                console.log("Loaded model: ", t); // asynchronous method
+        })();
+        
+        
+        this.THREE_RENDER.addLDR("./HDR_3d_background_bw.webp");
+        //window.THREE_RENDER.Cube();
+
+
+
+        //window.THREE_RENDER.addToScene(c1);
+        // window.THREE_RENDER.addToScene(c2);
+        this.THREE_RENDER.setCamera(CAMERA_DISTANCE);
+        this.THREE_RENDER.animate(); // bind the animation and renderer to this context
+    }
+
+    destroy(): void {
+        this.THREE_RENDER = null;
+    }
+
+    update(){
+                // Start Game Sequence
+        // It modifies the threejs positions
+        // bug:
+        // (1) doesn't account for if cube doesn't load
+
+        // update cube 3d position
+        // bug:
+        // (1) 3d level doesn't load model fast on low latency internet
+        // (2) rework to use 
+        // to do:
+        // (1) port physics implementation to the overworld title scene
+        if (this.local_3d_engine){
+            let cubePosition = this.local_3d_engine!.getCubePosition();
+        
+
+        if (cubePosition && window.globals.GAME_START) {
+
+
+            // add gravity to cube
+            if (cubePosition.y > this.groundLevel) {
+                this.local_3d_engine.setCubePosition(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
+            }
+
+
+            // hide threejs layer once game starts
+            // is always true once game has started
+            // 
+            if (cubePosition.y < this.groundLevel) {
+                this.local_3d_engine.hideThreeLayer();
+                
+                
+
+                // save to global conditional for rendering game backgrounds and starting core game loop
+                window.globals.GAME_START = true;
+                
+                this.THREE_RENDER.hideThreeLayer();
+
+                this.THREE_RENDER.destroy();
+                this.THREE_RENDER = null;
+                window.map = new OverWorld(); // Overworld3D();
+                window.globals.current_level = "Overworld"; //"Overworld 3";
+
+                //this.destroy(); // object not needed in the current state 
+               // if (this.local_3d_engine.hasCube()){
+               //     this.local_3d_engine.deleteCube()
+                //}
+                //this.local_3d_engine.destroy();
+                //this.local_3d_engine = undefined;
+                this.THREE_RENDER = null;
+
+                this.destroy();
+
+
+                // transition to non simulating state 
+                //this.State()["NON_SIMULATING"]();
+                //this.Enabled = false;
+                return;
+             }}
+        }
+    }
+
+
+}

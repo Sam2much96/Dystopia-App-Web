@@ -609,8 +609,8 @@ export class IngameMenu{
                 window.music.sound_start.play();
                 
                 //console.log('creating new game simulation');
-                window.simulation = new Simulation();
-
+                //window.simulation = new Simulation();
+                window.globals.GAME_START = true; // trigger the start sequence on the overworld title map
                 // save fresh game data to memory
                 Utils.saveGame();
 
@@ -639,8 +639,16 @@ export class IngameMenu{
                     }
                     let curr_lvl = window.globals.current_level;
                     window.globals.GAME_START = true;
-                    window.THREE_RENDER.deleteCube();
-                    window.THREE_RENDER.hideThreeLayer();
+                    if (window.THREE_RENDER){
+
+                        //window.THREE_RENDER.deleteCube();
+                        window.THREE_RENDER.hideThreeLayer();
+
+                    }
+                    
+
+                    //to do:
+                    //(1) implement a hide layer on map objects
                     if (curr_lvl !== ""){
                         
                         

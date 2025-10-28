@@ -1,4 +1,26 @@
+   /*
+    
+    Simulation Singleton In One Class
+    Handles all simulation logic
+
+    3d Cube Logic handled by littlejs
+
+    Features:
+    (1) Add Gravity TO Cube Object
+    (2) Adds A ground Level To Scene
+    (3) Triggers start of game loop
+    (4) Acts as a game manager for the 3d scenes and the 2d scene game start
+
+    // To DO : 
+    // (1) Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
+    // (2) Expantd Timer Functionality for animations via global singleton
+    // (3) decouple code base from using global singletons to instead use local pointers from scene instances
+
+     */
+    
+
 import * as LittleJS from 'littlejsengine';
+import { ThreeRender } from './3d';
 
 const {EngineObject, Color,vec2,setGravity} = LittleJS
 
@@ -26,22 +48,7 @@ interface player_info { 0 :{ //server peer id
 //type PlayerInfoDictionary = { [id: number]: player_info };
 
 export class Simulation extends EngineObject {
-    /*
-    
-    Simulation Singleton In One Class
-    Handles all simulation logic
-
-    3d Cube Logic handled by littlejs
-
-    Features:
-    (1) Add Gravity TO Cube Object
-    (2) Adds A ground Level To Scene
-    (3) Triggers start of game loop
-
-     */
-    // To DO : 
-    // Add Player And Cube Collissions Where The Cube Collision tracks the Cube Object
-    // Expantd Timer Functionality for animations via global singleton
+ 
 
     // get the cube object from threejs
     public cubePosition: Vector3 | null = null;
@@ -49,13 +56,18 @@ export class Simulation extends EngineObject {
     public color: any | null;
     public tick: number = 0;
     public lastTick: number = 0;
-    public deltaTime: number = LittleJS.timeDelta;
+    private deltaTime: number = LittleJS.timeDelta;
 
     public Enabled: boolean = false;
 
-    public state : Map<string, number>;    // state machine
+    // state machine
+    public state : Map<string, number> = new Map([
+            ['SIMULATING', 0],
+            ['NON_SIMULATING', 1]
+        ]);
+    
     public gravity : number = 3500; // to do: connect to little js gravity config
-    public frame_counter : number = 0;
+    //public frame_counter : number = 0;
     public last_update : number =  -1;
 
 
@@ -72,15 +84,18 @@ export class Simulation extends EngineObject {
     //public rainFX = new RainFX(vec2(), vec2()); //pointer to rain fx particle
     //public smokeFX = new SmokeFX(vec2(), vec2()); // pointer to smoke fx particle
 
-    public local_3d_engine = window.THREE_RENDER; // safe pointer to threejs
+    public local_3d_engine : ThreeRender | undefined; // safe pointer to threejs
+    public Gravity : boolean = true;
     
-    constructor() {
+    
+    constructor(enabled : boolean) {
         super();
         console.log("Simulation Singleton Created");
         //this.cubePosition = null; // for storing the cube geometry 3d position 
         //this.groundLevel = -4; // ground position for stopping Gravity on Cube 
         this.color = new Color(0, 0, 0, 0); // make object invisible
         //this.timer = new Timer(); //timer necessary for running the simulation timer loop
+        this.Enabled = true;
 
         //return 0;
 
@@ -88,12 +103,10 @@ export class Simulation extends EngineObject {
         //setGravity(0);
 
         //simulation singleton state machine
-        this.state = new Map([
-            ['SIMULATING', 0],
-            ['NON_SIMULATING', 1]
-        ]);
-
-            
+        //this.state 
+        // get the initial cube position
+        //let t = this.local_3d_engine.getCubePosition();
+        //console.log("3d world model initial position: ", t);
 
         
         
@@ -128,7 +141,8 @@ export class Simulation extends EngineObject {
 
 
     update() {
-        
+        // to do: 
+        // (1) lock logic calculation into a state machine 
         // Delta Calculation
         //needed for animation logic
         //get delta time via ticks
@@ -140,28 +154,58 @@ export class Simulation extends EngineObject {
 
         //console.log("Delta time debug:", this.deltaTime); //works
 
-        // update cube 3d position
-        // bug:
-        // (1) 3d level doesn't load model fast on low latency internet
-        let cubePosition = this.local_3d_engine.getCubePosition();
-
+        
+        if (this.Enabled){
+            this.State()["SIMULATING"]();
+        }
+        if (!this.Enabled){
+            this.State()["IDLE"]();
+        }
+        //else (
+        //    this.State()["NON_SIMULATING"]()
+        //)
 
         //update frame counter
-        this.frame_counter +=1;
+        //this.frame_counter +=1;
 
 
+        // to do: 
+        // (1) use a timer object for this logic not a frame counter
         //Frame Counter Reset Logic
-        if (this.frame_counter >= 1_000){
-            this.frame_counter = 0;
-        }
+        //if (this.frame_counter >= 1_000){
+        //    this.frame_counter = 0;
+        //}
 
 
 
         
+
+
+    }
+
+
+    // simulation state machine
+    // functions:
+    // (1) manages the 3d world gravity simulations
+    // to do: - move gravity simulation to a capable 3d physics engine instead
+        // stores complex player states
+    State(): Record<string, () => void>  {
+
+        return {
+            "SIMULATING" : () => {
+
+
         // Start Game Sequence
         // It modifies the threejs positions
         // bug:
         // (1) doesn't account for if cube doesn't load
+
+        // update cube 3d position
+        // bug:
+        // (1) 3d level doesn't load model fast on low latency internet
+        if (this.local_3d_engine){
+            let cubePosition = this.local_3d_engine!.getCubePosition();
+        
 
         if (cubePosition) {
 
@@ -183,19 +227,51 @@ export class Simulation extends EngineObject {
                 // save to global conditional for rendering game backgrounds and starting core game loop
                 window.globals.GAME_START = true;
 
-                this.destroy(); // object not needed in the current state 
+                //this.destroy(); // object not needed in the current state 
                // if (this.local_3d_engine.hasCube()){
                //     this.local_3d_engine.deleteCube()
                 //}
+                this.local_3d_engine.destroy();
+                this.local_3d_engine = undefined;
+                this.destroy();
 
-            }
+                // transition to non simulating state 
+                //this.State()["NON_SIMULATING"]();
+                this.Enabled = false;
+                return;
+            }}
         }
 
+            },
 
-    }
+            "NON_SIMULATING" : () => {
+                // reset the cube position
 
+                if (this.local_3d_engine){
+                    let cubePosition = this.local_3d_engine.getCubePosition();
+                    if (cubePosition){
+                        this.local_3d_engine.setCubePosition(cubePosition.x, 0, cubePosition.z);
+                    }
+
+                    
+
+                }
+                // transition to idle state 
+                this.State()["IDLE"]();
+            },
+
+            "IDLE" : () => {
+                return
+            }
+        
+        }}
+
+
+    //depreciated function
+    // to do:
+    // (1) map to 3d physics engine frame counter
     get_frame_counter(): number{
-        return this.frame_counter;
+        return 0; //this.frame_counter;
     }
 
     // UI render code

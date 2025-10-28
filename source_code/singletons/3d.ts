@@ -1,3 +1,4 @@
+import { EngineObject } from 'littlejsengine';
 import * as THREE from 'three';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -27,20 +28,20 @@ to do:
 (5) expand 3d object functionality
 */
 
-
+ export const CAMERA_DISTANCE = 16;
 
 export class ThreeRender {
 
     
-    private scene: THREE.Scene;
-    private camera: THREE.PerspectiveCamera;
-    private renderer: THREE.WebGLRenderer;
-    private cube: any | null;
-    private gltf: any | undefined;
-    private threejsLayer : HTMLElement | null = document.getElementById("threejs-layer"); // get the renderer's DOM element 
+    public scene: THREE.Scene;
+    public camera: THREE.PerspectiveCamera;
+    public renderer: THREE.WebGLRenderer;
+    public cube: any | null;
+    public gltf: any | undefined;
+    public threejsLayer : HTMLElement | null = document.getElementById("threejs-layer"); // get the renderer's DOM element 
     constructor() {
   
-
+        //super();
         //console.log("Three JS Debug 1: ", this.THREE); // works
 
 
@@ -78,6 +79,17 @@ export class ThreeRender {
         this.renderer.render(this.scene, this.camera);
 
     }
+    createScene() : void {
+        // creates a 3d scene ready for render
+        this.scene = new Scene();
+        this.camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.renderer = new WebGLRenderer();
+
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+    }
     addLDR(path : string = "./550px-TLoZTWW_Vr_boxcloud1.png"): void { // load the default ldr
         // adds the enviroment hdr background
         const loaderTex = new TextureLoader(); // for loading the LDR
@@ -87,68 +99,43 @@ export class ThreeRender {
 
         this.scene.background = texture;
         this.scene.environment = texture; // still usable for reflections, though LDR
-});
+    });
 
 
     }
 
-    LoadModel(path = "./overworld_map.glb"): void {
-        /**
-         * Loads A 3D Gltf model via script
-         * Works
-         */
-        console.log("Loading 3d model");
+    LoadModelV1(path = "./overworld_map.glb"): Promise<boolean> {
+        console.log(`Loading 3D model from ${path}`);
 
-        //const { GLTFLoader } = this.GLTF;
+        const loader = new GLTFLoader();
+        const DEBUG = true;
 
-
-        const loader = new GLTFLoader(); // for loading the gltf models
-        
-
-        const DEBUG = false;
-
-        loader.load(
-            path, // loads the default overworld path if no path is set
+        return new Promise((resolve) => {
+            loader.load(
+            path,
             (gltf) => {
                 if (DEBUG) {
-
-
-                    console.log('Loaded GLTF:', gltf.scene);
-                    console.log("pointer debug: ", this.cube);
-                    // Access and log key details
-                    console.log('Scene:', gltf.scene); // The root scene object
-                    console.log('Animations:', gltf.animations); // Animation clips
-                    console.log('Nodes:', gltf.scene.children); // All child nodes
-
-                    // buggy debugs
-                    //console.log('Materials:', gltf.scene.children.map(obj => obj.material )); // Materials
-                    //console.log('Meshes:', gltf.scene.children.filter(obj => obj.isMesh)); // Meshes
+                console.log('Loaded GLTF:', gltf.scene);
+                console.log('Animations:', gltf.animations);
+                console.log('Nodes:', gltf.scene.children);
                 }
 
-                // save scene as global pointer
-                //if (gltf.scene instanceof THREE.Mesh) {
-                //    this.cube = gltf.scene;
-                                   
+                // Save scene as global pointer
                 this.cube = gltf.scene;
-                    
-                //console.log("Finished loading model", this.cube);
-                
+                this.scene.add(gltf.scene);
 
-                //this.cube = gltf.scene; // save scene as global pointer
-
-
-
-                this.scene.add(gltf.scene); // Ensure 'this' is bound properly
+                console.log("Finished loading model:", this.cube);
+                resolve(true); // ✅ return true if load succeeded
             },
             undefined,
             (error) => {
-                console.error('error occurred loading the 3d model:', error);
+                console.error('Error occurred loading the 3D model:', error);
+                resolve(false); // ✅ return false if load failed
             }
-        );
+            );
+        });
+        }
 
-       
-
-    }
 
     Cube(): void {
 
@@ -321,17 +308,15 @@ export class ThreeRender {
         }
     }
 
-    hideThreeLayer() {
+    hideThreeLayer() : void {
         //hides the threejs css render layer
         const layer = document.getElementById("threejs-layer");
         if (layer) {
             layer.style.visibility = "hidden";
         }
 
-        // delete the cube
-        console.log("deleting the loaded model");
-        this.deleteCube();
         
+        return;
     }
 
     showThreeLayer() {
@@ -345,16 +330,26 @@ export class ThreeRender {
 
     setCamera(Int_Distance: number): void {
 
-        // Sets the camera at a specific distance
-        this.camera.position.z = Int_Distance;
+        if (this.camera){
+            // Sets the camera at a specific distance
+            this.camera.position.z = Int_Distance;
+        }
+    }
+    rotate(){
+        // Rotate the cube
+        if (this.cube) {
+            //this.cube.rotation.x += 0.01;
+            this.cube.rotation.y += 0.006; // temporarily disabling x-axis animation for 3d scene
+        }
 
     }
 
-    animate(): void {
+    animate(rotate: boolean = true): void {
         /*
         
         Custom 3Js animation method
 
+        depreciated in favour of littlejs object expansion
         TO DO:
         (1) Add Animation parameters (Done) Animation is done via a simulation class
         (2) Add Keyframe object
@@ -365,15 +360,16 @@ export class ThreeRender {
 
         Bug:
         (1) is the entire scene renderer so does not account for no model animation and player item objects
+        (2) i need to decouple this code bind contexts into a funcition and a render state
 
         
         */
         // Bind `this` to preserve context in animation loop
         const animate = () => {
             requestAnimationFrame(animate);
-
-            // Rotate the cube
-            if (this.cube) {
+            
+                       // Rotate the cube
+            if (this.cube && rotate) {
                 //this.cube.rotation.x += 0.01;
                 this.cube.rotation.y += 0.006; // temporarily disabling x-axis animation for 3d scene
             }
@@ -381,6 +377,88 @@ export class ThreeRender {
             // Render the scene
             this.renderer.render(this.scene, this.camera);
         };
+
         animate();
     }
+
+    render(){
+        
+        if (this.renderer && this.scene && this.camera){
+          // expands littlejs render function to bind the  render context
+            this.renderer.render(this.scene, this.camera);
+        }
+        else{
+            console.warn(`Debug 3d scene, camera or renderer ${this.renderer} / ${this.camera} / ${this.scene}`);
+            return;
+            
+        }
+    }
+
+    //update(): void {
+
+        // triggers the rotate animation function
+        //this.rotate();
+    //}
+
+    
+    destroy() : void {
+
+        // delete the cube
+        console.log("deleting the loaded model");
+        //this.deleteCube();
+        //return;
+     
+        // delete all threejs loaded layers and models
+        this.scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+            if (object.geometry) object.geometry.dispose();
+
+            if (Array.isArray(object.material)) {
+            object.material.forEach((mat) => {
+                if (mat.map) mat.map.dispose();
+                mat.dispose();
+            });
+            } else if (object.material) {
+            if (object.material.map) object.material.map.dispose();
+            object.material.dispose();
+            }
+        }
+        });
+
+        while (this.scene.children.length > 0) {
+            const child = this.scene.children[0];
+            this.scene.remove(child);
+            }                                                           
+
+        // dispose of renderers and buffers
+        //this.renderer.dispose();
+        //this.renderer.forceContextLoss();
+        //(this.renderer.domElement as any) = null;
+        this.renderer.dispose();
+        if (this.renderer.domElement.parentNode) {
+            this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+        }
+        this.renderer = null!;
+
+
+        //dispose of environment maps (hdr/ldr)
+        if (this.scene.environment) {
+        (this.scene.environment as THREE.Texture).dispose();
+        }
+        if (this.scene.background && this.scene.background instanceof THREE.Texture) {
+        this.scene.background.dispose();
+        }
+
+        //nullify major references
+
+        this.scene = null!;
+        this.camera = null!;
+        this.renderer = null!;
+        this.cube = null;
+        this.gltf = undefined;
+
+        //destroy this engine object
+        //this.destroy()
+    }
+
 }

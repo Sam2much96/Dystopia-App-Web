@@ -31,7 +31,7 @@ class Android {
     // screen orientation storage
     public local_screen_orientation : number = 0;
 
-    private _simulation = window.simulation; //simulation singleton pointer
+    //private _simulation = window.simulation; //simulation singleton pointer
 
     private _globals = window.global;
 

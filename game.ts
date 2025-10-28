@@ -65,7 +65,7 @@ import {OverworldSideScrolling} from "./source_code/scenes/levels/OverworldSideS
 import { Marketplace } from './source_code/scenes/levels/Marketplace';
 import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
 import { OverWorld3D } from './source_code/scenes/levels/Overworld3D';
-
+import { OverworldTile } from './source_code/scenes/levels/OverworldTitle';
 // post processing
 import { initPostProcess } from './source_code/singletons/postProcess';
 
@@ -77,6 +77,7 @@ import { Advertising } from './source_code/scenes/UI & misc/Advertising';
 //import * as Box2D from './source_code/singletons/box2d';
 //const {Box2dObject, box2dEngineInit} = Box2D;
 import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
+
 //import {Ads} from "./source_code/scenes/UI & misc/Advertising";
 'use strict';
 
@@ -91,7 +92,7 @@ declare global {
     interface Window {
         inventory: Inventory,
         ui: UI,
-        THREE_RENDER: ThreeRender,
+        THREE_RENDER: ThreeRender | undefined, // to do: (1) decouple 3d render objects
         globals: Globals,
         utils: Utils,
         music: Music,
@@ -100,8 +101,8 @@ declare global {
         player: TopDownPlayer | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
         wallet: Wallet;
-        map: OverWorld | OverworldSideScrolling | Marketplace | TempleInterior | OverWorld3D; // all implemented map levels
-        simulation: Simulation;
+        map: OverworldTile | OverWorld | OverworldSideScrolling | Marketplace | TempleInterior | OverWorld3D; // all implemented map levels
+        //simulation: Simulation;
         ads : Advertising;
 
     }
@@ -161,7 +162,7 @@ function gameInit() {
 
     //3d Camera Distance Constants
     // to do: (1) import camer distance constant from the threejs singleton
-    const CAMERA_DISTANCE = 16;
+   
 
     /* 
     * Create 3D Scenes And Objects
@@ -174,7 +175,7 @@ function gameInit() {
     //
     window.ads = new Advertising("gamemonetize");
     window.dialogs = new Diaglogs();
-    window.THREE_RENDER = new ThreeRender();
+    
     window.quest = new Quest();
     window.globals = new Globals();
     window.wallet = new Wallet();
@@ -199,7 +200,8 @@ function gameInit() {
     // (1) port the stats html into this function
     window.ui.stats(); // takes control of the stats hud and turns it invisible until the gamehud is rendered
 
-
+    // create the overworld title scene
+    window.map = new OverworldTile();
   
 
     //window.wallet = new Wallet(false);
@@ -218,16 +220,10 @@ function gameInit() {
     // (2)
     // Bug:
     // (1) there's a bug, if model is not loaded, game startup logic is broken 
-    window.THREE_RENDER.LoadModel();
-    window.THREE_RENDER.addLDR("./HDR_3d_background_bw.webp");
-    //window.THREE_RENDER.Cube();
 
-
-
-    //window.THREE_RENDER.addToScene(c1);
-    // window.THREE_RENDER.addToScene(c2);
-    window.THREE_RENDER.setCamera(CAMERA_DISTANCE);
-    window.THREE_RENDER.animate(); // to do: lock the model movement and the render binding into separate functions to fix stuck render and animate bug
+    
+    //window.THREE_RENDER.animate(true); // to do: lock the model movement and the render binding into separate functions to fix stuck render and animate bug
+    //window.THREE_RENDER.rotate();
     //window.THREE_RENDER.renderStill();
   
 
@@ -344,9 +340,9 @@ function gameRender() {
             
             //window.ads.showAds();
             
-            // overworld map 1 
-            window.map = new OverWorld();
-            window.globals.current_level = "Overworld";
+            // overworld map 1
+            
+            
             window.ui.gameHUD(); //render the game hud
             
             window.music.play(); //play zzfxm music
@@ -355,34 +351,6 @@ function gameRender() {
             
             return;
         }
-
-        // load game logic
-
-
-
-   
-        //create global player object
-        if (!window.player) {
-            
-            
-
-            
-            
-            
-            
-            // setup the screen and camera
-            //const y = new Screen();
-
-            //turn game menu invisibke
-            //window.ui.MenuVisible = false;
-        
-            
-            
-            
-        
-
-        }
-
 
 
     }

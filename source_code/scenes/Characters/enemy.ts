@@ -794,9 +794,11 @@ export class Enemy extends PhysicsObject {
                 // bug : 
                 // (1) only works once
                 if (!this.isPath && this.local_player_object){
-                    console.log("updating enemy path 2");
+                    console.log(`updating enemy path 2 ${this.isPath}`);
                     this.isPath = this.updatePathV1(); // works, generates a 45 step path to do: implement a name + timer based path update trigger 
                     //this.isPath = true;
+                    
+                    return;
                     
                     
                 }
@@ -806,6 +808,7 @@ export class Enemy extends PhysicsObject {
                     
                     // move along the path
                     this.moveAlongPathV3(); // works fully
+                    
                 }
 
                 // reset the path finder to get the updated player paths
