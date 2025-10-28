@@ -160,6 +160,7 @@ function gameInit() {
 
 
     //3d Camera Distance Constants
+    // to do: (1) import camer distance constant from the threejs singleton
     const CAMERA_DISTANCE = 16;
 
     /* 
@@ -218,6 +219,7 @@ function gameInit() {
     // Bug:
     // (1) there's a bug, if model is not loaded, game startup logic is broken 
     window.THREE_RENDER.LoadModel();
+    window.THREE_RENDER.addLDR("./HDR_3d_background_bw.webp");
     //window.THREE_RENDER.Cube();
 
 

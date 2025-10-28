@@ -78,10 +78,10 @@ export class ThreeRender {
         this.renderer.render(this.scene, this.camera);
 
     }
-    addLDR(): void {
+    addLDR(path : string = "./550px-TLoZTWW_Vr_boxcloud1.png"): void { // load the default ldr
         // adds the enviroment hdr background
         const loaderTex = new TextureLoader(); // for loading the LDR
-        loaderTex.load('./550px-TLoZTWW_Vr_boxcloud1.png', (texture) => {
+        loaderTex.load(path, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         //texture.encoding = THREE.sRGBEncoding; // important for correct colors
 
@@ -362,6 +362,9 @@ export class ThreeRender {
             -Horizontal loop
             -Vertical Loop
             -Vertical Loop Until
+
+        Bug:
+        (1) is the entire scene renderer so does not account for no model animation and player item objects
 
         
         */
