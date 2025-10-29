@@ -26,17 +26,18 @@ export class Controls {
 
     constructor(){
     // hide the engine splash screen
-    LittleJS.setShowSplashScreen(false);
+    LittleJS.setShowSplashScreen(true);
 
     // Game Pad on Mobile Devices Settings
     LittleJS.setTouchGamepadEnable(true);
-    LittleJS.setTouchGamepadSize(100); // game pad is too big on some mobile browsers
+    LittleJS.setTouchGamepadSize(150); // game pad is too big on some mobile browsers
     LittleJS.setTouchGamepadAlpha(0.3);
 
     // set dpad configuration on mobile browsers 
     LittleJS.setTouchGamepadAnalog(false);
     }
 
+    
 }
 
 

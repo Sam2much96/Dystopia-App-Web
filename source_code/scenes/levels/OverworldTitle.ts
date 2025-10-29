@@ -20,6 +20,7 @@ export class OverworldTile extends EngineObject{
     private local_3d_engine : any;
 
     private groundLevel: number = -4; // ground position for stopping Gravity on Cube
+    private enable : boolean = true;
     constructor(){
         super();
         this.color = new Color(0, 0, 0, 0); // make object invisible
@@ -72,15 +73,15 @@ export class OverworldTile extends EngineObject{
 
 
             // add gravity to cube
-            if (cubePosition.y > this.groundLevel) {
-                this.local_3d_engine.setCubePosition(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
+            if (cubePosition.y > this.groundLevel && this.enable) {
+                this.local_3d_engine.setCubePositionV0(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
             }
 
 
             // hide threejs layer once game starts
             // is always true once game has started
             // 
-            if (cubePosition.y < this.groundLevel) {
+            if (cubePosition.y < this.groundLevel && this.enable) {
                 this.local_3d_engine.hideThreeLayer();
                 
                 
@@ -92,6 +93,7 @@ export class OverworldTile extends EngineObject{
 
                 this.THREE_RENDER.destroy();
                 this.THREE_RENDER = null;
+                this.local_3d_engine = null;
                 window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
@@ -102,6 +104,7 @@ export class OverworldTile extends EngineObject{
                 //this.local_3d_engine.destroy();
                 //this.local_3d_engine = undefined;
                 this.THREE_RENDER = null;
+                this.enable = false;
 
                 this.destroy();
 

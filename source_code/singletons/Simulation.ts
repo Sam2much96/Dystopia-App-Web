@@ -88,7 +88,7 @@ export class Simulation extends EngineObject {
     public Gravity : boolean = true;
     
     
-    constructor(enabled : boolean) {
+    constructor() {
         super();
         console.log("Simulation Singleton Created");
         //this.cubePosition = null; // for storing the cube geometry 3d position 
@@ -195,76 +195,32 @@ export class Simulation extends EngineObject {
             "SIMULATING" : () => {
 
 
-        // Start Game Sequence
-        // It modifies the threejs positions
-        // bug:
-        // (1) doesn't account for if cube doesn't load
 
-        // update cube 3d position
-        // bug:
-        // (1) 3d level doesn't load model fast on low latency internet
-        if (this.local_3d_engine){
-            let cubePosition = this.local_3d_engine!.getCubePosition();
-        
-
-        if (cubePosition) {
-
-
-            // add gravity to cube
-            if (cubePosition.y > this.groundLevel) {
-                this.local_3d_engine.setCubePosition(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
-            }
-
-
-            // hide threejs layer once game starts
-            // is always true once game has started
-            // 
-            if (cubePosition.y < this.groundLevel) {
-                this.local_3d_engine.hideThreeLayer();
-                
-                
-
-                // save to global conditional for rendering game backgrounds and starting core game loop
-                window.globals.GAME_START = true;
-
-                //this.destroy(); // object not needed in the current state 
-               // if (this.local_3d_engine.hasCube()){
-               //     this.local_3d_engine.deleteCube()
-                //}
-                this.local_3d_engine.destroy();
-                this.local_3d_engine = undefined;
-                this.destroy();
-
-                // transition to non simulating state 
-                //this.State()["NON_SIMULATING"]();
-                this.Enabled = false;
-                return;
-            }}
-        }
 
             },
 
             "NON_SIMULATING" : () => {
                 // reset the cube position
 
-                if (this.local_3d_engine){
-                    let cubePosition = this.local_3d_engine.getCubePosition();
-                    if (cubePosition){
-                        this.local_3d_engine.setCubePosition(cubePosition.x, 0, cubePosition.z);
-                    }
+                //if (this.local_3d_engine){
+                //    let cubePosition = this.local_3d_engine.getCubePosition();
+                //    if (cubePosition){
+                //        this.local_3d_engine.setCubePosition(cubePosition.x, 0, cubePosition.z);
+                //    }
 
                     
 
-                }
+                //}
                 // transition to idle state 
-                this.State()["IDLE"]();
+                //this.State()["IDLE"]();
             },
 
             "IDLE" : () => {
                 return
             }
         
-        }}
+        }
+    }
 
 
     //depreciated function

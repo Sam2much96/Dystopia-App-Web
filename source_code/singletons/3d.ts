@@ -104,11 +104,11 @@ export class ThreeRender {
 
     }
 
-    LoadModelV1(path = "./overworld_map.glb"): Promise<boolean> {
+    LoadModelV1(path : string = "./overworld_map.glb", toon: boolean = false ): Promise<boolean> {
         console.log(`Loading 3D model from ${path}`);
 
         const loader = new GLTFLoader();
-        const DEBUG = true;
+        const DEBUG = false;
 
         return new Promise((resolve) => {
             loader.load(
@@ -119,6 +119,94 @@ export class ThreeRender {
                 console.log('Animations:', gltf.animations);
                 console.log('Nodes:', gltf.scene.children);
                 }
+
+          
+
+                // Save scene as global pointer
+                this.cube = gltf.scene;
+                this.scene.add(gltf.scene);
+
+                console.log("Finished loading model:", this.cube);
+                resolve(true); // ✅ return true if load succeeded
+            },
+            undefined,
+            (error) => {
+                console.error('Error occurred loading the 3D model:', error);
+                resolve(false); // ✅ return false if load failed
+            }
+            );
+        });
+        }
+
+
+    LoadModelV2(path : string = "./overworld_map.glb", toon: boolean = false ): Promise<boolean> {
+        console.log(`Loading 3D model from ${path}`);
+
+        const loader = new GLTFLoader();
+        const DEBUG = false;
+
+        return new Promise((resolve) => {
+            loader.load(
+            path,
+            (gltf) => {
+                if (DEBUG) {
+                console.log('Loaded GLTF:', gltf.scene);
+                console.log('Animations:', gltf.animations);
+                console.log('Nodes:', gltf.scene.children);
+                }
+
+                const gradientMap = new THREE.TextureLoader().load(
+                './threeTone.jpg'
+                );
+                gradientMap.minFilter = THREE.NearestFilter;
+                gradientMap.magFilter = THREE.NearestFilter;
+
+                const toonShader = new THREE.ShaderMaterial({
+                uniforms: {
+                    color: { value: new THREE.Color(0xF0E68C) },
+                    lightDirection: { value: new THREE.Vector3(1, 1, 1).normalize() },
+                },
+
+                //shader material
+                vertexShader: `
+                    varying vec3 vNormal;
+                    void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vNormal;
+                    uniform vec3 color;
+                    uniform vec3 lightDirection;
+                    void main() {
+                    float light = dot(vNormal, lightDirection);
+                    float intensity = step(0.5, light); // 2-tone cel shading
+                    gl_FragColor = vec4(color * intensity, 1.0);
+                    }
+                `,
+                });
+
+
+                //const toonMaterial = new THREE.MeshToonMaterial({
+                //color: 0xffff00, // yellow
+                //gradientMap: gradientMap,
+                //});
+                  // Apply toon material to all meshes in the model
+                gltf.scene.traverse((child) => {
+                        if (child instanceof THREE.Mesh) {
+                        child.material = toonShader;
+                        child.material.needsUpdate = true;
+                        }
+                });
+
+                // Add some directional light for toon shading
+                //const light = new THREE.DirectionalLight(0xffffff, 5);
+                //light.position.set(0, 30, 0);
+                //this.scene.add(light);
+
+                // Optionally add ambient light for softer tone
+                //this.scene.add(new THREE.AmbientLight(0xffffff, 1));
 
                 // Save scene as global pointer
                 this.cube = gltf.scene;
@@ -249,7 +337,7 @@ export class ThreeRender {
         return Math.random() * 0xffffff;
     }
 
-    setCubePosition(x: number, y: number, z: number) {
+    setCubePositionV0(x: number, y: number, z: number) : void{
 
         // type parameters
 
@@ -258,6 +346,7 @@ export class ThreeRender {
             this.cube.position.set(x, y, z);
         } else {
             console.warn("Cube has not been created yet.");
+            //return ;
         }
     }
 
@@ -374,8 +463,12 @@ export class ThreeRender {
                 this.cube.rotation.y += 0.006; // temporarily disabling x-axis animation for 3d scene
             }
 
-            // Render the scene
-            this.renderer.render(this.scene, this.camera);
+            if (this.renderer && this.scene && this.camera){
+                // Render the scene
+                this.renderer.render(this.scene, this.camera);
+
+            }
+            
         };
 
         animate();
@@ -389,6 +482,7 @@ export class ThreeRender {
         }
         else{
             console.warn(`Debug 3d scene, camera or renderer ${this.renderer} / ${this.camera} / ${this.scene}`);
+            
             return;
             
         }

@@ -158,12 +158,6 @@ function gameInit() {
     LittleJS.setCanvasPixelated(true);
    LittleJS.setTilesPixelated(false);
 
-
-
-    //3d Camera Distance Constants
-    // to do: (1) import camer distance constant from the threejs singleton
-   
-
     /* 
     * Create 3D Scenes And Objects
     */
@@ -215,22 +209,12 @@ function gameInit() {
 
     //Initialise 3d scene render
     // 
-    // to do: 
-    // (1) lock render logic into a scene object like the overworld game levels
-    // (2)
-    // Bug:
-    // (1) there's a bug, if model is not loaded, game startup logic is broken 
-
-    
-    //window.THREE_RENDER.animate(true); // to do: lock the model movement and the render binding into separate functions to fix stuck render and animate bug
-    //window.THREE_RENDER.rotate();
-    //window.THREE_RENDER.renderStill();
+ 
   
 
     // Create & hide Ingame Menu
-    // game menu and status hud are created by the dialogs singleton
-    // this is because the translation files are needed for them
-    //window.ui.GameMenu!!.ingameMenu();
+    // 
+    //
     window.ui.menu();
 
     //draw title screen

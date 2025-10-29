@@ -12,11 +12,14 @@
  * 
  */
 
-import { EngineObject ,Color} from "littlejsengine";
+import { EngineObject ,Color, Timer} from "littlejsengine";
 import {ThreeRender} from "../../singletons/3d";
+import { OverWorld } from "./OverworldTopDown";
 
 //3d Camera Distance Constants
 export const CAMERA_DISTANCE = 16; // to do: (1) lock 3d initialisation variants and logic into the script with proper optimization
+export const THIRD_PERSON_DISTANCE = 5;
+
 
 export class OverWorld3D extends EngineObject{
 
@@ -24,6 +27,8 @@ export class OverWorld3D extends EngineObject{
 
      private THREE_RENDER : any;
     private local_3d_engine : any;
+    private despawnTimer : Timer = new Timer();
+    private Timeout : number = 6;
     constructor(){
         super();
         // logic :
@@ -36,7 +41,7 @@ export class OverWorld3D extends EngineObject{
         // (7) a despawn timer throws the player back into the overworld map on timer timeout
         console.log("creating the 3d overworld level");
 
-        // bug: (1) the old three layer renderer isn't properly cleared out
+        // bug: (1) the old three layer renderer isn't properly cleared out (fixed)
         
         this.color = new Color(0, 0, 0, 0); // make object invisible
             this.THREE_RENDER = new ThreeRender();
@@ -46,21 +51,31 @@ export class OverWorld3D extends EngineObject{
                 // load the 3d model
                 //load the game 3d map
                 let t = null;
+                this.THREE_RENDER.addLDR();
                 (async () => {
-                        t = await this.THREE_RENDER.LoadModelV1();
+                        t = await this.THREE_RENDER.LoadModelV2();
                         console.log("Loaded model: ", t); // asynchronous method
                 })();
                 
                 
-                this.THREE_RENDER.addLDR();
-                //window.THREE_RENDER.Cube();
+                // to do:
+                // (1) set albedo model
+                // (2) load player3d model
+                // (3) implement simple floaty movement physics
+                // (4) 
+                
+                
         
         
         
                 //window.THREE_RENDER.addToScene(c1);
                 // window.THREE_RENDER.addToScene(c2);
-                this.THREE_RENDER.setCamera(CAMERA_DISTANCE);
+                this.THREE_RENDER.setCamera(THIRD_PERSON_DISTANCE); // to do: (1) camera distance topdown
+                this.THREE_RENDER.animate(false); // works
 
+        // trigger the despawn timer
+        this.despawnTimer.set(this.Timeout);
+        
         //debug the model
         // bug : the render binds to the context,
         // consider using a state machine for the 3d render state?
@@ -85,52 +100,40 @@ export class OverWorld3D extends EngineObject{
 
     }
 
-    loadV0(){
+   
 
-        //window.THREE_RENDER = new ThreeRender();
-        window.THREE_RENDER!.showThreeLayer();
-        //this.local_3d.setCubePosition(10,10,10);
-        
-        //console.log("simulation object debug :", window.simulation); // simulation object is overrind the 3d world
-         console.log(`3d engine debug: ${window.THREE_RENDER!.render} / ${window.THREE_RENDER!.scene} / ${ window.THREE_RENDER!.camera}` );
+    update() : void{
 
-        // change the hdr of the scene and the  model colour
+        // Map destruction logic
+        if (this.despawnTimer.elapsed()){
 
-        //load the 3d model coloured 3d model with hdr in blender
-        // to do: 
-        // (1) export the overworld 3d scene as a .glb file with all textures preloaded
-        // (2) turn off animate on loaded models
-        
-        // bugs:
-        // (1) local model function only works once and the class based cube object is null
-        // to do : (1) depreciate class based cube pointers for 3d model objects
-        //window.THREE_RENDER.LoadModel(); // fix model animate
-        
-        let t = null;
-        (async () => {
-                t = await window.THREE_RENDER!.LoadModelV1();
-                console.log("Loaded model: ", t); // asynchronous method
-        })();
-        
-        window.THREE_RENDER!.createScene();
-        
-        
-        
-        window.THREE_RENDER!.addLDR();
-        window.THREE_RENDER!.setCamera(CAMERA_DISTANCE);
-         //debug the cube object
-        console.log(`cube debug: ${window.THREE_RENDER!.cube} / ${window.THREE_RENDER?.renderer}`);
-    }
+            // delete this map and restore the overworld map
+            //this.destroy();
 
-    update(){
-        //let cubePosition = this.local_3d.getCubePosition()
+            this.THREE_RENDER.hideThreeLayer();
+
+            this.THREE_RENDER.destroy();
+            this.THREE_RENDER = null;
+            this.local_3d_engine = null;
+            //    window.map = new OverWorld(); // Overworld3D();
+                window.globals.current_level = "Overworld"; //"Overworld 3";
+
+            // go to the overworld map
+            window.map = new OverWorld();
+
+            this.destroy();
+        }
+        
         
     }
 
-    //destroy(){
-        // to do: 
-        //(1) implement a destroy function for the map
-        //this.local_3d!.hideThreeLayer();
-    //}
+
+}
+
+
+class Player3D {
+    // 3d player object class
+    // to do:
+    // (1) implement physics
 
 }
