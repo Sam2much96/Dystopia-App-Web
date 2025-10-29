@@ -9,12 +9,14 @@
  * (4) implement 3d player mesh with proper movement
  * (5) connect level with overworld 2d spaceship exit object
  * (6) separate 3d render  binder for 3d animate function into two separate functions
- * 
+ * (7) implement camera look around for the 3d levels
  */
+import * as LittleJS from 'littlejsengine';
 
-import { EngineObject ,Color, Timer} from "littlejsengine";
+const { EngineObject ,Color, Timer, vec2,gamepadIsDown, gamepadStick, keyDirection, mouseIsDown, keyIsDown,isTouchDevice} = LittleJS; 
 import {ThreeRender} from "../../singletons/3d";
 import { OverWorld } from "./OverworldTopDown";
+import { Vector3 } from "three";
 
 //3d Camera Distance Constants
 export const CAMERA_DISTANCE = 16; // to do: (1) lock 3d initialisation variants and logic into the script with proper optimization
@@ -25,10 +27,12 @@ export class OverWorld3D extends EngineObject{
 
    //public local_3d = window.THREE_RENDER; // safe pointer to threejs
 
-     private THREE_RENDER : any;
+    private THREE_RENDER : any;
     private local_3d_engine : any;
-    private despawnTimer : Timer = new Timer();
-    private Timeout : number = 6;
+    private despawnTimer : LittleJS.Timer = new Timer();
+    private Timeout : number = 5;
+    private local_Player : any;
+    
     constructor(){
         super();
         // logic :
@@ -50,17 +54,22 @@ export class OverWorld3D extends EngineObject{
                 //window.simulation.local_3d_engine = this.THREE_RENDER;
                 // load the 3d model
                 //load the game 3d map
-                let t = null;
+                //let t = null;
                 this.THREE_RENDER.addLDR();
                 (async () => {
-                        t = await this.THREE_RENDER.LoadModelV2();
-                        console.log("Loaded model: ", t); // asynchronous method
+                        await this.THREE_RENDER.LoadMapV2();
+                        //console.log("Loaded model: ", t); // asynchronous method
+
+                        // to do:
+                        // (1) move player instancing to separate player class (done)
+                        //await this.THREE_RENDER.LoadPlayer(this.local_Player);
+                        //this.local_Player = new Player3D(this.THREE_RENDER);
                 })();
                 
                 
                 // to do:
-                // (1) set albedo model
-                // (2) load player3d model
+                // (1) set albedo model (done)
+                // (2) load player3d model (done)
                 // (3) implement simple floaty movement physics
                 // (4) 
                 
@@ -115,14 +124,19 @@ export class OverWorld3D extends EngineObject{
             this.THREE_RENDER.destroy();
             this.THREE_RENDER = null;
             this.local_3d_engine = null;
+            this.local_Player.destroy();
+            this.local_Player = null;
             //    window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
             // go to the overworld map
             window.map = new OverWorld();
+            
 
             this.destroy();
         }
+
+        
         
         
     }
@@ -131,9 +145,91 @@ export class OverWorld3D extends EngineObject{
 }
 
 
-class Player3D {
+class Player3D extends EngineObject{
     // 3d player object class
     // to do:
     // (1) implement physics
+    // (2) fix movement physics
+
+      // input controlls
+        public moveInput : Vector2 = vec2(0);
+        public holdingRoll : boolean = false;
+        public holdingAttack : boolean = false;
+        private THREE_RENDER : any;//pointer to the 3d renderer
+        public player : any; // pointer to 3d player model
+    constructor(THREE_RENDER : any){
+        super();
+        this.THREE_RENDER = THREE_RENDER;
+        console.log("creating 3d player object");
+
+        (async () => {
+                        
+
+                        // to do:
+                        // (1) move player instancing to separate player class (done)
+                        await this.THREE_RENDER.LoadPlayer(this.player);
+                })();
+
+    }
+
+
+    update(){
+        if (!this.player) return;
+
+        // capture button inputs
+        if (isTouchDevice){ // touchscreen dpad bindings
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
+            this.holdingRoll = gamepadIsDown(1); 
+            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
+            
+            // for debugging player input on mobile
+            //logToScreen(this.moveInput);
+        }
+
+        else if (!isTouchDevice){ // keyboard and mouse bindings
+            //works
+            this.moveInput = keyDirection().clampLength(1).scale(.1);
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+        }
+
+
+        //player third person camera controls and movment physics
+        //if (this.player){
+
+            const speed = 5;
+            const direction = new Vector3();
+
+            // to do : use littlejs imput vector for this
+            //if (input.forward) direction.z -= 1;
+            if (this.moveInput.x ===1){
+                direction.z -= 1
+            }
+            if (this.moveInput.x === -1){
+                direction.z += 1;
+            }
+            //if (input.backward) direction.z += 1;
+            //if (input.left) direction.x -= 1;
+            //if (input.right) direction.x += 1;
+
+            direction.normalize();
+            this.player.position.addScaledVector(direction, speed * LittleJS.timeDelta);
+
+            // Gravity (basic)
+            this.player.position.y = Math.max(0, this.player.position.y - 9.8 * LittleJS.timeDelta);
+
+
+            // 3rd person camera
+            const offset = new Vector3(0, 2, 5); // adjust height/distance
+            const playerPos = this.player.position.clone();
+
+            const cameraPos = playerPos.clone().add(offset);
+            this.THREE_RENDER.camera.position.lerp(cameraPos, 0.1); // smooth follow
+            this.THREE_RENDER.camera.lookAt(playerPos);
+
+            // debug the camera position
+            console.log(`3d player camera debug: ${this.THREE_RENDER.camera.position}`);
+        //}
+    }
 
 }

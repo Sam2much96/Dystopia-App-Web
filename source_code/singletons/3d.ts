@@ -12,7 +12,7 @@ Features
 (0) Maps to the background layer
 (1) Uses WebGL and Maths for 3d rendering
 (2) Overlays 3d rendering to The viewport via css-style sheet ID canvas
-(3) TO DO: Load GLTF Models (1/2)
+(3) Uses & Loads GLTF Models
 
 Bugs:
 (0) loads the 3d model too slow and is a latency bottleneck for the whole game
@@ -21,11 +21,13 @@ Bugs:
 (3) Is a performance hog, should be used sparingly/ optimised for mobilw
 
 to do:
-(1) implement simple 3d overworld scene (2/5)
-(2) fix all 3d rendering loading performance hogs
+(1) implement simple 3d overworld scene (done)
+(2) fix all 3d rendering loading performance hogs (1/2)
 (3) implement 3d overworld loading scene via spaceship objects (1/2)
 (4) implement 3d level collisions (0/5)
-(5) expand 3d object functionality
+    - (a) use canon js for real physics if necessary
+(5) expand 3d object functionality (done)
+(6) 
 */
 
  export const CAMERA_DISTANCE = 16;
@@ -104,7 +106,8 @@ export class ThreeRender {
 
     }
 
-    LoadModelV1(path : string = "./overworld_map.glb", toon: boolean = false ): Promise<boolean> {
+    // load title screen model without toonshader
+    LoadModelV1(path : string = "./overworld_map.glb"): Promise<boolean> {
         console.log(`Loading 3D model from ${path}`);
 
         const loader = new GLTFLoader();
@@ -138,8 +141,8 @@ export class ThreeRender {
         });
         }
 
-
-    LoadModelV2(path : string = "./overworld_map.glb", toon: boolean = false ): Promise<boolean> {
+    // load overworld level with custom toon shader
+    LoadMapV2(path : string = "./overworld_map.glb" ): Promise<boolean> {
         console.log(`Loading 3D model from ${path}`);
 
         const loader = new GLTFLoader();
@@ -167,7 +170,7 @@ export class ThreeRender {
                     lightDirection: { value: new THREE.Vector3(1, 1, 1).normalize() },
                 },
 
-                //shader material
+                // toon shader material
                 vertexShader: `
                     varying vec3 vNormal;
                     void main() {
@@ -224,7 +227,53 @@ export class ThreeRender {
         });
         }
 
+    
+    // loads the 3d player object and the model 
+    LoadPlayer(path: string = "./player_rigged.glb", playerPointer : any): Promise<boolean> {
+    console.log(`Loading player model from ${path}`);
 
+    const loader = new GLTFLoader();
+    return new Promise((resolve) => {
+        loader.load(
+            path,
+            (gltf) => {
+                const playerModel = gltf.scene;
+
+                // Load player texture (optional, if it’s separate)
+                const texture = new THREE.TextureLoader().load("./player3d_teexture_2.png");
+
+                // Apply toon shader or material
+                playerModel.traverse((child) => {
+                    if (child instanceof THREE.Mesh) {
+                        child.material = new THREE.MeshToonMaterial({
+                            map: texture,
+                            color: 0xF4D27A, // sandy yellow tone
+                        });
+                    }
+                });
+
+                // Position player at starting location
+                playerModel.position.set(0, 1, 0);
+                playerModel.scale.set(1, 1, 1);
+
+                playerPointer = playerModel; // save the player object pointer to the map object class for physics
+                this.scene.add(playerModel);
+
+                console.log("Player loaded:", playerModel);
+                resolve(true);
+            },
+            undefined,
+            (error) => {
+                console.error("Failed to load player model:", error);
+                resolve(false);
+            }
+        );
+    });
+}
+
+
+    // create a cube mesh
+    // used for testing the ThreeJS renderer
     Cube(): void {
 
         /**
@@ -474,19 +523,21 @@ export class ThreeRender {
         animate();
     }
 
-    render(){
+    // littlejs style renderer, depreciated in code 3d class
+    // only to be used in overworld map implementations
+    //render(){ 
         
-        if (this.renderer && this.scene && this.camera){
+   //     if (this.renderer && this.scene && this.camera){
           // expands littlejs render function to bind the  render context
-            this.renderer.render(this.scene, this.camera);
-        }
-        else{
-            console.warn(`Debug 3d scene, camera or renderer ${this.renderer} / ${this.camera} / ${this.scene}`);
+   //         this.renderer.render(this.scene, this.camera);
+   //     }
+   //     else{
+   //         console.warn(`Debug 3d scene, camera or renderer ${this.renderer} / ${this.camera} / ${this.scene}`);
             
-            return;
+   //         return;
             
-        }
-    }
+   //     }
+   // }
 
     //update(): void {
 
