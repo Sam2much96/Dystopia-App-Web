@@ -10,6 +10,9 @@
  * (5) connect level with overworld 2d spaceship exit object
  * (6) separate 3d render  binder for 3d animate function into two separate functions
  * (7) implement camera look around for the 3d levels
+ * 
+ * bugs:
+ * (1) fix the 3d player movement physics
  */
 import * as LittleJS from 'littlejsengine';
 
@@ -20,7 +23,7 @@ import { Vector3 } from "three";
 
 //3d Camera Distance Constants
 export const CAMERA_DISTANCE = 16; // to do: (1) lock 3d initialisation variants and logic into the script with proper optimization
-export const THIRD_PERSON_DISTANCE = 5;
+export const THIRD_PERSON_DISTANCE = 7;
 
 
 export class OverWorld3D extends EngineObject{
@@ -30,7 +33,7 @@ export class OverWorld3D extends EngineObject{
     private THREE_RENDER : any;
     private local_3d_engine : any;
     private despawnTimer : LittleJS.Timer = new Timer();
-    private Timeout : number = 5;
+    private Timeout : number = 3;
     private local_Player : any;
     
     constructor(){
@@ -124,8 +127,8 @@ export class OverWorld3D extends EngineObject{
             this.THREE_RENDER.destroy();
             this.THREE_RENDER = null;
             this.local_3d_engine = null;
-            this.local_Player.destroy();
-            this.local_Player = null;
+            //this.local_Player.destroy();
+            //this.local_Player = null;
             //    window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 

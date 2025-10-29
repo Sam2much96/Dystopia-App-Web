@@ -63,6 +63,7 @@ export class OverworldTile extends EngineObject{
         // bug:
         // (1) 3d level doesn't load model fast on low latency internet
         // (2) rework to use 
+       // (3) stuck physics siulatoin bug
         // to do:
         // (1) port physics implementation to the overworld title scene
         if (this.local_3d_engine){
@@ -74,6 +75,7 @@ export class OverworldTile extends EngineObject{
 
             // add gravity to cube
             if (cubePosition.y > this.groundLevel && this.enable) {
+                //console.log("Running 3d gravity simulation");
                 this.local_3d_engine.setCubePositionV0(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
             }
 
@@ -88,7 +90,7 @@ export class OverworldTile extends EngineObject{
 
                 // save to global conditional for rendering game backgrounds and starting core game loop
                 window.globals.GAME_START = true;
-                
+                window.ui.gameHUD(); //render the game hud
                 this.THREE_RENDER.hideThreeLayer();
 
                 this.THREE_RENDER.destroy();

@@ -696,8 +696,8 @@ export class IngameMenu{
         //
         this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
-            //window.location.href = "about:blank";   // leaves your game
-            window.close();
+            window.location.href = "about:blank";   // leaves your game, disable in yandex build
+            //window.close();
 
         });
 
