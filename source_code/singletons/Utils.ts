@@ -401,7 +401,7 @@ export class Items extends EngineObject {
         this.name = window.dialogs.t(name);
         this.tileIndx = tileIndx; // set the tile index (frame number) to render
         // tranlated item collected dialogue
-        this.collect_diag = window.dialogs.t(this.name) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
+        this.collect_diag = (this.name) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
 
 
     }

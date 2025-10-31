@@ -10,6 +10,8 @@
     (3) 
     (4) 
     (5)
+    Note:
+    (1) if the game randomly breaks on startup, check the translation function, its most likely the cause
 
     To Do:
     (1) Move translation logic to the dialogs singleton (done)

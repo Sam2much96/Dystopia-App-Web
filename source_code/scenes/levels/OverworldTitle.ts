@@ -96,19 +96,20 @@ export class OverworldTile extends EngineObject{
                 this.THREE_RENDER.destroy();
                 this.THREE_RENDER = null;
                 this.local_3d_engine = null;
+                this.destroy()
                 window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
                 this.THREE_RENDER = null;
                 this.enable = false;
                 window.music.play(); // play the current sound track
-
+                
                 // this is a testing ui to test ui translations locally for yandex compliance
                 // disable in production build 
                 // works
                 //window.dialogs.language = "ru_RU";
                 //window.ui.translateUIElements(window.dialogs.language);
-                this.destroy();
+                
 
 
                 

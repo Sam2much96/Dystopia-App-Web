@@ -111,7 +111,7 @@ export class Inventory {
         Object.entries(this.getAllItems()).forEach(([name, count]) => {
             const btn = document.createElement('button');
             // translate inventory items
-            let translateName = window.dialogs.t(`${name}`, window.dialogs.language)
+            let translateName = name;//window.dialogs.t(`${name}`)
             
             // debug inventory translations
             //console.log("translate Inv debug: ", translateName); //works
@@ -370,12 +370,22 @@ export class Inventory {
  * 
  * Bugs:
  * (1) item use logic is infinite and broken
- * (2) not all item use items are implemented
+ * (2) not all item use items are implemented (1/3)
+ * (3) ui translations breaks item use logic
  */
 
 export function useItem(type :string, amount : number ) : boolean {
-    //console.log("Use item function called :", type);
+    console.log("Use item function called :", type);
+
+    // translate all items use names
+    let health_potion = window.dialogs.t("Health Potion");
+    let generic_item = window.dialogs.t("Generic Item");
+    let magic_sword = window.dialogs.t("Magic Sword");
+    let bomb = window.dialogs.t("Bomb");
+    let arrow = window.dialogs.t("Arrow");
+    let bow = window.dialogs.t("Bow");
     
+    // create translations diag for every item
 
     window.music.item_use_sfx.play();
 
@@ -388,7 +398,7 @@ export function useItem(type :string, amount : number ) : boolean {
         let new_amt = old_amt = amount;
         local_inv.set(type, new_amt); 
         
-        if (type== "Health Potion"){
+        if (type=== health_potion){
             //console.log("hp+ use debug: ", player);
             // update heart box hud
             player.hitpoints += 1;
@@ -398,23 +408,23 @@ export function useItem(type :string, amount : number ) : boolean {
 
         }
         
-        if (type == "Generic Item"){
+        if (type === generic_item){
             player.WALK_SPEED += 500; // double the player's speed variable
             player.ROLL_SPEED += 400;
             player.ATTACK = 2;
 
         }
 
-        if (type == "Magic Sword"){
+        if (type === magic_sword){
             //increase pushback impact, increases chances of double attack
             player.pushback = 8000;
         }
 
-        if (type == "Bomb"){
+        if (type === bomb){
             new BombExplosion(player.pos.copy());
         }
 
-        if (type == "Arrow" && local_inv.has("Bow")){
+        if (type === arrow && local_inv.has(bow)){
             console.log("creating arrow instance");
             // create arrow instance
             new Bullet(player.pos.copy(), player.facingPos);

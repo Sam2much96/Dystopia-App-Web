@@ -167,7 +167,7 @@ function gameInit() {
     
     //load the translation files first
     //
-    window.ads = new Advertising("yandex");
+    window.ads = new Advertising("gamemonetize");
     window.dialogs = new Diaglogs();
     
     window.quest = new Quest();

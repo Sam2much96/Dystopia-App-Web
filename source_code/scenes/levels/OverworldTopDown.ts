@@ -4,6 +4,7 @@
  * Bugs:
  * (1) Breaks on mobile browsers when changing scenes (not sure why it breaks, i've tried resizing the level into 2, and it didn't work)
  * (2) Takes too long to load the entire overmap level in mobile browser
+ * (3) 2d game devel breaks on yandex browsers
  */
 import * as LittleJS from 'littlejsengine';
 
@@ -24,6 +25,7 @@ import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
 import {Ring} from "../items/Ring";
 import {TopDownPlayer} from "../Characters/player";
+import {Enemy} from "../Characters/enemy";
 import {OldWoman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 import {Utils} from "../../singletons/Utils";
@@ -32,7 +34,7 @@ import { Signpost } from '../items/Signpost';
 
 
 //test the fire fx
-import {Firefx1} from "../UI & misc/Blood_Splatter_FX";
+//import {Firefx1} from "../UI & misc/Blood_Splatter_FX";
 
 export class OverWorld extends EngineObject{
     /*
@@ -260,6 +262,12 @@ export class OverWorld extends EngineObject{
                             const i = new Bow(vec2(x, y));
                             this.levelObjects?.push(i);
                             return
+                        }
+                        if (val === 26){ // blood splatter fx marker
+                            let r = new Enemy(vec2(x,y));
+                            this.levelObjects?.push(r);
+                            window.globals.enemies.push(r);
+                            return                            
                         }
                         if (val === 28){
                             const r = new Ring(vec2(x,y));

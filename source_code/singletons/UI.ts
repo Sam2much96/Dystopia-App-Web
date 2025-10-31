@@ -167,7 +167,7 @@ export class UI  {
         this.StatusTabs = new StatsTabs();
 
         
-        this.Controls = new Controls();
+        //this.Controls = new Controls();
 
         
 
@@ -689,9 +689,9 @@ export class IngameMenu{
 
         // disable for yyandex updates
                  
-        //this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
-        //    window.open("https://dystopia-app.site", "_blank");
-        //});
+        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
+            window.open("https://dystopia-app.site", "_blank");
+        });
         
        
         // to do: 
@@ -709,21 +709,21 @@ export class IngameMenu{
         // hiding the quit button for yandex platform moderation
         // it triggers a non compliance of game stutering
         //
-        this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
-            window.music.sound_start.play();
-            //window.location.href = "about:blank";   // leaves your game, disable in yandex build
-            window.close();
+        //this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
+        //    window.music.sound_start.play();
+        //    window.location.href = "about:blank";   // leaves your game, disable in yandex build
+            //window.close();
 
-        });
+        //});
 
         // append buttons to menu container
         
         this.menuContainer!.append(
                 this.newGame,
                 this.contGame,
-                //this.Comics,
+                this.Comics,
                 //this.Controls,
-                this.Quit
+                //this.Quit
             );
         
         

@@ -189,12 +189,7 @@ export class Enemy extends PhysicsObject {
         // set enemy collision
         this.setCollision(true,true,true,true);
 
-        // Testing Enemy Type Enumeration
-        //console.log("Input Debug 1: ", this.enemy_type.get("EASY"), "/ player debug 3: ", this.local_player_object);
 
-        // Enemy collision & mass
-        //this.setCollision(true, true); // make object collide
-        //this.mass = 0; // make object have static physics
 
 
 
@@ -216,6 +211,9 @@ export class Enemy extends PhysicsObject {
 
         // add item spawner as child
         if (this.item_spawner) this.addChild(this.item_spawner);
+
+        // set the player
+       // this.local_player_object = window.player;
      
 
     }
@@ -229,8 +227,14 @@ export class Enemy extends PhysicsObject {
     }
     update() {
 
+        /**
+         * to do :
+         * (1) add raycast for better player detection system
+         * 
+         */
         
         // detect player
+        // buggy
         this.stateMachine[8]();
         
         // Despawn logic
@@ -260,12 +264,22 @@ export class Enemy extends PhysicsObject {
         if (!this.playerVisible && this.Alive) {
             this.stateMachine[10]()
             
+            //return
+            if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size)){
+            this.playerVisible = true;
             return
         }
+        }
 
+        //if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size)){
+        //    this.playerVisible = true;
+        //    return
+        //}
 
         //trigger the mob state once the player is visible
-        if (this.playerVisible && this.Alive) {this.stateMachine[6]();}
+        //if (this.playerVisible && this.Alive) {
+        //    this.stateMachine[6]();
+        //}
         
 
 
@@ -279,9 +293,13 @@ export class Enemy extends PhysicsObject {
  
 
         // collision logic when player is not visible, it triggers the enemy mob a.i
-        if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && !this.playerVisible) {
-                this.playerVisible = true; // trigger the mob logic
-                return;
+        if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && this.playerVisible) {
+                
+            //this.playerVisible = true; // trigger the mob logic
+            //console.log("player visible :", this.playerVisible);
+            this.stateMachine[6](); //trigger the mob state
+            
+            //return;
             }
 
         // collision logic when the player is visible, it triggers the enemy attack state
@@ -296,30 +314,8 @@ export class Enemy extends PhysicsObject {
         // TO DO: 
         // (1) Trigger Kickback Logic
         // (2) Add Raycast for detection
+        // (3) Djisktra pathfinding for idle state
 
-
-        // to do:
-        // (1) implement Djiskra logic for enemy movement when idle
-        // if player object is null
-        if (!this.local_player_object){
-            // trigger the enemy idle state
-            // to do:
-            // (1) implement state enumeration logic for the state machine here (done)
-            // (2) enemy navigation
-            this.state = this.enum.get("STATE_IDLE")!;
-
-            this.stateMachine[this.state]();
-        }
-        
-        
-        // exit tree
-
-        // if (this.despawn_timer.elapsed() && this.hitpoints <= 0) {
-        //this.blood_fx.destroy();
-
-        // destroy block when hitpoints is at zero or less and despawn animation finished playing
-        /////    this.destroy();
-        //}
 
     }
 
@@ -792,11 +788,15 @@ export class Enemy extends PhysicsObject {
             8 : () => { // player sighted
                 // detecting player
                 // only triggers once , when the player is not instanced
+                // works
+
+               // console.log("enemy player debug: ", this.local_player_object, "/ ", window.player);
                 if (!this.local_player_object && window.player){ 
 
                     //enemy AI variables
                     this.local_player_object = window.player;
                     //console.log("enemy player debug: ", this.local_player_object);
+                    return;
 
                 }
 
