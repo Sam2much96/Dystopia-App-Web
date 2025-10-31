@@ -176,7 +176,9 @@ export class Enemy extends PhysicsObject {
         this.pos = pos.copy();
 
         // store object to global pointer for object pooling
-        window.globals.enemies.push(this);
+        // let the level constructor instead handle that
+        //window.globals.enemies.push(this);
+        
 
         // create the facing and the state as global class variables
         // Enemy State Machine initialisation
@@ -255,7 +257,11 @@ export class Enemy extends PhysicsObject {
 
         // trigger Navigation logic when player and enemey havent collided yet
         // 
-        if (!this.playerVisible && this.Alive) {this.stateMachine[10]();}
+        if (!this.playerVisible && this.Alive) {
+            this.stateMachine[10]()
+            
+            return
+        }
 
 
         //trigger the mob state once the player is visible
@@ -284,7 +290,7 @@ export class Enemy extends PhysicsObject {
                 return
      
             }
-
+            
 
 
         // TO DO: 
@@ -531,6 +537,7 @@ export class Enemy extends PhysicsObject {
 
         this.state = this.enum.get("STATE_DIE")!;
         this.stateMachine[this.state](); 
+        this.destroy();
         
 
         

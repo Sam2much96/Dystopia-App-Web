@@ -102,9 +102,11 @@ export class Wallet {
         this.statsUI = document.querySelector('.v11_5');
 
         //get the API data
-        this.fetchPrice();
-        this.fetchAdmin(); // buggy
+        //this.fetchPrice();
+        //this.fetchAdmin(); // buggy
 
+        // to do:
+        // (1) serialise api admin and price data into wallet ui
     
 
 
@@ -123,7 +125,7 @@ export class Wallet {
         this.statsUI.innerHTML = ""; // clear UI
 
             // translate the ui
-        this.walletdiag = window.dialogs.t('wallet', window.dialogs.language);
+        this.walletdiag = window.dialogs.t('wallet');
         this.coinsdiag = window.dialogs.t('coins');
         this.Pricediag = window.dialogs.t('price');
         this.IDdiag = window.dialogs.t('ID');
@@ -136,7 +138,7 @@ export class Wallet {
         // d) sud current prices
         // e) fix price logic to use integers instead of strings
         // 
-        // (2) ui translations
+        // (2) ui translations (done)
 
         //fadfafa
         this.statsUI.innerHTML = `

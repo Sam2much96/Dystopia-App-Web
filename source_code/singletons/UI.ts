@@ -118,7 +118,8 @@ export class UI  {
     public StatusTabs : StatsTabs | undefined ;
     public StatsHUD : StatsHUD | undefined;
     public GameMenu : IngameMenu | undefined;
-    public Dialog : DialogBox | undefined; // dialo
+    public Dialog : DialogBox | undefined; 
+    public Controls : Controls | undefined;
 
     constructor() {
         // testing other languages
@@ -166,7 +167,7 @@ export class UI  {
         this.StatusTabs = new StatsTabs();
 
         
-        
+        this.Controls = new Controls();
 
         
 
@@ -187,7 +188,7 @@ export class UI  {
     }
 
     gameMenu(){
-        console.log("creating the game menu 1");
+        //console.log("creating the game menu 1");
         //create the game menu
         this.GameMenu = new IngameMenu();
 
@@ -688,27 +689,30 @@ export class IngameMenu{
 
         // disable for yyandex updates
                  
-        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
-            window.open("https://dystopia-app.site", "_blank");
-        });
+        //this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
+        //    window.open("https://dystopia-app.site", "_blank");
+        //});
         
        
-        // to do: (1) create controls UI (done)
-        this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
-            window.music.sound_start.play();
+        // to do: 
+        // (1) create controls UI (done)
+        // (2) fix controls renderer
+        //this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
+        //    window.music.sound_start.play();
 
             // logic: 
             // hide the menu ui
             // show the controls menu
-        });
+        //    window.ui.Controls!!.ControlsVisible = true;
+        //});
 
         // hiding the quit button for yandex platform moderation
         // it triggers a non compliance of game stutering
         //
         this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
             window.music.sound_start.play();
-            window.location.href = "about:blank";   // leaves your game, disable in yandex build
-            //window.close();
+            //window.location.href = "about:blank";   // leaves your game, disable in yandex build
+            window.close();
 
         });
 
@@ -717,8 +721,8 @@ export class IngameMenu{
         this.menuContainer!.append(
                 this.newGame,
                 this.contGame,
-                this.Comics,
-                this.Controls,
+                //this.Comics,
+                //this.Controls,
                 this.Quit
             );
         
@@ -836,6 +840,8 @@ export class Controls{
     // to do :
     // (1) duplicate of ingame menu button structure
     // (2) expose all singleton  and core engine internals via script
+    // bugs:
+    // (1) doesn't work
         public SHOW_CONTROLS: boolean = true;
 
     // menu buttons
@@ -854,8 +860,8 @@ export class Controls{
 
          // game menu logic
         this.controlsContainer = document.getElementById("controls-container");    
-        this.ControlsVisible = false; // make menu initially invisible 
-
+        this.ControlsVisible = true; // make menu initially invisible 
+        //window.ui.Controls.ControlsVisible = false;
     }
 
     /**

@@ -167,7 +167,7 @@ function gameInit() {
     
     //load the translation files first
     //
-    window.ads = new Advertising("gamemonetize");
+    window.ads = new Advertising("yandex");
     window.dialogs = new Diaglogs();
     
     window.quest = new Quest();
@@ -193,6 +193,7 @@ function gameInit() {
     // to do:
     // (1) port the stats html into this function
     window.ui.stats(); // takes control of the stats hud and turns it invisible until the gamehud is rendered
+    //window.ui.controls(); //render the game's control
 
     // create the overworld title scene
     window.map = new OverworldTile();
@@ -317,8 +318,7 @@ function gameRender() {
 
         // new game logic
         if (!window.map && window.globals.current_level === ""){
-            // to do:
-            // (1) rework game start logic to also load game levelfrom memory
+
             // 
             //window.ads.showAds();
             
@@ -327,7 +327,7 @@ function gameRender() {
             // overworld map 1
             
             
-            window.ui.gameHUD(); //render the game hud
+            
             
             window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing

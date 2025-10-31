@@ -1,7 +1,7 @@
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, Timer, vec2, drawTile, tile, isOverlapping} = LittleJS;
-import { Items } from '../../singletons/Utils';
+import { Items, PhysicsObject } from '../../singletons/Utils';
 
 export class Arrow extends Items{
     /**
@@ -24,7 +24,7 @@ export class Arrow extends Items{
 }
 
 
-export class Bullet extends EngineObject{
+export class Bullet extends PhysicsObject{
     // Bullet class object shared by all projectile objects
     // implements the arrow item use
     // spawns a projectile that moves in a straight line and despawns all enemy objects in it's path
@@ -47,28 +47,31 @@ export class Bullet extends EngineObject{
 
     
     constructor(pos : LittleJS.Vector2, facingPos : number = 0){
-        super();
+        super(23,[23],2);
         // Logic:
         // (1) use a facing logic for setting this objects's rotation
         // (2) set the arrow object tile image
         // (3) trigger a forward motion physics
         // (4) trigger despawn mechanics if it cokkides with any enemy object
         // (5) despawn after a timer or a length/ distance moved
-
+        this.pos = pos;
         this.tileInfo = tile(23,128,2); // arrow tile
         this.setCollision(true, true, true, true); // make object collide
         this.despawnTimer.set(this.TimeOut);
 
-        this.rotateToDirection(facingPos); // totate the arrow object to the player's facing positoin
+        // bug: rotation does not work
+        this.rotateToDirection(3); // totate the arrow object to the player's facing positoin
 
-        // Set forward velocity based on facing angle
-        const speed = 10; // bullet speed, adjust as needed
-        this.velocity = vec2(Math.sin(this.angle), -Math.cos(this.angle)).scale(speed);
+     
     }
 
     update(){
         // apply physics + velocity motion motion
-        this.velocity
+        //this.velocity
+           // Set forward velocity based on facing angle
+        super.update();
+        const speed = 10; // bullet speed, adjust as needed
+        this.velocity.add(vec2(1,0));//vec2(Math.sin(this.angle), -Math.cos(this.angle)).scale(speed);
 
         // collision logic \
         for (const enemy of window.globals.enemies){ // checks for all enemy objects

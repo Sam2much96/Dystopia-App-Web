@@ -25,6 +25,9 @@ import {Enemy} from "../Characters/enemy";
  * (5) fix temple dungeon scene break
  * (6) blood splatter fx tiles are now enemy objects
  * (7) finish tiemple interior wall collisions
+ * 
+ * bugs:
+ * (1) enemy collisions cannot be triggered by player bug
  */
 
 
@@ -91,6 +94,7 @@ export class TempleInterior extends EngineObject {
                         if (val === 26){ // blood splatter fx marker
                             let r = new Enemy(vec2(x,y));
                             this.levelObjects?.push(r);
+                            window.globals.enemies.push(r);
                             return                            
                         }
                     

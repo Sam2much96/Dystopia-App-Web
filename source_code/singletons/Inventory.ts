@@ -5,6 +5,7 @@ const {vec2} = LittleJS;
 
 
 import {BombExplosion} from "../scenes/items/Bomb";
+import {Bullet} from "../scenes/items/Arrow";
 
 
 export class Inventory {
@@ -379,6 +380,7 @@ export function useItem(type :string, amount : number ) : boolean {
     window.music.item_use_sfx.play();
 
     const player = window.player;
+    const heartboxUI = window.ui.HeartBoxHUD;
     const local_inv = window.inventory;
 
     if (player && local_inv.has(type)){
@@ -388,12 +390,12 @@ export function useItem(type :string, amount : number ) : boolean {
         
         if (type== "Health Potion"){
             //console.log("hp+ use debug: ", player);
+            // update heart box hud
             player.hitpoints += 1;
             window.globals.hp += 1;
-            window.ui.HeartBoxHUD!!.heartbox(window.globals.hp)
-            // update heart box hud
-            //player.update_heart_box();
-            //console.log("to do: implement update heartbox funcitonality on player object");
+            heartboxUI?.heartbox(window.globals.hp);
+            
+
         }
         
         if (type == "Generic Item"){
@@ -410,15 +412,13 @@ export function useItem(type :string, amount : number ) : boolean {
 
         if (type == "Bomb"){
             new BombExplosion(player.pos.copy());
-            //console.log("Bomb use item triggered")
-            //console.log("bomb debug: ", bomb);
         }
 
         if (type == "Arrow" && local_inv.has("Bow")){
-            //const bullet = new Bullet(); // arrow instance
+            console.log("creating arrow instance");
+            // create arrow instance
+            new Bullet(player.pos.copy(), player.facingPos);
 
-            //console.log("arrow debug 1: ", bullet);
-            console.log("to do: finish item use implementation");
         }
     
     }
