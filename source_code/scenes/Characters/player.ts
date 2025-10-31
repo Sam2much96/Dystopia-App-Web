@@ -259,15 +259,6 @@ export class TopDownPlayer extends Player {
 
         // Connect Heart box signals
 
-
-        // PLAYER'S FACING
-
-        // set initial player's default state
-        //
-        
-        //PLAYER'S PARTICLE AND SOUND FX POINTERS
-        // TO DO:
-        // (1) Player's particle fx
         this.blood = null;
         this.despawn_particles = null;
         this.die_sfx = null;
@@ -608,6 +599,7 @@ export class TopDownPlayer extends Player {
                         if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
                             console.log("Player Hit Collision Detection Triggered");
                             enemy.hitCollisionDetected();
+                            break
                         }
                      }
                 }

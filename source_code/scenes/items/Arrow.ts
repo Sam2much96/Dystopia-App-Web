@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
+const {EngineObject, Timer, vec2, drawTile, tile, isOverlapping} = LittleJS;
 import { Items } from '../../singletons/Utils';
 
 export class Arrow extends Items{
@@ -36,8 +36,65 @@ export class Bullet extends EngineObject{
     // (1) rotate bullet item to face the player's facing position
     // (2) translate bullet object position in a straight line
     // (3) despawn object once it's out the camera render / a despawn timer has passed
-    constructor(pos : LittleJS.Vector2, facing : string){
+    private despawnTimer = new Timer();
+    private TimeOut : number = 4;
+    private DIRECTION_ANGLES: Record<number, number> = {
+        0: 0,                // up
+        3: Math.PI / 2,      // right
+        1: Math.PI,          // down
+        2: -Math.PI / 2,     // left
+    };
+
+    
+    constructor(pos : LittleJS.Vector2, facingPos : number = 0){
         super();
+        // Logic:
+        // (1) use a facing logic for setting this objects's rotation
+        // (2) set the arrow object tile image
+        // (3) trigger a forward motion physics
+        // (4) trigger despawn mechanics if it cokkides with any enemy object
+        // (5) despawn after a timer or a length/ distance moved
+
+        this.tileInfo = tile(23,128,2); // arrow tile
+        this.setCollision(true, true, true, true); // make object collide
+        this.despawnTimer.set(this.TimeOut);
+
+        this.rotateToDirection(facingPos); // totate the arrow object to the player's facing positoin
+
+        // Set forward velocity based on facing angle
+        const speed = 10; // bullet speed, adjust as needed
+        this.velocity = vec2(Math.sin(this.angle), -Math.cos(this.angle)).scale(speed);
+    }
+
+    update(){
+        // apply physics + velocity motion motion
+        this.velocity
+
+        // collision logic \
+        for (const enemy of window.globals.enemies){ // checks for all enemy objects
+            if (isOverlapping(this.pos, this.size,enemy.pos, enemy.size)){
+                enemy.despawn();
+                break;
+            }
+        }
+
+        // desapwn logic
+        if (this.despawnTimer.elapsed()){
+            
+            // despawn the object
+            this.destroy();
+            
+        }
+    }
+
+    
+
+    // Rotate helper
+    rotateToDirection(direction : number) {
+        const angle = this.DIRECTION_ANGLES[direction];
+        if (angle !== undefined) {
+            this.angle = angle;
+        }
     }
 
 }

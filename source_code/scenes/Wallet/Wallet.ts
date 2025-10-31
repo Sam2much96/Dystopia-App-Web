@@ -73,13 +73,25 @@ export class Wallet {
     public sudsPrice : string = "0";
 
     //admin hot wallet data serialised
+    // to do:
+    // (1) fetch admin data from api
+    // (2) improve regional api performance
     public adminWalletAddress : string = "EBRLA42MWQPHHX3J5WF22ODGEDO6ZUG4DLP3FBOPBPQIMP55EFWGR55EZA";
     public adminWalletbalance : string = "2200000000000000";
     public coin_asa_id : string = "2717482658";
 
     // to do:
     // (1) fetch price data from the vestige to draw price line chart
+    // (2) implement traslations
+    // (3) fix coin price calculatoin logic
+    // (4) implement Merchant UI that extends wallet api
 
+    // ui translations
+    private walletdiag? : string;
+    private coinsdiag? : string;
+    private Pricediag? : string;
+    private IDdiag? : string;
+     
     constructor() {
         // Fetch Sud token price from vestige
         // works
@@ -91,7 +103,11 @@ export class Wallet {
 
         //get the API data
         this.fetchPrice();
-        //this.fetchAdmin(); // buggy
+        this.fetchAdmin(); // buggy
+
+    
+
+
     }
 
 
@@ -106,6 +122,12 @@ export class Wallet {
 
         this.statsUI.innerHTML = ""; // clear UI
 
+            // translate the ui
+        this.walletdiag = window.dialogs.t('wallet', window.dialogs.language);
+        this.coinsdiag = window.dialogs.t('coins');
+        this.Pricediag = window.dialogs.t('price');
+        this.IDdiag = window.dialogs.t('ID');
+
         // to do:
         // (1) data to serialise: 
         // a) admin wallet api stats
@@ -113,12 +135,16 @@ export class Wallet {
         // c) database sud
         // d) sud current prices
         // e) fix price logic to use integers instead of strings
+        // 
+        // (2) ui translations
+
+        //fadfafa
         this.statsUI.innerHTML = `
             <div class="wallet-tab">
-                <p>Wallet address: ${this.adminWalletAddress}</p>
-                <p>Coins balance: ${this.suds} Suds</p>
-                <p>Coin Price : ${this.sudsPrice}</p>
-                <p>Coin ID : ${this.coin_asa_id}</p>
+                <p>${this.walletdiag}: ${this.adminWalletAddress}</p>
+                <p>${this.coinsdiag}: ${this.suds} Suds</p>
+                <p>${this.Pricediag} : ${this.sudsPrice}</p>
+                <p>${this.IDdiag}: ${this.coin_asa_id}</p>
                 <!-- Add more wallet details below here -->
             </div>
         `;

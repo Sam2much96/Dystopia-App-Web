@@ -99,21 +99,19 @@ export class OverworldTile extends EngineObject{
                 window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
-                //this.destroy(); // object not needed in the current state 
-               // if (this.local_3d_engine.hasCube()){
-               //     this.local_3d_engine.deleteCube()
-                //}
-                //this.local_3d_engine.destroy();
-                //this.local_3d_engine = undefined;
                 this.THREE_RENDER = null;
                 this.enable = false;
+                window.music.play(); // play the current sound track
 
+                // this is a testing ui to test ui translations locally for yandex compliance
+                // disable in production build 
+                // works
+                //window.dialogs.language = "ru_RU";
+                //window.ui.translateUIElements(window.dialogs.language);
                 this.destroy();
 
 
-                // transition to non simulating state 
-                //this.State()["NON_SIMULATING"]();
-                //this.Enabled = false;
+                
                 return;
              }}
         }

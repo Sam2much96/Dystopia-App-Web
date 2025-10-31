@@ -209,6 +209,10 @@ export class DialogBox{
      * (5) Implement decision tree dialog box
      * (6) Implemeent DIalog trigger collsion object class
      * 
+     * bugs:
+     * (1) shows very small on mobile devices and doesnt scale up
+     * (2) is not centralised on mobile, instead shows at the bottom on mobiles. Fix  alignment in css
+     * 
      */
     public DIALOG_BOX: HTMLDivElement;
 

@@ -27,6 +27,10 @@
  * (17) implement walk animation on enemy navigation state (done)
  * (18) Implement enemy item drops
  * (19) organinze monolith code bloc into separate individual classes
+ * 
+ * Bugs:
+ * (1) enemy path finding bug only works once
+ * (2) stuck enemy pathfinding loop
  */
 
 
@@ -259,19 +263,25 @@ export class Enemy extends PhysicsObject {
         
 
 
-
+        // player attack collisoin
+        if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && this.local_player_object?.holdingAttack) {
+                this.hitCollisionDetected(); // trigger the enemy collision logic
+                return;
+            }
 
             
  
 
         // collision logic when player is not visible, it triggers the enemy mob a.i
-        if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size)) {
+        if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && !this.playerVisible) {
                 this.playerVisible = true; // trigger the mob logic
+                return;
             }
 
         // collision logic when the player is visible, it triggers the enemy attack state
          if (isOverlapping(this.pos, this.size, this.local_player_object?.pos, this.local_player_object?.size) && this.playerVisible) {
                 this.stateMachine[2]() // trigger the attack state
+                return
      
             }
 

@@ -96,7 +96,7 @@ export class UI  {
     //public menuButton: HTMLButtonElement | null = null; // old menu button
     public menuButton : MenuButton | null = null;
     
-    public walletButton: HTMLButtonElement | null = null;
+    public itemButton: HTMLButtonElement | null = null;
 
 
     //timer: LittleJS.Timer = new Timer();
@@ -201,6 +201,7 @@ export class UI  {
         * To do:
         * (1) lock game hud designs into html and css class (done)
         * (2) include logic to hide the game hud once game menu is visible to prevent UI overlap (1/2)
+        * (3) separate game hud into separate class (0/2)
         */
 
 
@@ -219,13 +220,16 @@ export class UI  {
         // to do:
         // (1) lock gameHUD layout into separated css and html files and separte each ui into seprate css object
         // depreciate wallet button into hud renders
-        this.walletButton = createTextureButton("./btn-mask.png","ui-button", () => {
+        this.itemButton = createTextureButton("./btn-hands.png","ui-button", () => {
 
-            console.log("wallet button pressed");
+           // console.log("wallet button pressed");
+           // features:
             // to do:
-            // (1) 
-            // (2) create generic wallet api implementation adaptable for multiple web plaforms not just pera wallet (1/3)
-            window.music.ui_sfx[0].play(); 
+            // (1) show the currently held item
+            // (2) an implementation of the item holding ui
+            //window.music.ui_sfx[0].play(); 
+            window.player.holdingAttack = true; // trigger the player attac
+
             
         
         });
@@ -240,7 +244,7 @@ export class UI  {
   
 
         // left buttons on the ui
-        this.leftButtons!.append( this.statsButton,this.walletButton, this.dialogButton);
+        this.leftButtons!.append( this.statsButton,this.itemButton, this.dialogButton);
         
 
     }
@@ -373,6 +377,9 @@ export class StatsHUD{
      * 
      * Bug:
      * (1) this ui renders before the translations file is finished loading
+     * (2) translaton UI functions are unimplented for wallet and stats renderer
+     *  - (a) debug stats ui renderer in yandex platform for compliance
+     *  - (b) set up a tiralogue translate timer to test all ui translations locally
      * 
      */
     public statsUI: HTMLElement | null = null;
@@ -413,19 +420,9 @@ export class StatsHUD{
         this.InventoryVisible = false;
         this.stateMachine[this.state](); // works
 
-        //(async () => {
-               
-           //console.log("translating stats hud: ", window.dialogs.t('Stats', window.dialogs.language));
-        
-      this.stsdiag = window.dialogs.t('Stats', window.dialogs.language);
-      this.kcdiag = window.dialogs.t('kill_count', window.dialogs.language);
-      this.dcdiag = window.dialogs.t('death_count', window.dialogs.language);
-         //})();
 
         
-        //this.stsdiag = window.dialogs.t("Stats", window.dialogs.language);
-        //this.kcdiag = window.dialogs.t("kill_count", window.dialogs.language);
-        //this.dcdiag = window.dialogs.t("death_count", window.dialogs.language);
+
         
     }
 
@@ -482,6 +479,8 @@ export class StatsHUD{
             1: () =>{
                 //console.log("Wallet state triggered");
                 // trigger wallet render fuction
+                // to do:
+                // (1) implement translations for wallet render
                 window.wallet.renderWallet();
 
             },
@@ -494,6 +493,8 @@ export class StatsHUD{
             3: () =>{
                 console.log("Stats state triggered");
                 // trigger stats render function
+                // to do:
+                // (1) implement translatoins for stats render
                 this.renderStats();
             }
         }
@@ -503,19 +504,27 @@ export class StatsHUD{
     // to do:
     // (1) test render function
     // (2) connect render function to stats hud
+    // (3) fix translations
     private renderStats(): void {
         //const container = document.getElementById("inventory-items");
         //if (!container) return;
         
         if (!this.statsUI) return console.warn("debug Inventory UI");
-
+        
         this.statsUI.innerHTML = ""; // clear UI
+
+        // translate the ui
+        this.stsdiag = window.dialogs.t('Stats');
+        this.kcdiag = window.dialogs.t('kills');
+        this.dcdiag = window.dialogs.t('deaths');
 
         // serialise global info to the stats ui
         let hp : number = window.globals.hp;
         let kc : number = window.globals.kill_count;
         let dc : number = window.globals.death_count;
-        let lvl : String = window.globals.current_level;
+
+       
+        //let lvl : String = window.globals.current_level;
         // todo:
         // (5) fix coin collect subsystem & ui
         // (6) translate all status ui
@@ -526,7 +535,7 @@ export class StatsHUD{
                 <p> ${this.kcdiag}: ${kc}</p>
                 <p>${this.dcdiag}: ${dc}</p>
                 <p>HP: ${hp}</p>
-                <p>${lvl}</p>
+                
             </div>
         `;
     }
@@ -575,7 +584,7 @@ export class IngameMenu{
 
     //public translations : Translations  = {};
 
-    private language : string = window.dialogs.language!!; // fetch language from dialog singleton
+    //private language : string = window.dialogs.language!!; // fetch language from dialog singleton
 
 
     constructor(){
@@ -684,12 +693,14 @@ export class IngameMenu{
         });
         
        
-        // to do: (1) create controls UI
-        //this.Controls = this.createMenuOption(window.dialogs.t("controls", this.language), "#", () => {
-        //    window.music.sound_start.play();
+        // to do: (1) create controls UI (done)
+        this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
+            window.music.sound_start.play();
 
-            // window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
-        //});
+            // logic: 
+            // hide the menu ui
+            // show the controls menu
+        });
 
         // hiding the quit button for yandex platform moderation
         // it triggers a non compliance of game stutering
@@ -707,7 +718,7 @@ export class IngameMenu{
                 this.newGame,
                 this.contGame,
                 this.Comics,
-                //this.Controls,
+                this.Controls,
                 this.Quit
             );
         
@@ -788,6 +799,12 @@ export class IngameMenu{
 }
 
 export class HeartBox{
+    /**
+     * Bugs:
+     * (1) heart box tretches the camera bounds on mobile and does not tretch into 2 separate lines
+     *  - include css + bondary box to account for multiline heartbox
+     * 
+     */
     // heart box UI object
     public HEART_BOX: Array<HTMLDivElement> = [];
     constructor(){
@@ -814,6 +831,184 @@ export class HeartBox{
     
 }
 
+
+export class Controls{
+    // to do :
+    // (1) duplicate of ingame menu button structure
+    // (2) expose all singleton  and core engine internals via script
+        public SHOW_CONTROLS: boolean = true;
+
+    // menu buttons
+    //
+    public controlsContainer: HTMLElement | null;
+    public music: HTMLAnchorElement | null = null;
+    public language: HTMLAnchorElement | null = null;
+    public shuffle_music: HTMLAnchorElement | null = null;
+    //public help: HTMLAnchorElement | null = null;
+    public vibrations: HTMLAnchorElement | null = null;
+    public multiplayer: HTMLAnchorElement | null = null;
+    public deleteSave: HTMLAnchorElement | null = null;
+    public back: HTMLAnchorElement | null = null;
+
+    constructor(){
+
+         // game menu logic
+        this.controlsContainer = document.getElementById("controls-container");    
+        this.ControlsVisible = false; // make menu initially invisible 
+
+    }
+
+    /**
+     * UI visibility Toggles
+     * 
+     * Features:
+     * (1) external methods to toggle UI states as setter & getter functions
+     */
+
+    get ControlsVisible() : boolean {
+        return this.SHOW_CONTROLS;
+    };
+
+    /**
+     *  In Game Menu Visibility controls & settings
+     * 
+     */
+    set ControlsVisible(visible_: boolean) {
+        // Toggles Menu Visibility
+        this.SHOW_CONTROLS = visible_;
+
+        // play toggle sfx
+        if (window.music) {
+            window.music.ui_sfx[2].play(); // play robotic sfx
+        }
+
+        // game menu visibility
+        if (visible_ == false) {
+            this.controlsContainer!.classList.add("hidden");
+
+        }
+        else if (visible_ == true) {
+
+            this.controlsContainer!.classList.remove("hidden");
+        }
+
+
+    };
+
+    private createMenuOption(text: string, href: string, onPress: () => void): HTMLAnchorElement { // creates menu buttons
+        /**
+         * Features:
+         * (1) duplicated menu option creation button
+         * 
+         * To do:
+         * (1) Modify function to use a specific controls css
+         * 
+         */
+        const option = document.createElement("a");
+        option.href = href;
+        option.className = "menu-option";
+        option.innerText = text;
+        // mark element for translations
+        //this.newGame.dataset.i18n = "new_game";
+        
+        //mark element for translations
+        option.dataset.i18n = text;
+
+        // to do: use event handler architecture for stats UI buttons
+        const handler = (event: Event) => {
+            event.preventDefault(); // Prevent navigation
+            if (this.controlsContainer!.style.display !== "none") {
+             onPress();
+            }
+        };
+        
+
+        // Use pointerdown for broad device compatibility
+        option.addEventListener("pointerdown", handler);
+
+        // Optionally add click as a fallback
+        option.addEventListener("click", handler);
+        
+        return option;
+    }
+
+
+    Controls() {
+        /*
+        * Creates the Ingame Controls UI Object
+        *
+        * 
+        */
+
+        if (this.back) return; // guard clause
+            console.log("Creating Controls Menu");
+        
+            // note : 
+            // (1) ingame menu translations is buggy
+            this.back = this.createMenuOption(window.dialogs.t("back"), "#", () => {
+                window.music.sound_start.play();
+                
+             
+                // save the game's configuration to memory
+                Utils.saveGame();
+
+                //hide menu
+                this.ControlsVisible = false;
+                //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+        });
+
+        // mark element for translations
+        //this.newGame.dataset.i18n = "new_game";
+
+
+        this.music = this.createMenuOption(window.dialogs.t("music"), "#", () => {
+                    window.music.sound_start.play();
+                    window.music.enable = !window.music.enable; // disable / enable the music player
+        });
+
+        // manually set the language
+        this.language = this.createMenuOption(window.dialogs.t("languague"), "#", () => {
+            // logic: 
+            // (1) show an menu option for all the supported languages
+            // (2) set the dialogue language to the user selected language
+            // (3) trigger the ui translation functions
+        });
+        
+       
+        // hiding the quit button for yandex platform moderation
+        // it triggers a non compliance of game stutering
+        //
+        this.shuffle_music = this.createMenuOption(window.dialogs.t("shuffle"), "#", () => {
+            // to do:
+            // (1) expand on the music singleton
+
+            // logic
+            // (1) stop the current music player
+            // (2) run the randomization music algorithm
+            // (3) play the currently selected music
+
+        });
+
+         this.vibrations = this.createMenuOption(window.dialogs.t("vibration"), "#", () => {
+                    window.music.sound_start.play();
+                    //window.music.enable = !window.music.enable; // disable / enable the little js engine vibrations
+        });
+
+        // append buttons to menu container
+        
+        this.controlsContainer!.append(
+                this.back,
+                this.music,
+                this.language,
+                this.shuffle_music,
+                this.vibrations
+            );
+        
+        
+    }
+
+
+}
 
 
 export function createPanel(id: string): HTMLDivElement {
