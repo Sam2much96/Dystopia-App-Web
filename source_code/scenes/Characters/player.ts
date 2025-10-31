@@ -349,7 +349,7 @@ export class TopDownPlayer extends Player {
 
         // to do: 
         // (1) replace with better despawn sfx from zzfx music synthesizer
-        window.music.punch_sfx_3.play();
+        window.music.death_sfx.play();
         window.globals.death_count += 1;
         
         
@@ -430,7 +430,8 @@ export class TopDownPlayer extends Player {
         // works
         new Blood_splatter_fx(this.pos, 2);
         
-        window.music.punch_sfx_2.play(); // play hit sfx
+        //window.music.punch_sfx_2.play(); // play hit sfx
+        window.music.hurt_Sfx.play();// play the hurt sfx
         this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
         
        //this.triggerHurt(1); // trigger invincibility frame for 1 seconds
@@ -597,7 +598,7 @@ export class TopDownPlayer extends Player {
                         //console.log("eneemy debug: ", enemy.pos);
                         //bug: checks for only one player and doesn't account for multiple players
                         if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
-                            console.log("Player Hit Collision Detection Triggered");
+                            //console.log("Player Hit Collision Detection Triggered");
                             enemy.hitCollisionDetected();
                             break
                         }

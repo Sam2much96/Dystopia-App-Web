@@ -21,6 +21,7 @@ export class OverworldTile extends EngineObject{
 
     private groundLevel: number = -4; // ground position for stopping Gravity on Cube
     private enable : boolean = true;
+    private READY_ADS : boolean = false;
     constructor(){
         super();
         this.color = new Color(0, 0, 0, 0); // make object invisible
@@ -47,6 +48,9 @@ export class OverworldTile extends EngineObject{
         // window.THREE_RENDER.addToScene(c2);
         this.THREE_RENDER.setCamera(CAMERA_DISTANCE);
         this.THREE_RENDER.animate(); // bind the animation and renderer to this context
+
+        
+        //window.ads.showAds();
     }
 
     destroy(): void {
@@ -79,6 +83,14 @@ export class OverworldTile extends EngineObject{
                 this.local_3d_engine.setCubePositionV0(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
             }
 
+            // show the mobile ads once
+            if (window.ads && !this.READY_ADS){
+                //window.ads.showAds(); // initialize ads sdk for game monetize compiliance
+                //window.ads.initialize();
+                //window.ads.showAds();
+                this.READY_ADS = true;
+                return
+            }
 
             // hide threejs layer once game starts
             // is always true once game has started
@@ -89,7 +101,7 @@ export class OverworldTile extends EngineObject{
                 
 
                 // save to global conditional for rendering game backgrounds and starting core game loop
-                window.globals.GAME_START = true;
+                //window.globals.GAME_START = true;
                 window.ui.gameHUD(); //render the game hud
                 this.THREE_RENDER.hideThreeLayer();
 
@@ -97,12 +109,15 @@ export class OverworldTile extends EngineObject{
                 this.THREE_RENDER = null;
                 this.local_3d_engine = null;
                 this.destroy()
+                
                 window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
                 this.THREE_RENDER = null;
                 this.enable = false;
                 window.music.play(); // play the current sound track
+
+                
                 
                 // this is a testing ui to test ui translations locally for yandex compliance
                 // disable in production build 

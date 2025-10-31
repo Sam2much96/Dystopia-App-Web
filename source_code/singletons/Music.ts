@@ -36,6 +36,7 @@ export class Music {
 
     public enable : boolean = true; // temporarily turning music off for music audit
     public sfx_on : boolean = true ;
+    public isPlaying : boolean = false;
     
     public volume : number = 50; // todo : (1) link to zzfxm audio context class 
     public wasPlaying : boolean = false;
@@ -53,8 +54,9 @@ export class Music {
     public default_playlist: Record<number,string> =  {
             0:`./audio/songs/sanxion.js`,
             1:"./audio/songs/cuddly.js",
-            2:"./audio/songs/depp.js",
-            3:"./audio/songs/iamback.js"
+            2:"./audio/songs/Depp.js",
+            3:"./audio/songs/Iamback.js",
+            4:"./audio/songs/Jazz_Bass_line.js"
 
     };
     
@@ -133,6 +135,9 @@ export class Music {
     sound_boing: LittleJS.Sound;
     sound_tv_static: LittleJS.Sound;
     sound_metal_gong: LittleJS.Sound;
+    hurt_Sfx : LittleJS.Sound;
+    death_sfx : LittleJS.Sound;
+    explosion_vibration_sfx : LittleJS.Sound;
     zelda: LittleJS.Sound | null;
     current_track: string | null;
     next_track: string | null;
@@ -147,8 +152,8 @@ export class Music {
 
 
         //Audio Control settings
-        // to do : map to a control ui / control class
-        setSoundVolume(0.3);
+        // to do : map to a control ui / control class (1/3)
+        //setSoundVolume(0.3);
         setSoundEnable(true);
 
         console.log("Music on Settings: ", this.enable );
@@ -181,12 +186,12 @@ export class Music {
         const disco = new Sound([,,361,.08,.19,.3,2,2.1,3,,-120,.1,,,102,,,.72,.05]);
         const disco_2 = new Sound([.4,,39,.44,.1,.15,2,1.8,,-54,,,,,12,,,.97,.02,,325]); // Random 45
 
-        const hurt_Sfx = new Sound([,,377,.02,.05,.16,,3,,-13,,,,,,.1,,.72,.07]); // hurt sfx
-        const death_sfx = new Sound([,,416,.02,.07,.14,1,.6,-7,,,,.06,,,.1,,.69,.04,,220]); // Pickup 49
+        this.hurt_Sfx = new Sound([,,377,.02,.05,.16,,3,,-13,,,,,,.1,,.72,.07]); // hurt sfx
+        this.death_sfx = new Sound([,,416,.02,.07,.14,1,.6,-7,,,,.06,,,.1,,.69,.04,,220]); // Pickup 49
 
 
         const explosion_sfx_bass = new Sound([1.1,,31,.08,.21,.74,2,3.2,,,,,,.7,,.7,,.48,.13,,99]); // Explosion 22
-        const explosion_vibration_sfx = new Sound([2,0,65.40639,.03,.96,.43,1,.3,,,,,.13,.3,,.1,.04,.85,.19,.28]); 
+        this.explosion_vibration_sfx = new Sound([2,0,65.40639,.03,.96,.43,1,.3,,,,,.13,.3,,.1,.04,.85,.19,.28]); 
         const explosion_3 = new Sound([,,9,,.05,.45,4,4.4,,,8,.04,,,,.4,,.52,.42,.33]); // Random 33
 
         const electricity = new Sound([1.1,,10,.09,,.02,3,3.6,,,,.33,.02,,,,.37,.93,.3,,-1404]); // Random 38
@@ -310,13 +315,24 @@ export class Music {
             // (1) This creates a bottleneck / noticable lag at the start of the game because of the fetch request for the music track
 
             const load = async ()  => {
-                this.track = this.shuffle(this.default_playlist); // get a random track
+                // to do:
+                // (1) testing all tracks files integrity
+                // cheat sheet 
+            //0:`./audio/songs/sanxion.js`,
+            //1:"./audio/songs/cuddly.js",
+            //2:"./audio/songs/depp.js",
+            //3:"./audio/songs/iamback.js",
+            //4:"./audio/songs/Jazz_Bass_line.js"
+                let newTrack = this.shuffle(this.default_playlist); // get a random track
 
-                console.log ("track debug : ", this.track);
-                const res = await fetch(this.track);
+                console.log ("track debug : ", newTrack);
+                const res = await fetch(newTrack);
                 const src = await res.text();
+
+                //debug if the track was fetched
+                //console.log("track debug 2: ", src);
                 
-                
+                // bug:
                 // parsing of audio files breaks in final build
                 return this.unsafeParse(src); 
                 
@@ -343,27 +359,43 @@ export class Music {
         }
 
         
-        console.log("playing song: ", this.counter);
-        const song = await load();
-         
-         
-         this.buffer = await render(song);
-         
-         //zzfxM([.9, 0, 143, , , .35, 3], [], []);
-         // play the tune
-         this.stream = zzfxP(this.buffer[0], this.buffer[1]);
-         
-        this.stream.loop = true;
-        this.counter += 1;
-         
-        await zzfxX.resume();
+        //console.log("playing song: ", this.counter);
+        try{
+            const song = await load();
+            
+            
+            this.buffer = await render(song);
+            
+            //zzfxM([.9, 0, 143, , , .35, 3], [], []);
+            // play the tune
+            this.stream = zzfxP(this.buffer[0], this.buffer[1]);
+            
+            this.stream.loop = false;
+            this.counter ++;
+            
+            // auto shuffle once track ends
+            this.stream.onended = async () => {
 
-         // stop it
-         //node.stop();
+                console.log("Track finished, shuffling next ...");
+                this.counter = 0; // reset the song counter
+                //this.isPlaying = false;
+                await this.play(); // play the next random song
+                //window.music.play();
+            }
+
+            await zzfxX.resume();
+
+            //console.log("Now playing:", this.lastPlayedTrack);
             
         }
+        
+         catch (err){
 
-    }
+             console.error("Error playing music:", err);
+            this.isPlaying = false;
+         }
+
+    }}
 
 
     clear(){

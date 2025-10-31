@@ -136,16 +136,7 @@ declare global {
 */
 
 
-    LittleJS.setShowSplashScreen(false);
-
-    // Game Pad on Mobile Devices Settings
-    LittleJS.setTouchGamepadEnable(true);
-    LittleJS.setTouchGamepadSize(150); // game pad is too big on some mobile browsers
-    LittleJS.setTouchGamepadAlpha(0.3);
-
-    // set dpad configuration on mobile browsers 
-    LittleJS.setTouchGamepadAnalog(false);
-    //LittleJS.setCameraScale(16);
+   
     
     
 function gameInit() {
@@ -157,7 +148,20 @@ function gameInit() {
     // use pixelated rendering
     LittleJS.setCanvasPixelated(true);
    LittleJS.setTilesPixelated(false);
+    LittleJS.setShowSplashScreen(false);
 
+    // Game Pad on Mobile Devices Settings
+    LittleJS.setTouchGamepadEnable(true);
+    LittleJS.setTouchGamepadSize(150); // game pad is too big on some mobile browsers
+    LittleJS.setTouchGamepadAlpha(0.3);
+
+    // set dpad configuration on mobile browsers 
+    LittleJS.setTouchGamepadAnalog(false);
+    //LittleJS.setCameraScale(16);
+
+    // audio
+    LittleJS.setSoundVolume(0.1);
+    console.log(`sound volume: ${LittleJS.soundVolume}`);
     /* 
     * Create 3D Scenes And Objects
     */
@@ -221,7 +225,7 @@ function gameInit() {
     //draw title screen
     // TO DO :
     // (1) draw dystopia logo with css
-    //window.dialogs.show_dialog("Game Started","");
+  
 
 }
 
@@ -320,16 +324,11 @@ function gameRender() {
         if (!window.map && window.globals.current_level === ""){
 
             // 
-            //window.ads.showAds();
-            
-            //window.ads.showAds();
-            
-            // overworld map 1
+           
+        
             
             
-            
-            
-            window.music.play(); //play zzfxm music
+            //window.music.play(); //play zzfxm music
             //setupPostProcess(); // setup tv shader post processing
 
             

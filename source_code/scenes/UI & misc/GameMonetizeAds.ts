@@ -155,6 +155,7 @@ export class GameMonetizeAds {
         //this.showBanner();
         this.ensureIframeStyle(); // prepare CSS to let skip button work
         //this.prepareForAd(); // function might be causing accidental trigger on mobile chrome browsers
+        //this.showBanner();
         break;
     }
   }
