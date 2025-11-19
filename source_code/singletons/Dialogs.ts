@@ -71,15 +71,18 @@ export class Diaglogs {
         this.dialogBox.dialogueBox(speaker,text);
 
     }
-
-    // function not needed cus dialog box auto hides after 5 seconds
-    // hide_dialogue(){}
-
-    translate_to(_language: string, locale : string){}
+ 
+    show_decision_dialog(text: string, speaker : string, options : { label: string; callback: () => void }[]){
+        this.dialogBox.DialogVisible = true;
+        this.dialogBox.decisionDialogBox(text, speaker, options)       
+    }
 
 
     async loadTranslations() : Promise<Translations>{
         //translations[key][lang]
+        //bugs:
+        // (1) loads the translations buggily, sometimes, other languages are triggered
+        // (2) audit buggy translatoins bug
         console.log("fetching translations file");
         const response  = await fetch ("./Translation_1.csv"); // works
         const csvText = await response.text(); // works
@@ -255,6 +258,69 @@ export class DialogBox{
         </div>`;
     }
 
+    decisionDialogBox(
+        speaker: string,
+        text: string,
+        choices: { label: string; callback: () => void }[]
+    ){
+        /**
+         * Decision dialogue box implementation
+         * 
+         * example usage:
+         * this.decisionDialogBox(
+         *   "Guard",
+         *   "Do you want to enter the castle?",
+         *   [
+         *       { label: "Enter", callback: () => console.log("Player enters") },
+         *       { label: "Leave", callback: () => console.log("Player leaves") }
+         *   ]
+         * );
+         */
+
+
+        // Build decision dialog HTML
+        const html = `
+        <div class="dialog-content">
+            
+            <!-- Speaker Name -->
+            <div class="dialog-speaker">${speaker}</div>
+
+            <div class="v1_2"></div>
+            <div class="v1_3"></div>
+
+            <!-- Text Content -->
+            <span class="v1_4">${text}</span>
+
+            <!-- Decision Buttons -->
+            <div class="dialog-choices">
+                ${choices
+                    .map(
+                        (c, i) => `
+                    <button class="choice-btn" data-index="${i}">
+                        ${c.label}
+                    </button>`
+                    )
+                    .join("")}
+            </div>
+
+        </div>`;
+
+        // Insert into dialogue box container
+        this.DIALOG_BOX.innerHTML = html;
+
+        // Activate buttons
+        const btns = this.DIALOG_BOX.querySelectorAll(".choice-btn");
+        btns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const idx = Number(btn.getAttribute("data-index"));
+                choices[idx].callback();
+
+                //console.log("button clicked")
+            });
+        });
+
+    }
+
     get DialogVisible() : boolean {
 
         return this.DIALOG_BOX.classList.contains("show");
@@ -312,6 +378,47 @@ export class DialogTrigger extends EngineObject{
 
 }
 
-// to do:
-// (1) implement decision dialogue ui
-export class DecisionDialogue{}
+
+export class DecisionTrigger extends EngineObject{
+    /**
+     * Decision Dialogue Box:
+     * 
+     * (1)
+     * 
+     * To do:
+     * (1) implement the ui in css class
+     * (2) implement the ui buttons
+     * 
+     */
+
+    
+    public enabled : boolean = true;
+    public dialogue : string = "Lorem Ipsum"; // the dialogue to show
+    public speaker : string = "Lorem Ipsum"; // dialogue speaker to show
+    public choices : { label: string; callback: () => void }[]
+
+    constructor(pos : any, size : any, choices : { label: string; callback: () => void }[]){
+        super();
+        this.pos = pos;
+        this.size = size;
+        this.color = new Color(0, 0, 0, 0); // make object invisible
+        this.choices = choices;
+    }
+
+    update() : void{
+
+        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
+            // if is colliding with player show this object's dialogue
+            //window.dialogs.show_decision_dialog();
+            //console.log("Implement Decision Dialogue");
+
+            // works
+            window.dialogs.show_decision_dialog(
+                this.speaker,
+                this.dialogue,
+                this.choices
+            );
+
+        }
+    }
+}

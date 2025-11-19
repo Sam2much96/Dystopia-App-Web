@@ -425,8 +425,11 @@ export function useItem(type :string, amount : number ) : boolean {
         }
 
         if (type === arrow && local_inv.has(bow)){
-            console.log("creating arrow instance");
+            //console.log("creating arrow instance");
             // create arrow instance
+            // bugs:
+            // (1) doesn't move
+            
             new Bullet(player.pos.copy(), player.facingPos);
 
         }

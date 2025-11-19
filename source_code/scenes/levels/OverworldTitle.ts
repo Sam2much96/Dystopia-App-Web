@@ -86,8 +86,8 @@ export class OverworldTile extends EngineObject{
             // show the mobile ads once
             if (window.ads && !this.READY_ADS){
                 //window.ads.showAds(); // initialize ads sdk for game monetize compiliance
-                //window.ads.initialize();
-                //window.ads.showAds();
+                window.ads.initialize();
+                window.ads.showAds();
                 this.READY_ADS = true;
                 return
             }

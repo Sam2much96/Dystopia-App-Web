@@ -1,0 +1,41 @@
+
+/* Decision buttons container */
+.dialog-choices {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.dialog-content {
+    position: relative;
+    z-index: 0;
+}
+.choice-btn {
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid black;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.choice-btn:hover {
+  transform: scale(1.05);
+  background: #f0f0f0;
+}
+
+.choice-btn:active {
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes textFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}

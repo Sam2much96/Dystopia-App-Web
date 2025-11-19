@@ -2,7 +2,7 @@ import * as LittleJS from 'littlejsengine';
 import { Player} from './player';
 import { Utils, PhysicsObject  } from '../../singletons/Utils';
 import { QuestGivers } from '../../singletons/Quest';
-import { DialogTrigger } from '../../singletons/Dialogs';
+import { DialogTrigger, DecisionTrigger } from '../../singletons/Dialogs';
 
 const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
 
@@ -81,21 +81,36 @@ class NPC extends PhysicsObject {
  * (1) NPC movement logic (2/3)
  * (2) Give NPC Oldwoman Kill Count Quest
  * (3) Give NPC Merchant decision dialogue
+ * 
  */
 
 export class Merchant extends NPC{
 
     public ADS_TRIGGERED : boolean = false;
     public adsTimer = new Timer;
-    private dialogue = new DialogTrigger(this.pos, this.size); //dialogue trigger works
-    private diag1 : string  = window.dialogs.t("diag1", window.dialogs.language) ;
-    private speaker : string = window.dialogs.t("Merchant", window.dialogs.language) ;
+    // to do:
+    // (1) implement decision dialogue for yandex compliance (done)
+
+    private choices : { label: string; callback: () => void }[] =  [
+                { label: "Yes", callback: () => {console.log("Trigger Permissive Ads"); window.ads.showAds()}},
+                { label: "No", callback: () => console.log("Player leaves") }
+            ]
+    private dialogue = new DecisionTrigger(this.pos, this.size, this.choices); //dialogue trigger works
+
+
+    // translated dialogue
+    private diag1 : string  = window.dialogs.t("diag1") ;
+    private speaker : string = window.dialogs.t("Merchant") ;
+
+
     constructor(pos : LittleJS.Vector2){
         super(pos,2,[2]);
         this.currentFrame = 2; // frame 2 (counting from 0) is supposed to be the merchant tile
         this.setCollision(false,false,false,false); // make object not collide
         
         //set the npc dialogue
+        // to do:
+        // (1) fix and implement decision dialogue (done)
         this.dialogue.dialogue = this.diag1;
         this.dialogue.speaker = this.speaker;
 
@@ -157,7 +172,7 @@ export class Merchant extends NPC{
  * Features:
  * (1) spawns in overworld top down levels
  * 
- * To Do:
+ * To-Do:
  * (1) Implement kill count quest for this NPC
  */
 

@@ -46,6 +46,7 @@
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
   z-index: -2;
+  pointer-events: none;
 }
 
 .v1_3 {
@@ -54,6 +55,7 @@
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) inset;
   z-index: -1;
+  pointer-events: none;
 }
 
 /* Text styling */

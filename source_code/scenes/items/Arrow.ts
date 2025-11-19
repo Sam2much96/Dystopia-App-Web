@@ -3,6 +3,16 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject, Timer, vec2, drawTile, tile, isOverlapping} = LittleJS;
 import { Items, PhysicsObject } from '../../singletons/Utils';
 
+import {
+  Box2dObject,
+  box2dCreateFixtureDef,
+  box2dCreatePolygonShape,
+  box2dBodyTypeDynamic,
+  box2dBodyTypeStatic,
+  box2dBodyTypeKinematic,
+  box2d
+} from "../../singletons/box2d"; 
+
 export class Arrow extends Items{
     /**
      * 
@@ -24,58 +34,73 @@ export class Arrow extends Items{
 }
 
 
-export class Bullet extends PhysicsObject{
-    // Bullet class object shared by all projectile objects
-    // implements the arrow item use
-    // spawns a projectile that moves in a straight line and despawns all enemy objects in it's path
-    // to do:
-    // (1) finish item implementation
-
-    // logic:
-    // (0) set bullet item to the arrow item tile
-    // (1) rotate bullet item to face the player's facing position
-    // (2) translate bullet object position in a straight line
-    // (3) despawn object once it's out the camera render / a despawn timer has passed
+export class Bullet extends Box2dObject{
+    /**
+     * Projectile Object
+     * 
+     * Bullet class object shared by all projectile objects
+     * 
+     * Features :
+     *  
+     *(1) implements the arrow item use
+     * (2) spawns a projectile that moves in a straight line and despawns all enemy objects in it's path
+     *
+     * logic:
+     * (0) set bullet item to the arrow item tile
+     * (1) rotate bullet item to face the player's facing position
+     * (2) translate bullet object position in a straight line
+     * (3) despawn object once it's out the camera render / a despawn timer has passed
+     * (4) despawn enemy object if colliding with them
+     * 
+     * Bug:
+     * (1) arrow object rotation does not work
+     * (2) arrow object flies too fast
+     */
     private despawnTimer = new Timer();
     private TimeOut : number = 4;
-    private DIRECTION_ANGLES: Record<number, number> = {
-        0: 0,                // up
-        3: Math.PI / 2,      // right
-        1: Math.PI,          // down
-        2: -Math.PI / 2,     // left
-    };
+    public speed : number = 15;
 
     
     constructor(pos : LittleJS.Vector2, facingPos : number = 0){
-        super(23,[23],2);
-        // Logic:
-        // (1) use a facing logic for setting this objects's rotation
-        // (2) set the arrow object tile image
-        // (3) trigger a forward motion physics
-        // (4) trigger despawn mechanics if it cokkides with any enemy object
-        // (5) despawn after a timer or a length/ distance moved
+        super(pos,vec2(0.8), tile(23,128,2), rotateToDirection(facingPos),LittleJS.WHITE,box2dBodyTypeDynamic);
+        
         this.pos = pos;
-        this.tileInfo = tile(23,128,2); // arrow tile
-        this.setCollision(true, true, true, true); // make object collide
+        
+        //console.log("facing pos debug: ", facingPos); // debug the player facing position
+        
         this.despawnTimer.set(this.TimeOut);
-
-        // bug: rotation does not work
-        this.rotateToDirection(3); // totate the arrow object to the player's facing positoin
-
-     
+        
     }
 
     update(){
         // apply physics + velocity motion motion
         //this.velocity
            // Set forward velocity based on facing angle
-        super.update();
-        const speed = 10; // bullet speed, adjust as needed
-        this.velocity.add(vec2(1,0));//vec2(Math.sin(this.angle), -Math.cos(this.angle)).scale(speed);
+        //super.update();
+        //const speed = 10; // bullet speed, adjust as needed
+        
+        //this.velocity.add(vec2(1,0));//vec2(Math.sin(this.angle), -Math.cos(this.angle)).scale(speed);
 
-        // collision logic \
+                 // 🔥 Set linear velocity for kinematic arrow
+        
+
+         // Convert: worldAngle = this.angle - 90°
+        const worldAngle = this.angle - Math.PI / 2;
+           const velocity = vec2(
+        Math.cos(worldAngle) * this.speed,
+        -Math.sin(worldAngle) * this.speed
+    );
+        
+        //const velocity = vec2(Math.cos(this.angle), Math.sin(this.angle)).scale(speed);
+        //console.log("velocity debug: ", velocity);
+        this.setLinearVelocity(velocity);
+        super.update();
+
+        // collision logic 
+        // bug:
+        // (1) breaks in temple interior scene
         for (const enemy of window.globals.enemies){ // checks for all enemy objects
-            if (isOverlapping(this.pos, this.size,enemy.pos, enemy.size)){
+            if (isOverlapping(this.pos, vec2(1),enemy.pos, enemy.size)){
                 enemy.despawn();
                 break;
             }
@@ -90,14 +115,22 @@ export class Bullet extends PhysicsObject{
         }
     }
 
-    
+}
 
     // Rotate helper
-    rotateToDirection(direction : number) {
-        const angle = this.DIRECTION_ANGLES[direction];
+    function rotateToDirection(direction : number) : number {
+
+        const DIRECTION_ANGLES: Record<number, number> = {
+        0: 0,                // up
+        3: Math.PI / 2,      // right
+        1: Math.PI,          // down
+        2: -Math.PI / 2,     // left
+        };
+        let angle = DIRECTION_ANGLES[direction];
         if (angle !== undefined) {
-            this.angle = angle;
+            return angle
+        }
+        else {
+            return 0;
         }
     }
-
-}

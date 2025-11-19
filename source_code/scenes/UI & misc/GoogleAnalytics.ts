@@ -6,6 +6,9 @@
  * Features:
  * (1) Tags player counts
  * (2) Tags events e.g. ga.sendEvent("level_start", { level: 1 }) or ga.sendEvent("purchase", { item: "Health Potion", price: 50 });
+ * 
+ * Bugs:
+ * (1) does not work in production
  */
 
 // old version 1.0
