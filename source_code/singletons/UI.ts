@@ -557,7 +557,7 @@ export class MenuButton{
 
            
         //render the menu button separately from all other ui
-        this.menuButton = createTextureButton("./kenny ui-pack/grey_button08.png", "menu-btn",() => {
+        this.menuButton = createTextureButton("./kenny ui-pack/grey_crossGrey.png", "menu-btn",() => {
             window.music.ui_sfx[2].play();
             window.ui.GameMenu!!.MenuVisible = !window.ui.GameMenu!!.MenuVisible;
             //console.log("menu pressed");
@@ -626,6 +626,12 @@ export class IngameMenu{
 
                 //hide menu
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+
+                //show game monetize ads
+                if (window.ads){
+                    window.ads.initialize();
+                    window.ads.showAds();
+                }
         });
 
         // mark element for translations
