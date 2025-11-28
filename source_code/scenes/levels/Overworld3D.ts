@@ -46,7 +46,7 @@ export class OverWorld3D extends EngineObject{
     private THREE_RENDER : any;
     private local_3d_engine : any;
     private despawnTimer : LittleJS.Timer = new Timer();
-    private Timeout : number = 10;
+    private Timeout : number = 100;
     //private local_Player : any;
 
     // threejs
@@ -335,7 +335,7 @@ export class OverWorld3D extends EngineObject{
 
             //set the initial spawnpoint
             if (!SPAWN && this.playerBody){
-                this.playerBody.position.set(0,5,0);
+                this.playerBody.position.set(0,20,0);
                 SPAWN= true;
             }
 
@@ -345,31 +345,37 @@ export class OverWorld3D extends EngineObject{
 
                 // apply physics mesh to player
                 this.player.position.copy(this.playerBody.position);
+                
 
-
-                        // camera tracking
-                        // -----------------------------------------
-                        // THIRD-PERSON CAMERA SETUP
-                        // ----------------------------------
+                // camera tracking
+                // -----------------------------------------
+                // THIRD-PERSON CAMERA SETUP
+                // ----------------------------------
                         
-                        // Get world position of the player
-                        const playerPos = new THREE.Vector3();
-                        this.player.getWorldPosition(playerPos);
+                // Get world position of the player
+                const playerPos = new THREE.Vector3();
+                this.player.getWorldPosition(playerPos);
 
-                        // Third-person offset relative to player
-                        //    ↑X  ↑Y  ↑Z
-                        //    - Slightly above (2.5)
-                        //    - Slightly behind (6)
-                        const cameraOffset = new THREE.Vector3(0, 3.4, -4); 
+                // Third-person offset relative to player
+                //    ↑X  ↑Y  ↑Z
+                //    - Slightly above (2.5)
+                //    - Slightly behind (6)
+                const cameraOffset = new THREE.Vector3(0, 3.4, -4); 
 
 
-                        // Apply camera position
-                        this.camera.position.copy(playerPos.clone().add(cameraOffset));
+                // Apply camera position
+                this.camera.position.copy(playerPos.clone().add(cameraOffset));
 
-                        //camera.zoom = 30;
+                // Look at the player
+                this.camera.lookAt(playerPos);
 
-                          // Look at the player
-                        this.camera.lookAt(playerPos);
+                // second despawn logic for falling off 3d map
+                if (this.playerBody.position.y < -20){
+                    this.despawn();
+                    this.destroy();
+                    this.State()["STATE_DEATH"]();
+                    return;
+                }
 
             }
 
@@ -379,11 +385,15 @@ export class OverWorld3D extends EngineObject{
             }
 
             // testing the animation
-            if (this.walkAction){
-                this.walkAction.play();
-            }
+            //if (this.walkAction){
+            //    this.walkAction.play();
+            //}
             
-      
+            // movement logic
+            if (this.moveInput && this.playerBody){
+
+                this.State()["STATE_WALKING"]();
+            }
 
             renderer.render(scene, camera);
 
@@ -403,7 +413,45 @@ export class OverWorld3D extends EngineObject{
         if (this.despawnTimer.elapsed()){
 
 
-               //hides the threejs css render layer
+            this.despawn();
+            this.destroy();
+        }
+
+    
+
+        // add second map destruction logic for despawning if player falls through map
+
+
+        // Player controls
+
+        if (isTouchDevice){ // touchscreen dpad bindings
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
+            this.holdingRoll = gamepadIsDown(1); 
+            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
+            
+            // for debugging player input on mobile
+            //logToScreen(this.moveInput);
+        }
+
+        else if (!isTouchDevice){ // keyboard and mouse bindings
+            //works
+            this.moveInput = keyDirection().clampLength(1).scale(.1);
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+        }
+        
+
+        // to do:
+        // (1) add movement simple state machine for 3d player body mesh (done)
+        // (2) add mouse controls for 3d camera controls
+        // (3) add toon shader material to 3d player texture material
+        
+        
+    }
+
+
+    despawn(){
+          //hides the threejs css render layer
             const layer = document.getElementById("threejs-layer");
             if (layer) {
                 layer.style.visibility = "hidden";
@@ -478,34 +526,49 @@ export class OverWorld3D extends EngineObject{
             window.map = new OverWorld();
             
 
-            this.destroy();
+    }
+   
+       // player state machine
+    State(): Record<string, () => void>  {
+        return {
+
+            "STATE_DEATH": () => {
+                
+                return ;
+            },
+
+            "STATE_WALKING": () => {
+                if (!this.playerBody) return;
+
+                let velocity = this.moveInput;
+                const moveSpeed = 35;
+                const currentVel = this.playerBody.velocity;
+                
+                // Convert 2D input to 3D movement (X and Z axes)
+                const targetVelocity = new CANNON.Vec3(
+                    velocity.x * moveSpeed,
+                    currentVel.y, // Keep existing Y velocity (gravity)
+                    velocity.y * moveSpeed
+                );
+
+                // Apply smooth movement using velocity instead of direct position setting
+                this.playerBody.velocity.x = -targetVelocity.x;
+                this.playerBody.velocity.z = targetVelocity.z;
+
+                // Rotate player to face movement direction
+                if (this.player) {
+                    const angle = Math.atan2(-velocity.x, velocity.y);
+                    //console.log("angle debug: ", angle);
+                    this.player.rotation.y = angle;
+                }
+
+                // Play walk animation if not already playing
+                if (this.walkAction && !this.walkAction.isRunning()) {
+                    this.walkAction.reset().fadeIn(0.2).play();
+                }
+        }, 
         }
-
-        // Player controls
-
-        if (isTouchDevice){ // touchscreen dpad bindings
-            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
-            this.holdingRoll = gamepadIsDown(1); 
-            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
             
-            // for debugging player input on mobile
-            //logToScreen(this.moveInput);
-        }
-
-        else if (!isTouchDevice){ // keyboard and mouse bindings
-            //works
-            this.moveInput = keyDirection().clampLength(1).scale(.1);
-            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
-            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
-        }
-        
-
-        // to do:
-        // (1) add movement simple state machine for 3d player body mesh
-        // (2) add mouse controls for 3d camera controls
-        // (3) add toon shader material to 3d player texture material
-        
-        
     }
 
 
@@ -515,9 +578,9 @@ export class OverWorld3D extends EngineObject{
      */
     private createStaticBodyFromMesh(mesh: THREE.Mesh): void {
         // ignore Landscape001 mesh, that is for the toonshader
-        if (mesh.name === "Landscape001"){
-            return
-        }
+        //if (mesh.name === "Landscape001"){
+        //    return
+        //}
         
         const geometry = mesh.geometry;
         
@@ -689,6 +752,8 @@ export class OverWorld3D extends EngineObject{
         console.log("Added SINGLE sphere collider for player");
     }
 
+
+  
 }
 
 
