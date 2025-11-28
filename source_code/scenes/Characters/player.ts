@@ -16,6 +16,8 @@ import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyT
 import { Blood_splatter_fx } from '../UI & misc/Blood_Splatter_FX';
 
 
+// music singleton pointer class
+import {Music} from "../../singletons/Music";
 
 
 export class Player extends PhysicsObject{
@@ -96,8 +98,8 @@ export class Player extends PhysicsObject{
     public local_heart_box = window.ui.HeartBoxHUD;
     public blood: any | undefined;
     public despawn_particles: any  | undefined;
-    public die_sfx: any | undefined;
-    public hurt_sfx: any = null;
+    //public die_sfx: any | undefined;
+    //public hurt_sfx: any = null;
     public music_singleton_: any = null;
 
     // Player attributes
@@ -134,6 +136,9 @@ export class Player extends PhysicsObject{
     public holdingRoll : boolean = false;
     public holdingAttack : boolean = false;
 
+    // to do:
+    // (1) fix input buffer
+    // (2) reimplement Networking and Inputs buffer / simulation code
     public Buffer : InputsBuffer = new InputsBuffer();
 
     //camera controllers
@@ -230,8 +235,11 @@ export class TopDownPlayer extends Player {
      * Bug:
      * (1) stuck hit collision state
      * (2) hit collision only works for one enemy, any more and the collision detection logic breaks
+     * (3) player animation is floaty
+     * (4) class does not implent input buffer
+     * (5) needs tv controls
      */
-    
+    private local_music : Music | null = null;
     constructor(pos : LittleJS.Vector2) {
         //console.log("player pos debug :", pos);
         //console.log(`objject debug: ${window.globals.players} / ${window.globals.enemies}`);
@@ -261,13 +269,13 @@ export class TopDownPlayer extends Player {
 
         this.blood = null;
         this.despawn_particles = null;
-        this.die_sfx = null;
-        this.hurt_sfx = null;
+        //this.die_sfx = null;
+        //this.hurt_sfx = null;
 
         // Music Singleton Pointer
         // this would be kinda drepreciated as each Zzfx can play its own sould 
         // this not needing the music singleton pointer to actually play sfx
-        this.music_singleton_ = null;
+        this.local_music = window.music;
 
     }
 
@@ -349,7 +357,13 @@ export class TopDownPlayer extends Player {
 
         // to do: 
         // (1) replace with better despawn sfx from zzfx music synthesizer
-        window.music.death_sfx.play();
+        // (2) create a new despawn sfx
+        //window.music.death_sfx.play();
+        //dsgknsfglsn
+        
+        // play a randomized sfx from the nokia pack
+        window.music.shuffle_sfx(window.music.nokia_pack_sfx).play();
+        
         window.globals.death_count += 1;
         
         
@@ -431,7 +445,14 @@ export class TopDownPlayer extends Player {
         new Blood_splatter_fx(this.pos, 2);
         
         //window.music.punch_sfx_2.play(); // play hit sfx
-        window.music.hurt_Sfx.play();// play the hurt sfx
+        
+        //play random hurt sfx
+        //window.music.hurt_Sfx.play();
+        this.local_music!!.shuffle_sfx(window.music.nokia_hit).play()
+
+        // play random sword sfx
+        this.local_music!!.shuffle_sfx(window.music.sword_sfx).play();
+        
         this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
         
        //this.triggerHurt(1); // trigger invincibility frame for 1 seconds

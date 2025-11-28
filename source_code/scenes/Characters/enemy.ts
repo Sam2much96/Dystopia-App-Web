@@ -31,6 +31,7 @@
  * Bugs:
  * (1) enemy path finding bug only works once
  * (2) stuck enemy pathfinding loop
+ * (3) enemy path finding bugs out when player constantly overlaps around the enemy posision
  */
 
 
@@ -468,11 +469,25 @@ export class Enemy extends PhysicsObject {
         return this.local_player_object!!;
     }
 
-    hitCollisionDetected(){ // resolves the enemy hit collision detection
+    hitCollisionDetected(){ 
+        /**
+         * Features:
+         * (1) resolves the enemy hit collision detection
+         * 
+         */
         this.hitpoints -= 1;
         //hit register
-        //sfx
-        window.music.hit_sfx[2].play();
+
+        // play a randomized sfx
+        window.music.shuffle_sfx(window.music.hit_sfx).play()
+        //window.music.hit_sfx[0].play();
+
+        //play the blood splatter sfx
+        window.music.blood_sfx[0].play();
+        
+        // play nokia pack hit sfx
+        window.music.shuffle_sfx(window.music.nokia_hit).play();
+
         //create a blood splatter fx
         new Blood_splatter_fx(this.pos, 2);
         this.kickback();
@@ -711,21 +726,9 @@ export class Enemy extends PhysicsObject {
                 
                 // remove object from global object pool
                 // remove object from global array
-                //const index = window.globals.enemies.indexOf(this);
-                //if (index !== -1) {
-                //    window.globals.enemies.splice(index, 1);
-                //}
+         
                 window.globals.enemies = window.globals.enemies.filter(e => !e.Alive);
 
-       
-               
-         
-
-
-                //this.destroy();
-
-                // debug the enemy object
-                //console.log("enemy despawn debug: ",window.globals.enemies.indexOf(this));
                 
             },
             5: () => {},

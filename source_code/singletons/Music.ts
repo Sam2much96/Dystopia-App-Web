@@ -1,5 +1,5 @@
 import * as LittleJS from 'littlejsengine';
-const {Sound , setSoundVolume,setSoundEnable} = LittleJS;
+const {Sound ,SoundWave, setSoundVolume,setSoundEnable} = LittleJS;
 import { zzfxM } from './zzfxm';
 import {zzfxP, zzfxX} from  "./zzfx";
 
@@ -59,38 +59,46 @@ export class Music {
             4:"./audio/songs/Jazz_Bass_line.js"
 
     };
+
+
     
     // Zzfx synth sounds
+    public ui_sfx : Record<number, LittleJS.Sound>= {
+        0: new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]),
+        1: new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,-1,,,.65,.17,,-806]),
+        2: new Sound([1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01])
+    }
+
+    // Zzfx synth sounds
     // define each of the required sfx and organise them into dictionaries
-    public ui_sfx_1 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]);
-    public ui_Sfx_2 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,-1,,,.65,.17,,-806]);
-    public ui_robot_sfx = new Sound([1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]);
+    //public ui_sfx_1 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,,,,.65,.17,,-806]);
+    //public ui_Sfx_2 = new Sound([.8,,325,.08,.24,.19,,2.7,-5,,224,.09,.06,,-1,,,.65,.17,,-806]);
+    //public ui_robot_sfx = new Sound([1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]);
 
     // to do: 
     // (1) create more sfx for each array object with Zzfx
     public comic_sfx : Array<string> | undefined;
     
     
-    public ui_sfx : Record<number, LittleJS.Sound> = {
-        0: this.ui_sfx_1,
-        1: this.ui_Sfx_2,
-        2: this.ui_robot_sfx
+    //public ui_sfx : Record<number, LittleJS.Sound> = {
+    //    0: this.ui_sfx_1,
+    //    1: this.ui_Sfx_2,
+    //    2: this.ui_robot_sfx
+    //};
+
+    public item_collected = new SoundWave("./audio/sfx/item_collected.ogg");
+
+    public blood_sfx : Record<number, LittleJS.Sound> = {
+        0 : new SoundWave("./audio/sfx/blood-spilling.ogg")
     };
-
-    
-    public blood_sfx : Array<string> | undefined;
     
     
-    public punch_Sfx = new Sound([2.8,,389,.03,.01,.21,1,2.6,,,,,,1.7,,.2,,.85,.09,,-1977]); 
-    public punch_sfx_2 = new Sound([2,,166,.02,.01,.19,4,2.8,8,10,,,,1.5,7,.2,.1,.45,.08]);
-    public punch_sfx_3 = new Sound([1.1,,231,.01,.04,.13,4,3.5,,,,,,1.8,8.9,.2,,.56,.05]); 
+    //public punch_Sfx = new Sound([2.8,,389,.03,.01,.21,1,2.6,,,,,,1.7,,.2,,.85,.09,,-1977]); 
+    //public punch_sfx_2 = new Sound([2,,166,.02,.01,.19,4,2.8,8,10,,,,1.5,7,.2,.1,.45,.08]);
+    //public punch_sfx_3 = new Sound([1.1,,231,.01,.04,.13,4,3.5,,,,,,1.8,8.9,.2,,.56,.05]); 
 
 
-    public hit_sfx : Record <number, LittleJS.Sound> = {
-        0 : this.punch_Sfx,
-        1 : this.punch_sfx_2,
-        2 : this.punch_sfx_3
-    };
+
     
     public grass_sfx : Array<string> | undefined;
 
@@ -98,10 +106,88 @@ export class Music {
     public wind_fx = new Sound([,,174,.43,.48,.01,4,4.3,-92,57,,,,,36,,,.91,.43,.13]);
     public item_use_sfx = new Sound([1.4,,954,.01,.01,.003,2,2.4,,-68,211,.3,,,184,,.45,.81,.02,,244]);
     public item_pickup = new Sound([.8,,629,.01,.08,.06,,3.5,1,,462,.08,.08,,9.5,,,.98,.02,,-1291]); 
-    public wind_sfx : Array<string> | undefined;
-    public sword_sfx : Array<string> | undefined;
-    public nokia_pack_sfx : Array<string> | undefined;
     
+
+    
+    // to do: (1) compress and add the wind sfx
+    public wind_sfx : Array<string> | undefined;
+    
+    // to do:
+    // (1) populate data structure with all punch and sword sfx
+    // (2) connect random sfx sampler to both enemy and player script objects
+    // (3) test music on / off / controls settings
+    public hit_sfx : Record<number, LittleJS.Sound> ={
+        0: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°9.wav"),
+        1: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°10.wav"),
+        2: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°11.wav"),
+        3: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°12.wav"),
+        4: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°13.wav"),
+        5: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°14.wav"),
+        6: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°15.wav"),
+        7: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°16.wav"),
+        8: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°17.wav"),
+        9: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°18.wav"),
+        10: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°19.wav"),
+        11: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°20.wav"),
+        12: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°21.wav"),
+        13: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°22.wav"),
+        14: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°23.wav"),
+        15: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°24.wav"),
+        16: new SoundWave("./audio/sfx/Dragon Ball Z Punch Sound Effect N°25.wav")
+    };
+
+    public sword_sfx : Record<number, LittleJS.Sound> ={
+        0: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°2.wav"),
+        1: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°4.wav"),
+        2 : new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Out Sound Effect n°1.wav"),
+        3 : new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°4.wav"),
+        4: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°5.wav"),
+        5: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°6.wav"),
+        6: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°7.wav"),
+        7: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°8.wav"),
+        8: new SoundWave("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°9.wav")
+    }
+
+    // to do:
+    // (1) finish nokia pack fata structure
+
+    public nokia_pack_sfx : Record<number, LittleJS.Sound> = {
+        0: new SoundWave("./audio/nokia_pack/bad_melody.ogg"),
+        1: new SoundWave("./audio/nokia_pack/blip1.ogg"),
+        2: new SoundWave("./audio/nokia_pack/blip2.ogg"),
+        3: new SoundWave("./audio/nokia_pack/blip3.ogg"),
+        4: new SoundWave("./audio/nokia_pack/blip4.ogg"),
+        5: new SoundWave("./audio/nokia_pack/blip5.ogg"),
+        6: new SoundWave("./audio/nokia_pack/blip6.ogg"),
+        7: new SoundWave("./audio/nokia_pack/blip7.ogg"),
+        8: new SoundWave("./audio/nokia_pack/blip8.ogg"),
+        9: new SoundWave("./audio/nokia_pack/blip9.ogg"),
+        10: new SoundWave("./audio/nokia_pack/blip10.ogg"),
+        11: new SoundWave("./audio/nokia_pack/blip11.ogg"),
+        12: new SoundWave("./audio/nokia_pack/hit1.ogg"),
+        13: new SoundWave("./audio/nokia_pack/hit2.ogg"),
+        14: new SoundWave("./audio/nokia_pack/hit3.ogg"),
+        15: new SoundWave("./audio/nokia_pack/hit4.ogg"),
+        16: new SoundWave("./audio/nokia_pack/hit5.ogg"),
+        17: new SoundWave("./audio/nokia_pack/hit6.ogg"),
+        18: new SoundWave("./audio/nokia_pack/negative1.ogg"),
+        
+
+    };
+
+    public nokia_hit : Record<number, LittleJS.Sound> = {
+        0 : this.nokia_pack_sfx[12],
+        1 : this.nokia_pack_sfx[13],
+        2 : this.nokia_pack_sfx[14],
+        3 : this.nokia_pack_sfx[15],
+        4 : this.nokia_pack_sfx[16],
+        5 : this.nokia_pack_sfx[17]
+    }
+    
+    public nokia_despawn = this.nokia_pack_sfx[18]
+    //public nokia
+
+    public dungeon_sfx_1 = new Sound([.5,,103,.21,.27,.27,3,.6,,,-6,.2,,,31,,,.61,.01,,-1477]);
 
     // class debug variable for mobile browser debug
     
@@ -179,9 +265,9 @@ export class Music {
         const dash_2_sfx = new Sound([,,63,.04,.19,.58,,3.9,-2,-8,,,.23,.6,,.2,,.37,.18,.27]); 
         const dash_3 = new Sound([1.4,,420,.19,.01,.21,2,.3,,,314,.18,,,7.8,,.05,.67,.01]); // Random 60
         
-        
-
-        const dungeon_sfx_1 = new Sound([.5,,103,.21,.27,.27,3,.6,,,-6,.2,,,31,,,.61,.01,,-1477]);
+        // to do:
+        // (1) audit all old sfx in zzfxm
+        //const dungeon_sfx_1 = new Sound([.5,,103,.21,.27,.27,3,.6,,,-6,.2,,,31,,,.61,.01,,-1477]);
 
         const disco = new Sound([,,361,.08,.19,.3,2,2.1,3,,-120,.1,,,102,,,.72,.05]);
         const disco_2 = new Sound([.4,,39,.44,.1,.15,2,1.8,,-54,,,,,12,,,.97,.02,,325]); // Random 45
@@ -270,6 +356,24 @@ export class Music {
         return playlist[randomKey];
 
     }
+    shuffle_sfx(playlist: Record<number, LittleJS.Sound>) : LittleJS.Sound{
+        // to do:
+        // (1) implement sfx_on boolean controller
+        let sound;
+        if (this.sfx_on){
+            let keys =Object.keys(playlist);
+            let randomKey = keys[Math.floor(Math.random() * keys.length)];
+            sound = playlist[Number(randomKey)];
+        }
+
+        return sound!!;
+    }
+    shuffle_music_v2(playlist : Record<number, LittleJS.Sound>): LittleJS.Sound{
+        let keys =Object.keys(playlist);
+        let randomKey = keys[Math.floor(Math.random() * keys.length)];
+        let sound = playlist[Number(randomKey)];
+        return sound;
+    }
 
     // unnecessary function
     //play_sfx(){}
@@ -298,7 +402,11 @@ export class Music {
         };
 
 
-    async play(){
+    async play_v1(){
+        /**
+         * Version 1 player version uses Zzfxm to play the level's audio
+         * 
+         */
 
         //console.log("Initialising song player 2", this.counter);
         // bug:
@@ -366,7 +474,6 @@ export class Music {
             
             this.buffer = await render(song);
             
-            //zzfxM([.9, 0, 143, , , .35, 3], [], []);
             // play the tune
             this.stream = zzfxP(this.buffer[0], this.buffer[1]);
             
@@ -379,7 +486,7 @@ export class Music {
                 console.log("Track finished, shuffling next ...");
                 this.counter = 0; // reset the song counter
                 //this.isPlaying = false;
-                await this.play(); // play the next random song
+                await this.play_v1(); // play the next random song
                 //window.music.play();
             }
 
@@ -396,6 +503,7 @@ export class Music {
          }
 
     }}
+
 
 
     clear(){

@@ -422,7 +422,8 @@ export class Items extends EngineObject {
                 window.dialogs.show_dialog("",`${this.collect_diag}`); // to do: should ideally be item hud, requires implement stats hud for item collect
                 
                 // add the item to the inventory
-                window.music.item_pickup.play();
+                //window.music.item_pickup.play();
+                window.music.item_collected.play();
 
                 // update item count in inventory
                 let y : number = window.inventory.get(this.name);

@@ -109,7 +109,7 @@ export class DespawnFx extends LittleJS.ParticleEmitter {
     update(): void {
                 // self despawn
         if (this.particleTimer.elapsed()){
-            console.log("despawn particle timer elapsed");
+            //console.log("despawn particle timer elapsed");
             this.trailEffect.destroy();
             this.destroy(); // delete the object
         }     

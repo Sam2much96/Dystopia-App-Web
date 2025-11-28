@@ -8,6 +8,10 @@
  * (1) depreciate global three render class for proper debugging
  * (2) rewrite simulation logic to instead use local set pointers to the current 3d renderer
  * 
+ * bugs:
+ * (1) fix long 3d model load time bug
+ * (2) create alternative for cube not created bug when overworld model isn't loaded into memeory fast
+ * 
  * 
  */
 
@@ -115,7 +119,7 @@ export class OverworldTile extends EngineObject{
 
                 this.THREE_RENDER = null;
                 this.enable = false;
-                window.music.play(); // play the current sound track
+                window.music.play_v1(); // play the current sound track
 
                 
                 

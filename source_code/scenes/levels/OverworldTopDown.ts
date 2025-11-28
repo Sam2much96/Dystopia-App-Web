@@ -430,7 +430,7 @@ export class OverWorld extends EngineObject{
             //Debug or save your collision grid for pathfinding ai
             // works
             //console.log(JSON.stringify(this.collisionGrid));
-
+            
         }
         catch(err){
             console.error("Failed to Load Map: ", err);

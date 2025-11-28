@@ -137,6 +137,10 @@ export class TempleInterior extends EngineObject {
             // 
             //console.log(JSON.stringify(this.collisionGrid));
 
+            // play dungeon 1 sfx
+            window.music.dungeon_sfx_1.play();
+
+
         }
         catch(err){
             console.error("Failed to Load Map: ", err);
