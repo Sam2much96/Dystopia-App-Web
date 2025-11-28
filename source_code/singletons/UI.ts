@@ -12,6 +12,8 @@
  * (3) implement renderMinimap function from simulation singleton
  * (4) implement status text UI
  * (5) implement runtime ui translations and not only creation ui translations 
+ * (6) add button press animation for ui buttons into css
+ * 
  * 
  * 
  * Bugs:
@@ -594,7 +596,7 @@ export class IngameMenu{
 
         // game menu logic
         this.menuContainer = document.getElementById("menu-container");    
-        this.MenuVisible = false; // make menu initially invisible    
+        this.MenuVisible = true; // make menu initially invisible    
         
         this.ingameMenu();
         

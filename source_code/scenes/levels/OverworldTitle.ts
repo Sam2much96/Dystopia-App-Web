@@ -99,18 +99,17 @@ export class OverworldTile extends EngineObject{
 
         this.physicsWorld = physicsWorld;
 
-        //const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
+        const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
         
         // adds the enviroment hdr background
-        //const loaderTex = new TextureLoader(); // for loading the LDR
+        const loaderTex = new TextureLoader(); // for loading the LDR
         
         
-        //loaderTex.load(path1, (texture) => {
-        //    texture.mapping = THREE.EquirectangularReflectionMapping;
-            //texture.encoding = THREE.sRGBEncoding; // important for correct colors    
-         //   scene.background = texture;
-         //   scene.environment = texture; // still usable for reflections, though LDR
-       // });
+        loaderTex.load(path1, (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.background = texture;
+            scene.environment = texture; // still usable for reflections, though LDR
+        });
         
 
         // load the 3d model
