@@ -8,7 +8,7 @@
  * requires:
  * (1) Shop Exit Object (done)
  * (2) NPC Merchant (done)
- * (3) Decision Dialogue box (1/3)
+ * (3) Decision Dialogue box (2/3)
  * (4) UI Translations (1/3)
  * (5) hot wallet api (1/3)
  * 
@@ -19,6 +19,7 @@
  * (4) implement item rewards
  * (5) fix hot wallet api implementation
  * (6) implement token reward on ads successful viewing
+ * (7) improve item purchase ui & ux
  * 
  *  Bugs:
  * (1) hot wallet api is unreliable and require region specific configuration
