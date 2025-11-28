@@ -208,7 +208,7 @@ export class OverworldTile extends EngineObject{
                 //start game physics trigger
                 if (window.globals.GAME_START){
                     const body = this.levelBodies[0];
-                    // apply gravity to the mesh collision
+                    // apply custom gravity to the mesh collision
                     body.position.y += 0.03;
                     
 
@@ -220,8 +220,8 @@ export class OverworldTile extends EngineObject{
                 // show the mobile ads once
                 if (window.ads && !this.READY_ADS){
                     //window.ads.showAds(); // initialize ads sdk for game monetize compiliance
-                    window.ads.initialize();
-                    window.ads.showAds();
+                    //window.ads.initialize();
+                    //window.ads.showAds();
                     this.READY_ADS = true;
                     return
                 }
