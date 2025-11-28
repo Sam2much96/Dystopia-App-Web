@@ -12,6 +12,8 @@
  * (1) fix long 3d model load time bug
  * (2) create alternative for cube not created bug when overworld model isn't loaded into memeory fast
  * 
+ * to do:
+ * (1) replace simulation physics engine with cannon-es physics for simulation
  * 
  */
 
@@ -26,6 +28,9 @@ export class OverworldTile extends EngineObject{
     private groundLevel: number = -4; // ground position for stopping Gravity on Cube
     private enable : boolean = true;
     private READY_ADS : boolean = false;
+
+     //spawned objects
+    levelObjects : any[] | null = [];
     constructor(){
         super();
         this.color = new Color(0, 0, 0, 0); // make object invisible

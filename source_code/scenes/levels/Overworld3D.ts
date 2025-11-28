@@ -78,6 +78,10 @@ export class OverWorld3D extends EngineObject{
     public moveInput : LittleJS.Vector2 = vec2(0);
     public holdingRoll : boolean = false;
     public holdingAttack : boolean = false;
+
+    
+    //spawned objects / objects
+    public levelObjects : any[] | null = [];
     
     constructor(){
         super();
