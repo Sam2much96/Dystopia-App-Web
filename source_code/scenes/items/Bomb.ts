@@ -95,8 +95,9 @@ export class BombExplosion extends PhysicsObject{
                 // trigger the camera shake
                 window.player.shakeCameraV1(0.5,1);
 
+                
                 // play the hit sfx
-                window.music.punch_sfx_3.play();
+                //
                 window.music.explosion_vibration_sfx.play();
 
                 // despawn any enemy or Player objects overlapping
