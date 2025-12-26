@@ -171,7 +171,7 @@ function gameInit() {
     
     //load the translation files first
     //
-    window.ads = new Advertising("gamemonetize");
+    window.ads = new Advertising("yandex");
     window.dialogs = new Diaglogs();
     
     window.quest = new Quest();
@@ -200,6 +200,8 @@ function gameInit() {
     //window.ui.controls(); //render the game's control
 
     // create the overworld title scene
+    // bugs:
+    // (1) cube object loads slow in environment build
     window.map = new OverworldTile();
   
 
@@ -209,13 +211,6 @@ function gameInit() {
     window.utils.detectBrowser();
 
 
-    
-    
-
-    //Initialise 3d scene render
-    // 
- 
-  
 
     // Create & hide Ingame Menu
     // 
@@ -225,6 +220,11 @@ function gameInit() {
     //draw title screen
     // TO DO :
     // (1) draw dystopia logo with css
+
+    // set mouse icon
+    const canvas = document.querySelector("canvas")!;
+    canvas.style.cursor =
+    'url("./cursot_32x32.webp") 32 32, auto';
 
 
 

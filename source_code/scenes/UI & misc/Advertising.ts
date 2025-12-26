@@ -51,8 +51,18 @@ export class Advertising {
             // Get the singleton instance
             this.ads2 = YandexAds.getInstance();
 
+            //init the yandex sdk
+            (async () => {
+                if (this.ads2) await this.ads2?.init();
+            })();
+
+            //await this.ads2.init();
+
+
+            //console.log("Yandex GameReady fired");
+
             // Show fullscreen ad
-            this.ads2.showFullscreenAd();
+            //this.ads2.showFullscreenAd();
             
             // Show rewarded ad (for shop/reward system)
             //yads.showRewardedAd();

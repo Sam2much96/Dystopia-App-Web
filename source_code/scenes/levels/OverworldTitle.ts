@@ -99,17 +99,17 @@ export class OverworldTile extends EngineObject{
 
         this.physicsWorld = physicsWorld;
 
-        const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
+        //const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
         
         // adds the enviroment hdr background
-        const loaderTex = new TextureLoader(); // for loading the LDR
+        //const loaderTex = new TextureLoader(); // for loading the LDR
         
         
-        loaderTex.load(path1, (texture) => {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            scene.background = texture;
-            scene.environment = texture; // still usable for reflections, though LDR
-        });
+        //loaderTex.load(path1, (texture) => {
+        //    texture.mapping = THREE.EquirectangularReflectionMapping;
+        //    scene.background = texture;
+        //    scene.environment = texture; // still usable for reflections, though LDR
+        //});
         
 
         // load the 3d model
@@ -215,13 +215,11 @@ export class OverworldTile extends EngineObject{
 
                 }
 
-                //gg
-                
                 // show the mobile ads once
                 if (window.ads && !this.READY_ADS){
                     //window.ads.showAds(); // initialize ads sdk for game monetize compiliance
-                    //window.ads.initialize();
-                    //window.ads.showAds();
+                    window.ads.initialize();
+                    window.ads.showAds();
                     this.READY_ADS = true;
                     return
                 }

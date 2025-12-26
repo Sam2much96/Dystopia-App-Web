@@ -39,6 +39,7 @@ export class Player extends PhysicsObject{
     * (7) 
     * (8) Collision detection
     * (9) The current frame is the sprite id that would be rendered in the render() function
+    * (10) tv remote support
     *
     * to do: 
     * (1) fix enemy pathfinding second run bug
@@ -167,6 +168,76 @@ export class Player extends PhysicsObject{
      
 
         LittleJS.setCameraScale(128);  // zoom camera to 128 pixels per world unit
+
+        // tv controls down
+        window.addEventListener("keydown", (e) => {
+            const key = e.key || e.code;
+
+            switch (key) {
+                case "ArrowUp":
+                case "Up":
+                case "38": // keyCode (legacy)
+                    this.moveInput = vec2(0, -1);
+                    break;
+
+                case "ArrowDown":
+                case "Down":
+                case "40":
+                    this.moveInput = vec2(0, 1);
+                    break;
+
+                case "ArrowLeft":
+                case "Left":
+                case "37":
+                    this.moveInput = vec2(-1, 0);
+                    break;
+
+                case "ArrowRight":
+                case "Right":
+                case "39":
+                    this.moveInput = vec2(1, 0);
+                    break;
+
+                case "Enter":
+                case "OK":
+                case "13":
+                    this.holdingAttack = true;
+                    break;
+            }
+        });
+
+        //tv controls up
+        window.addEventListener("keyup", (e) => {
+            const key = e.key || e.code;
+
+            switch (key) {
+                case "ArrowUp":
+                case "Up":
+                case "38":
+                case "ArrowDown":
+                case "Down":
+                case "40":
+                case "ArrowLeft":
+                case "Left":
+                case "37":
+                case "ArrowRight":
+                case "Right":
+                case "39":
+                    // Stop movement on key release
+                    this.moveInput = vec2(0, 0);
+                    break;
+
+                case "Enter":
+                case "OK":
+                case "13":
+                    // Stop attack on release
+                    this.holdingAttack = false;
+                    break;
+            }
+        });
+
+
+
     }
 
     update(): void {
@@ -186,10 +257,12 @@ export class Player extends PhysicsObject{
         }
 
         else if (!isTouchDevice){ // keyboard and mouse bindings
-            //works
+            // keyboard & mouse input
             this.moveInput = keyDirection().clampLength(1).scale(.1);
             this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
-            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0);
+
+            // tv remote input
         }
 
         // Camera Controls & Camera Capture

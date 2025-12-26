@@ -23,7 +23,7 @@
  * 
  *  Bugs:
  * (1) hot wallet api is unreliable and require region specific configuration
- * (2)
+ * (2) implement cloudfare runner for connecting shop ui to web 3.0 backend
  */
 
 import * as LittleJS from 'littlejsengine';

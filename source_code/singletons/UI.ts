@@ -13,7 +13,8 @@
  * (4) implement status text UI
  * (5) implement runtime ui translations and not only creation ui translations 
  * (6) add button press animation for ui buttons into css
- * 
+ * (7) polish UI styling for 1 month
+ * (8) fix mandarin translation bug
  * 
  * 
  * Bugs:
@@ -27,15 +28,17 @@
  *      - the current implementaiton is very hacky
  * (8) fix status ui translations for yandex moderation
  * (9) hide the quit button for yandex moderation
+ * (10) remove the address and Suds keywords from the game ui
+ * (11) fix translation bugs i.e. hindi translations showing in chinese dialogue oprions
  */
 import { Music } from "./Music";
-import {Simulation} from "./Simulation";
+//import {Simulation} from "./Simulation";
 import { DialogBox } from "./Dialogs";
 import {Utils} from "./Utils";
 
 import { OverWorld } from "../scenes/levels/OverworldTopDown";//'../levels/OverworldTopDown';
 import { OverworldSideScrolling } from '../scenes/levels/OverworldSideScrolling';
-import { Marketplace } from '../scenes/levels/Marketplace';
+//import { Marketplace } from '../scenes/levels/Marketplace';
 import { TempleInterior } from '../scenes/levels/TempleInterior';
 
 
@@ -83,11 +86,6 @@ export class UI  {
     public UI_MENU: HTMLDivElement;
     public leftButtons : HTMLElement | null;
     public TopRightUI : HTMLElement | null;
-    //public UI_GAMEHUD: HTMLDivElement;
-    //public HEART_BOX: Array<HTMLDivElement>;
-    //public UI_STATS: HTMLDivElement;
-    //public UI_CONTROLS: HTMLDivElement;
-    //public DIALOG_BOX: HTMLDivElement;
 
 
     //HUD Texture Buttons
@@ -97,23 +95,12 @@ export class UI  {
     
     //public menuButton: HTMLButtonElement | null = null; // old menu button
     public menuButton : MenuButton | null = null;
-    
     public itemButton: HTMLButtonElement | null = null;
-
-
-    //timer: LittleJS.Timer = new Timer();
-
     public SHOW_DIALOGUE: boolean = true;
-    //public SHOW_MENU: boolean = true;
-    //public SHOW_INVENTORY : boolean = true;
-
+    
     // safe pointer to the music global singleton
     public local_music_singleton : Music = window.music;
     
-
-    //public browserLang = navigator.language;
-    //csv translations settings
-    //private translations : Translations  = {};
 
     private language : string = window.dialogs.language!!; // fetch language from dialog singleton // bug : breaks
     public HeartBoxHUD : HeartBox | undefined;
@@ -147,13 +134,6 @@ export class UI  {
         this.HeartBoxHUD = new HeartBox();
         // create a div for each of these new UI elements
         this.UI_MENU = createPanel("ui-menu"); // create a ui panel div and attach it to the ui root div
-        //this.UI_GAMEHUD = this.createPanel("ui-gamehud");// contains all game hud buttons
-        //this.HEART_BOX = []; //created with the heartbox function
-        //this.UI_STATS = createPanel("ui-stats");// stats and inventory
-        //this.UI_CONTROLS = this.createPanel("ui-controls");
-        //this.DIALOG_BOX = createPanel("dialog-box");
-        //this.DialogVisible = false; //temporarily hide dialogue box for ui refactor Sept 22, 2025
-
 
         this.UI_ROOT!!.append(
                     this.UI_MENU

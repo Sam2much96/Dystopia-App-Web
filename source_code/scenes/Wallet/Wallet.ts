@@ -139,12 +139,14 @@ export class Wallet {
         // e) fix price logic to use integers instead of strings
         // 
         // (2) ui translations (done)
+        // disabled ui for yandex compliance
+        //<p>${this.walletdiag}: ${this.adminWalletAddress}</p>
 
         //fadfafa
         this.statsUI.innerHTML = `
             <div class="wallet-tab">
-                <p>${this.walletdiag}: ${this.adminWalletAddress}</p>
-                <p>${this.coinsdiag}: ${this.suds} Suds</p>
+                
+                <p>${this.coinsdiag}: ${this.suds} </p>
                 <p>${this.Pricediag} : ${this.sudsPrice}</p>
                 <p>${this.IDdiag}: ${this.coin_asa_id}</p>
                 <!-- Add more wallet details below here -->

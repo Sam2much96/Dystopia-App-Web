@@ -21,12 +21,12 @@
 import * as LittleJS from 'littlejsengine';
 
 const { EngineObject ,Color, Timer, vec2,gamepadIsDown, gamepadStick, keyDirection, mouseIsDown, keyIsDown,isTouchDevice} = LittleJS; 
-//import {ThreeRender} from "../../singletons/3d";
+
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 const { Scene, PerspectiveCamera, WebGLRenderer,BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh, TextureLoader } = THREE;
 import { OverWorld } from "./OverworldTopDown";
-import { Vector3 } from "three";
+//import { Vector3 } from "three";
 import * as CANNON from "cannon-es";
 import CannonDebugger from 'cannon-es-debugger';
 
@@ -85,21 +85,9 @@ export class OverWorld3D extends EngineObject{
     
     constructor(){
         super();
-        // logic :
-        //(1) load the threejs dom and the the ljs dom as class objects
-        // (2) hide the littlejs dom rendering
-        // (3) show the threejs dom rendering with camera at the dimensions of the littlejs arcade camera
-        // (4) show 3d world with proper lighting and hdr
-        // (5) implement 3d kinematic body and static body physics
-        // (6) implement scene transition form littlejs engine to threejs engine renderer
-        // (7) a despawn timer throws the player back into the overworld map on timer timeout
-        
-
-    
-
         this.color = new Color(0, 0, 0, 0); // make object invisible
-        //this.THREE_RENDER = new ThreeRender();
-                //make  scene and camera globally accessible
+        
+        //make  scene and camera globally accessible
         const scene = new Scene();
         const camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new WebGLRenderer();
@@ -302,22 +290,10 @@ export class OverWorld3D extends EngineObject{
                     }
             );
         
-        
-
-        
-        
 
         // trigger the despawn timer
         this.despawnTimer.set(this.Timeout);
-      
-
-
         const cannonDebugger = CannonDebugger(scene, physicsWorld, {});
-
-        //set player above world
-        // testing player body movement
-        //this.playerBody!.position.set(0,3,0);
-
         const clock = new THREE.Clock();
         //const fixedTimeStep = 1 / 60;
         const maxSubSteps = 3;
@@ -388,10 +364,6 @@ export class OverWorld3D extends EngineObject{
                 this.playerAnims.update(delta);
             }
 
-            // testing the animation
-            //if (this.walkAction){
-            //    this.walkAction.play();
-            //}
             
             // movement logic
             if (this.moveInput && this.playerBody){
@@ -401,11 +373,10 @@ export class OverWorld3D extends EngineObject{
 
             renderer.render(scene, camera);
 
-            //}
-            
+           
         }
 
-        // simulate the 3d pphysics
+        // simulate the 3d physics
         animate();
 
     }

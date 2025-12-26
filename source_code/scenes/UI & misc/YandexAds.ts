@@ -18,66 +18,6 @@
  */
 
 
-// Version 1.0 Implementation
-// depreciated
-
-//<!-- Yandex Games SDK --> 
-//<script>
-    // temporarily disabled for itch io maintenance build
-    // Load the Yandex Games SDK dynamically
-    ///*
-//    const sdkScript = document.createElement('script');
-//    sdkScript.src = '/sdk.js';
-//    sdkScript.async = true;
-
-//    sdkScript.onload = () => {
-//      if (typeof YaGames !== 'undefined') {
-//        YaGames.init().then(sdk => {
-//          console.log('Yandex SDK initialized');
-//          window.ysdk = sdk;
-
-
-                  // yandex games logic
-        // documentation : https://yandex.com/dev/games/doc/en/sdk/sdk-game-events#gameready.
-        
-            // to do:
-            // (1) implement yandex ads properly with a global singleton class that handles error
-            // (2) improper yandex ads implementation might be what crashes iphone browsers
-        
-
-          // Informing the platform that the game has loaded and is ready to play.
-//          sdk.features.LoadingAPI?.ready()
-
-          // works:
-          // (1) port initialisation logic to typescript with proper error handling / debugging
-          // (2) implement ads into gameplay via shop 
-          // (3) implement rewarded ads ligic
-
-          // ad call 
-//          sdk.adv.showFullscreenAdv({
-//            callbacks: {
-//              onOpen: () => console.log('Ad opened'),
-//              onClose: wasShown => console.log('Ad closed:', wasShown),
-//              onError: err => console.error('Ad error:', err)
-//            }
-//          });
-
-//        }).catch(err => {
-//          console.warn('YaGames.init() failed:', err);
-//        });
-//      } else {
-//        console.warn('YaGames is not defined after script loaded');
-//      }
-//    };
-
-//    sdkScript.onerror = () => {
-//      console.warn('⚠️ Yandex SDK failed to load: sdk.js not found or blocked.');
-//    };
-
-//    document.head.appendChild(sdkScript);
-
-    //*/
-//</script>
 //
 // Version 2.0 Implementation
 

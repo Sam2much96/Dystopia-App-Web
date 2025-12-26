@@ -29,7 +29,9 @@
 import * as LittleJS from 'littlejsengine';
 const { isOverlapping,EngineObject, Color} = LittleJS;
 import { createPanel } from "./UI";
+import Papa from "papaparse"; //for parsing a csv file properly
 type Translations = Record<string, Record<string, string>>;
+
 
 export class Diaglogs {
 
@@ -78,37 +80,52 @@ export class Diaglogs {
     }
 
 
-    async loadTranslations() : Promise<Translations>{
-        //translations[key][lang]
-        //bugs:
+            //bugs:
         // (1) loads the translations buggily, sometimes, other languages are triggered
         // (2) audit buggy translatoins bug
-        console.log("fetching translations file");
-        const response  = await fetch ("./Translation_1.csv"); // works
-        const csvText = await response.text(); // works
-
         // to do: 
         // (1) rework this logic so it parses the translations csv properly
         // (2) fix translations bug
         // (3) add conditional for failed async fetch
-        const lines = csvText.trim().split("\n");
-        const headers = lines[0].split(',');
-            for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
-        const key = cols[0];
-        this.translations[key] = {};
-        for (let j = 1; j < headers.length; j++) {
-                this.translations[key][headers[j]] = cols[j];
-            }
-        }   
-        //debug language translations
-        //console.log("translations debg: ", this.translations); // works
-        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
 
         // to do:
-        // (1) depreciate this functionality
+        // (1) depreciate this functionality window.ui.translateUIElements() function
         // (2) create run time translation functions not just constructor translations
         // (3) call run time translations function from yandex ads 
+    async loadTranslations() : Promise<Translations>{
+
+        console.log("fetching translations file");
+        const response  = await fetch ("./Translation_1.csv"); // works
+        const csvText = await response.text(); // works
+
+
+        //const lines = csvText.trim().split("\n");
+        //const headers = lines[0].split(',');
+        //    for (let i = 1; i < lines.length; i++) {
+        //const cols = lines[i].split(',');
+        //const key = cols[0];
+        //this.translations[key] = {};
+        //for (let j = 1; j < headers.length; j++) {
+        //        this.translations[key][headers[j]] = cols[j];
+        //    }
+        //}
+        const result = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true
+        });
+        
+        //this.translations = {};
+
+        for (const row of result.data as any[]) {
+            const key = row[Object.keys(row)[0]];
+            this.translations[key] = row;
+        }
+
+        //console.log(this.translations);
+
+        //debug language translations
+        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
+
 
         window.ui.translateUIElements(window.dialogs.normalizeLocale(this.language));
         

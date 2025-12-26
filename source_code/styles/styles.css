@@ -175,3 +175,8 @@ h1 {
     font-family: monospace;
     line-height: 1.2;
 }
+
+/* Mouse Cursor */
+canvas {
+  cursor: url("./cursor_32x32.webp") 32 32, auto;
+}

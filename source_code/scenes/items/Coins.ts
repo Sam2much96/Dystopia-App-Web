@@ -17,5 +17,7 @@ export class Coins extends Items {
            constructor(pos : LittleJS.Vector2,tileIndex = 22){
                    super(pos,tileIndex, "Collectibles");
                }
+
+              // add coins backsystem with proper cloud fare workers
 }
 
