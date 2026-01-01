@@ -352,6 +352,7 @@ export class StatsHUD{
      * (1) create a state machine of multiple stats states (1/2)
      * (2) connect the state machine to all singletons serialising data to the player
      * (3) connect the state machine state so to their corresponting stats tab buttons
+     * (4) implement mini-map UI
      * 
      * Bug:
      * (1) this ui renders before the translations file is finished loading
@@ -526,7 +527,7 @@ export class MenuButton{
     /**
      * to do:
      * (1) add menu text to button object
-     * 
+     * (2) update menu button icon pixel art so it fits into the game's theme
      */
 
     public menuButton: HTMLButtonElement | null = null;
@@ -670,8 +671,7 @@ export class IngameMenu{
                      window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
                 });
 
-        // disable for yyandex updates
-                 
+        // disable for yyandex updates                 
         this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
             window.open("https://dystopia-app.site", "_blank");
         });
@@ -680,14 +680,14 @@ export class IngameMenu{
         // to do: 
         // (1) create controls UI (done)
         // (2) fix controls renderer
-        //this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
-        //    window.music.sound_start.play();
+        this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
+            window.music.sound_start.play();
 
             // logic: 
             // hide the menu ui
             // show the controls menu
-        //    window.ui.Controls!!.ControlsVisible = true;
-        //});
+            window.ui.Controls!!.ControlsVisible = true;
+        });
 
         // hiding the quit button for yandex platform moderation
         // it triggers a non compliance of game stutering
