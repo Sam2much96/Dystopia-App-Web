@@ -407,8 +407,3 @@ body {
   left: 55%;
   overflow: hidden;
 }
-
-/* Mouse Cursor */
-canvas {
-  cursor: url("/cursor_32x32.webp") 32 32, auto;
-}

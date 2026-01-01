@@ -51,7 +51,7 @@ export class Player extends PhysicsObject{
     *   (3) https://github.com/KilledByAPixel/LittleJS/blob/main/examples/shorts/topDown.js
     *   
         
-    * (4) 
+    * (4) configure input buffer function to export function that checks if device is a Computer or a TV using YaSDK
     * (5) 
     * (6) implement input buffer mechanics in class for mobile devices
     * (7) implement player impact shader and call in on player collision with enemy
@@ -136,6 +136,8 @@ export class Player extends PhysicsObject{
     public moveInput : LittleJS.Vector2 = vec2(0);
     public holdingRoll : boolean = false;
     public holdingAttack : boolean = false;
+    public tvRemoteX : number = 0;
+    public tvRemoteY : number = 0;
 
     // to do:
     // (1) fix input buffer
@@ -169,83 +171,23 @@ export class Player extends PhysicsObject{
 
         LittleJS.setCameraScale(128);  // zoom camera to 128 pixels per world unit
 
-        // tv controls down
-        window.addEventListener("keydown", (e) => {
-            const key = e.key || e.code;
-
-            switch (key) {
-                case "ArrowUp":
-                case "Up":
-                case "38": // keyCode (legacy)
-                    this.moveInput = vec2(0, -1);
-                    break;
-
-                case "ArrowDown":
-                case "Down":
-                case "40":
-                    this.moveInput = vec2(0, 1);
-                    break;
-
-                case "ArrowLeft":
-                case "Left":
-                case "37":
-                    this.moveInput = vec2(-1, 0);
-                    break;
-
-                case "ArrowRight":
-                case "Right":
-                case "39":
-                    this.moveInput = vec2(1, 0);
-                    break;
-
-                case "Enter":
-                case "OK":
-                case "13":
-                    this.holdingAttack = true;
-                    break;
-            }
-        });
-
-        //tv controls up
-        window.addEventListener("keyup", (e) => {
-            const key = e.key || e.code;
-
-            switch (key) {
-                case "ArrowUp":
-                case "Up":
-                case "38":
-                case "ArrowDown":
-                case "Down":
-                case "40":
-                case "ArrowLeft":
-                case "Left":
-                case "37":
-                case "ArrowRight":
-                case "Right":
-                case "39":
-                    // Stop movement on key release
-                    this.moveInput = vec2(0, 0);
-                    break;
-
-                case "Enter":
-                case "OK":
-                case "13":
-                    // Stop attack on release
-                    this.holdingAttack = false;
-                    break;
-            }
-        });
-
 
 
     }
 
     update(): void {
         
-        // Capture movement control
-        // gamepad breaks on itchIO because i used a redirect to dystopia.online
-        // to do : (1) add redundancy code for gamepad logic on different platforms
-        // bug: Game pad stick capture doesnt affect logic
+        /**
+         * Capture movement control
+         * Features:
+         * (1) Touch screen gamepad controls
+         * (2) Keyboard and Mouse Controls
+         * (3) TV controls 
+         * 
+         */
+
+
+    
         
         if (isTouchDevice){ // touchscreen dpad bindings
             this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
@@ -262,7 +204,25 @@ export class Player extends PhysicsObject{
             this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
             this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0);
 
+            
+        }
+        else if (this.Buffer.isTVRemote()){ // TV bindings
             // tv remote input
+            if (keyIsDown('ArrowLeft')) this.tvRemoteX = -1;
+            if (keyIsDown('ArrowRight')) this.tvRemoteX = 1;
+            if (keyIsDown('ArrowUp')) this.tvRemoteY = 1;
+            if (keyIsDown('ArrowDown')) this.tvRemoteY = -1;
+
+
+            // If TV remote arrows are being used, override moveInput
+            if (this.tvRemoteX !== 0 || this.tvRemoteY !== 0) {
+                this.moveInput = vec2(this.tvRemoteX, this.tvRemoteY).clampLength(1).scale(.1);
+            }
+            
+            // Enter key for attack (OK button on TV remote)
+            if (keyIsDown('Enter')) {
+                this.holdingAttack = true;
+            }
         }
 
         // Camera Controls & Camera Capture
@@ -1172,7 +1132,7 @@ export class SideScrollerPlayerBox extends Box2dObject {
 
 
 
-export class InputsBuffer  {
+export class InputsBuffer extends EngineObject {
 
     /*
     Functions:
@@ -1188,8 +1148,8 @@ export class InputsBuffer  {
     (2) reimplement Inputs Buffer logic in new UI subsystem
 
     Bugs:
-    (1) Input buffer spamming
-    (2) Stuck idle bug - temprarily disabling idle state for input buffer spamming fix
+    (1) Input buffer spamming (done)
+    (2) Stuck idle bug (done)
     (3) Vibration spamming bug on mobile
     */
 
@@ -1197,20 +1157,20 @@ export class InputsBuffer  {
     public input_buffer: number[];
     public input_state: Map<string, number>;
     public state: number = 0; // holds the current input state asides the input buffer
-    //public WALKING: number;
 
     //input buffer conditional
-    public saveBuffer : boolean = false;
+    public saveBuffer : boolean = true;
 
     //private local_global_singleton = window.globals;//safe pointer to global singleton for game settings
     
     // game controls & settings
     public vibrate : boolean = false; // game vibration on mobile temporarily turned for for state machine refactor
 
-    
+    public MAX_BUFFER_SIZE : number = 14
+
     constructor() {
-        //super();
-        //this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
+        super();
+        this.color = new LittleJS.Color(0, 0, 0, 0); // make object invisible
         // Input Buffer
         this.input_buffer = [];
 
@@ -1225,7 +1185,7 @@ export class InputsBuffer  {
             ["IDLE", 6],
         ]);
 
-
+        console.log("creating input buffer")
 
     }
 
@@ -1246,68 +1206,16 @@ export class InputsBuffer  {
          */
 
 
-        
-        // Debug Input Buffer
+            // Debug Input Buffer
+        // bugs: 
+        // (1) input buffer is not storing player input data
         if (LittleJS.keyWasPressed('KeyL')) {
-            console.log("key L as pressed! ");
-            console.log("Input Buffer: ", this.get_Buffer());
+            //console.log("key L as pressed! ");
+            console.log("Input Buffer Debug : ", this.get_Buffer());
         }
 
 
 
-        // Virtual GamePad Input for mobiles
-        let stk = LittleJS.gamepadStick(0, 0); // capture gamestik
-        if (stk.x < 0) {
-            // move left
-            this.left();
-        }
-
-        if (stk.x > 0) {
-            // move right
-            this.right();
-        }
-
-        if (stk.y < 0) {
-            // move down
-            this.down();
-        }
-        if (stk.y > 0) {
-            // move up
-            this.up();
-        }
-
-        if (stk.x == 0 && stk.y == 0) {
-            // idle state
-            //this.idle();
-        }
-
-
-
-
-        // Virtual Gamepad Controller
-        if (LittleJS.gamepadIsDown(1)) {
-            //console.log("Game Pad Was Pressed, Test Successfull: ");
-            //return 0;
-            this.roll();
-        }
-
-        if (LittleJS.gamepadIsDown(2)) {
-            //console.log("Game Pad Was Pressed, Test Successfull 2");
-            this.attack()
-        }
-
-        if (LittleJS.gamepadIsDown(3)) {
-            //console.log("Game Pad Was Pressed, Test Successfull 3");
-            //return 0;
-            this.attack;
-        }
-
-
-        if (LittleJS.gamepadIsDown(0)) {
-            //console.log("Game Pad Was Pressed, Test Successfull 4");
-            //return 0;
-            this.roll();
-        }
 
         /**
          * 
@@ -1315,12 +1223,10 @@ export class InputsBuffer  {
          * 
          */
         // Prevents Buffer/ Mem Overflow for Input Buffer
-        if ( this.saveBuffer && this.input_buffer.length > 12) {
+        if ( this.saveBuffer && this.input_buffer.length > this.MAX_BUFFER_SIZE) {
             this.input_buffer.length = 0; // Clears the array
         }
 
-        //this.setCollision(true,true,true,true);
-        //super.update();
 
     }
 
@@ -1330,33 +1236,37 @@ export class InputsBuffer  {
      * 
      * Features:
      * 
-     * (1) Updates the Input buffer for global objects
-     * Using functions
+     * (1) Updates the Input buffer for global objects Using functions
      */
 
     idle(){
-        //console.log(" Idle State");
-        
-        // to do : 
-        // (1) fix input buffer spammer; temporarily turning off
+        let i = this.input_state.get("IDLE")!;
         //update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("IDLE") ?? 6);}
-        
+       if (this.saveBuffer) {
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== i) {
+                this.input_buffer.push(i);
+            }
+        }
         
 
         // update current state
-        this.state = this.input_state.get("IDLE")!;
+        this.state = i;
+       
     }
 
     attack() {
-        // Attack State
-        //console.log(" Attack Pressed");
+        let v = this.input_state.get("ATTACK")!
 
-        //update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("ATTACK") ?? 4);}
+         if (this.saveBuffer) {
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== v) {
+                this.input_buffer.push(v);
+            }
+        }
 
         // update current state
-        this.state = this.input_state.get("ATTACK")!;
+        this.state = v;
 
         if (this.vibrate == true){
 
@@ -1368,16 +1278,19 @@ export class InputsBuffer  {
     }
 
     roll() {
-        // to do:
-        // (1) write roll logic with vector maths calculations
-        // dash state
-        // console.log(" Dash Pressed");
+        
+        let q = this.input_state.get("ROLL")!;
 
         //update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("ROLL") ?? 5);}
+        if (this.saveBuffer) {
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== q) {
+                this.input_buffer.push(q);
+            }
+        }
 
         // update current state
-        this.state = this.input_state.get("ROLL")!;
+        this.state = q;
 
 
         // Little JS vibrate for 100 ms
@@ -1385,56 +1298,56 @@ export class InputsBuffer  {
     }
 
     up() {
-        //console.log("key up was pressed! ");
-
-        // update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("UP") ?? 0);}
-
-        let y = this.input_state.get("UP")!
-        //console.log("state debug 3:", y);
+        let y = this.input_state.get("UP")!;
+        
+        // update input buffer - only if value changed from last entry
+        if (this.saveBuffer) {
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== y) {
+                this.input_buffer.push(y);
+            }
+        }
         
         // update current state
         this.state = y;
-
-        //console.log("state debug 1: ", this.state);
-
-        // move up
-        //this.pos.y += this.WALKING;
-        //console.log("Position debug 1: ", this.pos.x);
-
+        
         // Little JS vibrate for 100 ms
-        if (this.vibrate == true){vibrate(40);}
+        if (this.vibrate == true) {
+            vibrate(40);
+        }
     }
 
     down() {
-        //console.log("key down as pressed! ");
+        let x = this.input_state.get("DOWN")!; 
 
         // update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("DOWN") ?? 1);}
+        if (this.saveBuffer){
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== x) {
+                this.input_buffer.push(x);
+            }
+        }
 
         // update current state
-        this.state = this.input_state.get("DOWN")!;
-
-        // move down
-        //this.pos.y -= this.WALKING;
+        this.state = x;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
     }
 
     right() {
-
-        //move right
-        //console.log("key right was pressed! ");
+        let a = this.input_state.get("RIGHT")!
 
         //update input buffer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("RIGHT") ?? 3);}
+        if (this.saveBuffer){
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== a) {
+                this.input_buffer.push(a);
+            }
+        }
 
         // update current state
-        this.state = this.input_state.get("RIGHT")!;
-
-        // move right
-        //this.pos.x += this.WALKING;
+        this.state = a;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
@@ -1442,20 +1355,17 @@ export class InputsBuffer  {
 
     left() {
 
-        // move left
-        //console.log("key left was pressed! ");
-
+        let z = this.input_state.get("LEFT")!;
         //update input buffer
-        // to do
-        // (1) fix input buffer spammer
-        if (this.saveBuffer){this.input_buffer.push(this.input_state.get("LEFT") ?? 2);}
-
+        if (this.saveBuffer){
+            const lastValue = this.input_buffer[this.input_buffer.length - 1];
+            if (lastValue !== z) {
+                this.input_buffer.push(z);
+            }
+        }
 
         // update current state
-        this.state = this.input_state.get("LEFT")!;
-
-        // move left
-        //this.pos.x -= this.WALKING;
+        this.state = z;
 
         // Little JS vibrate for 100 ms
         if (this.vibrate == true){vibrate(40);}
@@ -1463,6 +1373,24 @@ export class InputsBuffer  {
 
     getState() : number {
         return this.state;
+    }
+
+    isTVRemote(): boolean { // CHecks if the current device is a Tv or not
+        const gamepads = navigator.getGamepads();
+        for (let i = 0; i < gamepads.length; i++) {
+            if (gamepads[i]) {
+                // Check if gamepad ID contains TV remote keywords
+                const id = gamepads[i]!!.id.toLowerCase();
+                if (id.includes('remote') || 
+                    id.includes('tv') || 
+                    id.includes('fire') || 
+                    id.includes('roku') ||
+                    id.includes('shield')) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

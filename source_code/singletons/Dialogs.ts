@@ -48,14 +48,6 @@ export class Diaglogs {
 
     constructor(){
 
-        // fetch the local translation from ads singleton if playing on yandex
-
-        // bugs out
-        // to do:
-        // (1) implement global translation function for each core ui element after detection
-       
-        //console.log("Dialogs singleton language debug: ", this.language);
-        
         //load the translation files into memory
         //
         // 

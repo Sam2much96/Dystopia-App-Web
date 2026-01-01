@@ -32,13 +32,10 @@
  * (11) fix translation bugs i.e. hindi translations showing in chinese dialogue oprions
  */
 import { Music } from "./Music";
-//import {Simulation} from "./Simulation";
 import { DialogBox } from "./Dialogs";
 import {Utils} from "./Utils";
-
-import { OverWorld } from "../scenes/levels/OverworldTopDown";//'../levels/OverworldTopDown';
+import { OverWorld } from "../scenes/levels/OverworldTopDown";
 import { OverworldSideScrolling } from '../scenes/levels/OverworldSideScrolling';
-//import { Marketplace } from '../scenes/levels/Marketplace';
 import { TempleInterior } from '../scenes/levels/TempleInterior';
 
 
@@ -67,16 +64,14 @@ export class UI  {
 
     To DO:
     (1) Controls Menu
-
-    (2) organise heartbox into 64x UI tileset (not needed)
-   
+    (2) Fix UI positioning
     (3) Fix broken Inventory Ui logic
     (4) Implement Kenny UI textures into CSS code for graphical consistency (1/2)
         -create form and control scenes with kenny ui template
 
     (5) Each UI item should be in separate classes/ scripts
     (6) Map UI language controls to a controller UI
-    (7) Only render game hud once the game has started 
+    (7) 
     
     */
 
