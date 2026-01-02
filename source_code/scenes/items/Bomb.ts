@@ -4,6 +4,7 @@ const {EngineObject, Timer,vec2, drawTile, tile, isOverlapping} = LittleJS;
 import { PhysicsObject } from '../../singletons/Utils';
 import { Items } from '../../singletons/Utils';
 import { TopDownPlayer } from '../Characters/player';
+import { Bombexplosion } from '../UI & misc/Blood_Splatter_FX';
 
 export class Bomb extends Items {
     /**
@@ -91,6 +92,9 @@ export class BombExplosion extends PhysicsObject{
 
                 // play the fire animation
                 this.playAnim(this.fireAnimation);
+
+                // create explosion particle fx
+                //const y = new BombExplosion(this.pos);
 
                 // trigger the camera shake
                 window.player.shakeCameraV1(0.5,1);

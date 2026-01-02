@@ -29,7 +29,7 @@ export class Advertising {
      */
     public ads1? : GameMonetizeAds ;
     public ads2? : YandexAds;
-    public analytics : any | undefined;
+    public analytics? : GoogleAnalytics; // to do: move game monetize to a global singleton in games.ts
 
     public platform : string = ''
     public initialized : boolean = false; // each ad singleton initialisation state checker
@@ -56,16 +56,6 @@ export class Advertising {
                 if (this.ads2) await this.ads2?.init();
             })();
 
-            //await this.ads2.init();
-
-
-            //console.log("Yandex GameReady fired");
-
-            // Show fullscreen ad
-            //this.ads2.showFullscreenAd();
-            
-            // Show rewarded ad (for shop/reward system)
-            //yads.showRewardedAd();
 
 
         }

@@ -24,7 +24,7 @@
     "@types/ysdk": "^1.1.0",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
-    "littlejsengine": "^1.11.8",
+    "littlejsengine": "^1.17.11",
     "papaparse": "^5.5.3",
     "three": "^0.172.0"
   }

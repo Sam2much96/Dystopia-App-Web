@@ -4,6 +4,11 @@
  * 
  * (1) Blood_splatter_fx
  * (2) DespawnFx
+ * (3) Wind Particle fx
+ * 
+ * To do:
+ * (1) lock particle fx despawn logic in a parent class
+ * (2) Organise particle fx code
  */
 
 
@@ -67,8 +72,9 @@ export class Blood_splatter_fx extends LittleJS.ParticleEmitter {
     update(): void {
                 // self despawn
         if (this.particleTimer.elapsed()){
-            console.log("particle timer elapsed");
+            //console.log("particle timer elapsed");
             this.trailEffect.destroy();
+            this.trailEffect = null;
             this.destroy(); // delete the object
             return;
         }     
@@ -118,13 +124,39 @@ export class DespawnFx extends LittleJS.ParticleEmitter {
 
 }
 
-// 
-export class Bombexplosion extends ParticleFX{
+// duplicate despawn fx for bomb explosion fx
+export class Bombexplosion extends DespawnFx {}
 
-}
+// uncreated rain fx class
+// to do: modify this impact fx to fall down straight
+export class RainFX extends LittleJS.ParticleEmitter{}
 
-class RainFX extends ParticleFX {
+export class ImpactFX extends LittleJS.ParticleEmitter {
+    //was supposed to be rain fx, but is looking line an impact instead
+    private particleTimer : LittleJS.Timer = new Timer();
 
+    private trailEffect: any;
+    public TimerOut : number = 100; // timer timeout to despawn the particle fx
+    //private particleTimer : LittleJS.Timer = new Timer();
+
+    constructor(pos : LittleJS.Vector2, size : number){
+        super(pos,size);
+
+          this.trailEffect = new ParticleEmitter(
+            vec2(), 0, 3, 0, 0, .5, // pos, angle, emitSize, emitTime, emitRate, emiteCone
+            tile(13, 128, 2, 0),   // tileIndex, tileSize
+            new LittleJS.Color(1,1,1,.8), new LittleJS.Color(1,1,1,.2), // colorStartA, colorStartB
+            new LittleJS.Color(1,1,1,.8), new LittleJS.Color(1,1,1,.2), // colorEndA, colorEndB
+            3, .1, .1, .3, .01,  // particleTime, sizeStart, sizeEnd, particleSpeed, particleAngleSpeed
+            .98, 1, .2, LittleJS.PI, .2,  // damping, angleDamping, gravityScale, particleCone, fadeRate, 
+            .5, false                // randomness, collide
+        );
+
+    }
+
+       
+    
+ 
 }
 
 class SmokeFX extends ParticleFX {

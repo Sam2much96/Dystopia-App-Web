@@ -379,10 +379,14 @@ export class DialogTrigger extends EngineObject{
         // make object invisible
     }
     update(): void {
-        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
+        if (window.player){
+
+                    if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
             // if is colliding with player show this object's dialogue
             window.dialogs.show_dialog(this.speaker, this.dialogue);
         }
+        }
+
     }
 
 }

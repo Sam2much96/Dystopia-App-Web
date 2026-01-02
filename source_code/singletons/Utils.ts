@@ -1,7 +1,7 @@
 
 import * as LittleJS from 'littlejsengine';
 
-const {vec2, TileLayerData, EngineObject, drawTile, tile,setTileCollisionData, isOverlapping} = LittleJS
+const {vec2, TileLayerData, EngineObject, drawTile, tile, isOverlapping} = LittleJS; //setTileCollisionData,
 
 
 export class Utils {
@@ -169,7 +169,7 @@ export class Utils {
         return rando;
     }
 
-    static drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
+    static drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileCollisionLayer, collision: number) {
                 chunks.forEach(chunk => {
                     
                     // breaks here
@@ -210,25 +210,25 @@ export class Utils {
         }
     
         // depreciated draw tile function
-        static drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileLayer, collision : number) {
+        static drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileCollisionLayer | LittleJS.TileLayer, collision : number) {
             
             // docs:
             // (1) tile index is the current tile to draw on the tile layer
             //   it is mapped to e the environment layer's tilesheet
     
-            // bugs:
-            // (1) does not draw 4 tiles after the temple tile
+
             const tileIndex = i;
             
             const data = new TileLayerData(tileIndex);
-            
-            //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
             layer.setData(pos, data);
-    
-            if (collision) {
-                setTileCollisionData(pos,1);
+           
+            if (Boolean(collision) && layer instanceof LittleJS.TileCollisionLayer) {
+                layer.setCollisionData(pos, collision);
             
             }
+             //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
+            
+
         }
 
 
@@ -407,10 +407,13 @@ export class Items extends EngineObject {
     }
 
     render(){
+    
         drawTile(this.pos, this.size, tile(this.tileIndx, 128, 2, 0), this.color, 0, this.mirror);
     }
 
     update(){
+        // add an idle animation to the item object
+        //this.pos =  vec2(-5, 2*Math.abs(Math.sin(LittleJS.time*2*LittleJS.PI)));
 
         if (window.player && !this.despawn){
             // set player collision to coin object

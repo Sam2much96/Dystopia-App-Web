@@ -13,7 +13,7 @@ import { PhysicsObject } from '../../singletons/Utils';
 import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyTypeKinematic, box2dBodyTypeStatic, box2dBodyTypeDynamic } from '../../singletons/box2d';
 
 //blood particle fx
-import { Blood_splatter_fx } from '../UI & misc/Blood_Splatter_FX';
+import { Blood_splatter_fx, ImpactFX } from '../UI & misc/Blood_Splatter_FX';
 
 
 // music singleton pointer class
@@ -55,6 +55,8 @@ export class Player extends PhysicsObject{
     * (5) 
     * (6) implement input buffer mechanics in class for mobile devices
     * (7) implement player impact shader and call in on player collision with enemy
+    * (8) implement Controls UI
+    * (9) connect all game settings to controls UI
     */
 
     // Constants
@@ -654,6 +656,8 @@ export class TopDownPlayer extends Player {
                         if (isOverlapping(this.pos, this.size, enemy.pos, enemy.size) ) { // if hit collission and attack state
                             //console.log("Player Hit Collision Detection Triggered");
                             enemy.hitCollisionDetected();
+                            //create an impact fx
+                            //new ImpactFX(enemy.pos, 10);
                             break
                         }
                      }

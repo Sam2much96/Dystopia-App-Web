@@ -67,7 +67,8 @@ import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
 import { OverWorld3D } from './source_code/scenes/levels/Overworld3D';
 import { OverworldTile } from './source_code/scenes/levels/OverworldTitle';
 // post processing
-import { initPostProcess } from './source_code/singletons/postProcess';
+//import { initPostProcess } from './source_code/singletons/postProcess';
+//import {televisionShader, ImpactShader} from "./source_code/scenes/UI & misc/Shaders"
 
 // advertising
 import { Advertising } from './source_code/scenes/UI & misc/Advertising';
@@ -78,7 +79,7 @@ import { Advertising } from './source_code/scenes/UI & misc/Advertising';
 //const {Box2dObject, box2dEngineInit} = Box2D;
 import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
 
-//import {Ads} from "./source_code/scenes/UI & misc/Advertising";
+
 'use strict';
 
 
@@ -221,12 +222,13 @@ function gameInit() {
     // TO DO :
     // (1) draw dystopia logo with css
 
+    // buggy mouse icon selector
     // set mouse icon
     const canvas = document.querySelector("canvas")!;
     canvas.style.cursor =
     'url("./cursot_32x32.webp") 32 32, auto';
 
-
+    //setupPostProcess();
 
   
 
@@ -242,6 +244,7 @@ function gameUpdate() {
 function gameUpdatePost() {
     // called after physics and objects are updated
     // setup camera and prepare for render
+    //setupPostProcess(); // setup tv shader post processing
 
 }
 
@@ -254,56 +257,10 @@ function gameUpdatePost() {
 // (3) implement impact shader on player hit_collision detection
 function setupPostProcess()
 {
-    const televisionShader = `
-    // Simple TV Shader Code
-    float hash(vec2 p)
-    {
-        p=fract(p*.3197);
-        return fract(1.+sin(51.*p.x+73.*p.y)*13753.3);
-    }
-    float noise(vec2 p)
-    {
-        vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);
-        return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+1.),u.x),u.y);
-    }
-    void mainImage(out vec4 c, vec2 p)
-    {
-        // put uv in texture pixel space
-        p /= iResolution.xy;
-
-        // apply fuzz as horizontal offset
-        const float fuzz = .0005;
-        const float fuzzScale = 800.;
-        const float fuzzSpeed = 9.;
-        p.x += fuzz*(noise(vec2(p.y*fuzzScale, iTime*fuzzSpeed))*2.-1.);
-
-        // init output color
-        c = texture(iChannel0, p);
-
-        // chromatic aberration
-        const float chromatic = .002;
-        c.r = texture(iChannel0, p - vec2(chromatic,0)).r;
-        c.b = texture(iChannel0, p + vec2(chromatic,0)).b;
-
-        // tv static noise
-        const float staticNoise = .1;
-        c += staticNoise * hash(p + mod(iTime, 1e3));
-
-        // scan lines
-        const float scanlineScale = 1e3;
-        const float scanlineAlpha = .1;
-        c *= 1. + scanlineAlpha*sin(p.y*scanlineScale);
-
-        // black vignette around edges
-        const float vignette = 2.;
-        const float vignettePow = 6.;
-        float dx = 2.*p.x-1., dy = 2.*p.y-1.;
-        c *= 1.-pow((dx*dx + dy*dy)/vignette, vignettePow);
-    }`;
-
+  
     
 
-    //const includeOverlay = true;
+    const includeOverlay = true;
     //initPostProcess(televisionShader, includeOverlay);
 }
 

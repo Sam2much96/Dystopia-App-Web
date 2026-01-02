@@ -43,7 +43,7 @@ import { Utils, PhysicsObject, worldToGrid, gridToWorld } from '../../singletons
 import {aStar, aStarV1} from "../UI & misc/Pathfinding"; // godot uses aStart for navigation server logic
 import { ItemSpawner } from '../items/ItemSpawner';
 //blood particle fx
-import { Blood_splatter_fx, DespawnFx } from '../UI & misc/Blood_Splatter_FX';
+import { Blood_splatter_fx, DespawnFx, ImpactFX } from '../UI & misc/Blood_Splatter_FX';
 import { OverWorld } from '../levels/OverworldTopDown';
 import { TempleInterior } from '../levels/TempleInterior';
 
@@ -487,9 +487,12 @@ export class Enemy extends PhysicsObject {
         
         // play nokia pack hit sfx
         window.music.shuffle_sfx(window.music.nokia_hit).play();
+        
 
         //create a blood splatter fx
         new Blood_splatter_fx(this.pos, 2);
+
+        
         this.kickback();
         
         //console.log("enemy hitpoints debug: ", this.hitpoints);

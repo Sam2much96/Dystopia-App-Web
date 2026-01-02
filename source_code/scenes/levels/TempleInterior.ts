@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
+const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, TileCollisionLayer, rand,hsl,tile,vec2} = LittleJS; //initTileCollision, setTileCollisionData,
 
 import templeMap from "./TempleInterior.json";
 import { Utils } from '../../singletons/Utils';
@@ -41,8 +41,8 @@ export class TempleInterior extends EngineObject {
     collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
-        setGravity(0);
-        
+        //setGravity(0);
+        LittleJS.setGravity(vec2(0));// = 0
         console.log('Level load triggered');
         console.log('Number of gameObjects:', LittleJS.engineObjects.length);
         console.log('Globals:', window.globals);
@@ -57,9 +57,12 @@ export class TempleInterior extends EngineObject {
     async loadMap(){
         try {
 
+            // to do:
+            // (1) lock tile data into global tile atlas resource external to the scene
+
             //console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
-            this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0), vec2(1), 2); // create a tile layer for drawing the lvl
-            initTileCollision(LevelSize);
+            this.tileLayer  = new TileCollisionLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl
+            //initTileCollision(LevelSize);
 
             //initialise an empty collision grid for enemy nav logic
             this.collisionGrid = Array(templeMap.height)
@@ -79,6 +82,11 @@ export class TempleInterior extends EngineObject {
                         // (1) structure the level collision data properly
                         // (2) NPC shaman collision should trigger the quest sub system
                         // (3) Add fire object with no collisions to layer 2 object positions
+                        if (val === 1){ // no collision temple interior tiles
+                            console.log("drawing tile 0shsdhsdgsfjgsjsfjsjgg");
+                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
+                            return
+                        }
 
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
                             window.player = new TopDownPlayer(vec2(x,y));
@@ -179,8 +187,8 @@ export class TempleInterior extends EngineObject {
             //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
             layer.setData(pos, data);
     
-            if (collision) {
-                setTileCollisionData(pos,1);
+            if (collision && layer instanceof LittleJS.TileCollisionLayer) {
+                layer.setCollisionData(pos,1);
     
                     // ✅ Record in grid
                 if (this.collisionGrid)this.collisionGrid[pos.y][pos.x] = 1;
