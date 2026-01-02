@@ -29,7 +29,8 @@ To Do:
 (10) implement Rain particle fx
 (11) create grass and flower objects
 (12) add grass  and flower objects to shader scene
-(13)
+(13) break all pointers to global singletons and organise codebase to work without acces to each singleton
+(14) organise non-core resources element outside of scripts instead of hardcoding it
 
 */
 
@@ -67,6 +68,7 @@ import { TempleInterior } from './source_code/scenes/levels/TempleInterior';
 import { OverWorld3D } from './source_code/scenes/levels/Overworld3D';
 import { OverworldTile } from './source_code/scenes/levels/OverworldTitle';
 // post processing
+
 //import { initPostProcess } from './source_code/singletons/postProcess';
 //import {televisionShader, ImpactShader} from "./source_code/scenes/UI & misc/Shaders"
 

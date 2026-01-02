@@ -301,7 +301,7 @@ export class OverworldTile extends EngineObject{
 
                 this.THREE_RENDER = null;
                 this.enable = false;
-                window.music.play_v1(); // play the current sound track
+                if (window.music) window.music.play_v1(); // play the current sound track
                 //this.destroy()
                 
                 }

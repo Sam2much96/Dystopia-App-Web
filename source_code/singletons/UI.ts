@@ -536,7 +536,7 @@ export class MenuButton{
            
         //render the menu button separately from all other ui
         this.menuButton = createTextureButton("./kenny ui-pack/grey_crossGrey.png", "menu-btn",() => {
-            window.music.ui_sfx[2].play();
+            if (window.music) window.music.ui_sfx[2].play();
             window.ui.GameMenu!!.MenuVisible = !window.ui.GameMenu!!.MenuVisible;
             //console.log("menu pressed");
         });
@@ -564,7 +564,7 @@ export class IngameMenu{
     //public translations : Translations  = {};
 
     //private language : string = window.dialogs.language!!; // fetch language from dialog singleton
-
+    private globalMusic = window.music;
 
     constructor(){
         //debug ingame menu
@@ -575,6 +575,7 @@ export class IngameMenu{
         this.MenuVisible = true; // make menu initially invisible    
         
         this.ingameMenu();
+        //let globalMusic = window.music
         
         
     }
@@ -594,13 +595,15 @@ export class IngameMenu{
             // note : 
             // (1) ingame menu translations is buggy
             this.newGame = this.createMenuOption(window.dialogs.t("new game"), "#", () => {
-                window.music.sound_start.play();
+                if (this.globalMusic) this.globalMusic.sound_start.play();
                 
                 //console.log('creating new game simulation');
                 //window.simulation = new Simulation();
                 window.globals.GAME_START = true; // trigger the start sequence on the overworld title map
+                
+                //temporarily disabled for LJS refactoring
                 // save fresh game data to memory
-                Utils.saveGame();
+                //Utils.saveGame();
 
                 //hide menu
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
@@ -617,7 +620,7 @@ export class IngameMenu{
 
 
         this.contGame = this.createMenuOption(window.dialogs.t("continue"), "#", () => {
-                    window.music.sound_start.play();
+                    if (this.globalMusic) this.globalMusic.sound_start.play();
                     //window.ads.showAds();
                     // logic
                     // (1) should fetch save game .save and load the current level in the global singleton
@@ -681,7 +684,7 @@ export class IngameMenu{
         // (1) create controls UI (done)
         // (2) fix controls renderer
         this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
-            window.music.sound_start.play();
+           if (this.globalMusic) this.globalMusic.sound_start.play();
 
             // logic: 
             // hide the menu ui
@@ -700,7 +703,8 @@ export class IngameMenu{
         //});
 
         // append buttons to menu container
-        
+        // to do:
+        // (1) fix game controls UI
         this.menuContainer!.append(
                 this.newGame,
                 this.contGame,

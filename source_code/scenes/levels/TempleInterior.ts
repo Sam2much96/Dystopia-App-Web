@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData, TileCollisionLayer, rand,hsl,tile,vec2} = LittleJS; //initTileCollision, setTileCollisionData,
+const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData,  rand,hsl,tile,vec2} = LittleJS; //initTileCollision, setTileCollisionData,
 
 import templeMap from "./TempleInterior.json";
 import { Utils } from '../../singletons/Utils';
@@ -41,8 +41,8 @@ export class TempleInterior extends EngineObject {
     collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
-        //setGravity(0);
-        LittleJS.setGravity(vec2(0));// = 0
+        LittleJS.setGravity(0);
+        //LittleJS.setGravity(vec2(0));// = 0
         console.log('Level load triggered');
         console.log('Number of gameObjects:', LittleJS.engineObjects.length);
         console.log('Globals:', window.globals);
@@ -61,7 +61,7 @@ export class TempleInterior extends EngineObject {
             // (1) lock tile data into global tile atlas resource external to the scene
 
             //console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
-            this.tileLayer  = new TileCollisionLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl
+            this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl
             //initTileCollision(LevelSize);
 
             //initialise an empty collision grid for enemy nav logic
@@ -70,7 +70,7 @@ export class TempleInterior extends EngineObject {
                 .map(() => Array(templeMap.width).fill(0));
 
             // load level data as chunks
-            this.levelData = Utils.chunkArray(templeMap.layers[0].data , templeMap.layers[0].width ).reverse();
+            this.levelData = this.chunkArray(templeMap.layers[0].data , templeMap.layers[0].width ).reverse();
             //debug level data
            // console.log("level data debug: ", this.levelData);
             this.levelData.forEach((row, y) => {
@@ -187,8 +187,8 @@ export class TempleInterior extends EngineObject {
             //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
             layer.setData(pos, data);
     
-            if (collision && layer instanceof LittleJS.TileCollisionLayer) {
-                layer.setCollisionData(pos,1);
+            if (collision ) {
+                LittleJS.setTileCollisionData(pos,1);
     
                     // ✅ Record in grid
                 if (this.collisionGrid)this.collisionGrid[pos.y][pos.x] = 1;
@@ -196,5 +196,45 @@ export class TempleInterior extends EngineObject {
             }
         }
     
+         drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
+                    chunks.forEach(chunk => {
+                        
+                        // breaks here
+                        const data = this.chunkArray(chunk, width).reverse();
+                        
+                        data.forEach((row: any, y: any) => {
+                            row.forEach((val: any, x: any) => {
+                                //console.log("x and y debug: ",x,"/",y);
+                                val = parseInt(val, 10); // convert numbers to base 10
+                                if (val) {
+        
+                                    //console.log("val debug: ",val);
+                                    this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
+                                }
+                            });
+                        });
+                    });
+                console.log("finished drawing chunk"); // works
+            }
+        
+            chunkArray(array: number[], chunkSize: number) {
+                /*
+                 * The function chunkArray takes an array of numbers & 
+                 * splits it into smaller chunks of a specified size.
+                 * 
+                 * It separates arrays into 30 size matrices as number[][]
+                 * each representing a different x and y dimentsion on the tilemap 
+                 */
+        
+                
+                // algorithm helps loading the level data array as chunks
+                const numberOfChunks = Math.ceil(array.length / chunkSize)
+        
+                return [...Array(numberOfChunks)]
+                    .map((value, index) => {
+                        return array.slice(index * chunkSize, (index + 1) * chunkSize)
+                    })
+            }
+        
     
 }

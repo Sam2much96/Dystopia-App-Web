@@ -1,5 +1,5 @@
 import * as LittleJS from 'littlejsengine';
-const {Sound ,SoundInstance, setSoundVolume,setSoundEnable} = LittleJS;
+const {Sound, SoundWave , setSoundVolume,setSoundEnable} = LittleJS; //,SoundInstance
 import { zzfxM } from './zzfxm';
 import {zzfxP, zzfxX} from  "./zzfx";
 
@@ -30,12 +30,17 @@ export class Music {
     (1) The SFX and Music Use 2 Different Systems, SFX USes ZzFX a js midi engine
         whereas Music Uses Audio Tags written into the index.html file and called by Element ID
     (2) Most Browsers Refuse Audio music play by default unless the player / user enters an input gesture
+
+    Bugs:
+    (1) Breaks entire game if not available
+    (2) Breaks overworld scene renders if not available
+    
     */
 
     
 
 
-    public enable : boolean = true; // temporarily turning music off for music audit
+    public enable : boolean = false; // temporarily turning music off for music audit
     public sfx_on : boolean = true ;
     public isPlaying : boolean = false;
     
@@ -79,7 +84,7 @@ export class Music {
     );
 
     public blood_sfx : Record<number, LittleJS.Sound> = {
-        0 : (new Sound("./audio/sfx/blood-spilling.ogg"))
+        0 : (new SoundWave("./audio/sfx/blood-spilling.ogg"))
     };
     
     
@@ -101,60 +106,60 @@ export class Music {
     // (3) test music on / off / controls settings
     // (4) find a better way of loading audio files into the game instead of this way fgs
     public hit_sfx : Record<number, LittleJS.Sound> ={
-        0: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°9.wav")),
-        1: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°10.wav")),
-        2: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°11.wav")),
-        3: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°12.wav")),
-        4: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°13.wav")),
-        5: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°14.wav")),
-        6: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°15.wav")),
-        7: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°16.wav")),
-        8: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°17.wav")),
-        9: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°18.wav")),
-        10: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°19.wav")),
-        11: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°20.wav")),
-        12: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°21.wav")),
-        13: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°22.wav")),
-        14: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°23.wav")),
-        15: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°24.wav")),
-        16: (new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°25.wav"))
+        0: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°9.wav")),
+        1: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°10.wav")),
+        2: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°11.wav")),
+        3: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°12.wav")),
+        4: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°13.wav")),
+        5: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°14.wav")),
+        6: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°15.wav")),
+        7: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°16.wav")),
+        8: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°17.wav")),
+        9: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°18.wav")),
+        10: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°19.wav")),
+        11: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°20.wav")),
+        12: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°21.wav")),
+        13: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°22.wav")),
+        14: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°23.wav")),
+        15: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°24.wav")),
+        16: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°25.wav"))
     };
 
     public sword_sfx : Record<number, LittleJS.Sound> ={
-        0: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°2.wav")),
-        1: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°4.wav")),
-        2 : (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Out Sound Effect n°1.wav")),
-        3 : (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°4.wav")),
-        4: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°5.wav")),
-        5: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°6.wav")),
-        6: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°7.wav")),
-        7: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°8.wav")),
-        8: (new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°9.wav"))
+        0: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°2.wav")),
+        1: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°4.wav")),
+        2 : new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Out Sound Effect n°1.wav")),
+        3 : new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°4.wav")),
+        4: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°5.wav")),
+        5: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°6.wav")),
+        6: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°7.wav")),
+        7: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°8.wav")),
+        8: new Sound([]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°9.wav"))
     }
 
     // to do:
     // (1) finish nokia pack fata structure
     // (2) export sound data structure to external reosurce type
     public nokia_pack_sfx : Record<number, LittleJS.Sound> = {
-        0: (new Sound("./audio/nokia_pack/bad_melody.ogg")),
-        1: (new Sound("./audio/nokia_pack/blip1.ogg")),
-        2: (new Sound("./audio/nokia_pack/blip2.ogg")),
-        3: (new Sound("./audio/nokia_pack/blip3.ogg")),
-        4: (new Sound("./audio/nokia_pack/blip4.ogg")),
-        5: (new Sound("./audio/nokia_pack/blip5.ogg")),
-        6: (new Sound("./audio/nokia_pack/blip6.ogg")),
-        7: (new Sound("./audio/nokia_pack/blip7.ogg")),
-        8: (new Sound("./audio/nokia_pack/blip8.ogg")),
-        9: (new Sound("./audio/nokia_pack/blip9.ogg")),
-        10: (new Sound("./audio/nokia_pack/blip10.ogg")),
-        11: (new Sound("./audio/nokia_pack/blip11.ogg")),
-        12: (new Sound("./audio/nokia_pack/hit1.ogg")),
-        13: (new Sound("./audio/nokia_pack/hit2.ogg")),
-        14: (new Sound("./audio/nokia_pack/hit3.ogg")),
-        15: (new Sound("./audio/nokia_pack/hit4.ogg")),
-        16: (new Sound("./audio/nokia_pack/hit5.ogg")),
-        17: (new Sound("./audio/nokia_pack/hit6.ogg")),
-        18: (new Sound("./audio/nokia_pack/negative1.ogg")),
+        0: new Sound([]),//(new Sound("./audio/nokia_pack/bad_melody.ogg")),
+        1: new Sound([]),//(new Sound("./audio/nokia_pack/blip1.ogg")),
+        2: new Sound([]),//(new Sound("./audio/nokia_pack/blip2.ogg")),
+        3: new Sound([]),//(new Sound("./audio/nokia_pack/blip3.ogg")),
+        4: new Sound([]),//(new Sound("./audio/nokia_pack/blip4.ogg")),
+        5: new Sound([]),//(new Sound("./audio/nokia_pack/blip5.ogg")),
+        6: new Sound([]),//(new Sound("./audio/nokia_pack/blip6.ogg")),
+        7: new Sound([]),//(new Sound("./audio/nokia_pack/blip7.ogg")),
+        8: new Sound([]),//(new Sound("./audio/nokia_pack/blip8.ogg")),
+        9: new Sound([]),//(new Sound("./audio/nokia_pack/blip9.ogg")),
+        10: new Sound([]),//(new Sound("./audio/nokia_pack/blip10.ogg")),
+        11: new Sound([]),//(new Sound("./audio/nokia_pack/blip11.ogg")),
+        12: new Sound([]),//(new Sound("./audio/nokia_pack/hit1.ogg")),
+        13: new Sound([]),//(new Sound("./audio/nokia_pack/hit2.ogg")),
+        14: new Sound([]),//(new Sound("./audio/nokia_pack/hit3.ogg")),
+        15: new Sound([]),//(new Sound("./audio/nokia_pack/hit4.ogg")),
+        16: new Sound([]),//(new Sound("./audio/nokia_pack/hit5.ogg")),
+        17: new Sound([]),//(new Sound("./audio/nokia_pack/hit6.ogg")),
+        18: new Sound([]),//(new Sound("./audio/nokia_pack/negative1.ogg")),
         
 
     };

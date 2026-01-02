@@ -9,6 +9,7 @@
  * To Do:
  * (1) remove all boiler plate code
  * (2) simplify all boiler plate code into a for loop
+ * (3) implement a tile atlas for each object
  */
 import * as LittleJS from 'littlejsengine';
 
@@ -86,11 +87,12 @@ export class OverWorld extends EngineObject{
         //debug json file 
         console.log("map debug: ",overMap);
 
-        Utils.saveGame();
+        //temporarily disabled for refactoring Jan 2 2026
+        //Utils.saveGame();
 
         //load the game map
         (async () => {
-            this.loadMap();
+            await this.loadMap();
         })();
         
      
@@ -112,13 +114,13 @@ export class OverWorld extends EngineObject{
             this.LevelSize = vec2(overMap.width, overMap.height);
             
             // drawing more than one tile bugs out on mobile browsers
-            this.tempExtLayer = new LittleJS.TileCollisionLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0));
+            this.tempExtLayer = new LittleJS.TileLayer(vec2(0,0), this.LevelSize, tile(2, 128, 2, 0));
            
            // console.log("Map width: %d", overMap.width, "/ Map Height:", overMap.height);
-            //this.tempExtLayer.initCollision()
+            
 
             
-            //this.tempExtLayer//initTileCollision(vec2(overMap.width,overMap.height));
+            LittleJS.initTileCollision(vec2(overMap.width,overMap.height));
             
             //initialise an empty collision grid for enemy nav logic
             this.collisionGrid = Array(overMap.height)
@@ -128,7 +130,7 @@ export class OverWorld extends EngineObject{
             
             
             this.ground_layer = this.chunkArray(overMap.layers[0].data, overMap.layers[0].width).reverse();
-            
+            //console.log("ground layer debbug: ", this.ground_layer);
             
             this.ground_layer.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
@@ -148,7 +150,7 @@ export class OverWorld extends EngineObject{
                          * 
                          */
                       if (val === 1){ // no collision temple interior tiles
-                            
+                            //console.log("drawing dunes tile")
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
                             return
                         }
@@ -170,6 +172,7 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val ===4){ // hole object
+                            console.log("drawing hole object");
                             const l = new Hole(vec2(x,y));
 
                             //const p = new ImpactFX(vec2(x,y), 10); // hole fx
@@ -202,10 +205,11 @@ export class OverWorld extends EngineObject{
                         }
 
                         if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                            console.log("drawing tile 0shsdhsdgsfjgsjsfjsjgg");
-                            console.log("player spawn tile debug :", val, "/", x,",", y);
-                            window.player = new TopDownPlayer(vec2(x,y));
-
+                            //console.log("drawing tile 0shsdhsdgsfjgsjsfjsjgg");
+                            //console.log("player spawn tile debug :", val, "/", x,",", y);
+                            
+                            const t = new TopDownPlayer(vec2(x,y));
+                            window.player =t;
                             //create rain fx
                             //const rain = new RainFX(vec2(x,y), 10);
                             
@@ -394,6 +398,11 @@ export class OverWorld extends EngineObject{
                             this.levelObjects?.push(j);
                             return
                         }
+                         if (val ===56){ // stairs exit
+                            console.log("drawing stairs object");
+                            this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 0);
+                            return
+                        }
 
                         if (val === 57){ // temple exterior
                             this.drawMapTile(vec2(x, y), val - 1, this.tempExtLayer!, 1);
@@ -500,20 +509,9 @@ export class OverWorld extends EngineObject{
 
 
 
-        
-        //const objectChunks = overMap.layers[1].chunks.slice(0, 5);
-        //this.drawChunks(objectChunks, overMap.width, this.tempExtLayer,false); // collision works
-
-        // bug: mobiles can only draw 1 tile layer
-        // Extract and draw temple exterior (1 chunk)
-        //const templeChunk = overMap.layers[2].chunks[0];
-        //this.drawChunks([templeChunk], templeChunk.width, this.tempExtLayer,false);
-        
-
-
     }
 
-    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileCollisionLayer, collision: number) {
+    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
             chunks.forEach(chunk => {
                 
                 // breaks here
@@ -553,7 +551,7 @@ export class OverWorld extends EngineObject{
             })
     }
 
-    drawMapTile(pos: LittleJS.Vector2, i : number, layer: LittleJS.TileLayer, collision : number) {
+    drawMapTile(pos: LittleJS.Vector2, i : number = 1, layer: LittleJS.TileLayer, collision : number) {
                 
                 // docs:
                 // (1) tile index is the current tile to draw on the tile layer
@@ -566,14 +564,18 @@ export class OverWorld extends EngineObject{
                 //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
                 layer.setData(pos, data);
         
-                if (collision && layer instanceof LittleJS.TileCollisionLayer) {
-                    layer.setCollisionData(pos,1);
+                if (collision ) {
+                    LittleJS.setTileCollisionData(pos,1);
         
                         // Record collision data in grid for enemy ai
                         // to do: (1) implement raycast for enemy ai 
                     if (this.collisionGrid)this.collisionGrid[pos.y][pos.x] = 1;
                         
                 }
+
+              
+                
+                
             }
         
 

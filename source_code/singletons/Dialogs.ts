@@ -118,8 +118,8 @@ export class Diaglogs {
         //debug language translations
         console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
 
-
-        window.ui.translateUIElements(window.dialogs.normalizeLocale(this.language));
+        //temporarily disabled for refactoring
+        //window.ui.translateUIElements(window.dialogs.normalizeLocale(this.language));
         
 
         this.loadedTranslations = true;
