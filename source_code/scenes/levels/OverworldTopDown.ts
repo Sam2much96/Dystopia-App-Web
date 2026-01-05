@@ -7,7 +7,7 @@
  * (3) 2d game devel breaks on yandex browsers
  * 
  * To Do:
- * (1) remove all boiler plate code
+ * (1) remove all boiler plate code so this level codebase is more maintainable
  * (2) simplify all boiler plate code into a for loop
  * (3) implement a tile atlas for each object
  */
