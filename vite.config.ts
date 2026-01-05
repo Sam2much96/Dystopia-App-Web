@@ -14,6 +14,7 @@ export default defineConfig({
             external: [],
             output: {
                 manualChunks: undefined,  // disables code splitting
+                format: "es"
             }
 
         },

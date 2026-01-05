@@ -5,6 +5,7 @@
  * (1) Breaks on mobile browsers when changing scenes (not sure why it breaks, i've tried resizing the level into 2, and it didn't work)
  * (2) Takes too long to load the entire overmap level in mobile browser
  * (3) 2d game devel breaks on yandex browsers
+ * (4) level redesign breaks in latest littlejs and current versions
  * 
  * To Do:
  * (1) remove all boiler plate code so this level codebase is more maintainable
