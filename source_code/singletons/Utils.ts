@@ -169,67 +169,6 @@ export class Utils {
         return rando;
     }
 
-    static drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileCollisionLayer, collision: number) {
-                chunks.forEach(chunk => {
-                    
-                    // breaks here
-                    const data = this.chunkArray(chunk, width).reverse();
-                    
-                    data.forEach((row: any, y: any) => {
-                        row.forEach((val: any, x: any) => {
-                            //console.log("x and y debug: ",x,"/",y);
-                            val = parseInt(val, 10); // convert numbers to base 10
-                            if (val) {
-    
-                                //console.log("val debug: ",val);
-                                this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
-                            }
-                        });
-                    });
-                });
-            console.log("finished drawing chunk"); // works
-        }
-    
-        static chunkArray(array: number[], chunkSize: number) {
-            /*
-             * The function chunkArray takes an array of numbers & 
-             * splits it into smaller chunks of a specified size.
-             * 
-             * It separates arrays into 30 size matrices as number[][]
-             * each representing a different x and y dimentsion on the tilemap 
-             */
-    
-            
-            // algorithm helps loading the level data array as chunks
-            const numberOfChunks = Math.ceil(array.length / chunkSize)
-    
-            return [...Array(numberOfChunks)]
-                .map((value, index) => {
-                    return array.slice(index * chunkSize, (index + 1) * chunkSize)
-                })
-        }
-    
-        // depreciated draw tile function
-        static drawMapTile(pos: LittleJS.Vector2, i = 1, layer: LittleJS.TileCollisionLayer | LittleJS.TileLayer, collision : number) {
-            
-            // docs:
-            // (1) tile index is the current tile to draw on the tile layer
-            //   it is mapped to e the environment layer's tilesheet
-    
-
-            const tileIndex = i;
-            
-            const data = new TileLayerData(tileIndex);
-            layer.setData(pos, data);
-           
-            if (Boolean(collision) && layer instanceof LittleJS.TileCollisionLayer) {
-                layer.setCollisionData(pos, collision);
-            
-            }
-             //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
-            
-
-        }
 
 
 

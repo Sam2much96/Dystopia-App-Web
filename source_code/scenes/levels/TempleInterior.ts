@@ -25,9 +25,14 @@ import {Enemy} from "../Characters/enemy";
  * (5) fix temple dungeon scene break
  * (6) blood splatter fx tiles are now enemy objects
  * (7) finish tiemple interior wall collisions
+ * (8) implement tile atlas for drawing dungeon levels
+ * (9) implement decision dialogue for entering and exiting dungeon
  * 
  * bugs:
  * (1) enemy collisions cannot be triggered by player bug
+ * (2) buggy collisions logic from tiled editor
+ * (3) no dungeon sounds
+ * (4) no dungeon ui
  */
 
 
