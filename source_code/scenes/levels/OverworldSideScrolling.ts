@@ -111,7 +111,7 @@ export class OverworldSideScrolling extends EngineObject {
             //}
 
             // load level data as chunks
-            this.ground_layer = Utils.chunkArray(overMap.layers[3].data ?? [], overMap.layers[3].width ?? 64).reverse();
+            this.ground_layer = this.chunkArray(overMap.layers[3].data ?? [], overMap.layers[3].width ?? 64).reverse();
 
             this.ground_layer.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
@@ -263,6 +263,73 @@ export class OverworldSideScrolling extends EngineObject {
         //Utils.saveGame();
     }
 
+    drawChunks(chunks: any[], width: number, tileLayer : LittleJS.TileLayer, collision: number) {
+                chunks.forEach(chunk => {
+                    
+                    // breaks here
+                    const data = this.chunkArray(chunk, width).reverse();
+                    
+                    data.forEach((row: any, y: any) => {
+                        row.forEach((val: any, x: any) => {
+                            //console.log("x and y debug: ",x,"/",y);
+                            val = parseInt(val, 10); // convert numbers to base 10
+                            if (val) {
+    
+                                //console.log("val debug: ",val);
+                                this.drawMapTile(vec2(x, y), val - 1, tileLayer, collision);
+                            }
+                        });
+                    });
+                });
+            console.log("finished drawing chunk"); // works
+        }
+    
+        chunkArray(array: number[], chunkSize: number) {
+            /*
+             * The function chunkArray takes an array of numbers & 
+             * splits it into smaller chunks of a specified size.
+             * 
+             * It separates arrays into 30 size matrices as number[][]
+             * each representing a different x and y dimentsion on the tilemap 
+             */
+    
+            
+            // algorithm helps loading the level data array as chunks
+            const numberOfChunks = Math.ceil(array.length / chunkSize)
+    
+            return [...Array(numberOfChunks)]
+                .map((value, index) => {
+                    return array.slice(index * chunkSize, (index + 1) * chunkSize)
+                })
+        }
+    
+        drawMapTile(pos: LittleJS.Vector2, i : number = 1, layer: LittleJS.TileLayer, collision : number) {
+                    
+                    // docs:
+                    // (1) tile index is the current tile to draw on the tile layer
+                    //   it is mapped to e the environment layer's tilesheet
+            
+                    const tileIndex = i;
+                    
+                    const data = new TileLayerData(tileIndex);
+                    
+                    //console.log("tileset debug: ", tileIndex); //, "/ data: ", data
+                    layer.setData(pos, data);
+            
+                    if (collision ) {
+                        LittleJS.setTileCollisionData(pos,1);
+            
+                            // Record collision data in grid for enemy ai
+                            // to do: (1) implement raycast for enemy ai 
+                        if (this.collisionGrid)this.collisionGrid[pos.y][pos.x] = 1;
+                            
+                    }
+    
+                  
+                    
+                    
+                }
+            
 }
 
 
