@@ -33,7 +33,10 @@ const {EngineObject, TileLayer,TileLayerData, initTileCollision, tile,vec2} = Li
 
 import Shop from "./Marketplace.json";
 
+import { TILE_CONFIG } from './SpriteAtlas';
+
 import {TopDownPlayer} from "../Characters/player";
+
 import {Merchant} from "../Characters/NPC";
 import {Utils} from "../../singletons/Utils";
 import { Stairs } from '../UI & misc/Exit';
@@ -64,60 +67,33 @@ export class Marketplace extends EngineObject{
             this.LevelData.forEach((row, y) => {
                             row.forEach((val : any, x : any) => {
                                 val = parseInt(val, 10);
-                                if (val) {
-                                    // to do:
-                                    // (1) refactor from if conditionals to a recursive loop with lookup
-            
-                                    //console.log("val debug : ", val);
-                                    /**
-                                     * Tile Collision Layer Logic in badly written if conditionals
-                                     * 
-                                     * Features:
-                                     * (1) sets tile collision for each tile on /off 
-                                     * (2) creates objects spawns for object tiles
-                                     * 
-                                     * 
-                                     */
-                                    // temp player spawn tile
-                                    // to do:
-                                    // (1) Global sprite atlas table for parent class logic
-                                    if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                                        window.player = new TopDownPlayer(vec2(x,y));
-
-                                        //spawn merchant npc
-                                        const r = new Merchant(vec2((x + .5),( y + 3.5)));
-                                        console.log("marketplaceplayer spawn position debug: ",x,"/",y);
-
-                                        this.levelObjects?.push(r);
-                                        this.levelObjects?.push(window.player);
-                                        return
+                                if (!val) return;
+                                const pos = LittleJS.vec2(x, y);
+                                const config = TILE_CONFIG[val];
+                                
+                                if (!config) {
+                                    // Default behavior for undefined tiles
+                                    this.drawMapTile(pos, val - 1, this.tileLayer!, 0);
+                                    return;
                                     }
-
-                                    // to do:
-                                    // add exit tile for the marketplace (done)
-                                    if (val ===56){ // stairs exit
-                                        const o = new Stairs(vec2(x,y));
-                                        this.levelObjects?.push(o);
-                                        return
-                                    }
-                                    //70 is temple interior collision walls
-                                    // 83 is the first white tile
-                                    // 84 is the seconde white tiles
-                                    if (val===84){
-                                        //draw white tiles with collisions in the marketplace
-                                        this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1); // 0 is for no collision, 1 is for collision
-                                    }
-
-                                    // to do:
-                                    // (1) add collision tiles for the white tiles  in this level
-            
-                                    else{
-                                        //console.log("tile debug: ", val);
-                                        this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0); // 0 is for no collision, 1 is for collision
-                                    }
-                                    
-                                    
-                                    }})});
+                                                    // Draw tile if configured
+                                                    if (config.draw) {
+                                                    this.drawMapTile(pos, val - 1, this.tileLayer!, config.collision ? 1 : 0);
+                                                    }
+                                
+                                                    // Spawn objects if configured
+                                                    if (config.spawn) {
+                                                        const spawned = config.spawn(pos, this);
+                                                    // Handle single or multiple spawns
+                                                    if (Array.isArray(spawned)) {
+                                                        this.levelObjects?.push(...spawned);
+                                                    }
+                                                    else if (spawned) {
+                                                        this.levelObjects?.push(spawned);
+                                                    }
+                                                    }
+                                
+                                })});
                                     
                         this.tileLayer.redraw();
             

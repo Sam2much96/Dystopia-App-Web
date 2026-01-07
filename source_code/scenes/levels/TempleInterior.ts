@@ -3,12 +3,10 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject, mainContext,setGravity,TileLayer,TileLayerData,  rand,hsl,tile,vec2} = LittleJS; //initTileCollision, setTileCollisionData,
 
 import templeMap from "./TempleInterior.json";
-import { Utils } from '../../singletons/Utils';
-import {TopDownPlayer} from "../Characters/player";
-import {Shaman} from "../Characters/NPC";
-import { Stairs } from '../UI & misc/Exit';
-import { EnemySpawner } from '../UI & misc/Enemyspawner';
-import {Enemy} from "../Characters/enemy";
+import { TILE_CONFIG } from './SpriteAtlas';
+
+
+
 //import {Signpost} from '../items/Signpost';
 
 //NPC
@@ -27,16 +25,21 @@ import {Enemy} from "../Characters/enemy";
  * (7) finish tiemple interior wall collisions
  * (8) implement tile atlas for drawing dungeon levels
  * (9) implement decision dialogue for entering and exiting dungeon
+ *                         // to do:
+                        // (1) structure the level collision data properly (done)
+                        // (2) NPC shaman collision should trigger the quest sub system (done)
+                        // (3) Add fire object with no collisions to layer 2 object positions (1/2)
  * 
  * bugs:
  * (1) enemy collisions cannot be triggered by player bug
  * (2) buggy collisions logic from tiled editor
  * (3) no dungeon sounds
  * (4) no dungeon ui
+ * (5) there are ghost collisions in my tile scenes
  */
 
 
-let LevelSize = vec2(templeMap.width, templeMap.height);
+
 
 export class TempleInterior extends EngineObject {
 
@@ -48,9 +51,9 @@ export class TempleInterior extends EngineObject {
         super();
         LittleJS.setGravity(0);
         //LittleJS.setGravity(vec2(0));// = 0
-        console.log('Level load triggered');
-        console.log('Number of gameObjects:', LittleJS.engineObjects.length);
-        console.log('Globals:', window.globals);
+        //console.log('Level load triggered');
+        //console.log('Number of gameObjects:', LittleJS.engineObjects.length);
+        //console.log('Globals:', window.globals);
 
         //load the game map
         (async () => {
@@ -64,6 +67,9 @@ export class TempleInterior extends EngineObject {
 
             // to do:
             // (1) lock tile data into global tile atlas resource external to the scene
+            let LevelSize = vec2(templeMap.width, templeMap.height);
+
+            console.log("Temple Dungeon Level size debug: ", LevelSize);
 
             //console.log("Map width: %d", LevelSize.x, "/ Map Height:", LevelSize.y);
             this.tileLayer  = new TileLayer(vec2(0,0), LevelSize, tile(2, 128, 2, 0)); // create a tile layer for drawing the lvl
@@ -81,66 +87,32 @@ export class TempleInterior extends EngineObject {
             this.levelData.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
                     val = parseInt(val, 10);
-                    if (val) {
-
-                        // to do:
-                        // (1) structure the level collision data properly
-                        // (2) NPC shaman collision should trigger the quest sub system
-                        // (3) Add fire object with no collisions to layer 2 object positions
-                        if (val === 1){ // no collision temple interior tiles
-                            console.log("drawing tile 0shsdhsdgsfjgsjsfjsjgg");
-                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
-                            return
-                        }
-
-                        if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                            window.player = new TopDownPlayer(vec2(x,y));
-                            
-                            // spawn the shaman NPC
-                            // the quest giver
-                            const m = new Shaman(vec2((x+2), (y+1)));
-
-                            this.levelObjects?.push(m);
-                            this.levelObjects?.push(window.player);
-                            return
-                        }
-                        if (val === 26){ // blood splatter fx marker
-                            let r = new Enemy(vec2(x,y));
-                            this.levelObjects?.push(r);
-                            window.globals.enemies.push(r);
-                            return                            
-                        }
+                    if (!val) return;
+                                        const pos = LittleJS.vec2(x, y);
+                                        const config = TILE_CONFIG[val];
                     
-                        // to do: (1) fire object
-                        // to do : (2) set blood fx positions to enemy spawn points
-                        if (val === 35){ // first fire tile as enemy spawner placeholder
-                            const i = new EnemySpawner(vec2(x, y));
-                            //const i = new Enemy(vec2(x,y));
-                            this.levelObjects?.push(i);
-                            return
-                        }
-                        if (val ===56){ // stairs exit
-                            const o = new Stairs(vec2(x,y));
-                            this.levelObjects?.push(o);
-                            return
-
-                        }
-                        if (val === 69){ // no collision temple interior tiles
-                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
-                            return
-                        }
-                        if (val === 70){ // collision walls temple interior tiles
-                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 1);
-                            return
-                        }
-                        // to do :
-                        // (1) write item spawner for enemy random drops
-                        else{ // every other tile
-                            this.drawMapTile(vec2(x, y), val - 1, this.tileLayer!, 0);
-                            return
-                        }
-
-                    }
+                                        if (!config) {
+                                            // Default behavior for undefined tiles
+                                            this.drawMapTile(pos, val - 1, this.tileLayer!, 0);
+                                            return;
+                                        }
+                                        // Draw tile if configured
+                                        if (config.draw) {
+                                        this.drawMapTile(pos, val - 1, this.tileLayer!, config.collision ? 1 : 0);
+                                        }
+                    
+                                        // Spawn objects if configured
+                                        if (config.spawn) {
+                                            const spawned = config.spawn(pos, this);
+                                        // Handle single or multiple spawns
+                                        if (Array.isArray(spawned)) {
+                                            this.levelObjects?.push(...spawned);
+                                        }
+                                        else if (spawned) {
+                                            this.levelObjects?.push(spawned);
+                                        }
+                                        }
+                    
                    
                 }
             )})

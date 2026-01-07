@@ -144,7 +144,7 @@ export class Player extends PhysicsObject{
     // to do:
     // (1) fix input buffer
     // (2) reimplement Networking and Inputs buffer / simulation code
-    public Buffer : InputsBuffer = new InputsBuffer();
+    public Buffer : InputsBuffer | null = null;//= new InputsBuffer();
 
     //camera controllers
     //
@@ -208,7 +208,7 @@ export class Player extends PhysicsObject{
 
             
         }
-        else if (this.Buffer.isTVRemote()){ // TV bindings
+        else if (this.Buffer && this.Buffer.isTVRemote()){ // TV bindings
             // tv remote input
             if (keyIsDown('ArrowLeft')) this.tvRemoteX = -1;
             if (keyIsDown('ArrowRight')) this.tvRemoteX = 1;
@@ -574,9 +574,9 @@ export class TopDownPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 2;
-
+                    
                     // save input to buffer
-                    this.Buffer.idle();
+                    if (this.Buffer)this.Buffer.idle();
                 }
                 if (this.velocity.x === 0.1){
                     this.mirror =  false;
@@ -584,7 +584,7 @@ export class TopDownPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 3;
-                    this.Buffer.right();
+                    if (this.Buffer)this.Buffer.right();
                 }
                 if (this.velocity.y === 0.1){
                     // dbug the animation frames
@@ -596,7 +596,7 @@ export class TopDownPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 0;
-                    this.Buffer.up();
+                    if (this.Buffer)this.Buffer.up();
                 }
                 if (this.velocity.y === -0.1){
 
@@ -607,7 +607,7 @@ export class TopDownPlayer extends Player {
 
                     //save previous facing data for idle state
                     this.facingPos = 1;
-                    this.Buffer.down();
+                    if (this.Buffer)this.Buffer.down();
                 }
 
                 
@@ -625,7 +625,7 @@ export class TopDownPlayer extends Player {
                 // 
                 //
                 // input buffer
-                this.Buffer.attack();
+                if (this.Buffer)this.Buffer.attack();
 
                 // logic:
                 // get the current facing direction
@@ -741,7 +741,7 @@ export class SideScrollPlayer extends Player {
                     //save previous facing data for idle state
                     this.facingPos = 2;
 
-                    this.Buffer.left();
+                    if (this.Buffer)this.Buffer.left();
                 }
 
                 if (this.velocity.x > 0){ 
@@ -753,7 +753,7 @@ export class SideScrollPlayer extends Player {
                     //save previous facing data for idle state
                     this.facingPos = 2;
 
-                    this.Buffer.right();
+                    if (this.Buffer)this.Buffer.right();
                 }
 
                 //for debug purposes only

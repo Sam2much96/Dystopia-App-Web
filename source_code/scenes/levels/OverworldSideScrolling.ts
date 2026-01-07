@@ -284,7 +284,7 @@ export class OverworldSideScrolling extends EngineObject {
             console.log("finished drawing chunk"); // works
         }
     
-        chunkArray(array: number[], chunkSize: number) {
+    chunkArray(array: number[], chunkSize: number) {
             /*
              * The function chunkArray takes an array of numbers & 
              * splits it into smaller chunks of a specified size.
@@ -303,7 +303,7 @@ export class OverworldSideScrolling extends EngineObject {
                 })
         }
     
-        drawMapTile(pos: LittleJS.Vector2, i : number = 1, layer: LittleJS.TileLayer, collision : number) {
+    drawMapTile(pos: LittleJS.Vector2, i : number = 1, layer: LittleJS.TileLayer, collision : number) {
                     
                     // docs:
                     // (1) tile index is the current tile to draw on the tile layer
