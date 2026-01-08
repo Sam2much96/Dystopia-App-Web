@@ -93,7 +93,7 @@ export class TempleInterior extends EngineObject {
                     
                                         if (!config) {
                                             // Default behavior for undefined tiles
-                                            this.drawMapTile(pos, val - 1, this.tileLayer!, 0);
+                                            //this.drawMapTile(pos, val - 1, this.tileLayer!, 0);
                                             return;
                                         }
                                         // Draw tile if configured

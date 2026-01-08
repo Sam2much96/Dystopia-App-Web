@@ -7,8 +7,8 @@
  * (2) reduces rendering code boilder plate for 2d levels
  * 
  * To DO:
- * (1) Add player and enemy sprite to the tile atlas
- * (2) Implement Sprite atlas in all 2d levels
+ * (1) Add player and enemy sprite to the tile atlas (done)
+ * (2) Implement Sprite atlas in all 2d levels (1/2)
  * 
  */
 
@@ -20,13 +20,16 @@ import { Bow} from "../items/Bow";
 import { Arrow } from '../items/Arrow';
 import { GenericItem } from '../items/GenericItem';
 import {Ring} from "../items/Ring";
-import {TopDownPlayer} from "../Characters/player";
+import {SideScrollerPlayerBox, TopDownPlayer} from "../Characters/player";
 import {Enemy} from "../Characters/enemy";
 import {Merchant, OldWoman, Shaman} from "../Characters/NPC";
 import {EnemySpawner} from "../UI & misc/Enemyspawner";
 //import {Utils} from "../../singletons/Utils";
 import { Signpost } from '../items/Signpost';
 import {Hole, House1, House2, TempleDoor, Spaceship1, Spaceship2, Stairs} from "../UI & misc/Exit";
+
+//tile obeject functions using box 2d physics
+import { createLeftTriangle,createBoxStatic,createRightTriangle,createBoxDynamic } from './OverworldSideScrolling';
 
 // Tile type definitions
 type TileConfig = {
@@ -39,7 +42,7 @@ type TileConfig = {
 
 // Configuration map for all tiles
 export const TILE_CONFIG: Record<number, TileConfig> = {
-  // Non-collision temple interior tiles
+  // Desert dune textures
   1: { collision: false, draw: true },
   
   // Skull head
@@ -72,13 +75,7 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
   // smoke tile, should spawn a modified version of smoke fx
   14: { 
     collision: false,
-    spawn: (pos, context) => {
-      const player = new TopDownPlayer(pos);
-      window.player = player;
-      //const npc = new OldWoman(pos.add(LittleJS.vec2(8, 6)));
-      
-      return [player];
-    }
+    draw : true,
   },
   
   // Temple exterior tiles (15-20)
@@ -148,6 +145,16 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
     collision: false,
     spawn: (pos) => new EnemySpawner(pos, true)
   },
+  // sidescrolling player
+  41: {
+    collision : false,
+    spawn : (pos, context) => {
+      const player = new SideScrollerPlayerBox(pos);
+      window.player = player;
+      return [player];
+    }
+  },
+
   // Shaman NPC
   42: {
     collision : false,
@@ -224,12 +231,62 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
   61: { collision: true, draw: true },
   62: { collision: true, draw: true },
 
+  //sidescrolling corner tiles
+  63: {collision : false,
+      spawn : (pos, context) => {
+        const h = createLeftTriangle(pos);
+        return h
+      }
+  },
+
+  //side scrolling box tiles
+  64: {
+    collision : false,
+    spawn : (pos, context) => {
+      const k = createBoxStatic(pos);
+      return k;
+    }
+  },
+  // right angle triangle
+  65:{
+    collision : false,
+    spawn : (pos, context ) =>{
+      const l = createRightTriangle(pos);
+      return l;
+    }
+  },
+
+  // sidescrolling black tiles
+  66: {
+    collision : false,
+    spawn : (pos, context ) => {
+      const m = createBoxDynamic(pos, 66);
+      return m;
+    }
+  },
+  //sidescrolling corner black tiles 1
+  67 : {
+    collision : false,
+    spawn : (pos, context) => {
+      const n = createBoxDynamic(pos,67);
+      return n;
+    }
+  },
+  // sidescrolling corner black tiles 2
+  68 : {
+    collision : false,
+    spawn : (pos, context) => {
+      const o = createBoxDynamic(pos,68);
+      return 0;
+    }
+  },
+
   // Temple Interior Tiles
   69: {collision : false, draw: true},
 
   //Temple interior walls
   70: {collision : true, draw : true},
-  
+
   
   // Temple edges (no collision)
   71: { collision: false, draw: true },

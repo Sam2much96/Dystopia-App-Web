@@ -36,6 +36,8 @@ import {
 } from "../../singletons/box2d"; // adjust import path to your d.ts/js location
 
 
+import { TILE_CONFIG } from './SpriteAtlas';
+
 
 let LevelSize = vec2(overMap.width, overMap.height); // get the level size
 
@@ -116,78 +118,41 @@ export class OverworldSideScrolling extends EngineObject {
             this.ground_layer.forEach((row, y) => {
                 row.forEach((val : any, x : any) => {
                     val = parseInt(val, 10);
-                    if (val) {
-
-                        // to do: create lookup logic for the ground layer tiles
-                        // to doL create parallax background css logic for rhis layer
-                        //console.log("overmap val debug : ", val);
-                        
-                        // temporary player spawn tile
-                        if (val === 14){ // despawn fx tile as a temporary player spawner placeholder
-                            // should be window.player
-                            window.player = new SideScrollerPlayerBox(vec2(x,y));
-                            this.levelObjects?.push(window.player);
-                            return
-                        }
-
-                        if (val === 51){ // generic item object
-                            const j = new GenericItem(vec2(x,y));
-                            this.levelObjects?.push(j);
-                            return
-                        }
-                        if (val === 63){ // corner tile
-                            // testing box 2d implementation
-                            //const w = new SlopeObject(vec2(x,y));
-                            //return
-                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
-                            //createBox(); //box2d plugin testing // works
-                            // buggy collision shape
-                            const h= createLeftTriangle(vec2(x,y));
-                            this.levelBlocks?.push(h);
-                            //to do:
-                            // (1) create triangle object with box2d logic
-                            return
-                        }
-
-                        if (val === 64){ // box tile
-                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
-                            const j = createBoxStatic(vec2(x,y), val);
-                            this.levelBlocks?.push(j);
-                            return
-                        }
-
-                        if (val === 65){ // corner tile 3
-                            const k =createRightTriangle(vec2(x,y));
-                            this.levelBlocks?.push(k);
-                            //drawMapTile(vec2(x, y), val - 1, this.tileLayer, 1);
-                            return
-                        }
-                        else{ // every other tile + tileoffset
-                        
-                            // to do:
-                            // modify drawbox to draw different tiles based on tile value
-                            //drawMapTile(vec2((x-.01),(y )), val - 1, this.tileLayer, 1);
-                            
-                            const l = createBoxDynamic(vec2(x,y), val);
-                            this.levelBlocks?.push(l);
-                            return
-                        }
-
-                        //exit tile
-
-
-                }})});
+                    const pos = LittleJS.vec2(x, y);
+                                                            const config = TILE_CONFIG[val];
+                                        
+                                                            if (!config) {
+                                                                // Default behavior for undefined tiles
+                                                                //this.drawMapTile(pos, val - 1, this.tileLayer!, 0);
+                                                                return;
+                                                            }
+                                                            // Draw tile if configured
+                                                            if (config.draw) {
+                                                            this.drawMapTile(pos, val - 1, this.tileLayer!, config.collision ? 1 : 0);
+                                                            }
+                                        
+                                                            // Spawn objects if configured
+                                                            if (config.spawn) {
+                                                                const spawned = config.spawn(pos, this);
+                                                            // Handle single or multiple spawns
+                                                            if (Array.isArray(spawned)) {
+                                                                this.levelObjects?.push(...spawned);
+                                                            }
+                                                            else if (spawned) {
+                                                                this.levelObjects?.push(spawned);
+                                                            }
+                                                            }
+                                        
+            })});
             
             // Draw the background elements    
             this.sky = new Sky();
             // texture index should either be 4,5 or 6
-            //const o = new SpriteParallaxLayer(1, 6,vec2(5)); // tile 6 needs resizing
+            
             this.parallax_1 = new SpriteParallaxLayer(1, 5,vec2(2));
             this.parallax_2 = new SpriteParallaxLayer(2, 4,vec2(4));
             this.tileLayer.redraw();
 
-            // box 2d initialisation is buggy
-            //const y = new SlopeObject();
             
         
         }
@@ -215,10 +180,10 @@ export class OverworldSideScrolling extends EngineObject {
         // (3) triggers camera shake on player object
         
         
-        if (this.levelBlocks != null){
+        if (this.levelObjects != null){
             //console.log("Triggering level destruction physics");
-            for (const i of this.levelBlocks!){
-                if (i && i.getIsStatic()){
+            for (const i of this.levelObjects!){
+                if (i && i instanceof Box2dObject && i.getIsStatic()){
                     i.setBodyType(box2dBodyTypeDynamic);
                 }
             }
@@ -246,14 +211,10 @@ export class OverworldSideScrolling extends EngineObject {
             }
             this.levelObjects = null;
         }
-        if (this.levelBlocks){
-            for (const u of this.levelBlocks){
-                u.destroy();
-            }
-        }
+       
 
 
-        setGravity(0);// reset gravity
+        LittleJS.setGravity(0);// reset gravity
         this.LEVEL_DESTROY = true;//stop all processing logic
         LittleJS.engineObjects.length = 0; // clear existing objects
         
@@ -495,7 +456,7 @@ class SpriteParallaxLayer extends EngineObject { // works
 
 // Example: create a dynamic box
 // works
-function createBoxStatic(pos_ : LittleJS.Vector2, tile_ :number) {
+export function createBoxStatic(pos_ : LittleJS.Vector2, tile_ :number = 64) {
   //  console.log("creating box object")
   // position and size
   const pos = pos_.copy();
@@ -526,7 +487,7 @@ function createBoxStatic(pos_ : LittleJS.Vector2, tile_ :number) {
   return box;
 }
 
-function createBoxDynamic(pos_ : LittleJS.Vector2, tile_ :number) {
+export function createBoxDynamic(pos_ : LittleJS.Vector2, tile_ :number) {
   //  console.log("creating box object")
   // position and size
   const pos = pos_.copy();
@@ -558,7 +519,7 @@ function createBoxDynamic(pos_ : LittleJS.Vector2, tile_ :number) {
 }
 
 
-function createRightTriangle(pos_ : LittleJS.Vector2) {
+export function createRightTriangle(pos_ : LittleJS.Vector2) {
   //console.log("creating right triangle slping tile object");
 
   // position and size
@@ -593,7 +554,7 @@ function createRightTriangle(pos_ : LittleJS.Vector2) {
 }
 
 //here's a screenshot of the collision object not marked blue. fix the function so the collision covers the white tiles : 
-function createLeftTriangle(pos_: LittleJS.Vector2) {
+export function createLeftTriangle(pos_: LittleJS.Vector2) {
   //console.log("creating left triangle sloping tile object");
 
   // position and size
