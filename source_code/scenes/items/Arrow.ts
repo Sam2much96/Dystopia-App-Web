@@ -1,7 +1,8 @@
 import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, Timer, vec2, drawTile, tile, isOverlapping} = LittleJS;
-import { Items, PhysicsObject } from '../../singletons/Utils';
+import { PhysicsObject } from '../../singletons/Utils';
+import { Items } from './Items';
 
 import {
   Box2dObject,

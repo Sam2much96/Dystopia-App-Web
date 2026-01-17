@@ -59,6 +59,7 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
     collision: false,
     spawn: (pos) => new Hole(pos)
   },
+  // to do: (1) grass and flower objects are unimplemented in web build
   
   // Boulder
   8: { collision: true, draw: true },

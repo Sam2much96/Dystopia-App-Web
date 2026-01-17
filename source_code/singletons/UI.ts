@@ -143,7 +143,8 @@ export class UI  {
         // creates the status hud
         this.StatusTabs = new StatsTabs();
 
-        
+        // bug: breaks game start
+        // controls hud testing
         //this.Controls = new Controls();
 
         
@@ -603,7 +604,7 @@ export class IngameMenu{
                 
                 //temporarily disabled for LJS refactoring
                 // save fresh game data to memory
-                //Utils.saveGame();
+                Utils.saveGame();
 
                 //hide menu
                 window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
@@ -829,7 +830,7 @@ export class Controls{
     // (2) expose all singleton  and core engine internals via script
     // bugs:
     // (1) doesn't work
-        public SHOW_CONTROLS: boolean = true;
+    public SHOW_CONTROLS: boolean = true;
 
     // menu buttons
     //

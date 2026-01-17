@@ -31,7 +31,11 @@ To Do:
 (12) add grass  and flower objects to shader scene
 (13) break all pointers to global singletons and organise codebase to work without acces to each singleton
 (14) organise non-core resources element outside of scripts instead of hardcoding it
-
+(15) add controls ui
+(16) add explosion object with explosion fx
+(17) add fire object
+(18) add merchant UI
+(19) add cityscape map
 */
 
 "use strict"
@@ -236,12 +240,7 @@ function gameInit() {
 
 }
 
-function gameUpdate() {
-    // called every frame at 60 frames per second
-    // handle input and update the game state
-
-
-}
+function gameUpdate() {}
 
 function gameUpdatePost() {
     // called after physics and objects are updated
@@ -266,50 +265,11 @@ function setupPostProcess()
     //initPostProcess(televisionShader, includeOverlay);
 }
 
-function gameRender() {
-    // 
-    // triggers the LittleJS renderer
-    // 
-    // 
-    // handles what gets rendered and what doesn't get rendered
-    // triggers srart of game loop from simulation singleton
-    // 
-    // 
-    // to do:
-    // (1) create a game manager parent class and lock the game logic into it
-
-    // start game logic
-    if (window.globals.GAME_START) {
-        
-
-        // new game logic
-        if (!window.map && window.globals.current_level === ""){
-
-            // 
-           
-        
-            
-            
-            //window.music.play(); //play zzfxm music
-            //setupPostProcess(); // setup tv shader post processing
-
-            
-            return;
-        }
-
-
-    }
-}
+function gameRender() {}
 
 
 
-function gameRenderPost() {
-    // depreciated in favor of UI class
-    // called after objects are rendered
-    // draw effects or hud that appear above all objects
-    // draw to overlay canvas for hud rendering
-
-}
+function gameRenderPost() {}
 
 
 
@@ -317,7 +277,7 @@ function gameRenderPost() {
 // Startup LittleJS Engine with Box2d physics
 // I pass in the tilemap and image data directly to the engine as arrays
 
-box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./brickTileset.webp"]);
+box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./dungeon_1_16x16px_tilemap.webp" ]);
 
 
 

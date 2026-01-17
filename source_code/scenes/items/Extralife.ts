@@ -1,7 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-//const {EngineObject, vec2, drawTile, tile, isOverlapping} = LittleJS;
-import { Items } from '../../singletons/Utils';
+import { Items } from './Items';
 
 export class HealthPotion extends Items{
         /**

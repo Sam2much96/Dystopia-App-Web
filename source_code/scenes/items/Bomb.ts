@@ -2,7 +2,7 @@ import * as LittleJS from 'littlejsengine';
 
 const {EngineObject, Timer,vec2, drawTile, tile, isOverlapping} = LittleJS;
 import { PhysicsObject } from '../../singletons/Utils';
-import { Items } from '../../singletons/Utils';
+import { Items } from './Items';
 import { TopDownPlayer } from '../Characters/player';
 import { Bombexplosion } from '../UI & misc/Blood_Splatter_FX';
 
@@ -25,7 +25,8 @@ export class Bomb extends Items {
 
 
 export class BombExplosion extends PhysicsObject{
-    // the implementation of the Bomb item use
+    /**
+     *  Implementation of the Bomb item use
     // logic
     // (1) explosion sfx
     // (2) fire animation (done)
@@ -33,8 +34,12 @@ export class BombExplosion extends PhysicsObject{
     // (4) destruction of all non player items in the object's collision shape
     // (5) smoke particle sfx
 
-    // to do:
-    // (1) create 2 states, a flashing and and explode state with a timer
+     * to do:
+     * (1) create 2 states, a flashing and and explode state with a timer
+     * (2) implement flashing sprite animation
+     * (3) lock explosion fx into tileset an play the animations directly on the tile
+     */
+
     private fireAnimation : Array<number> =[34,35,36,37,38,39]; // fire animation
     //public animationSequence: number[] = [20];
     //private flashingAnimation : number[]= [20]

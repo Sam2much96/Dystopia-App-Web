@@ -11,6 +11,10 @@
  * (5) connect level with overworld 2d spaceship exit object
  * (6) separate 3d render  binder for 3d animate function into two separate functions
  * (7) implement camera look around for the 3d levels
+ * (8) separate code base into separate classes for better updating
+ * (9) Get a proper toonshader implementation for Threejs
+ * (10) fix player collision from a sphere to a bean
+ * (11) fix overworld level collison creation
  * 
  * bugs:
  * (1) fix the 3d player movement physics
@@ -39,15 +43,12 @@ export const THIRD_PERSON_DISTANCE = 7;
 
 // to do: fix 3d player collision any Physicsv/ implement canon es for collisions
 
-export class OverWorld3D extends EngineObject{
+export class OverWorld3D {
 
-   //public local_3d = window.THREE_RENDER; // safe pointer to threejs
 
-    private THREE_RENDER : any;
     private local_3d_engine : any;
     private despawnTimer : LittleJS.Timer = new Timer();
-    private Timeout : number = 100;
-    //private local_Player : any;
+    private Timeout : number = 300;
 
     // threejs
     public scene: THREE.Scene;
@@ -74,7 +75,6 @@ export class OverWorld3D extends EngineObject{
 
 
     // input controls
-        
     public moveInput : LittleJS.Vector2 = vec2(0);
     public holdingRoll : boolean = false;
     public holdingAttack : boolean = false;
@@ -84,14 +84,16 @@ export class OverWorld3D extends EngineObject{
     public levelObjects : any[] | null = [];
     
     constructor(){
-        super();
-        this.color = new Color(0, 0, 0, 0); // make object invisible
+        //super();
+        //this.color = new Color(0, 0, 0, 0); // make object invisible
         
         //make  scene and camera globally accessible
         const scene = new Scene();
         const camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new WebGLRenderer();
         const loader = new GLTFLoader();
+        const loaderTex = new TextureLoader(); // for loading the LDR
+
 
         // make global in class
         this.scene = scene;
@@ -123,7 +125,7 @@ export class OverWorld3D extends EngineObject{
        
         
 
-          // set up world physics
+          // set up cannon-es world physics
         const physicsWorld = new CANNON.World({
             gravity: new CANNON.Vec3(0,-9.82,0)
         });
@@ -134,8 +136,6 @@ export class OverWorld3D extends EngineObject{
 
          const path1 = "./550px-TLoZTWW_Vr_boxcloud1.png"; //load the default ldr
         
-         // adds the enviroment hdr background
-        const loaderTex = new TextureLoader(); // for loading the LDR
 
 
         loaderTex.load(path1, (texture) => {
@@ -159,8 +159,7 @@ export class OverWorld3D extends EngineObject{
                             './threeTone.jpg'
                             );
                             gradientMap.minFilter = THREE.NearestFilter;
-                            gradientMap.magFilter = THREE.NearestFilter;
-            
+                            gradientMap.magFilter = THREE.NearestFilter;            
                             const toonShader = new THREE.ShaderMaterial({
                             uniforms: {
                                 color: { value: new THREE.Color(0xF0E68C) },
@@ -195,17 +194,6 @@ export class OverWorld3D extends EngineObject{
                                     child.material = toonShader;
                                     child.material.needsUpdate = true;
                                     }
-
-                                    // to do:
-                                    // (1) apply toonshader material to the player texture
-                                    //remove light from scene, so it doesn't affect the player texture
-                                    //if (child instanceof THREE.Light) {
-                                        // Remove light from its parent
-                                    //    if (child.parent) {
-                                    //        child.parent.remove(child);
-                                     //   }
-                                      //  console.log('Removed light:', child);
-                                    //}
                             });
             
             
@@ -264,7 +252,8 @@ export class OverWorld3D extends EngineObject{
                         );
 
                         //console.log("Walking animation debug: ", walkClip);
-
+                        // to do: 
+                        // (1) move animation logic outside the loader class if possible
                         if (walkClip) {
                             this.walkAction = this.playerAnims.clipAction(walkClip);
 
@@ -300,7 +289,7 @@ export class OverWorld3D extends EngineObject{
 
         //for setting initial spawn point 
         let SPAWN = false;
-        let DEBUG = false;
+        let DEBUG = true;
 
         // The main 3d game loop runs here
         //run the physics simulation on each animation frame by binding the context
@@ -352,7 +341,7 @@ export class OverWorld3D extends EngineObject{
                 // second despawn logic for falling off 3d map
                 if (this.playerBody.position.y < -20){
                     this.despawn();
-                    this.destroy();
+                    //this.destroy();
                     this.State()["STATE_DEATH"]();
                     return;
                 }
@@ -380,16 +369,19 @@ export class OverWorld3D extends EngineObject{
         animate();
 
     }
-
+    destroy(){ // placeholder function for destroying the 3d scene and objects
+        }
    
-
+    // to do ;
+    // (1) depreciate this update function and the overworld scene to not use littlejs engine class and objects
+    // (2) call this function with other intervals
     update() : void{
         // Map destruction logic
         if (this.despawnTimer.elapsed()){
 
 
             this.despawn();
-            this.destroy();
+            //this.destroy();
         }
 
     
