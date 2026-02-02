@@ -8,7 +8,7 @@ import { OverWorld } from '../levels/OverworldTopDown';
 import { Marketplace } from '../levels/Marketplace';
 import { TempleInterior } from '../levels/TempleInterior';
 import { OverworldSideScrolling } from '../levels/OverworldSideScrolling';
-//import { Enemy } from './enemy';
+
 import { PhysicsObject } from '../../singletons/Utils';
 import { Box2dObject, box2dCreatePolygonShape, box2dCreateFixtureDef, box2dBodyTypeKinematic, box2dBodyTypeStatic, box2dBodyTypeDynamic } from '../../singletons/box2d';
 
@@ -60,7 +60,7 @@ export class Player extends PhysicsObject{
     */
 
     // Constants
-    public WALK_SPEED: number = 1.65; // pixels per second
+    public WALK_SPEED: number = 0.065; // pixels per second
     public ROLL_SPEED: number = 1000; // pixels per second
     public ATTACK: number = 1; // For Item Equip
     public pushback: number = 5000;

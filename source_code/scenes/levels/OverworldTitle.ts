@@ -13,26 +13,26 @@
  * (2) create alternative for cube not created bug when overworld model isn't loaded into memeory fast
  * 
  * to do:
- * (1) replace simulation physics engine with cannon-es physics for simulation
- * (2) make title screen rotation physics run with delta simulation for consistency across devices
+ * (1) Add title screen animation (done)
  * 
  */
+import * as LittleJS from 'littlejsengine';
 
-import { EngineObject,Color } from "littlejsengine";
-//import {ThreeRender, CAMERA_DISTANCE} from "../../singletons/3d";
+const {EngineObject,Color, vec2} = LittleJS;
+
 import { OverWorld } from "./OverworldTopDown";
-
+import { PhysicsObject } from "../../../source_code/singletons/Utils";
 import * as THREE from 'three';
 const { Scene, PerspectiveCamera, WebGLRenderer,BufferAttribute, BufferGeometry, MeshBasicMaterial, Mesh, TextureLoader } = THREE;
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as CANNON from "cannon-es";
 import CannonDebugger from 'cannon-es-debugger';
+import { TopDownPlayer } from "../Characters/player";
 
 const CAMERA_DISTANCE = 16; 
 
 export class OverworldTile extends EngineObject{
-    private THREE_RENDER : any;
-    private local_3d_engine : any;
+
 
     private groundLevel: number = 5; // ground position for stopping Gravity on Cube
     private enable : boolean = true;
@@ -52,12 +52,16 @@ export class OverworldTile extends EngineObject{
     public cannonDebugger: any;
     public levelBodies: CANNON.Body[] = []; // Store all level collision bodies
 
+    // opening cinematics sprites
+    public cinematic_body : PhysicsObject;
+    public cinematic_cape : PhysicsObject;
+ 
 
     constructor(){
         super();
         this.color = new Color(0, 0, 0, 0); // make object invisible
         
-         //make  scene and camera globally accessible
+         //make  3d scene and camera globally accessible
         const scene = new Scene();
         const camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new WebGLRenderer();
@@ -91,6 +95,23 @@ export class OverworldTile extends EngineObject{
         document.body.appendChild(renderer.domElement);
         }
 
+        // create the player cinematics object
+        //currentFrame : number = 0,animationSequence: number [] = [0], textureIndex : number = 0, sprite dimensions
+        
+        // set the camera at 256 pixels for rendering the opening cinematics sprites
+        LittleJS.setCameraScale(256);
+        const cinematics_body = new PhysicsObject(5,[5,6],7, 256);
+        const cinematics_cape = new PhysicsObject(7,[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],7, 256);
+        cinematics_body.pos = vec2(0,0);
+        cinematics_cape.pos = vec2(0,0);
+        
+        this.cinematic_body = cinematics_body;
+        this.cinematic_cape = cinematics_cape;
+
+        LittleJS.setCameraPos(cinematics_body.pos); // normal follow
+
+        //console.log("cinematics debug : ", cinematics);
+
 
         // set up world physics
         const physicsWorld = new CANNON.World({
@@ -99,24 +120,22 @@ export class OverworldTile extends EngineObject{
 
         this.physicsWorld = physicsWorld;
 
-        //const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
+        const path1 = "./HDR_3d_background_bw.webp"; //load the default ldr
         
         // adds the enviroment hdr background
-        //const loaderTex = new TextureLoader(); // for loading the LDR
+        const loaderTex = new TextureLoader(); // for loading the LDR
         
         
-        //loaderTex.load(path1, (texture) => {
-        //    texture.mapping = THREE.EquirectangularReflectionMapping;
-        //    scene.background = texture;
-        //    scene.environment = texture; // still usable for reflections, though LDR
-        //});
+        loaderTex.load(path1, (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.background = texture;
+            scene.environment = texture; // still usable for reflections, though LDR
+        });
         
 
         // load the 3d model
         const path2 : string = "./overworld_map.glb"; 
-        
-                (async () => {        
-        
+        (async () => {        
                     // load the world mesh
                     loader.load(
                                 path2,
@@ -152,13 +171,12 @@ export class OverworldTile extends EngineObject{
         
                         
         
-                   })();
+        })();
         
         const cannonDebugger = CannonDebugger(scene, physicsWorld, {});
 
         this.camera.position.z = 7;//CAMERA_DISTANCE;
         this.camera.position.x= -2;
-        //this.THREE_RENDER.setCamera(CAMERA_DISTANCE);
         let pos = 0;
 
         const clock = new THREE.Clock();
@@ -176,8 +194,9 @@ export class OverworldTile extends EngineObject{
             }
 
       
-
-          
+            // play the opening cinematics animation
+            cinematics_body.playAnim([5,6],7);
+            cinematics_cape.playAnim([7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],11);
 
 
             if (this.cube && this.levelBodies.length > 0){
@@ -207,9 +226,15 @@ export class OverworldTile extends EngineObject{
 
                 //start game physics trigger
                 if (window.globals.GAME_START){
+                    // get the level mesh
                     const body = this.levelBodies[0];
+                    
                     // apply custom gravity to the mesh collision
                     body.position.y += 0.03;
+
+                    // apply custom animaton to the sprite objects
+                    cinematics_body.pos.y += 0.03;
+                    cinematics_cape.pos.y += 0.03; 
                     
 
 
@@ -224,32 +249,31 @@ export class OverworldTile extends EngineObject{
                     return
                 }
 
+                // triggers level delete once the mesh object is below the ground levels
                 if (body.position.y > this.groundLevel && this.enable) {
               
                 
-                 // delete the cube
-                                    console.log("deleting the loaded model");
-                                    //this.deleteCube();
-                                    //return;
-                                 
-                                    // delete all threejs loaded layers and models
-                                    this.scene.traverse((object) => {
-                                    if (object instanceof THREE.Mesh) {
-                                        if (object.geometry) object.geometry.dispose();
+                    // delete the cube
+                    console.log("deleting the loaded model");
+                    
+                    // delete all threejs loaded layers and models
+                    this.scene.traverse((object) => {
+                        if (object instanceof THREE.Mesh) {
+                            if (object.geometry) object.geometry.dispose();
                             
-                                        if (Array.isArray(object.material)) {
-                                        object.material.forEach((mat) => {
-                                            if (mat.map) mat.map.dispose();
+                                if (Array.isArray(object.material)) {
+                                    object.material.forEach((mat) => {
+                                    if (mat.map) mat.map.dispose();
                                             mat.dispose();
-                                        });
-                                        } else if (object.material) {
+                                    });
+                                } else if (object.material) {
                                         if (object.material.map) object.material.map.dispose();
                                         object.material.dispose();
                                         }
                                     }
-                                    });
+                                });
                             
-                                    while (this.scene.children.length > 0) {
+                                while (this.scene.children.length > 0) {
                                         const child = this.scene.children[0];
                                         this.scene.remove(child);
                                         }                                                           
@@ -264,7 +288,10 @@ export class OverworldTile extends EngineObject{
                                     }
                                     this.renderer = null!;
                             
-                            
+                                    // delete the cinematic scenes
+                                    this.cinematic_body.destroy();
+                                    this.cinematic_cape.destroy();
+
                                     //dispose of environment maps (hdr/ldr)
                                     if (this.scene.environment) {
                                     (this.scene.environment as THREE.Texture).dispose();
@@ -299,7 +326,7 @@ export class OverworldTile extends EngineObject{
                 window.map = new OverWorld(); // Overworld3D();
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
-                this.THREE_RENDER = null;
+                //this.THREE_RENDER = null;
                 this.enable = false;
                 if (window.music) window.music.play_v1(); // play the current sound track
                 //this.destroy()
@@ -318,83 +345,8 @@ export class OverworldTile extends EngineObject{
   
     }
 
-    update(){}
 
-    update_v1(){ // depreciate update function
-                // Start Game Sequence
-        // It modifies the threejs positions
-        // bug:
-        // (1) doesn't account for if cube doesn't load
-
-        // update cube 3d position
-        // bug:
-        // (1) 3d level doesn't load model fast on low latency internet
-        // (2) rework to use 
-       // (3) stuck physics siulatoin bug
-        // to do:
-        // (1) port physics implementation to the overworld title scene (done)
-        if (this.local_3d_engine){
-            let cubePosition = this.local_3d_engine!.getCubePosition();
-        
-
-        if (cubePosition && window.globals.GAME_START) {
-
-
-            // add gravity to cube
-           // if (cubePosition.y > this.groundLevel && this.enable) {
-                //console.log("Running 3d gravity simulation");
-            //    this.local_3d_engine.setCubePositionV0(cubePosition.x, cubePosition.y -= 0.03, cubePosition.z);
-            //}
-
-            // show the mobile ads once
-            if (window.ads && !this.READY_ADS){
-                //window.ads.showAds(); // initialize ads sdk for game monetize compiliance
-                window.ads.initialize();
-                window.ads.showAds();
-                this.READY_ADS = true;
-                return
-            }
-
-            // hide threejs layer once game starts
-            // is always true once game has started
-            // 
-            if (cubePosition.y < this.groundLevel && this.enable) {
-                this.local_3d_engine.hideThreeLayer();
-                
-                
-
-                // save to global conditional for rendering game backgrounds and starting core game loop
-                //window.globals.GAME_START = true;
-                window.ui.gameHUD(); //render the game hud
-                this.THREE_RENDER.hideThreeLayer();
-
-                this.THREE_RENDER.destroy();
-                this.THREE_RENDER = null;
-                this.local_3d_engine = null;
-                this.destroy()
-                
-                window.map = new OverWorld(); // Overworld3D();
-                window.globals.current_level = "Overworld"; //"Overworld 3";
-
-                this.THREE_RENDER = null;
-                this.enable = false;
-                window.music.play_v1(); // play the current sound track
-
-                
-                
-                // this is a testing ui to test ui translations locally for yandex compliance
-                // disable in production build 
-                // works
-                //window.dialogs.language = "ru_RU";
-                //window.ui.translateUIElements(window.dialogs.language);
-                
-
-
-                
-                return;
-             }}
-        }
-    }
+  
 
 
     /**

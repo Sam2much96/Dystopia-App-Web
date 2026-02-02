@@ -2,7 +2,6 @@
 import * as LittleJS from 'littlejsengine';
 
 const {vec2, TileLayerData, TileLayer, EngineObject, drawTile, tile, isOverlapping} = LittleJS; //setTileCollisionData,
-//import { TILE_CONFIG } from '../scenes/levels/SpriteAtlas';
 
 export class Utils {
 
@@ -266,13 +265,15 @@ public animationSpeed: number = 7; // how many times per second the frame change
 public animationSequence: number[];// = [0]; // default animation sequence
 public textureIndex : number = 0; // which tile to use, default is player tile
 
-constructor(currentFrame : number = 0,animationSequence: number [] = [0], textureIndex : number = 0) {
+private dimensions : number ; // the sprite dimensions, default is 128 pixels
+constructor(currentFrame : number = 0,animationSequence: number [] = [0], textureIndex : number = 0, dimensions : number =128) {
     super();
     this.setCollision(true, true, true, true); // make object collide
     this.mass = 0; // make object static by default
     this.animationSequence = animationSequence ; //set the default animation and frame
     this.currentFrame = currentFrame;
     this.textureIndex = textureIndex;
+    this.dimensions = dimensions;
 }
 
 /**
@@ -290,7 +291,7 @@ playAnim(sequence: number[], speed: number = this.animationSpeed) {
 }
 
 render() {
-    drawTile(this.pos, this.size, tile(this.currentFrame, 128, this.textureIndex, 0), this.color, 0, this.mirror);
+    drawTile(this.pos, this.size, tile(this.currentFrame, this.dimensions, this.textureIndex, 0), this.color, 0, this.mirror);
 }
 
 

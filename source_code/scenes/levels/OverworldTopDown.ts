@@ -20,7 +20,7 @@ const {EngineObject, TileLayer,TileLayerData, ParticleEmitter, tile,vec2} = Litt
 
 // all items used in this level
 import overMap from "./overworld.json";
-
+import { LoadMap } from './LoadMap';
 import { TILE_CONFIG } from './SpriteAtlas';
 
 
@@ -75,6 +75,8 @@ export class OverWorld extends EngineObject{
 
         //load the game map
         (async () => {
+            
+            //LoadMap(overMap, this.levelObjects!);
             await this.loadMap();
         })();
 

@@ -10,7 +10,10 @@ export function LoadMap(Map : any, levelObjects : any[]){
      * Load Map Funtion
      * 
      * Takes in the Tiled Json map and an empty array as a parameter
+     * 
+     * Bugs:
      *  
+     * (1) breaks enemy navigation ai
      */
           function chunkArray(array: number[], chunkSize: number) {
             /*

@@ -1,5 +1,5 @@
 /**
- * Yandex ads
+ * Yandex ads Version 2.0 Implementation
  * 
  * Yandex ads implementation in one script
  * 
@@ -12,14 +12,11 @@
  * (3) implement yandex typescript sdk functionality into this class
  * (4) implement ie8N yandex automatic language detection
  * (5) render highquality videos of 30 seconds with each supported language for the game's promotional videos
- * 
- * 
- *  (6) implement all ysdk functionality and expose it in this class
+ * (6) implement all ysdk functionality and expose it in this class
+ * (7) Implement sound turn off when full screen advertisements (interstitials/rewarded videos) are shown
  */
 
 
-//
-// Version 2.0 Implementation
 
 // YandexAds.ts
 

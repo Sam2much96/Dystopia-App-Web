@@ -277,7 +277,7 @@ function gameRenderPost() {}
 // Startup LittleJS Engine with Box2d physics
 // I pass in the tilemap and image data directly to the engine as arrays
 
-box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./dungeon_1_16x16px_tilemap.webp" ]);
+box2dEngineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost, ["./player_tileset_128x128.webp", "./enemy_tileset_128x128.webp", "./godot_128x_dungeon_tileset.webp",  "./NPC_128x128_tileset.webp", "./Desert_background_1.png", "./Desert_background_2.png", "./Desert_background_3.png","./opening_cinematics_tileset_256x256_px.webp","./dungeon_1_16x16px_tilemap.webp" ]);
 
 
 

@@ -20,7 +20,10 @@
  * (1) fix the 3d player movement physics
  * (2) improve level toonshader render
  * (3) the level lights bug out the model's texture
- * 
+ * (4) fix player controls
+ * (5) improve player collisions
+ * (6) add 3d spaceship exit collision to level
+ * (7) add city map collisons to mesh
  */
 import * as LittleJS from 'littlejsengine';
 
@@ -84,9 +87,8 @@ export class OverWorld3D {
     public levelObjects : any[] | null = [];
     
     constructor(){
-        //super();
-        //this.color = new Color(0, 0, 0, 0); // make object invisible
-        
+        const desert_color = 0xEDC967
+
         //make  scene and camera globally accessible
         const scene = new Scene();
         const camera = new PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -101,6 +103,17 @@ export class OverWorld3D {
         this.renderer = renderer
 
         renderer.setSize(window.innerWidth, window.innerHeight);
+
+        renderer.toneMappingExposure = 0.1; // Reduce exposure (default is 1.0)
+
+        // In the scene setup, add:
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+        dirLight.position.set(5, 10, 5);
+
+        scene.add(ambientLight);
+        scene.add(dirLight);
 
         //shows the threejs css render layer
         const layer = document.getElementById("threejs-layer");
@@ -140,41 +153,26 @@ export class OverWorld3D {
 
         loaderTex.load(path1, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
-                //texture.encoding = THREE.sRGBEncoding; // important for correct colors
+        //texture.encoding = THREE.sRGBEncoding; // important for correct colors
         
         scene.background = texture;
         scene.environment = texture; // still usable for reflections, though LDR
         });
 
-        const path2 : string = "./overworld_map.glb"; 
+        // Reduce environment light contribution
+        scene.environmentIntensity = 1;
 
-        (async () => {        
 
-            // load the world mesh
-            loader.load(
-                        path2,
-                        (gltf) => {
-                        
-                            const gradientMap = new THREE.TextureLoader().load(
-                            './threeTone.jpg'
-                            );
-                            gradientMap.minFilter = THREE.NearestFilter;
-                            gradientMap.magFilter = THREE.NearestFilter;            
-                            const toonShader = new THREE.ShaderMaterial({
-                            uniforms: {
-                                color: { value: new THREE.Color(0xF0E68C) },
-                                lightDirection: { value: new THREE.Vector3(1, 1, 1).normalize() },
-                            },
-            
-                            // toon shader material
-                            vertexShader: `
-                                varying vec3 vNormal;
-                                void main() {
-                                vNormal = normalize(normalMatrix * normal);
-                                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                                }
-                            `,
-                            fragmentShader: `
+
+        //toon shader config
+        const vertex_shader = `
+        varying vec3 vNormal;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`
+        
+        const fragment_shader = `
                                 varying vec3 vNormal;
                                 uniform vec3 color;
                                 uniform vec3 lightDirection;
@@ -183,16 +181,50 @@ export class OverWorld3D {
                                 float intensity = step(0.5, light); // 2-tone cel shading
                                 gl_FragColor = vec4(color * intensity, 1.0);
                                 }
-                            `,
-                            });
-            
-            
+                            `
+        
+        const toonShader = new THREE.ShaderMaterial({
+                            uniforms: {
+                                color: { value: new THREE.Color(desert_color) },
+                                lightDirection: { value: new THREE.Vector3(1, 1, 1).normalize() },
+                            },
+                        vertexShader: vertex_shader,
+                        fragmentShader : fragment_shader,
+                        
+                        })
+        
+
+        const standard_dune_material = new THREE.MeshStandardMaterial({
+                                            color: desert_color,   
+                                            roughness: 0.9,
+                                            metalness: 0.0,
+                                        });
+        
+        // Load the Overworld Map
+        const overworld_map : string = "./overworld_map.glb"; 
+
+        (async () => {        
+
+            // load the world mesh
+            loader.load(
+                        overworld_map,
+                        (gltf) => {
+                        
         
                             // Apply toon material to all meshes in the model
                             gltf.scene.traverse((child) => {
+                                    console.log("mesh debug: ", child);
+                                    //delete all light objects
+
                                     if (child instanceof THREE.Mesh) {
-                                    child.material = toonShader;
-                                    child.material.needsUpdate = true;
+                                        //child.material = toonShader;
+                                        child.material =standard_dune_material;
+                                        child.material.envMapIntensity = 0;
+
+                                        // Reduce overall brightness
+                                        child.material.toneMapped = true;
+                                        child.material.needsUpdate = true;
+                                    
                                     }
                             });
             
@@ -279,6 +311,21 @@ export class OverWorld3D {
                     }
             );
         
+        
+        //load the spaceshp prop
+        const spaceship = "./broken_ship.glb";
+
+                loader.load(
+                    spaceship,
+                    (gltf) => {
+                        scene.add(gltf.scene);
+
+                        // to do:
+                        // (1) add exit collision mesh to spaceship object
+
+                    });
+
+
 
         // trigger the despawn timer
         this.despawnTimer.set(this.Timeout);
@@ -289,7 +336,7 @@ export class OverWorld3D {
 
         //for setting initial spawn point 
         let SPAWN = false;
-        let DEBUG = true;
+        let DEBUG = false;
 
         // The main 3d game loop runs here
         //run the physics simulation on each animation frame by binding the context
@@ -308,7 +355,70 @@ export class OverWorld3D {
                 SPAWN= true;
             }
 
+            this.input();
 
+            this.syncGraphics();
+
+            // UPDATE THE ANIMATION MIXER 
+            if (this.playerAnims) {
+                this.playerAnims.update(delta);
+            }
+
+            
+            // movement logic
+            if (this.moveInput && this.playerBody){
+
+                this.State()["STATE_WALKING"]();
+            }
+
+            renderer.render(scene, camera);
+
+           
+        }
+
+        // simulate the 3d physics
+        animate();
+
+    }
+    destroy(){ // placeholder function for destroying the 3d scene and objects
+        }
+   
+    // to do ;
+    // (1) depreciate this update function and the overworld scene to not use littlejs engine class and objects
+    // (2) call this function with other intervals
+    input() {
+        
+
+
+        // Player controls
+
+        if (isTouchDevice){ // touchscreen dpad bindings
+            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
+            this.holdingRoll = gamepadIsDown(1); 
+            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
+            
+            // for debugging player input on mobile
+            //logToScreen(this.moveInput);
+        }
+
+        else if (!isTouchDevice){ // keyboard and mouse bindings
+            //works
+            this.moveInput = keyDirection().clampLength(1).scale(.1);
+            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
+            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
+        }
+        
+
+
+        // to do:
+        // (1) add movement simple state machine for 3d player body mesh (done)
+        // (2) add mouse controls for 3d camera controls
+        // (3) add toon shader material to 3d player texture material
+        
+        
+    }
+
+    syncGraphics(){
             //apply cannon-es physics to mesh
             if (this.player && this.playerBody){
 
@@ -341,79 +451,11 @@ export class OverWorld3D {
                 // second despawn logic for falling off 3d map
                 if (this.playerBody.position.y < -20){
                     this.despawn();
-                    //this.destroy();
                     this.State()["STATE_DEATH"]();
                     return;
                 }
 
             }
-
-            // UPDATE THE ANIMATION MIXER 
-            if (this.playerAnims) {
-                this.playerAnims.update(delta);
-            }
-
-            
-            // movement logic
-            if (this.moveInput && this.playerBody){
-
-                this.State()["STATE_WALKING"]();
-            }
-
-            renderer.render(scene, camera);
-
-           
-        }
-
-        // simulate the 3d physics
-        animate();
-
-    }
-    destroy(){ // placeholder function for destroying the 3d scene and objects
-        }
-   
-    // to do ;
-    // (1) depreciate this update function and the overworld scene to not use littlejs engine class and objects
-    // (2) call this function with other intervals
-    update() : void{
-        // Map destruction logic
-        if (this.despawnTimer.elapsed()){
-
-
-            this.despawn();
-            //this.destroy();
-        }
-
-    
-
-        // add second map destruction logic for despawning if player falls through map
-
-
-        // Player controls
-
-        if (isTouchDevice){ // touchscreen dpad bindings
-            this.moveInput = gamepadStick(0,0).clampLength(1).scale(.1) ;
-            this.holdingRoll = gamepadIsDown(1); 
-            this.holdingAttack  = gamepadIsDown(2) ; //|| mouseIsDown(0);     
-            
-            // for debugging player input on mobile
-            //logToScreen(this.moveInput);
-        }
-
-        else if (!isTouchDevice){ // keyboard and mouse bindings
-            //works
-            this.moveInput = keyDirection().clampLength(1).scale(.1);
-            this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
-            this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
-        }
-        
-
-        // to do:
-        // (1) add movement simple state machine for 3d player body mesh (done)
-        // (2) add mouse controls for 3d camera controls
-        // (3) add toon shader material to 3d player texture material
-        
-        
     }
 
 

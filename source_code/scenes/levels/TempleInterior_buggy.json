@@ -1,4 +1,12 @@
 { "compressionlevel":-1,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"tmx",
+         "target":"..\/..\/..\/..\/Dystopia-App-Android\/source_code\/scenes\/levels\/TempleInterior_1.tmx"
+        }
+    },
  "height":20,
  "infinite":false,
  "layers":[
@@ -140,8 +148,17 @@
  "tileheight":128,
  "tilesets":[
         {
+         "columns":14,
          "firstgid":1,
-         "source":"godot_128x_dungeon_tileset.tsj"
+         "image":"..\/..\/..\/..\/Dystopia-App-Android\/source_code\/scenes\/levels\/godot_128x_dungeon_tileset.png",
+         "imageheight":2480,
+         "imagewidth":1804,
+         "margin":0,
+         "name":"godot_128x_dungeon_tileset",
+         "spacing":0,
+         "tilecount":266,
+         "tileheight":128,
+         "tilewidth":128
         }, 
         {
          "firstgid":267,

@@ -33,18 +33,7 @@ const {EngineObject, TileLayer,TileLayerData, initTileCollision, tile,vec2} = Li
 
 import Shop from "./Marketplace.json";
 
-import { TILE_CONFIG } from './SpriteAtlas';
-
-import {TopDownPlayer} from "../Characters/player";
-
-import {Merchant} from "../Characters/NPC";
-import {Utils} from "../../singletons/Utils";
-import { Stairs } from '../UI & misc/Exit';
 import { LoadMap } from './LoadMap';
-
-// to do : (1) import merchant npc (done)
-// to do : (1) implement decision dialogue (1/2)
-// to do (1) create a single load map script and export it for all functions fromt 
 
 export class Marketplace extends EngineObject{
     LevelSize: LittleJS.Vector2 | null = null;
@@ -54,17 +43,11 @@ export class Marketplace extends EngineObject{
     collisionGrid: number[][] = []; // for enemy navigation logic
     constructor(){
         super();
-        
-        // old depreciated load map function
-        //this.loadMap();
-
-        // new load map fimctopm
+        // new load map funtion
         LoadMap(Shop, this.levelObjects!);
     }
 
-    // to do:
-    // (1) rewrite as a static function and lock impl into utils.ts (done)
-    
+
 
     
 

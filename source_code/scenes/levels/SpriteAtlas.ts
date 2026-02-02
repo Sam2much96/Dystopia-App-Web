@@ -64,7 +64,9 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
   // Boulder
   8: { collision: true, draw: true },
   
-  // Trees
+  // small tree
+  9:{collision : false, draw : true}, 
+  // group of Trees
   10: { collision: true, draw: true },
   
   // Mushroom big
@@ -73,6 +75,9 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
   // Mushroom small
   12: { collision: true, draw: true },
   
+  //tall grass
+  13:{collision : false, draw: true},
+
   // smoke tile, should spawn a modified version of smoke fx
   14: { 
     collision: false,
@@ -117,15 +122,12 @@ export const TILE_CONFIG: Record<number, TileConfig> = {
     spawn: (pos) => new Bow(pos)
   },
   
-  // Enemy spawn
+  // Blood Splatter fx
   26: { 
     collision: false,
-    spawn: (pos) => {
-      const enemy = new Enemy(pos);
-      window.globals.enemies.push(enemy);
-      return enemy;
-    }
+    draw: false
   },
+  // 27- water bottle item (to do)
   
   // Ring
   28: { 
