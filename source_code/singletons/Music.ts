@@ -43,7 +43,7 @@ export class Music {
     
 
 
-    public enable : boolean = false; // temporarily turning music off for music audit
+    public enable : boolean = true; // temporarily turning music off for music audit
     public sfx_on : boolean = true ;
     public isPlaying : boolean = false;
     
@@ -62,10 +62,10 @@ export class Music {
     // (1) track the new beats in Zzfxm tools
     public default_playlist: Record<number,string> =  {
             0:`./audio/songs/sanxion.js`,
-            1:"./audio/songs/cuddly.js",
-            2:"./audio/songs/Depp.js",
-            3:"./audio/songs/Iamback.js",
-            4:"./audio/songs/Jazz_Bass_line.js"
+            1:"./audio/songs/Depp.js",
+            2:"./audio/songs/Temple Theme.js",
+            3:"./audio/songs/oh hohoboy.js"
+
 
     };
 
@@ -204,15 +204,6 @@ export class Music {
     sound_shoot: LittleJS.Sound;
     zelda_powerup: LittleJS.Sound;
     sound_start: LittleJS.Sound;
-    //sound_break: LittleJS.Sound;
-    //sound_bounce: LittleJS.Sound;
-    //sound_mosquito_flys: LittleJS.Sound;
-    //souund_mosquito_dies: LittleJS.Sound;
-    //sound_zapp: LittleJS.Sound;
-    //sound_call: LittleJS.Sound;
-    //sound_boing: LittleJS.Sound;
-    //sound_tv_static: LittleJS.Sound;
-    //sound_metal_gong: LittleJS.Sound;
     hurt_Sfx : LittleJS.Sound;
     death_sfx : LittleJS.Sound;
     explosion_vibration_sfx : LittleJS.Sound;
@@ -416,15 +407,8 @@ export class Music {
             // (1) This creates a bottleneck / noticable lag at the start of the game because of the fetch request for the music track
 
             const load = async ()  => {
-                // to do:
-                // (1) testing all tracks files integrity
-                // cheat sheet 
-            //0:`./audio/songs/sanxion.js`,
-            //1:"./audio/songs/cuddly.js",
-            //2:"./audio/songs/depp.js",
-            //3:"./audio/songs/iamback.js",
-            //4:"./audio/songs/Jazz_Bass_line.js"
-                let newTrack = this.shuffle(this.default_playlist); // get a random track
+
+                let newTrack = this.default_playlist[3];//this.shuffle(this.default_playlist); // get a random track
 
                 console.log ("track debug : ", newTrack);
                 const res = await fetch(newTrack);

@@ -75,7 +75,8 @@ export class OverWorld extends EngineObject{
 
         //load the game map
         (async () => {
-            
+            // bugs:
+            // (1) new load map function breaks the already very buggy enemy navigation
             //LoadMap(overMap, this.levelObjects!);
             await this.loadMap();
         })();

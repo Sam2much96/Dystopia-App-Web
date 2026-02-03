@@ -57,6 +57,7 @@ export class Player extends PhysicsObject{
     * (7) implement player impact shader and call in on player collision with enemy
     * (8) implement Controls UI
     * (9) connect all game settings to controls UI
+    * (10) export player and enemy physics stats to a physics and hp config resource file
     */
 
     // Constants

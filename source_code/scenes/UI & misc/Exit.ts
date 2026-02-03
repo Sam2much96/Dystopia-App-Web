@@ -71,7 +71,8 @@ class Exit extends EngineObject{
                 //save player stats via global function
                 window.player.destroy();
                 //destroy the overworld scene and player
-                window.map.destroy();
+                //window.map.destroy();
+                
                 // spawn the new overworld scene 
                 
                 console.log("Loading the new level");
@@ -169,6 +170,7 @@ export class TempleDoor extends Exit{ // temple exterior door
     constructor(posi : LittleJS.Vector2){
 
         super(posi,1,44, "Temple")
+        
     }
 
 }

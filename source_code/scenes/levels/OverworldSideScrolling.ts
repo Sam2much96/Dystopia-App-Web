@@ -21,9 +21,6 @@ import * as LittleJS from 'littlejsengine';
 const {EngineObject,setGravity,TileLayer,TileLayerData, Timer, rand,hsl,initTileCollision, setTileCollisionData,tile,vec2} = LittleJS;
 
 import overMap from "./OverworldSideScrolling.json";
-import { GenericItem } from '../items/GenericItem';
-import {SideScrollerPlayerBox} from "../Characters/player";
-import { Utils } from '../../singletons/Utils';
 
 
 //import { Box2dObject, box2dEngineInit } from '../../singletons/box2d';
