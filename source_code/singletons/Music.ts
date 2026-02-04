@@ -21,21 +21,17 @@ export class Music {
     (6) Music Synthesizer Docs: https://keithclark.github.io/ZzFXM/
     
     TO DO:
-    (0) Compost 3 new tracks for the web game
+    (0) Compost 3 new tracks for the web game (done)
     (1) All music play in this codebase, should be routed through this object via a function
     (2) separate music and sfx plays funcitionally
-    (3) Music should turn off when switching tabs is needed for yandex moderation approval
+    (3) Music should turn off when switching tabs is needed for yandex moderation approval (done)
     (4) Add player death and despawn sfx
-    (5) Export all sounds from an external resources file
+    (5) Export all sounds from an external resources file (done)
     (6) Use json file paths for loading the music file paths
-
-    Notes:
-    (1) The SFX and Music Use 2 Different Systems, SFX USes ZzFX a js midi engine
-        whereas Music Uses Audio Tags written into the index.html file and called by Element ID
-    (2) Most Browsers Refuse Audio music play by default unless the player / user enters an input gesture
+    (7) Move all Music Sound Dictionaries to a Music Config script
 
     Bugs:
-    (1) Breaks entire game if not available
+    (1) Breaks entire game if not available, because it is a singleton and the codebase makes refernce to this script to play sfx for loading the world
     (2) Breaks overworld scene renders if not available
     
     */
@@ -61,10 +57,9 @@ export class Music {
     // to do:
     // (1) track the new beats in Zzfxm tools
     public default_playlist: Record<number,string> =  {
-            0:`./audio/songs/sanxion.js`,
-            1:"./audio/songs/Depp.js",
-            2:"./audio/songs/Temple Theme.js",
-            3:"./audio/songs/oh hohoboy.js"
+            0:"./audio/songs/Depp.js",
+            1:"./audio/songs/Temple Theme.js",
+            2:"./audio/songs/oh hohoboy.js"
 
 
     };
@@ -107,62 +102,62 @@ export class Music {
     // (1) populate data structure with all punch and sword sfx
     // (2) connect random sfx sampler to both enemy and player script objects
     // (3) test music on / off / controls settings
-    // (4) find a better way of loading audio files into the game instead of this way fgs
+    // (4) move all music sfx dictionary to a Music Config.ts file
     public hit_sfx : Record<number, LittleJS.Sound> ={
-        0: new SoundWave(sfx[1]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°9.wav")),
-        1: new SoundWave(sfx[2]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°10.wav")),
-        2: new SoundWave(sfx[3]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°11.wav")),
-        3: new SoundWave(sfx[4]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°12.wav")),
-        4: new SoundWave(sfx[5]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°13.wav")),
-        5: new SoundWave(sfx[6]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°14.wav")),
-        6: new SoundWave(sfx[7]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°15.wav")),
-        7: new SoundWave(sfx[8]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°16.wav")),
-        8: new SoundWave(sfx[9]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°17.wav")),
-        9: new SoundWave(sfx[10]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°18.wav")),
-        10: new SoundWave(sfx[11]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°19.wav")),
-        11: new SoundWave(sfx[12]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°20.wav")),
-        12: new SoundWave(sfx[13]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°21.wav")),
-        13: new SoundWave(sfx[14]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°22.wav")),
-        14: new SoundWave(sfx[15]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°23.wav")),
-        15: new SoundWave(sfx[16]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°24.wav")),
-        16: new SoundWave(sfx[17]),//(new Sound("./audio/sfx/Dragon Ball Z Punch Sound Effect N°25.wav"))
+        0: new SoundWave(sfx[1]),
+        1: new SoundWave(sfx[2]),
+        2: new SoundWave(sfx[3]),
+        3: new SoundWave(sfx[4]),
+        4: new SoundWave(sfx[5]),
+        5: new SoundWave(sfx[6]),
+        6: new SoundWave(sfx[7]),
+        7: new SoundWave(sfx[8]),
+        8: new SoundWave(sfx[9]),
+        9: new SoundWave(sfx[10]),
+        10: new SoundWave(sfx[11]),
+        11: new SoundWave(sfx[12]),
+        12: new SoundWave(sfx[13]),
+        13: new SoundWave(sfx[14]),
+        14: new SoundWave(sfx[15]),
+        15: new SoundWave(sfx[16]),
+        16: new SoundWave(sfx[17]),
     };
 
     public sword_sfx : Record<number, LittleJS.Sound> ={
-        0: new SoundWave(sfx[18]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°2.wav")),
-        1: new SoundWave(sfx[19]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword In Sound Effect n°4.wav")),
-        2 : new SoundWave(sfx[20]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Out Sound Effect n°1.wav")),
-        3 : new SoundWave(sfx[21]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°4.wav")),
-        4: new SoundWave(sfx[22]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°5.wav")),
-        5: new SoundWave(sfx[23]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°6.wav")),
-        6: new SoundWave(sfx[24]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°7.wav")),
-        7: new SoundWave(sfx[25]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°8.wav")),
-        8: new SoundWave(sfx[26]),//(new Sound("./audio/sfx/Dragon Ball Z Trunks Sword Slash Sound Effect n°9.wav"))
+        0: new SoundWave(sfx[18]),
+        1: new SoundWave(sfx[19]),
+        2 : new SoundWave(sfx[20]),
+        3 : new SoundWave(sfx[21]),
+        4: new SoundWave(sfx[22]),
+        5: new SoundWave(sfx[23]),
+        6: new SoundWave(sfx[24]),
+        7: new SoundWave(sfx[25]),
+        8: new SoundWave(sfx[26]),
     }
 
     // to do:
     // (1) finish nokia pack fata structure (done)
     // (2) export sound data structure to external reosurce type (done)
     public nokia_pack_sfx : Record<number, LittleJS.Sound> = {
-        0: new SoundWave(sfx[27]),//(new Sound("./audio/nokia_pack/bad_melody.ogg")),
-        1: new SoundWave(sfx[28]),//(new Sound("./audio/nokia_pack/blip1.ogg")),
-        2: new SoundWave(sfx[29]),//(new Sound("./audio/nokia_pack/blip2.ogg")),
-        3: new SoundWave(sfx[30]),//(new Sound("./audio/nokia_pack/blip3.ogg")),
-        4: new SoundWave(sfx[31]),//(new Sound("./audio/nokia_pack/blip4.ogg")),
-        5: new SoundWave(sfx[32]),//(new Sound("./audio/nokia_pack/blip5.ogg")),
-        6: new SoundWave(sfx[33]),//(new Sound("./audio/nokia_pack/blip6.ogg")),
-        7: new SoundWave(sfx[34]),//(new Sound("./audio/nokia_pack/blip7.ogg")),
-        8: new SoundWave(sfx[35]),//(new Sound("./audio/nokia_pack/blip8.ogg")),
-        9: new SoundWave(sfx[36]),//(new Sound("./audio/nokia_pack/blip9.ogg")),
-        10: new SoundWave(sfx[37]),//(new Sound("./audio/nokia_pack/blip10.ogg")),
-        11: new SoundWave(sfx[38]),//(new Sound("./audio/nokia_pack/blip11.ogg")),
-        12: new SoundWave(sfx[39]),//(new Sound("./audio/nokia_pack/hit1.ogg")),
-        13: new SoundWave(sfx[40]),//(new Sound("./audio/nokia_pack/hit2.ogg")),
-        14: new SoundWave(sfx[41]),//(new Sound("./audio/nokia_pack/hit3.ogg")),
-        15: new SoundWave(sfx[42]),//(new Sound("./audio/nokia_pack/hit4.ogg")),
-        16: new SoundWave(sfx[43]),//(new Sound("./audio/nokia_pack/hit5.ogg")),
-        17: new SoundWave(sfx[44]),//(new Sound("./audio/nokia_pack/hit6.ogg")),
-        18: new SoundWave(sfx[45]),//(new Sound("./audio/nokia_pack/negative1.ogg")),
+        0: new SoundWave(sfx[27]),
+        1: new SoundWave(sfx[28]),
+        2: new SoundWave(sfx[29]),
+        3: new SoundWave(sfx[30]),
+        4: new SoundWave(sfx[31]),
+        5: new SoundWave(sfx[32]),
+        6: new SoundWave(sfx[33]),
+        7: new SoundWave(sfx[34]),
+        8: new SoundWave(sfx[35]),
+        9: new SoundWave(sfx[36]),
+        10: new SoundWave(sfx[37]),
+        11: new SoundWave(sfx[38]),
+        12: new SoundWave(sfx[39]),
+        13: new SoundWave(sfx[40]),
+        14: new SoundWave(sfx[41]),
+        15: new SoundWave(sfx[42]),
+        16: new SoundWave(sfx[43]),
+        17: new SoundWave(sfx[44]),
+        18: new SoundWave(sfx[45]),
         
 
     };
@@ -235,10 +230,6 @@ export class Music {
         this.lastPlayedTrack = ""; // Variable for keeping track of the music shuffler & prevents repeating tracks
         this.sound_shoot = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
 
-        // to do: 
-        // (1) move this code to the class object initialiser and not class constants
-        //drum
-        //const drum = new Sound([,,129,.01,,.15,,,,,,,,5]); // Loaded Sound 68
 
         this.zelda_powerup = new Sound([1.5,0,214,.05,.19,.3,3,.1,,,150,.05,.09,,,,.11,.8,.15,.22]); // Powerup 9// Powerup 9
 
@@ -248,13 +239,6 @@ export class Music {
         const dash_sfx = new Sound([1.5,0,214,.05,.19,.3,3,.1,,,150,.05,.09,,-1,,.11,.8,.15,.22]);
         const dash_2_sfx = new Sound([,,63,.04,.19,.58,,3.9,-2,-8,,,.23,.6,,.2,,.37,.18,.27]); 
         const dash_3 = new Sound([1.4,,420,.19,.01,.21,2,.3,,,314,.18,,,7.8,,.05,.67,.01]); // Random 60
-        
-        // to do:
-        // (1) audit all old sfx in zzfxm
-        //const dungeon_sfx_1 = new Sound([.5,,103,.21,.27,.27,3,.6,,,-6,.2,,,31,,,.61,.01,,-1477]);
-
-        const disco = new Sound([,,361,.08,.19,.3,2,2.1,3,,-120,.1,,,102,,,.72,.05]);
-        const disco_2 = new Sound([.4,,39,.44,.1,.15,2,1.8,,-54,,,,,12,,,.97,.02,,325]); // Random 45
 
         this.hurt_Sfx = new Sound([,,377,.02,.05,.16,,3,,-13,,,,,,.1,,.72,.07]); // hurt sfx
         this.death_sfx = new Sound([,,416,.02,.07,.14,1,.6,-7,,,,.06,,,.1,,.69,.04,,220]); // Pickup 49
@@ -268,17 +252,7 @@ export class Music {
 
         // sound effects
         this.sound_start = new Sound([, 0, 500, , .04, .3, 1, 2, , , 570, .02, .02, , , , .04]);
-        //this.sound_break = new Sound([, , 90, , .01, .03, 4, , , , , , , 9, 50, .2, , .2, .01]);
-        //this.sound_bounce = new Sound([, , 1e3, , .03, .02, 1, 2, , , 940, .03, , , , , .2, .6, , .06]);
-        //this.sound_mosquito_flys = new Sound([, , 269, .36, .01, .01, 2, 2.6, , 4, , , .07, , , , , .62]); // Random 30
-        //this.souund_mosquito_dies = new Sound([1.3, , 328, .03, .34, .02, 2, 1.3, , , -27, .14, , , .6, , .01, .54, .19]); // Random 31
-        //this.sound_zapp = new Sound([1.2, , 678, .19, .49, .02, 1, 4.1, -75, 9, -263, .43, , .3, 3, , .09, .66, .41, .06, 381]); // Random 24
-        //this.sound_call = new Sound([1.9, , 66, .05, .48, .009, , 3.1, -38, 20, , , .13, , .5, .7, .1, .58, .19, .14, -1495]); // Random 26
-        //this.sound_boing = new Sound([1.4, , 286, , .19, .009, , 2.7, , -9, 363, .33, , , 61, , .22, .96, .14, .18, -1176]); // Random 29
-        //this.sound_tv_static = new Sound([.7, , 187, .01, , .01, 4, 4.8, 2, 72, , , , .1, , , , , .41, , 102]); // Random 32
-        //this.sound_metal_gong = new Sound([.7, , 286, .08, , .46, 3, 3.9, , , -76, .57, , , 15, , .07, .65, .08, , 204]); // Random 33
-        
-        
+    
         this.zelda = null;
 
         this.current_track = null;//"track placeholder";
@@ -405,10 +379,10 @@ export class Music {
             // Loads a song via a http get request
             // bugs:
             // (1) This creates a bottleneck / noticable lag at the start of the game because of the fetch request for the music track
-
+            // (2) The music looper is broken
             const load = async ()  => {
 
-                let newTrack = this.default_playlist[3];//this.shuffle(this.default_playlist); // get a random track
+                let newTrack = this.shuffle(this.default_playlist); // get a random track
 
                 console.log ("track debug : ", newTrack);
                 const res = await fetch(newTrack);

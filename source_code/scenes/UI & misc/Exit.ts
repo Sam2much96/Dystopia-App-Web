@@ -71,16 +71,12 @@ class Exit extends EngineObject{
                 //save player stats via global function
                 window.player.destroy();
                 //destroy the overworld scene and player
-                //window.map.destroy();
+                window.map.destroy();
                 
                 // spawn the new overworld scene 
                 
                 console.log("Loading the new level");
-                
-                // write the exit logic for each map level
-                // logic ported from player respawn fuunction
-                //window.map = new OverworldSideScrolling();
-                
+
                 
                 
 
