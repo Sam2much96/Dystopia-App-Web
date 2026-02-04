@@ -59,9 +59,8 @@ export class Music {
     public default_playlist: Record<number,string> =  {
             0:"./audio/songs/Depp.js",
             1:"./audio/songs/Temple Theme.js",
-            2:"./audio/songs/oh hohoboy.js"
-
-
+            2:"./audio/songs/oh hohoboy.js",
+            3:"./audio/songs/under_world.js",
     };
 
 
