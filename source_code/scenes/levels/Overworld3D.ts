@@ -87,6 +87,7 @@ export class OverWorld3D {
     public levelObjects : any[] | null = [];
     
     constructor(){
+        //super();
         const desert_color = 0xEDC967
 
         //make  scene and camera globally accessible

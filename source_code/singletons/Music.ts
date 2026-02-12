@@ -54,8 +54,6 @@ export class Music {
 
     public lastPlayedTrack: string = "";
     
-    // to do:
-    // (1) track the new beats in Zzfxm tools
     public default_playlist: Record<number,string> =  {
             0:"./audio/songs/Depp.js",
             1:"./audio/songs/Temple Theme.js",
@@ -184,6 +182,12 @@ export class Music {
     public Playback_position : number = 0;
     public track : string = "";
     public buffer : number[][] | undefined;
+    
+      //audio worklet
+    public audioCtx!: AudioContext;
+    public workletNode!: AudioWorkletNode;
+    public masterGain!: GainNode;
+
 
     // sound fx placeholder
     private Fx : Record<number, string> = {
@@ -211,6 +215,7 @@ export class Music {
 
   
 
+    
     constructor() {
 
 
@@ -218,6 +223,7 @@ export class Music {
         // to do : map to a control ui / control class (1/3)
         //setSoundVolume(0.3);
         setSoundEnable(true);
+        this.initAudioWorklet();
 
         console.log("Music on Settings: ", this.enable );
         
@@ -271,7 +277,30 @@ export class Music {
         // ---- ADD TAB VISIBILITY HANDLER ----
         // this turns the music off if the browser tab
         // is no longer visible
-        // works
+        // wVersion 2 audio visibility function
+        document.addEventListener("visibilitychange", async () => {
+                    if (document.hidden){
+                        if (this.audioCtx?.state === "running"){
+                            //this.stream.stop();
+                            //await zzfxX.suspend();
+                            
+                            await this.audioCtx.suspend();
+
+                            //this.wasPlaying = true;
+                            console.log("pausing music");
+                        }
+                    }
+                    else{
+                        if (this.audioCtx?.state !== "running"){
+                            await this.audioCtx.resume();
+
+                            //await zzfxX.resume();
+                            console.log("resuming game music");
+                        }
+                    }
+                });
+
+            // version 1 audio visibility funciton
         document.addEventListener("visibilitychange", async () => {
             if (document.hidden){
                 if (this.stream){
@@ -288,6 +317,9 @@ export class Music {
                 }
             }
         });
+
+
+    
 
 
     }
@@ -409,21 +441,18 @@ export class Music {
           // Renders the song. ZzFXM blocks the main thread so defer execution for a few
          // ms so that any status message change can be repainted.
          // to do:
-        // (1) fix audio balancing on headphones via mizing
+        // (1) Use audio worklet to play the music and not the game's main thread to fix audio lag
         const render = (song : any[]) : Promise<number[][]> => {
             return new Promise(resolve => {
                 setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
             });
         }
 
-        
-        //console.log("playing song: ", this.counter);
         try{
             const song = await load();
-            
-            
             this.buffer = await render(song);
             
+
             // play the tune
             this.stream = zzfxP(this.buffer[0], this.buffer[1]);
             
@@ -454,7 +483,116 @@ export class Music {
 
     }}
 
+    async play_v2(){
+        /**
+         * Version 2 player version uses Zzfxm + Audio Worklet to play the level's audio
+         * 
+         */
 
+        if (!this.workletNode) {
+                await this.initAudioWorklet();
+        }
+
+         
+        //error catcher for double music plays
+        if (this.enable && this.counter == 0){
+ 
+            const load = async ()  => {
+
+                let newTrack = this.shuffle(this.default_playlist); // get a random track
+
+                console.log ("track debug : ", newTrack);
+                const res = await fetch(newTrack);
+                const src = await res.text();
+
+                //debug if the track was fetched
+                //console.log("track debug 2: ", src);
+                
+                // bug:
+                // parsing of audio files breaks in final build
+                return this.unsafeParse(src); 
+                
+            };
+
+
+        
+
+          // Renders the song. ZzFXM blocks the main thread so defer execution for a few
+         // ms so that any status message change can be repainted.
+         // to do:
+        // (1) Use audio worklet to play the music and not the game's main thread to fix audio lag
+        const render = (song : any[]) : Promise<number[][]> => {
+            return new Promise(resolve => {
+                setTimeout(() => resolve(zzfxM(song[0], song[1], song [2])), 50);
+            });
+        }
+
+        try{
+            const song = await load();
+            const buffer = await render(song);
+            this.buffer = buffer;
+
+            // Send samples to worklet
+            this.workletNode.port.postMessage({
+                type: "load",
+                left: buffer[0],
+                right: buffer[1]
+            });
+
+            await this.audioCtx.resume();
+            
+        }
+        
+         catch (err){
+
+             console.error("Music error:", err);
+            this.isPlaying = false;
+         }
+
+    }}
+
+     async initAudioWorklet() {
+
+        if (!this.audioCtx) {
+            this.audioCtx = zzfxX; // reuse zzfx context
+        }
+
+        await this.audioCtx.audioWorklet.addModule(
+            "/audio/zzfxm-worklet.js"
+        );
+
+        //volume controls
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.value = 0.5; // 50% volume
+
+        this.workletNode = new AudioWorkletNode(
+            this.audioCtx,
+            "zzfxm-processor",
+            {
+                numberOfOutputs: 1,
+                outputChannelCount: [2]
+            }
+        );
+
+        this.workletNode.connect(this.masterGain);
+        this.workletNode.connect(this.audioCtx.destination);
+
+        this.workletNode.port.onmessage = (e) => {
+
+            if (e.data.type === "ended") {
+                console.log("Track finished (worklet)");
+                this.play_v2();
+            }
+        };
+    }
+
+    setVolume(v: number) {
+        /**
+         * Sets volume for Audio Worklet
+         */
+        // Clamp 0..1
+        this.masterGain.gain.value = Math.max(0, Math.min(1, v));
+    }
 
     clear(){
 

@@ -72,6 +72,13 @@ export class OverworldTile extends EngineObject{
         this.camera = camera;
         this.renderer = renderer;
 
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         //shows the threejs css render layer
@@ -328,7 +335,7 @@ export class OverworldTile extends EngineObject{
 
                 //this.THREE_RENDER = null;
                 this.enable = false;
-                if (window.music) window.music.play_v1(); // play the current sound track
+                if (window.music) window.music.play_v2(); // play the current sound track
                 //this.destroy()
                 
                 }
