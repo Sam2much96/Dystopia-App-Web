@@ -14,8 +14,8 @@
 /* HeartBox Container */
 .heartbox-container {
   position: absolute;
-  top: 0 px;
-  right: 0 px;
+  top: 0%;
+  right: 85%;
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
