@@ -14,15 +14,15 @@
 /* HeartBox Container */
 .heartbox-container {
   position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
+  top: 0 px;
+  right: 0 px;
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
   max-width: 300px;
   animation: slideInFromRight 0.5s ease;
   pointer-events: auto;
-  z-index: 1000;
+  z-index: 2;
 }
 
 /* Individual Heart */

@@ -70,8 +70,8 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
-  z-index: var(--z-ui-base);
+  pointer-events: auto;
+  z-index: 1000 !important;
 }
 
 #ui-root * {
