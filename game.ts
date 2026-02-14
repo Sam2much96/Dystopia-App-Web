@@ -220,7 +220,7 @@ function gameInit() {
     // set mouse icon
     const canvas = document.querySelector("canvas")!;
     canvas.style.cursor =
-    'url("./cursot_32x32.webp") 32 32, auto';
+    'url("./cursor_32x32.webp") 32 32, auto';
 
     //setupPostProcess();
 
