@@ -16,6 +16,8 @@
   "devDependencies": {
     "@types/node": "^22.10.7",
     "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/three": "^0.172.0",
     "typescript": "^5.7.3",
     "vite": "^6.0.9"
@@ -26,6 +28,8 @@
     "cannon-es-debugger": "^1.0.0",
     "littlejsengine": "1.11.8",
     "papaparse": "^5.5.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "three": "^0.172.0"
   }
 }

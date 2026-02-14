@@ -169,7 +169,13 @@ export class Utils {
     }
 
 
+    saveGame(){
+        console.log("Placeholder Save Game Function friggered");
+    }
 
+    loadGame(){
+        console.log("Placeholder load game function triggered");
+    }
 
     
     static saveGame(){

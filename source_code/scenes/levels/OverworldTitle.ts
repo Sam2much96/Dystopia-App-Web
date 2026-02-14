@@ -319,7 +319,7 @@ export class OverworldTile extends EngineObject{
                 
                 window.globals.current_level = "Overworld"; //"Overworld 3";
 
-                window.ui.gameHUD(); //render the game hud
+                //window.ui.gameHUD(); //render the game hud
       
                  //shows the threejs css render layer
         const layer = document.getElementById("threejs-layer");

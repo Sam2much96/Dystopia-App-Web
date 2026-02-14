@@ -1,0 +1,131 @@
+/**
+ * Ingame Menu Component Styling
+ * React version - maintains compatibility with existing ingame_menu.css
+ */
+
+:root {
+  --primary-bg: rgba(15, 23, 42, 0.95);
+  --secondary-bg: rgba(30, 41, 59, 0.9);
+  --accent-color: #60a5fa;
+  --accent-glow: #3b82f6;
+  --text-primary: #f1f5f9;
+  --border-color: rgba(148, 163, 184, 0.3);
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --transition-fast: 150ms ease;
+  --transition-medium: 250ms ease;
+}
+
+/* Ingame Menu Container */
+.ingame-menu,
+#menu-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--primary-bg);
+  border: 3px solid var(--accent-color);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  min-width: 320px;
+  width: auto;
+  height: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8),
+              0 0 24px var(--accent-glow);
+  animation: fadeInScale 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  pointer-events: auto;
+  align-items: center;
+}
+
+/* Menu Options/Buttons */
+.menu-option {
+  display: block;
+  font-size: 48px;
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: 10px;
+  border: 2px solid white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  background: #ffffff;
+  transition: all var(--transition-fast);
+  pointer-events: auto;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover Effect with Gradient Sweep */
+.menu-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
+  transition: left var(--transition-medium);
+}
+
+.menu-option:hover {
+  background: #808080;
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform: scale(1.1) translateX(4px);
+}
+
+.menu-option:hover::before {
+  left: 100%;
+}
+
+.menu-option:active {
+  transform: scale(1.05) translateX(2px);
+}
+
+/* Animations */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Hidden State */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ingame-menu,
+  #menu-container {
+    width: 95%;
+    max-width: none;
+    padding: var(--spacing-lg);
+  }
+
+  .menu-option {
+    font-size: 32px;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-option {
+    font-size: 24px;
+  }
+}

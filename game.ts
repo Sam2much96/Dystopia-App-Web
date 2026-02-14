@@ -56,11 +56,19 @@ import {ThreeRender} from "./source_code/singletons/3d";
 import {Globals} from "./source_code/singletons/Globals";
 import {Inventory} from "./source_code/singletons/Inventory";
 import { Diaglogs } from './source_code/singletons/Dialogs';
-import {UI} from "./source_code/singletons/UI";
+
+
+// UI
+//import {UI} from "./source_code/singletons/UI"; // deprecoated UI
+import {UIReact} from "./source_code/singletons/UIReact.tsx";
+
+
+
+
 import {Utils} from "./source_code/singletons/Utils";
 
 import {Player, TopDownPlayer} from "./source_code/scenes/Characters/player";
-import { SideScrollerPlayerBox } from './source_code/scenes/Characters/player';
+import { SideScrollerPlayerBox } from './source_code/scenes/Characters/player'; 
 //import {Enemy} from "./source_code/scenes/Characters/enemy";
 
 import { Controls } from './source_code/scenes/UI & misc/Controls';
@@ -98,7 +106,7 @@ import { box2dEngineInit, Box2dObject} from './source_code/singletons/box2d';
 declare global {
     interface Window {
         inventory: Inventory,
-        ui: UI,
+        ui: UIReact,
         THREE_RENDER: ThreeRender | undefined, // to do: (1) decouple 3d render objects
         globals: Globals,
         utils: Utils,
@@ -187,28 +195,13 @@ function gameInit() {
     window.inventory = new Inventory(); 
     window.utils = new Utils();
     window.music = new Music();
-    window.ui = new UI();
+    window.ui = new UIReact();
+
+
     
-    // to do:
-    // (1) move controls ui to the ui singleton
-    //const controls = new Controls(); // set up the engine's controls
+    window.ui.initialize();
+    
 
-    // initilize ads singleton for the first time
-    // initilisez the ads singleton ad triggers one auto ads on chrome devices    
-    //window.ads.initialize(); 
-
-
-    //create all the game ui menus with translations
-    window.ui.gameMenu();
-
-    // to do:
-    // (1) port the stats html into this function
-    window.ui.stats(); // takes control of the stats hud and turns it invisible until the gamehud is rendered
-    //window.ui.controls(); //render the game's control
-
-    // create the overworld title scene
-    // bugs:
-    // (1) cube object loads slow in environment build
     window.map = new OverworldTile();
   
 
@@ -218,16 +211,11 @@ function gameInit() {
     window.utils.detectBrowser();
 
 
+    //window.ui.translateUIElements('ru_RU');
 
-    // Create & hide Ingame Menu
-    // 
-    //
-    window.ui.menu();
 
-    //draw title screen
-    // TO DO :
-    // (1) draw dystopia logo with css
-
+    // to do:
+    // (1) implement using react
     // buggy mouse icon selector
     // set mouse icon
     const canvas = document.querySelector("canvas")!;

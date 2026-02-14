@@ -368,13 +368,9 @@ export class OverWorld3D {
             
             // movement logic
             if (this.moveInput && this.playerBody){
-
                 this.State()["STATE_WALKING"]();
             }
-
-            renderer.render(scene, camera);
-
-           
+            renderer.render(scene, camera);           
         }
 
         // simulate the 3d physics
@@ -382,6 +378,63 @@ export class OverWorld3D {
 
     }
     destroy(){ // placeholder function for destroying the 3d scene and objects
+
+        //this.cleanupPhysicsBodies();
+            console.log("deleting the loaded model");
+                            
+                            // delete all threejs loaded layers and models
+                            this.scene.traverse((object) => {
+                                if (object instanceof THREE.Mesh) {
+                                    if (object.geometry) object.geometry.dispose();
+                                    
+                                        if (Array.isArray(object.material)) {
+                                            object.material.forEach((mat) => {
+                                            if (mat.map) mat.map.dispose();
+                                                    mat.dispose();
+                                            });
+                                        } else if (object.material) {
+                                                if (object.material.map) object.material.map.dispose();
+                                                object.material.dispose();
+                                                }
+                                            }
+                                        });
+                                    
+                                        while (this.scene.children.length > 0) {
+                                                const child = this.scene.children[0];
+                                                this.scene.remove(child);
+                                                }                                                           
+                                    
+                                            // dispose of renderers and buffers
+                                            //this.renderer.dispose();
+                                            //this.renderer.forceContextLoss();
+                                            //(this.renderer.domElement as any) = null;
+                                            this.renderer.dispose();
+                                            if (this.renderer.domElement.parentNode) {
+                                                this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+                                            }
+                                            this.renderer = null!;
+                                    
+                                            // delete the cinematic scenes
+                                            //this.cinematic_body.destroy();
+                                            //this.cinematic_cape.destroy();
+        
+                                            //dispose of environment maps (hdr/ldr)
+                                            if (this.scene.environment) {
+                                            (this.scene.environment as THREE.Texture).dispose();
+                                            }
+                                            if (this.scene.background && this.scene.background instanceof THREE.Texture) {
+                                            this.scene.background.dispose();
+                                            }
+                                    
+                                            //nullify major references
+                                    
+                                            this.scene = null!;
+                                            this.camera = null!;
+                                            this.renderer = null!;
+                        this.cube = null;
+                        //clean up physics bodies
+                        this.cleanupPhysicsBodies();
+        
         }
    
     // to do ;
@@ -408,13 +461,6 @@ export class OverWorld3D {
             this.holdingRoll = keyIsDown('Space') || mouseIsDown(1);
             this.holdingAttack = keyIsDown('KeyX') || mouseIsDown(0) ;
         }
-        
-
-
-        // to do:
-        // (1) add movement simple state machine for 3d player body mesh (done)
-        // (2) add mouse controls for 3d camera controls
-        // (3) add toon shader material to 3d player texture material
         
         
     }

@@ -43,7 +43,7 @@ export class Diaglogs {
     // to do: 
     // (1) this need proper regex to account for multiple sub-region languages
     // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
-    public language : string = this.normalizeLocale(navigator.language); //set this from user settings or browser language
+    public language : string =this.normalizeLocale(navigator.language); //set this from user settings or browser language
     public translations : Translations  = {};
 
     constructor(){
@@ -53,9 +53,10 @@ export class Diaglogs {
         // 
         //
         //load the game map
-        (async () => {
-            await this.loadTranslations();
-        })();
+        //(async () => {
+        //    await this.loadTranslations();
+        //})();
+        
         
 
     }
@@ -90,7 +91,7 @@ export class Diaglogs {
         const response  = await fetch ("./Translation_1.csv"); // works
         const csvText = await response.text(); // works
 
-
+        console.log("Translation files fetched");
         //const lines = csvText.trim().split("\n");
         //const headers = lines[0].split(',');
         //    for (let i = 1; i < lines.length; i++) {

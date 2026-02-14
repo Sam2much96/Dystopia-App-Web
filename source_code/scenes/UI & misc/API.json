@@ -1,0 +1,22 @@
+{
+  "apis": [
+    {
+      "name": "Weather API",
+      "base_url": "https://api.weather.com/v3/",
+      "api_key": "{{WEATHER_API_KEY}}",
+      "endpoints": {
+        "current": "weather/current",
+        "forecast": "weather/forecast"
+      }
+    },
+    {
+      "name": "Maps API",
+      "base_url": "https://maps.example.com/v1/",
+      "api_key": "{{MAPS_API_KEY}}",
+      "endpoints": {
+        "search": "search",
+        "route": "route"
+      }
+    }
+  ]
+}

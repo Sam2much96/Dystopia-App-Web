@@ -1,0 +1,270 @@
+/**
+ * Core UI Variables and Base Styles
+ * Import this first before any component-specific CSS
+ */
+
+/* ============================================================================
+   CSS VARIABLES - DESIGN TOKENS
+   ============================================================================ */
+
+:root {
+  /* Color Palette - Cyberpunk/RPG Theme */
+  --primary-bg: rgba(15, 23, 42, 0.95);
+  --secondary-bg: rgba(30, 41, 59, 0.9);
+  --accent-color: #60a5fa;
+  --accent-glow: #3b82f6;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-color: rgba(148, 163, 184, 0.3);
+  --danger-color: #ef4444;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  
+  /* Spacing System */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  
+  /* Animation Timings */
+  --transition-fast: 150ms ease;
+  --transition-medium: 250ms ease;
+  --transition-slow: 400ms ease;
+  
+  /* Z-Index Layers */
+  --z-game-canvas: 0;
+  --z-ui-base: 900;
+  --z-ui-hud: 1000;
+  --z-ui-menu: 1100;
+  --z-ui-dialog: 1200;
+  --z-ui-tooltip: 1300;
+}
+
+/* ============================================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Comic Andy';
+  src: url('./Comic_Andy.ttf') format('truetype');
+  font-size: 14px;
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* ============================================================================
+   UI ROOT CONTAINER
+   ============================================================================ */
+
+#ui-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: var(--z-ui-base);
+}
+
+#ui-root * {
+  box-sizing: border-box;
+}
+
+/* Allow clicks through to game, but enable on specific UI elements */
+.ui-panel,
+.ui-button,
+.menu-option,
+.menu-btn,
+.tab-button,
+.choice-btn {
+  pointer-events: auto;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.5s ease;
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.5s ease;
+}
+
+.scale-in {
+  animation: fadeInScale 0.3s ease;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* ============================================================================
+   COMMON ANIMATIONS
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================================ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  :root {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  :root {
+    font-size: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  :root {
+    font-size: 10px;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING (Webkit Browsers)
+   ============================================================================ */
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--secondary-bg);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 4px;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-glow);
+}
+
+/* ============================================================================
+   ACCESSIBILITY
+   ============================================================================ */
+
+/* Focus styles for keyboard navigation */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+  #ui-root {
+    display: none;
+  }
+}

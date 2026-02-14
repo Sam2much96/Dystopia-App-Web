@@ -99,7 +99,7 @@ export class Player extends PhysicsObject{
     public facingPos : number = 0; // for storing the current facing positoin
 
     // References
-    public local_heart_box = window.ui.HeartBoxHUD;
+    //public local_heart_box = window.ui.HeartBoxHUD;
     public blood: any | undefined;
     public despawn_particles: any  | undefined;
     //public die_sfx: any | undefined;
@@ -169,8 +169,8 @@ export class Player extends PhysicsObject{
         // create Heartbox UI
         // to do: (1) update & draw heartbox ui with timer
         // heartbox render function has been moved to the player object
-        window.ui.HeartBoxHUD!!.heartbox(this.hitpoints); //create 3 hearboxes
-     
+       // window.ui.HeartBoxHUD!!.heartbox(this.hitpoints); //create 3 hearboxes
+        window.globals.hp = this.hitpoints;
 
         LittleJS.setCameraScale(128);  // zoom camera to 128 pixels per world unit
 
@@ -489,8 +489,9 @@ export class TopDownPlayer extends Player {
         // play random sword sfx
         this.local_music!!.shuffle_sfx(window.music.sword_sfx).play();
         
-        this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
-        
+        //this.local_heart_box!!.heartbox(this.hitpoints); //update heartbox
+        window.globals.hp = this.hitpoints;
+
        //this.triggerHurt(1); // trigger invincibility frame for 1 seconds
 
         //instance blood particle fx
