@@ -5,14 +5,10 @@
  * Replaces the legacy DOM manipulation approach with declarative React components
  */
 
-import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 
-
-
-// ============================================================================
-// Style Sheets
-// ============================================================================
+//import './source_code/singletons/UIReact.css'; // React UI styling
 import '../styles/core-react.css';
 import '../styles/heartbox-react.css';
 import '../styles/gamehud-react.css';
@@ -22,24 +18,6 @@ import '../styles/controls-react.css';
 import '../styles/dialogue-react.css';
 
 
-
-// ============================================================================
-// LANGUAGE CONTEXT
-// ============================================================================
-
-interface LanguageContextType {
-  language: string;
-  setLanguage: (lang: string) => void;
-  t: (key: string) => string;
-}
-
-const LanguageContext = createContext<LanguageContextType>({
-  language: 'ru_RU',
-  setLanguage: () => {},
-  t: (key: string) => key
-});
-
-export const useLanguage = () => useContext(LanguageContext);
 
 
 // ============================================================================
@@ -110,8 +88,6 @@ export const HeartBox: React.FC<HeartBoxProps> = ({ heartCount }) => {
 // ============================================================================
 
 export const StatsTabs: React.FC<StatsTabsProps> = ({ activeTab, onTabChange }) => {
-  const { t } = useLanguage(); // Add this hook
-
   const handleTabClick = (tab: 'inventory' | 'wallet' | 'quest' | 'stats') => {
     if (window.music) {
       window.music.ui_sfx[0].play();
@@ -124,26 +100,30 @@ export const StatsTabs: React.FC<StatsTabsProps> = ({ activeTab, onTabChange }) 
       <button
         className={`v12_14 tab-button ${activeTab === 'stats' ? 'active' : ''}`}
         onClick={() => handleTabClick('stats')}
+        data-i18n="Stats"
       >
-        {t('Stats')}
+        Stats
       </button>
       <button
         className={`v12_15 tab-button ${activeTab === 'wallet' ? 'active' : ''}`}
         onClick={() => handleTabClick('wallet')}
+        data-i18n="Wallet"
       >
-        {t('Wallet')}
+        Wallet
       </button>
       <button
         className={`v12_16 tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
         onClick={() => handleTabClick('inventory')}
+        data-i18n="Inventory"
       >
-        {t('Inventory')}
+        Inventory
       </button>
       <button
         className={`v12_17 tab-button ${activeTab === 'quest' ? 'active' : ''}`}
         onClick={() => handleTabClick('quest')}
+        data-i18n="Quests"
       >
-        {t('Quests')}
+        Quests
       </button>
     </div>
   );
@@ -154,8 +134,6 @@ export const StatsTabs: React.FC<StatsTabsProps> = ({ activeTab, onTabChange }) 
 // ============================================================================
 
 export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
-  const { t } = useLanguage(); // Add this hook
-  
   const [activeTab, setActiveTab] = useState<'inventory' | 'wallet' | 'quest' | 'stats'>('inventory');
   const [stats, setStats] = useState({
     hp: 0,
@@ -163,6 +141,9 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
     deaths: 0
   });
 
+
+  // to do:
+  //(1) add a use effects for wallet stats
   useEffect(() => {
     if (visible && window.globals) {
       setStats({
@@ -176,6 +157,9 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
   const handleTabChange = (tab: 'inventory' | 'wallet' | 'quest' | 'stats') => {
     setActiveTab(tab);
     
+    // Trigger appropriate render function
+    // to do:
+    // (1) format each render function to use react to render instead of dom manupulation
     switch(tab) {
       case 'inventory':
         window.inventory?.renderInventory();
@@ -187,6 +171,7 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
         window.quest?.renderQuests();
         break;
       case 'stats':
+        // Stats are handled by React state
         break;
     }
   };
@@ -196,13 +181,9 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
       case 'stats':
         return (
           <div className="stats-tab">
-            <h2>{t('Stats')}</h2>
-            <p>
-              <span>{t('kills')}</span>: {stats.kills}
-            </p>
-            <p>
-              <span>{t('deaths')}</span>: {stats.deaths}
-            </p>
+            <h2 data-i18n="Stats">Stats</h2>
+            <p><span data-i18n="kills">Kills</span>: {stats.kills}</p>
+            <p><span data-i18n="deaths">Deaths</span>: {stats.deaths}</p>
             <p>HP: {stats.hp}</p>
           </div>
         );
@@ -228,6 +209,7 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
     </div>
   );
 };
+
 // ============================================================================
 // MENU BUTTON COMPONENT
 // ============================================================================
@@ -312,8 +294,6 @@ export const IngameMenu: React.FC<IngameMenuProps> = ({
   onComics,
   onControls
 }) => {
-  const { t } = useLanguage(); // Add this hook
-
   const playSound = () => {
     if (window.music) {
       window.music.sound_start.play();
@@ -351,41 +331,43 @@ export const IngameMenu: React.FC<IngameMenuProps> = ({
         href="#" 
         className="menu-option" 
         onClick={handleNewGame}
+        data-i18n="new game"
       >
-        {t('new game')}
+        New Game
       </a>
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleContinue}
+        data-i18n="continue"
       >
-        {t('continue')}
+        Continue
       </a>
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleComics}
+        data-i18n="comics"
       >
-        {t('comics')}
+        Comics
       </a>
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleControls}
+        data-i18n="controls"
       >
-        {t('controls')}
+        Controls
       </a>
     </div>
   );
 };
-
 
 // ============================================================================
 // CONTROLS COMPONENT
 // ============================================================================
 
 export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
-  const { language, setLanguage, t } = useLanguage(); // Add this hook
   
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   
@@ -403,6 +385,10 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
     { code: 'ha_NG', name: 'Hausa', flag: '🇳🇬' },
     { code: 'ig_NG', name: 'Igbo', flag: '🇳🇬' }
   ];
+
+  const [currentLanguage, setCurrentLanguage] = useState(() => {
+    return window.dialogs?.language || 'en_US';
+  });
 
   const playSound = () => {
     if (window.music) {
@@ -436,39 +422,56 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
 
   const handleLanguageChange = async (lang: string) => {
     playSound();
+    
+    // Normalize and update the dialogs language
+    const normalizedLang = window.dialogs.normalizeLocale(lang);
+    window.dialogs.language = normalizedLang;
+    
+    // Update React state with the original code (not normalized)
+    setCurrentLanguage(lang);
+    
+    // Close the dropdown
     setShowLanguageMenu(false);
     
-    // Use the context's setLanguage function
-    setLanguage(lang);
+    // Translate all UI elements
+    await window.ui.translateUIElements(lang);
     
-    //console.log(`Language changed to: ${lang}`);
+    // Save preference
+    localStorage.setItem('game_language', lang);
+    
+    console.log(`Language changed to: ${lang} (normalized: ${normalizedLang})`);
   };
 
   if (!visible) return null;
 
   const getCurrentLanguageName = () => {
-    const lang = languages.find(l => l.code === language);
+    const lang = languages.find(l => l.code === currentLanguage);
     return lang ? `${lang.flag} ${lang.name}` : 'Select Language';
   };
 
   return (
     <div id="controls-container" className="controls-menu">
+      {/* Back Options */}
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleBack}
+        data-i18n="back"
       >
-        {t('back')}
+        Back
       </a>
 
+      {/* Music Options */}
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleMusic}
+        data-i18n="music"
       >
-        {t('music')}
+        Music
       </a>
 
+      {/* Language Dropdown */}
       <div className="language-dropdown">
         <button 
           className="menu-option language-toggle"
@@ -477,7 +480,7 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
             setShowLanguageMenu(!showLanguageMenu);
           }}
         >
-          <span>{t('language')}</span>: {getCurrentLanguageName()}
+          <span data-i18n="language">Language</span>: {getCurrentLanguageName()}
           <span className="dropdown-arrow">{showLanguageMenu ? '▲' : '▼'}</span>
         </button>
 
@@ -486,7 +489,7 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
             {languages.map(lang => (
               <button
                 key={lang.code}
-                className={`language-option ${language === lang.code ? 'active' : ''}`}
+                className={`language-option ${currentLanguage === lang.code ? 'active' : ''}`}
                 onClick={() => handleLanguageChange(lang.code)}
               >
                 <span className="flag">{lang.flag}</span>
@@ -497,12 +500,14 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
         )}
       </div>
 
+      {/* Vibrations Options */}
       <a 
         href="#" 
         className="menu-option" 
         onClick={handleVibrations}
+        data-i18n="vibration"
       >
-        {t('vibration')}
+        Vibrations
       </a>
     </div>
   );
@@ -516,29 +521,6 @@ export const GameUIContainer: React.FC = () => {
   const [statsVisible, setStatsVisible] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [heartCount, setHeartCount] = useState(3);
-  const [language, setLanguage] = useState(() => {
-    return window.dialogs?.language || 'en_US';
-  });
-
-  // Translation function that components can use
-  const t = useCallback((key: string) => {
-    if (window.dialogs && window.dialogs.t) {
-      return window.dialogs.t(key, language);
-    }
-    return key;
-  }, [language]);
-
-  // Handle language change
-  const handleLanguageChange = useCallback(async (newLang: string) => {
-    const normalizedLang = window.dialogs.normalizeLocale(newLang);
-    window.dialogs.language = normalizedLang;
-    setLanguage(normalizedLang);
-    
-    // Save preference
-    //localStorage.setItem('game_language', newLang);
-    
-    console.log(`Language changed to: ${normalizedLang}`);
-  }, []);
 
   useEffect(() => {
     // Update heart count from globals
@@ -580,48 +562,49 @@ export const GameUIContainer: React.FC = () => {
       window.THREE_RENDER.hideThreeLayer();
     }
     
+    // Load appropriate level based on saved data
+    // This would need to be expanded based on your level loading logic
+    
     setMenuVisible(false);
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleLanguageChange, t }}>
-      <div id="ui-root">
-        {/* Top Right UI */}
-        <div id="top-right-ui">
-          <MenuButton onClick={() => setMenuVisible(!menuVisible)} />
-          <HeartBox heartCount={heartCount} />
-        </div>
-
-        {/* Left Buttons */}
-        <GameHUD
-          onStatsClick={() => setStatsVisible(!statsVisible)}
-          onItemClick={() => {}}
-          onDialogClick={() => {}}
-        />
-
-        {/* Stats HUD */}
-        <StatsHUD
-          visible={statsVisible}
-          onClose={() => setStatsVisible(false)}
-        />
-
-        {/* Ingame Menu */}
-        <IngameMenu
-          visible={menuVisible}
-          onClose={() => setMenuVisible(false)}
-          onNewGame={handleNewGame}
-          onContinue={handleContinue}
-          onComics={() => {}}
-          onControls={() => setControlsVisible(true)}
-        />
-
-        {/* Controls */}
-        <Controls
-          visible={controlsVisible}
-          onClose={() => setControlsVisible(false)}
-        />
+    <div id="ui-root">
+      {/* Top Right UI */}
+      <div id="top-right-ui">
+        <MenuButton onClick={() => setMenuVisible(!menuVisible)} />
+        <HeartBox heartCount={heartCount} />
       </div>
-    </LanguageContext.Provider>
+
+      {/* Left Buttons */}
+      <GameHUD
+        onStatsClick={() => setStatsVisible(!statsVisible)}
+        onItemClick={() => {}}
+        onDialogClick={() => {}}
+      />
+
+      {/* Stats HUD */}
+      <StatsHUD
+        visible={statsVisible}
+        onClose={() => setStatsVisible(false)}
+      />
+
+      {/* Ingame Menu */}
+      <IngameMenu
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        onNewGame={handleNewGame}
+        onContinue={handleContinue}
+        onComics={() => {}}
+        onControls={() => setControlsVisible(true)}
+      />
+
+      {/* Controls */}
+      <Controls
+        visible={controlsVisible}
+        onClose={() => setControlsVisible(false)}
+      />
+    </div>
   );
 };
 
@@ -652,9 +635,6 @@ export class UIReact {
       console.error('React root not initialized');
       return;
     }
-        (async () => {
-            await this.waitForTranslations();
-        })();
 
     this.root.render(<GameUIContainer />);
 
@@ -662,19 +642,10 @@ export class UIReact {
 
     // Wait for translations to load
 
-   
+       (async () => {
+            await this.waitForTranslations();
+        })();
     
-        // Auto-detect and set language
-  const savedLang = localStorage.getItem('game_language');
-  const browserLang = navigator.language || 'en-US';
-  const lang = savedLang || browserLang;
-
-
-  const normalizedLang = window.dialogs.normalizeLocale(lang);
-  window.dialogs.language = normalizedLang;
-  
-  console.log(`UI initialized with language: ${normalizedLang}`);
-      
   }
 
   /**
