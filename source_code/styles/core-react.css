@@ -40,6 +40,15 @@
   --z-ui-menu: 1100;
   --z-ui-dialog: 1200;
   --z-ui-tooltip: 1300;
+
+    --z-bg: 0;
+  --z-game: 1;
+  --z-game2d: 2;
+  --z-hud: 100;
+  --z-menu: 1000;
+  --z-dialog: 2000;
+  --z-debug: 3000;
+
 }
 
 /* ============================================================================
@@ -52,17 +61,21 @@
   padding: 0;
 }
 
-body {
-  font-family: 'Comic Andy';
-  src: url('./Comic_Andy.ttf') format('truetype');
-  font-size: 14px;
-  color: var(--text-primary);
-  overflow: hidden;
-}
 
 /* ============================================================================
    UI ROOT CONTAINER
    ============================================================================ */
+
+
+  #ui-root,
+.parent,
+#hud,
+.layer,
+#top-right-ui {
+  pointer-events: none;
+}
+
+
 
 #ui-root {
   position: fixed;
@@ -71,7 +84,7 @@ body {
   width: 100vw;
   height: 100vh;
   pointer-events: all;
-  z-index: var(--z-ui-base);
+  z-index: 900;
 }
 
 #ui-root * {
