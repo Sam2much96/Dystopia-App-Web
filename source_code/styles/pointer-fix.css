@@ -1,0 +1,195 @@
+/* ========================================
+   GLOBAL INTERACTION SYSTEM
+   ======================================== */
+
+/* Default: nothing blocks clicks */
+.layer,
+.parent,
+#hud,
+#ui-gamehud,
+#top-right-ui,
+#littlejs-ui-layer,
+#debug,
+#ad-container,
+#background-layer,
+#threejs-layer,
+#littlejs-2d-layer {
+  pointer-events: none !important;
+}
+
+
+/* Root UI container: transparent to input */
+#ui-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  pointer-events: none !important;
+
+  z-index: var(--z-ui-base, 900);
+}
+
+
+/* ========================================
+   INTERACTIVE ELEMENTS
+   ======================================== */
+
+button,
+a,
+input,
+select,
+textarea,
+
+.ui-button,
+.menu-btn,
+.menu-option,
+.tab-button,
+.choice-btn,
+.language-option,
+.inventory-item,
+.inventory-tab,
+
+.controls-menu,
+.ingame-menu,
+#menu-container,
+.menu-container,
+
+.stats-hud,
+.controls-container,
+#controls-container,
+
+#dialog-box,
+.dialog-box,
+.dialog-choices,
+
+.language-dropdown,
+.language-toggle,
+.language-menu-dropdown,
+
+#left-buttons,
+#button {
+
+  pointer-events: auto !important;
+}
+
+
+/* Children of buttons never block */
+button *,
+a *,
+.ui-button *,
+.menu-btn *,
+.menu-option *,
+.choice-btn * {
+  pointer-events: none;
+}
+
+
+/* ========================================
+   DIALOG SYSTEM
+   ======================================== */
+
+#dialog-box {
+  pointer-events: none;
+}
+
+#dialog-box.show {
+  pointer-events: auto;
+}
+
+
+/* ========================================
+   MENUS
+   ======================================== */
+
+.ingame-menu,
+.controls-menu,
+#menu-container,
+.menu-container {
+  pointer-events: auto;
+  z-index: var(--z-ui-menu, 1100);
+}
+
+
+/* ========================================
+   HUD ELEMENTS
+   ======================================== */
+
+/* Hearts / overlays must not block */
+.heartbox-container,
+.heartbox-heart,
+.stats-overlay,
+.hud-overlay {
+  pointer-events: none;
+}
+
+
+/* ========================================
+   INVISIBLE / HIDDEN = NO INPUT
+   ======================================== */
+
+.hidden,
+[hidden],
+[aria-hidden="true"] {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+
+/* ========================================
+   DROPDOWNS / POPUPS
+   ======================================== */
+
+.language-menu-dropdown,
+.dropdown-menu,
+.popup-menu {
+  pointer-events: auto;
+  z-index: var(--z-ui-tooltip, 1300);
+}
+
+
+/* ========================================
+   DEBUG / OVERLAY
+   ======================================== */
+
+#debug {
+  pointer-events: none !important;
+}
+
+
+/* ========================================
+   SAFETY: BLOCK ACCIDENTAL FULLSCREEN DIVS
+   ======================================== */
+
+/* Any element that fills screen but isn't UI */
+div[style*="width: 100%"][style*="height: 100%"]:not(.ui-root):not(.ui-panel):not(.menu-container) {
+  pointer-events: none;
+}
+
+
+/* ========================================
+   CURSOR FEEDBACK
+   ======================================== */
+
+button,
+.menu-option,
+.ui-button,
+.menu-btn,
+.choice-btn,
+.inventory-item,
+.language-option {
+  cursor: pointer;
+}
+
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-color, #60a5fa);
+  outline-offset: 2px;
+}
