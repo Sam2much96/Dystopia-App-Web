@@ -311,26 +311,27 @@ export class StatsTabs {
             window.music.ui_sfx[0].play();
             //this.debugTab("v12_14 stats tab")
             //trigger stats render state machine
-            window.ui.StatsHUD?.stateMachine[3]();
+            
+            //window.ui.StatsHUD?.stateMachine[3]();
         });
         this.walletTab?.addEventListener("pointerdown", () => {
             window.music.ui_sfx[0].play();
             //this.debugTab("v12_15 wallet tab")
             //trigger wallet render satate machine
             //trigger stats render state machine
-            window.ui.StatsHUD?.stateMachine[1]();
+            //window.ui.StatsHUD?.stateMachine[1]();
         });
         this.inventoryTab?.addEventListener("pointerdown", () => {
             window.music.ui_sfx[0].play();
             //this.debugTab("v12_16 inventory tab")
             //trigger inventory render state machine
-            window.ui.StatsHUD?.stateMachine[0]();
+            //window.ui.StatsHUD?.stateMachine[0]();
         });
         this.questTab?.addEventListener("pointerdown", () => {
             window.music.ui_sfx[0].play();
             //this.debugTab("v12_17 quests tab")
             //trigger quests render state machine
-            window.ui.StatsHUD?.stateMachine[2]();
+            //window.ui.StatsHUD?.stateMachine[2]();
 
         });
 
@@ -538,12 +539,12 @@ export class MenuButton{
         //render the menu button separately from all other ui
         this.menuButton = createTextureButton("./kenny ui-pack/grey_crossGrey.png", "menu-btn",() => {
             if (window.music) window.music.ui_sfx[2].play();
-            window.ui.GameMenu!!.MenuVisible = !window.ui.GameMenu!!.MenuVisible;
+            //window.ui.GameMenu!!.MenuVisible = !window.ui.GameMenu!!.MenuVisible;
             //console.log("menu pressed");
         });
 
         //window.ui.leftButtons?.append(this.menuButton);
-        window.ui.TopRightUI?.append(this.menuButton);
+        //window.ui.TopRightUI?.append(this.menuButton);
     }
     
 }
@@ -607,7 +608,7 @@ export class IngameMenu{
                 Utils.saveGame();
 
                 //hide menu
-                window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+                //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
 
                 //show game monetize ads
                 if (window.ads){
@@ -672,7 +673,7 @@ export class IngameMenu{
                         // you cannot load into the shop level unfortunately so no functionality for that
                     }
 
-                     window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
+                     //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
                 });
 
         // disable for yyandex updates                 
@@ -690,7 +691,7 @@ export class IngameMenu{
             // logic: 
             // hide the menu ui
             // show the controls menu
-            window.ui.Controls!!.ControlsVisible = true;
+            //window.ui.Controls!!.ControlsVisible = true;
         });
 
         // hiding the quit button for yandex platform moderation
@@ -814,7 +815,7 @@ export class HeartBox{
             heart.style.left = `${5 + i * 40}px`;
             
             //this.UI_GAMEHUD.appendChild(heart);
-            window.ui.TopRightUI!.appendChild(heart);            
+            //window.ui.TopRightUI!.appendChild(heart);            
             this.HEART_BOX.push(heart);
         }
         

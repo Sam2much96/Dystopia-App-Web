@@ -390,7 +390,7 @@ export function useItem(type :string, amount : number ) : boolean {
     window.music.item_use_sfx.play();
 
     const player = window.player;
-    const heartboxUI = window.ui.HeartBoxHUD;
+    //const heartboxUI = window.ui.HeartBoxHUD;
     const local_inv = window.inventory;
 
     if (player && local_inv.has(type)){
@@ -403,7 +403,7 @@ export function useItem(type :string, amount : number ) : boolean {
             // update heart box hud
             player.hitpoints += 1;
             window.globals.hp += 1;
-            heartboxUI?.heartbox(window.globals.hp);
+            //heartboxUI?.heartbox(window.globals.hp);
             
 
         }
