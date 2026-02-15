@@ -25,6 +25,7 @@
      * (15) Connect with advertising singleton for ads / blockchain ads for gass fee payment (1/2)
      * (16) Implement vestige token api (1/2)
      * (17) Implement Tinyman pool api
+     * (18) recreate as a React UI Component
      * 
      * Bugs:
      * (1) Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://dystopia-app.site/api/admin. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
@@ -117,7 +118,8 @@ export class Wallet {
     renderWallet(): void {
         // to do:
         // (1) port wallet button from game hud to here using Connected and a trigger parameter (done)
-        
+        // (2) reimplement as react component
+
         // Select the element
         //this.statsUI = document.querySelector('.v11_5');
         if (!this.statsUI) return console.warn("debug Inventory UI");
@@ -125,10 +127,10 @@ export class Wallet {
         this.statsUI.innerHTML = ""; // clear UI
 
             // translate the ui
-        this.walletdiag = window.dialogs.t('wallet');
-        this.coinsdiag = window.dialogs.t('coins');
-        this.Pricediag = window.dialogs.t('price');
-        this.IDdiag = window.dialogs.t('ID');
+        this.walletdiag = window.ui.t('wallet');
+        this.coinsdiag = window.ui.t('coins');
+        this.Pricediag = window.ui.t('price');
+        this.IDdiag = window.ui.t('ID');
 
         // to do:
         // (1) data to serialise: 
@@ -142,7 +144,8 @@ export class Wallet {
         // disabled ui for yandex compliance
         //<p>${this.walletdiag}: ${this.adminWalletAddress}</p>
 
-        //fadfafa
+        //to do:
+        // (1) rewrite using react component
         this.statsUI.innerHTML = `
             <div class="wallet-tab">
                 

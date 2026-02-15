@@ -29,10 +29,10 @@ export class Signpost extends EngineObject {
     // (2) trigger the dialogue singleton on collision with class text
     // (3) spawn signpost object on overworld map
     //public dialogue : string = ""; //placeholder text for all signpost
-    private speaker : string = window.dialogs.t("dir3", window.dialogs.language) ;//"Signpost"; // to do: translate Signpost too
+    private speaker : string = window.ui.t("dir3", window.ui.language) ;//"Signpost"; // to do: translate Signpost too
     private dialogueTrigger = new DialogTrigger(this.pos, this.size);
 
-    private dialogue = window.dialogs.t("dir2", window.dialogs.language);
+    private dialogue = window.ui.t("dir2", window.ui.language);
     constructor(pos : LittleJS.Vector2){
         super();
         this.pos = pos;

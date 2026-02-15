@@ -99,8 +99,8 @@ export class Merchant extends NPC{
 
 
     // translated dialogue
-    private diag1 : string  = window.dialogs.t("diag1") ;
-    private speaker : string = window.dialogs.t("Merchant") ;
+    private diag1 : string  = window.ui.t("diag1") ;
+    private speaker : string = window.ui.t("Merchant") ;
 
 
     constructor(pos : LittleJS.Vector2){
@@ -179,8 +179,8 @@ export class Merchant extends NPC{
 
 export class OldWoman extends NPC{
     private dialogueTrigger = new DialogTrigger(this.pos, this.size); //dialogue trigger works
-    private dialogue : string = window.dialogs.t("diag2");
-    private speaker : string = window.dialogs.t("old_woman");
+    private dialogue : string = window.ui.t("diag2");
+    private speaker : string = window.ui.t("old_woman");
     constructor(pos : LittleJS.Vector2){
         super(pos,1, [1],3);
         this.currentFrame = 1; // frame 1 is for the npc in the NPC tileset
@@ -205,13 +205,13 @@ export class OldWoman extends NPC{
  * (2) Spawns in Temple interior level
  */
 export class Shaman extends NPC{
-    private item_needed : string = window.dialogs.t("Bomb") ;
+    private item_needed : string = window.ui.t("Bomb") ;
     private amount : number = 1;
-    private npcName :string = window.dialogs.t("shaman"); 
-    private quest : string = window.dialogs.t("quest");
-    private questdiag : string = window.dialogs.t("questdiag1") + " " + this.item_needed + "x " + this.amount + "?";
-    private questdiag2 : string = window.dialogs.t("questdiag2") +" " + this.item_needed
-    private questdiag3 : string = window.dialogs.t("questdiag3") + " " + this.amount + " " + this.item_needed;
+    private npcName :string = window.ui.t("shaman"); 
+    private quest : string = window.ui.t("quest");
+    private questdiag : string = window.ui.t("questdiag1") + " " + this.item_needed + "x " + this.amount + "?";
+    private questdiag2 : string = window.ui.t("questdiag2") +" " + this.item_needed
+    private questdiag3 : string = window.ui.t("questdiag3") + " " + this.amount + " " + this.item_needed;
     constructor(pos : LittleJS.Vector2){
         super(pos);
         this.currentFrame = 0;

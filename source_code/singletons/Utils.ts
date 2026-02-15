@@ -188,7 +188,7 @@ export class Utils {
         
         let data : { [key: string]: any } = {};
         let safe_Globals = window.globals;
-        let safe_Diag = window.dialogs;
+        let safe_Diag = window.ui;
         let safe_Music = window.music;
         let safe_Quest = window.quest;
         let safe_Wallet = window.wallet ;

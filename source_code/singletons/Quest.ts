@@ -134,7 +134,7 @@ export class Quest {
         if (!this.statsUI) return console.warn("debug Inventory UI");
 
         this.statsUI.innerHTML = ""; // clear UI
-        this.questUITranslate = window.dialogs.t("Quests");
+        this.questUITranslate = window.ui.t("Quests");
 
         //debug quest list
         //console.log("render quests triggered: ",this.get_quest_list());
