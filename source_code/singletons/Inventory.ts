@@ -378,12 +378,12 @@ export function useItem(type :string, amount : number ) : boolean {
     console.log("Use item function called :", type);
 
     // translate all items use names
-    let health_potion = window.dialogs.t("Health Potion");
-    let generic_item = window.dialogs.t("Generic Item");
-    let magic_sword = window.dialogs.t("Magic Sword");
-    let bomb = window.dialogs.t("Bomb");
-    let arrow = window.dialogs.t("Arrow");
-    let bow = window.dialogs.t("Bow");
+    let health_potion = window.ui.t("Health Potion");
+    let generic_item = window.ui.t("Generic Item");
+    let magic_sword = window.ui.t("Magic Sword");
+    let bomb = window.ui.t("Bomb");
+    let arrow = window.ui.t("Arrow");
+    let bow = window.ui.t("Bow");
     
     // create translations diag for every item
 

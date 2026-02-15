@@ -22,10 +22,10 @@ export class Items extends EngineObject {
         this.tileInfo = tile(tileIndx, 128, 2, 4); // set coin tile 22
         this.pos = posi;
         this.size = vec2(0.7);  
-        this.name = window.dialogs.t(name);
+        this.name = window.ui.t(name);
         this.tileIndx = tileIndx; // set the tile index (frame number) to render
         // tranlated item collected dialogue
-        this.collect_diag = (this.name) + " " + window.dialogs.t("obtained", window.dialogs.language) + " x " + this.amount.toString();
+        this.collect_diag = (this.name) + " " + window.ui.t("obtained", window.ui.language) + " x " + this.amount.toString();
 
 
     }
