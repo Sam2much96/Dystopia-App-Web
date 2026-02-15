@@ -3,7 +3,10 @@
 // ============================================================================
 
 //import '../../../styles/gamehud-react.css';
-import '../../../styles/gamehud-react-2.css';
+import '../../../styles/menu-button.css';
+
+// to do: (1) add in separate css for game hud
+// (2) separate menu button into separate component
 
 
 interface GameHUDProps {
