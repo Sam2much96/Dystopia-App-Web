@@ -1,0 +1,50 @@
+
+/* Contains duplucate styles of gamehud-react css style */
+/* Menu Button (Top Right) */
+.menu-btn {
+  width: 48px;
+  height: 48px;
+  background: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 50px;
+  left: 35px;
+  pointer-events: auto;
+  z-index: 1100;
+}
+
+.menu-btn:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.menu-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.menu-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+
+@media (max-width: 768px) {
+
+      .menu-btn {
+    width: 40px;
+    height: 40px;
+    top: 40px;
+    left: 25px;
+  }
+}

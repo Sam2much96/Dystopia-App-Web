@@ -96,7 +96,7 @@
   top: 50px;
   left: 35px;
   pointer-events: auto;
-  z-index: 1000;
+  z-index: 1100;
 }
 
 .menu-btn:hover {

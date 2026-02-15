@@ -2,7 +2,8 @@
 // GAME HUD COMPONENT
 // ============================================================================
 
-import '../../../styles/gamehud-react.css';
+//import '../../../styles/gamehud-react.css';
+import '../../../styles/gamehud-react-2.css';
 
 
 interface GameHUDProps {
