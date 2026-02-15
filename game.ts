@@ -60,7 +60,7 @@ import { Diaglogs } from './source_code/singletons/Dialogs';
 
 // UI
 //import {UI} from "./source_code/singletons/UI"; // deprecoated UI
-import {UIReact} from "./source_code/singletons/UIReact.tsx";
+import {UIReact} from "./source_code/scenes/UI & misc/UI/UIReact.tsx";
 
 
 
@@ -187,7 +187,9 @@ function gameInit() {
     //load the translation files first
     //
     window.ads = new Advertising("yandex");
-    window.dialogs = new Diaglogs();
+    
+    //temporarily disbled for react ui update Feb 15,26
+    //window.dialogs = new Diaglogs();
     
     window.quest = new Quest();
     window.globals = new Globals();

@@ -31,12 +31,12 @@
  * (10) remove the address and Suds keywords from the game ui
  * (11) fix translation bugs i.e. hindi translations showing in chinese dialogue oprions
  */
-import { Music } from "./Music";
-import { DialogBox } from "./Dialogs";
-import {Utils} from "./Utils";
-import { OverWorld } from "../scenes/levels/OverworldTopDown";
-import { OverworldSideScrolling } from '../scenes/levels/OverworldSideScrolling';
-import { TempleInterior } from '../scenes/levels/TempleInterior';
+import { Music } from "../../../singletons/Music";
+import { DialogBox } from "../../../singletons/Dialogs";
+import {Utils} from "../../../singletons/Utils";
+import { OverWorld } from "../../levels/OverworldTopDown";
+import { OverworldSideScrolling } from '../../levels/OverworldSideScrolling';
+import { TempleInterior } from '../../levels/TempleInterior';
 
 
 import * as LittleJS from 'littlejsengine';
@@ -97,7 +97,7 @@ export class UI  {
     public local_music_singleton : Music = window.music;
     
 
-    private language : string = window.dialogs.language!!; // fetch language from dialog singleton // bug : breaks
+    private language : string =""; //= window.ui.language!!; // fetch language from dialog singleton // bug : breaks
     public HeartBoxHUD : HeartBox | undefined;
     public StatusTabs : StatsTabs | undefined ;
     public StatsHUD : StatsHUD | undefined;
@@ -240,34 +240,7 @@ export class UI  {
  *   1. Add data-i18n="translation_key" to any HTML element
  *   2. Call translateUI(runtimeLanguage)
  */
-async translateUIElements(language: string) {
-  if (!window.dialogs || !window.dialogs.t) {
-    console.warn("Translation system not ready yet.");
-    return;
-  }
-
-  //// Wait until translations file is loaded
-  await waitForTranslations();
-
-  // Select all elements marked for translation
-  const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
-
-  elements.forEach((el) => {
-    const key = el.dataset.i18n;
-    if (!key) return;
-
-    // Translate text content using your existing system
-    const translatedText = window.dialogs.t(key, language);
-    if (translatedText) {
-      // Handles <a>, <button>, <div>, <span> etc.
-      el.textContent = translatedText;
-    }
-  });
-
-  console.log(`✅ UI translated to ${language}`);
-
-
-}
+async translateUIElements(language: string){}
 
    
 }
@@ -495,9 +468,9 @@ export class StatsHUD{
         this.statsUI.innerHTML = ""; // clear UI
 
         // translate the ui
-        this.stsdiag = window.dialogs.t('Stats');
-        this.kcdiag = window.dialogs.t('kills');
-        this.dcdiag = window.dialogs.t('deaths');
+        this.stsdiag = window.ui.t('Stats');
+        this.kcdiag = window.ui.t('kills');
+        this.dcdiag = window.ui.t('deaths');
 
         // serialise global info to the stats ui
         let hp : number = window.globals.hp;
@@ -584,139 +557,7 @@ export class IngameMenu{
     
 
 
-    ingameMenu() {
-        /*
-        * Creates the Ingame Menu UI Object
-        *
-        * 
-        */
-
-        if (this.newGame) return; // guard clause
-            console.log("Creating Ingame Menu");
-        
-            // note : 
-            // (1) ingame menu translations is buggy
-            this.newGame = this.createMenuOption(window.dialogs.t("new game"), "#", () => {
-                if (this.globalMusic) this.globalMusic.sound_start.play();
-                
-                //console.log('creating new game simulation');
-                //window.simulation = new Simulation();
-                window.globals.GAME_START = true; // trigger the start sequence on the overworld title map
-                
-                //temporarily disabled for LJS refactoring
-                // save fresh game data to memory
-                Utils.saveGame();
-
-                //hide menu
-                //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
-
-                //show game monetize ads
-                if (window.ads){
-                    window.ads.initialize();
-                    window.ads.showAds();
-                }
-        });
-
-        // mark element for translations
-        //this.newGame.dataset.i18n = "new_game";
-
-
-        this.contGame = this.createMenuOption(window.dialogs.t("continue"), "#", () => {
-                    if (this.globalMusic) this.globalMusic.sound_start.play();
-                    //window.ads.showAds();
-                    // logic
-                    // (1) should fetch save game .save and load the current level in the global singleton
-                    // to do:
-                    // (1) implement load game funcitionality (1/3)
-                    // (2) simulation object to collect the load game object parameter to load last player scene from memory (done)
-                    // bugs:
-                    // (1) load scene logic is buggy because current level save is not properly done
-                    Utils.loadGame();
-                    if (window.map){
-                        //destroy the overworld scene and player
-                        window.map.destroy();
-                    }
-                    let curr_lvl = window.globals.current_level;
-                    window.globals.GAME_START = true;
-                    if (window.THREE_RENDER){
-
-                        //window.THREE_RENDER.deleteCube();
-                        window.THREE_RENDER.hideThreeLayer();
-
-                    }
-                    
-
-                    //to do:
-                    //(1) implement a hide layer on map objects
-                    if (curr_lvl !== ""){
-                        
-                        
-                        if (curr_lvl === "Overworld"){
-                            console.log("Loading Overworld level");
-                            window.map = new OverWorld();
-                            
-                        }
-                        else if(curr_lvl ==="Overworld 2"){
-                            console.log("Loading Overworld 2");
-                            window.map = new OverworldSideScrolling();
-                        }
-                        else if (curr_lvl === "Temple"){
-                            console.log("Loading Temple Level")
-                             
-                            
-                            // spawn the new overworld scene 
-                                            
-                            console.log("Loading Temple Interior");
-                            window.map = new TempleInterior()
-                        }
-                        else return
-                        // you cannot load into the shop level unfortunately so no functionality for that
-                    }
-
-                     //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
-                });
-
-        // disable for yyandex updates                 
-        this.Comics = this.createMenuOption(window.dialogs.t("comics"), "#", () => {
-            window.open("https://dystopia-app.site", "_blank");
-        });
-        
-       
-        // to do: 
-        // (1) create controls UI (done)
-        // (2) fix controls renderer
-        this.Controls = this.createMenuOption(window.dialogs.t("controls"), "#", () => {
-           if (this.globalMusic) this.globalMusic.sound_start.play();
-
-            // logic: 
-            // hide the menu ui
-            // show the controls menu
-            //window.ui.Controls!!.ControlsVisible = true;
-        });
-
-        // hiding the quit button for yandex platform moderation
-        // it triggers a non compliance of game stutering
-        //
-        //this.Quit = this.createMenuOption(window.dialogs.t("quit"), "#", () => {
-        //    window.music.sound_start.play();
-        //    window.location.href = "about:blank";   // leaves your game, disable in yandex build
-            //window.close();
-
-        //});
-
-        // append buttons to menu container
-        // to do:
-        // (1) fix game controls UI
-        this.menuContainer!.append(
-                this.newGame,
-                this.contGame,
-                this.Comics,
-                //this.Controls,
-                //this.Quit
-            );
-        
-        
-    }
+    ingameMenu() {}
 
 
 
@@ -935,71 +776,6 @@ export class Controls{
         * 
         */
 
-        if (this.back) return; // guard clause
-            console.log("Creating Controls Menu");
-        
-            // note : 
-            // (1) ingame menu translations is buggy
-            this.back = this.createMenuOption(window.dialogs.t("back"), "#", () => {
-                window.music.sound_start.play();
-                
-             
-                // save the game's configuration to memory
-                Utils.saveGame();
-
-                //hide menu
-                this.ControlsVisible = false;
-                //window.ui.GameMenu!!.MenuVisible = false; // hide the menu ui
-        });
-
-        // mark element for translations
-        //this.newGame.dataset.i18n = "new_game";
-
-
-        this.music = this.createMenuOption(window.dialogs.t("music"), "#", () => {
-                    window.music.sound_start.play();
-                    window.music.enable = !window.music.enable; // disable / enable the music player
-        });
-
-        // manually set the language
-        this.language = this.createMenuOption(window.dialogs.t("languague"), "#", () => {
-            // logic: 
-            // (1) show an menu option for all the supported languages
-            // (2) set the dialogue language to the user selected language
-            // (3) trigger the ui translation functions
-        });
-        
-       
-        // hiding the quit button for yandex platform moderation
-        // it triggers a non compliance of game stutering
-        //
-        this.shuffle_music = this.createMenuOption(window.dialogs.t("shuffle"), "#", () => {
-            // to do:
-            // (1) expand on the music singleton
-
-            // logic
-            // (1) stop the current music player
-            // (2) run the randomization music algorithm
-            // (3) play the currently selected music
-
-        });
-
-         this.vibrations = this.createMenuOption(window.dialogs.t("vibration"), "#", () => {
-                    window.music.sound_start.play();
-                    //window.music.enable = !window.music.enable; // disable / enable the little js engine vibrations
-        });
-
-        // append buttons to menu container
-        
-        this.controlsContainer!.append(
-                this.back,
-                this.music,
-                this.language,
-                this.shuffle_music,
-                this.vibrations
-            );
-        
-        
     }
 
 
@@ -1045,8 +821,8 @@ async function waitForTranslations(): Promise<void> {
     // Wait until window.dialogs.loadedTranslations is true
         return new Promise((resolve) => {
             const check = () => {
-            if (window.dialogs.loadedTranslations) {
-                console.log("translations check 6: ", window.dialogs.translations["Stats"]["ru_RU"]); // works
+            if (window.ui.loadedTranslations) {
+                console.log("translations check 6: ", window.ui.translations["Stats"]["ru_RU"]); // works
                 
                 resolve();
             } else {

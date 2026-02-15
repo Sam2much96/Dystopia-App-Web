@@ -28,9 +28,8 @@
     */
 import * as LittleJS from 'littlejsengine';
 const { isOverlapping,EngineObject, Color} = LittleJS;
-import { createPanel } from "./UI";
-import Papa from "papaparse"; //for parsing a csv file properly
-type Translations = Record<string, Record<string, string>>;
+//import { createPanel } from "./UI";
+
 
 
 export class Diaglogs {
@@ -38,13 +37,6 @@ export class Diaglogs {
     public dialogBox : DialogBox = new DialogBox();
     private dialog_started : boolean = false;
     private dialog_ended : boolean = false;
-    public loadedTranslations : boolean = false;
-    
-    // to do: 
-    // (1) this need proper regex to account for multiple sub-region languages
-    // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
-    public language : string =this.normalizeLocale(navigator.language); //set this from user settings or browser language
-    public translations : Translations  = {};
 
     constructor(){
 
@@ -85,128 +77,13 @@ export class Diaglogs {
         // (1) depreciate this functionality window.ui.translateUIElements() function
         // (2) create run time translation functions not just constructor translations
         // (3) call run time translations function from yandex ads 
-    async loadTranslations() : Promise<Translations>{
 
-        console.log("fetching translations file");
-        const response  = await fetch ("./Translation_1.csv"); // works
-        const csvText = await response.text(); // works
-
-        console.log("Translation files fetched");
-        //const lines = csvText.trim().split("\n");
-        //const headers = lines[0].split(',');
-        //    for (let i = 1; i < lines.length; i++) {
-        //const cols = lines[i].split(',');
-        //const key = cols[0];
-        //this.translations[key] = {};
-        //for (let j = 1; j < headers.length; j++) {
-        //        this.translations[key][headers[j]] = cols[j];
-        //    }
-        //}
-        const result = Papa.parse(csvText, {
-            header: true,
-            skipEmptyLines: true
-        });
-        
-        //this.translations = {};
-
-        for (const row of result.data as any[]) {
-            const key = row[Object.keys(row)[0]];
-            this.translations[key] = row;
-        }
-
-        //console.log(this.translations);
-
-        //debug language translations
-        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
-
-        //temporarily disabled for refactoring
-        //window.ui.translateUIElements(window.dialogs.normalizeLocale(this.language));
-        
-
-        this.loadedTranslations = true;
-        return this.translations;
     }
 
-    t(word : string, lang: string = this.language!!) : string { // translates the string file
-        // doesn't work for other translations
-        // bug: returns the key without actually translating
-        // bug: function doesn't wait for finished loading translations to translate and so breaks
-        // bug : breaks when translations is moved from ui clss to dialogs singleton
-        //console.log("translations debug 2: ",this.translations["new game"]["fr"]); // works
-        //if (!this.translations){ return word} // guard clause 
-        //console.log("word debug: ", word);
-        // guard clause
-        //console.log("translations debug: ",this.translations); // works
-        //console.log("translations debug 2 ", this.translations['Stats']); 
-        //console.log("translatiing ", word);
-        if (Object.keys(this.translations).length === 0 && !this.loadedTranslations) {
-            return word;
-        }
-        //console.log("word debug: ", word); // for debug purposes only
-        var y = this.translations[word][lang];        
-        //console.log("lang debug 2: ", y, "/ key: ", lang, "/ word: ", word);
-        return y
-        
-    }
+   
 
 
 
-    normalizeLocale(input: string): string {
-        /**
-         * Normalize locale to match translation file formats.
-         *
-         * Supported locales:
-         * en_US, pt_BR, fr, te_IN, hi_IN, yo_NG, ha_NG, ig_NG, ja, zh_CN, ar, ru_RU
-         *
-         * Examples:
-         *  - "en"     => "en_US"
-         *  - "ru"     => "ru_RU"
-         *  - "tr"     => "pt_BR"
-         *  - "en_UK"  => "en_US"
-         *  - "ru_UK"  => "ru_RU"
-         *  - "es"     => "pt_BR"
-         */
-        
-        // Lowercase and normalize separators
-        const locale = input.trim().replace(/-/g, "_").toLowerCase();
-
-        // Base mapping table
-        // maps specialisad translations to their supported translations
-        const map: Record<string, string> = {
-            en: "en_US",
-            en_uk: "en_US",
-            en_us: "en_US",
-            ru: "ru_RU",
-            ru_uk: "ru_RU",
-            ru_ru: "ru_RU",
-            tr: "pt_BR",
-            es: "pt_BR",
-            fr: "fr",
-            te: "te_IN",
-            hi: "hi_IN",
-            yo: "yo_NG",
-            ha: "ha_NG",
-            ig: "ig_NG",
-            ja: "ja",
-            zh: "zh_CN",
-            ar: "ar",
-        };
-
-        // Try exact match
-        if (map[locale]) return map[locale];
-
-        // Try to match just the language code (e.g. "en" from "en_CA")
-        const langMatch = locale.match(/^([a-z]{2})/);
-        if (langMatch && map[langMatch[1]]) {
-            return map[langMatch[1]];
-        }
-
-        // Default fallback
-        return "en_US";
-    }
-
-
-}
 
 
 export class DialogBox{
@@ -229,7 +106,7 @@ export class DialogBox{
      * (2) is not centralised on mobile, instead shows at the bottom on mobiles. Fix  alignment in css
      * 
      */
-    public DIALOG_BOX: HTMLDivElement;
+    public DIALOG_BOX: HTMLDivElement | undefined;
 
     constructor(){
         
@@ -242,7 +119,7 @@ export class DialogBox{
         //}
 
         //depreciated dialog box creation October 33rd refactor
-        this.DIALOG_BOX = createPanel("dialog-box");
+        //this.DIALOG_BOX = createPanel("dialog-box");
         this.DialogVisible = false; 
     }
 
@@ -252,7 +129,7 @@ export class DialogBox{
         //console.log("Creating Dialgoue Box Object");
   
 
-        this.DIALOG_BOX.innerHTML = `
+        this.DIALOG_BOX!!.innerHTML = `
         <div class="dialog-content">
             
             <!-- Speaker Name -->
@@ -316,10 +193,10 @@ export class DialogBox{
         </div>`;
 
         // Insert into dialogue box container
-        this.DIALOG_BOX.innerHTML = html;
+        this.DIALOG_BOX!!.innerHTML = html;
 
         // Activate buttons
-        const btns = this.DIALOG_BOX.querySelectorAll(".choice-btn");
+        const btns = this.DIALOG_BOX!!.querySelectorAll(".choice-btn");
         btns.forEach((btn) => {
             btn.addEventListener("click", () => {
                 const idx = Number(btn.getAttribute("data-index"));
@@ -333,12 +210,12 @@ export class DialogBox{
 
     get DialogVisible() : boolean {
 
-        return this.DIALOG_BOX.classList.contains("show");
+        return this.DIALOG_BOX!!.classList.contains("show");
     }
 
     set DialogVisible(visible: boolean) {
         //this.DIALOG_BOX.classList.toggle("hidden", !visible);
-        this.DIALOG_BOX.classList.toggle("show", visible);
+        this.DIALOG_BOX!!.classList.toggle("show", visible);
 
         //auto hides dialogue box after 5 seconds
         if (visible) {
