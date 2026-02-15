@@ -83,6 +83,20 @@
   transform: translateX(2px) scale(0.98);
 }
 
+/* Music toggle*/
+.music-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.music-checkbox {
+  font-size: 1.2rem;
+  margin-left: 10px;
+}
+
+
 /* Language Dropdown Container */
 .language-dropdown {
   position: relative;

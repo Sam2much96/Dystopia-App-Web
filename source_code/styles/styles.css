@@ -5,11 +5,17 @@
     (1) Background Layer Is Set To transparent
     (2) Contains styling for the inventory UI
     */
+@font-face {
+  font-family: 'Comic Andy';
+  src: url('./Comic_Andy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 body {
     margin: 0;
     overflow: hidden;
     font-family: 'Comic Andy';
-    src: url("./Comic_Andy.ttf");
     background-color: #111;
     margin: 0;
     padding: 0;
@@ -39,6 +45,7 @@ body {
 
 #threejs-layer {
     z-index: 0;
+    pointer-events: none;
     /* Three.js canvas in the middle */
 }
 

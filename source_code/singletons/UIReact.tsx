@@ -8,6 +8,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 
+import Papa from "papaparse"; //for parsing a csv file properly
+
 //import './source_code/singletons/UIReact.css'; // React UI styling
 import '../styles/core-react.css';
 import '../styles/heartbox-react.css';
@@ -69,12 +71,11 @@ interface ControlsProps {
 export const HeartBox: React.FC<HeartBoxProps> = ({ heartCount }) => {
   return (
     <div className="heartbox-container">
-      {Array.from({ length: heartCount }, (_, i) => (
+      {Array.from({ length: heartCount }).map((_, i) => (
         <div
-          key={i}
+          key={`heart-${i}`}
           className="heartbox-heart"
           style={{
-            right: `${5 + i * 40}px`,
             animationDelay: `${i * 0.1}s`
           }}
         />
@@ -102,28 +103,28 @@ export const StatsTabs: React.FC<StatsTabsProps> = ({ activeTab, onTabChange }) 
         onClick={() => handleTabClick('stats')}
         data-i18n="Stats"
       >
-        Stats
+        {window.ui.t("Stats")}
       </button>
       <button
         className={`v12_15 tab-button ${activeTab === 'wallet' ? 'active' : ''}`}
         onClick={() => handleTabClick('wallet')}
         data-i18n="Wallet"
       >
-        Wallet
+        {window.ui.t("wallet")}
       </button>
       <button
         className={`v12_16 tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
         onClick={() => handleTabClick('inventory')}
         data-i18n="Inventory"
       >
-        Inventory
+        {window.ui.t("inventory")}
       </button>
       <button
         className={`v12_17 tab-button ${activeTab === 'quest' ? 'active' : ''}`}
         onClick={() => handleTabClick('quest')}
         data-i18n="Quests"
       >
-        Quests
+        {window.ui.t("quests")}
       </button>
     </div>
   );
@@ -181,9 +182,9 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
       case 'stats':
         return (
           <div className="stats-tab">
-            <h2 data-i18n="Stats">Stats</h2>
-            <p><span data-i18n="kills">Kills</span>: {stats.kills}</p>
-            <p><span data-i18n="deaths">Deaths</span>: {stats.deaths}</p>
+            <h2 data-i18n="Stats">{window.ui.t("Stats")}</h2>
+            <p><span data-i18n="kills">{window.ui.t("kills",window.ui.language)}</span>: {stats.kills}</p>
+            <p><span data-i18n="deaths">{window.ui.t("deaths",window.ui.language)}</span>: {stats.deaths}</p>
             <p>HP: {stats.hp}</p>
           </div>
         );
@@ -227,12 +228,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({ onClick }) => {
       <img 
         src="./kenny ui-pack/grey_crossGrey.png" 
         alt="Menu"
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          pointerEvents: 'none'
-        }}
+        onClick={handleClick}
       />
     </button>
   );
@@ -327,38 +323,38 @@ export const IngameMenu: React.FC<IngameMenuProps> = ({
 
   return (
     <div id="menu-container" className="ingame-menu">
-      <a 
-        href="#" 
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleNewGame}
         data-i18n="new game"
       >
-        New Game
-      </a>
-      <a 
-        href="#" 
+        {window.ui.t("new game",window.ui.language)}
+      </button>
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleContinue}
         data-i18n="continue"
       >
-        Continue
-      </a>
-      <a 
-        href="#" 
+        {window.ui.t("continue",window.ui.language)}
+      </button>
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleComics}
         data-i18n="comics"
       >
-        Comics
-      </a>
-      <a 
-        href="#" 
+        {window.ui.t("comics",window.ui.language)}
+      </button>
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleControls}
         data-i18n="controls"
       >
-        Controls
-      </a>
+        {window.ui.t("controls",window.ui.language)}
+      </button>
     </div>
   );
 };
@@ -369,6 +365,24 @@ export const IngameMenu: React.FC<IngameMenuProps> = ({
 
 export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
   
+  const [musicEnabled, setMusicEnabled] = useState<boolean>(() => {
+  return window.music?.enable ?? true;
+  });
+
+  useEffect(() => {
+  const sync = () => {
+    if (window.music) {
+      setMusicEnabled(window.music.enable);
+    }
+
+    requestAnimationFrame(sync);
+  };
+
+  sync();
+
+  return () => {};
+}, []);
+
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   
   const languages = [
@@ -387,7 +401,7 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
   ];
 
   const [currentLanguage, setCurrentLanguage] = useState(() => {
-    return window.dialogs?.language || 'en_US';
+    return window.ui.language || 'en_US';
   });
 
   const playSound = () => {
@@ -405,14 +419,19 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
     onClose();
   };
 
-  const handleMusic = (e: React.MouseEvent) => {
-    e.preventDefault();
-    playSound();
-    if (window.music) {
-      window.music.enable = !window.music.enable;
-      console.log("Music settings debug: ", window.music.enable);
-    }
-  };
+const handleMusic = (e?: React.MouseEvent) => {
+  if (e) e.preventDefault();
+
+  playSound();
+
+  if (!window.music) return;
+
+  const newValue = !window.music.enable;
+
+  window.music.enable = newValue;
+  setMusicEnabled(newValue);
+};
+
 
   const handleVibrations = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -424,8 +443,8 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
     playSound();
     
     // Normalize and update the dialogs language
-    const normalizedLang = window.dialogs.normalizeLocale(lang);
-    window.dialogs.language = normalizedLang;
+    const normalizedLang = window.ui.normalizeLocale(lang);
+    window.ui.language = normalizedLang;
     
     // Update React state with the original code (not normalized)
     setCurrentLanguage(lang);
@@ -452,24 +471,27 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
   return (
     <div id="controls-container" className="controls-menu">
       {/* Back Options */}
-      <a 
-        href="#" 
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleBack}
         data-i18n="back"
       >
-        Back
-      </a>
+        {window.ui.t("back")}
+      </button>
 
       {/* Music Options */}
-      <a 
-        href="#" 
-        className="menu-option" 
+      <button
+        type="button"
+        className="menu-option music-toggle"
         onClick={handleMusic}
-        data-i18n="music"
       >
-        Music
-      </a>
+        <span data-i18n="music">Music</span>
+
+        <span className="music-checkbox">
+          {musicEnabled ? "✔️" : "❌"}
+        </span>
+      </button>
 
       {/* Language Dropdown */}
       <div className="language-dropdown">
@@ -501,14 +523,14 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
       </div>
 
       {/* Vibrations Options */}
-      <a 
-        href="#" 
+      <button 
+        type="button" 
         className="menu-option" 
         onClick={handleVibrations}
         data-i18n="vibration"
       >
-        Vibrations
-      </a>
+        {window.ui.t("vibration")}
+      </button>
     </div>
   );
 };
@@ -521,13 +543,37 @@ export const GameUIContainer: React.FC = () => {
   const [statsVisible, setStatsVisible] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [heartCount, setHeartCount] = useState(3);
+  const [translationsReady, setTranslationsReady] = useState(false);
+
 
   useEffect(() => {
-    // Update heart count from globals
-    if (window.globals) {
-      setHeartCount(window.globals.hp || 3);
-    }
+    let lastHP = -1;
+
+    const update = () =>{
+      if (window.globals){
+        const hp = window.globals.hp ?? 5;
+        if (hp !== lastHP){
+          lastHP = hp;
+          setHeartCount(hp);
+        }
+      }
+
+       requestAnimationFrame(update);
+    };
+   update()
+   return () => {}
+
   }, []);
+
+
+  useEffect(() => {
+    if (!window.ui) return;
+
+    window.ui.setOnTranslationsLoaded(() => {
+    setTranslationsReady(true);
+  });
+}, []);
+
 
   const handleNewGame = () => {
     if (window.globals) {
@@ -569,7 +615,7 @@ export const GameUIContainer: React.FC = () => {
   };
 
   return (
-    <div id="ui-root">
+    <div id="ui-root" key={translationsReady ? "ready" : "loading"}>
       {/* Top Right UI */}
       <div id="top-right-ui">
         <MenuButton onClick={() => setMenuVisible(!menuVisible)} />
@@ -611,10 +657,21 @@ export const GameUIContainer: React.FC = () => {
 // ============================================================================
 // UI MANAGER CLASS (Bridge between old system and React)
 // ============================================================================
+type Translations = Record<string, Record<string, string>>;
 
 export class UIReact {
   private root: ReactDOM.Root | null = null;
   private containerElement: HTMLElement | null = null;
+
+  public loadedTranslations : boolean = false;
+    
+    // to do: 
+    // (1) this need proper regex to account for multiple sub-region languages
+    // locale lists: https://docs.godotengine.org/en/3.5/tutorials/i18n/locales.html#doc-locales
+  public language : string = this.normalizeLocale(navigator.language); //set this from user settings or browser language
+  public translations : Translations  = {};
+
+  private onTranslationsLoaded?: () => void;
 
   constructor() {
     this.containerElement = document.getElementById('ui-root');
@@ -630,23 +687,150 @@ export class UIReact {
   /**
    * Initialize and render the React UI
    */
-  initialize() {
+  async initialize() {
+    console.log("initialize react ui");
+
     if (!this.root) {
       console.error('React root not initialized');
       return;
     }
 
+    // Wait for translations to load
+    // to do:
+    // (1) convert translation csv to json,
+    // (2) input json translations directly into this script
+
+       //(async () => {
+          
+       //     await this.waitForTranslations();
+            
+       // })();
+    await this.loadTranslations();
+    //this.translateUIElements(this.language);
     this.root.render(<GameUIContainer />);
 
-    //this.translateUIElements(window.dialogs.language);
+    
 
-    // Wait for translations to load
-
-       (async () => {
-            await this.waitForTranslations();
-        })();
     
   }
+
+setOnTranslationsLoaded(cb: () => void) {
+  this.onTranslationsLoaded = cb;
+}
+
+    async loadTranslations() : Promise<Translations>{
+
+        console.log("fetching translations file");
+        const response  = await fetch ("./Translation_1.csv"); // works
+        const csvText = await response.text(); // works
+
+        console.log("Translation files fetched");
+
+        const result = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true
+        });
+        
+        //this.translations = {};
+
+        for (const row of result.data as any[]) {
+            const key = row[Object.keys(row)[0]];
+            this.translations[key] = row;
+        }
+
+        //console.log(this.translations);
+
+        //debug language translations
+        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
+        console.log("language debug:", this.language);
+        
+
+        this.loadedTranslations = true;
+
+        if (this.onTranslationsLoaded) {
+         this.onTranslationsLoaded(); //notify React
+        }
+
+        return this.translations;
+      }
+
+       t(word : string, lang: string = this.language!!) : string { // translates the string file
+
+        if (Object.keys(this.translations).length === 0 && !this.loadedTranslations) {
+            return word;
+        }
+        if (!this.loadedTranslations) {
+          console.warn("Translations not loaded")
+          return word;
+        }
+
+        if (!this.translations[word]) {
+          console.warn(`word not in translations csv : ${word}`);
+          return word;
+        }
+
+        //console.log("word debug: ", word); // for debug purposes only
+        var y = this.translations[word][lang];        
+        //console.log("lang debug 2: ", y, "/ key: ", lang, "/ word: ", word);
+        return y
+        
+    }
+
+
+
+    normalizeLocale(input: string): string {
+        /**
+         * Normalize locale to match translation file formats.
+         *
+         * Supported locales:
+         * en_US, pt_BR, fr, te_IN, hi_IN, yo_NG, ha_NG, ig_NG, ja, zh_CN, ar, ru_RU
+         *
+         * Examples:
+         *  - "en"     => "en_US"
+         *  - "ru"     => "ru_RU"
+         *  - "tr"     => "pt_BR"
+         *  - "en_UK"  => "en_US"
+         *  - "ru_UK"  => "ru_RU"
+         *  - "es"     => "pt_BR"
+         */
+        
+        // Lowercase and normalize separators
+        const locale = input.trim().replace(/-/g, "_").toLowerCase();
+
+        // Base mapping table
+        // maps specialisad translations to their supported translations
+        const map: Record<string, string> = {
+            en: "en_US",
+            en_uk: "en_US",
+            en_us: "en_US",
+            ru: "ru_RU",
+            ru_uk: "ru_RU",
+            ru_ru: "ru_RU",
+            tr: "pt_BR",
+            es: "pt_BR",
+            fr: "fr",
+            te: "te_IN",
+            hi: "hi_IN",
+            yo: "yo_NG",
+            ha: "ha_NG",
+            ig: "ig_NG",
+            ja: "ja",
+            zh: "zh_CN",
+            ar: "ar",
+        };
+
+        // Try exact match
+        if (map[locale]) return map[locale];
+
+        // Try to match just the language code (e.g. "en" from "en_CA")
+        const langMatch = locale.match(/^([a-z]{2})/);
+        if (langMatch && map[langMatch[1]]) {
+            return map[langMatch[1]];
+        }
+
+        // Default fallback
+        return "en_US";
+    }
 
   /**
    * Destroy the React UI
@@ -662,7 +846,7 @@ export class UIReact {
  * Translates all HTML elements at runtime by using their data-i18n keys.
  */
 async translateUIElements(language: string) {
-  if (!window.dialogs || !window.dialogs.translations) {
+  if (!this.translations) {
     console.warn("Translation system not ready yet.");
     return;
   }
@@ -671,7 +855,7 @@ async translateUIElements(language: string) {
   await this.waitForTranslations();
 
   // Normalize the language code
-  const normalizedLang = window.dialogs.normalizeLocale(language);
+  const normalizedLang = this.normalizeLocale(language);
 
   // Select all elements marked for translation
   const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
@@ -681,7 +865,7 @@ async translateUIElements(language: string) {
     if (!key) return;
 
     // Translate text content using your existing Dialogs system
-    const translatedText = window.dialogs.t(key, normalizedLang);
+    const translatedText = this.t(key, normalizedLang);
     if (translatedText && translatedText !== key) {
       el.textContent = translatedText;
     }
@@ -694,7 +878,7 @@ async translateUIElements(language: string) {
 private async waitForTranslations(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
-      if (window.dialogs && window.dialogs.loadedTranslations) {
+      if (window.dialogs && this.loadedTranslations) {
         resolve();
       } else {
         requestAnimationFrame(check);
