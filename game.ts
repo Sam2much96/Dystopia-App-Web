@@ -189,7 +189,7 @@ function gameInit() {
     window.ads = new Advertising("yandex");
     
     //temporarily disbled for react ui update Feb 15,26
-    //window.dialogs = new Diaglogs();
+    window.dialogs = new Diaglogs();
     
     window.quest = new Quest();
     window.globals = new Globals();

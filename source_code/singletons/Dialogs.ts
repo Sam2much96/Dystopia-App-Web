@@ -21,6 +21,7 @@
     (5) Implement decision tree backend
     (6) Implement Regex code to fix dialogue language mismatch with translations csv (done) 
     (7) Implement Yandex automatic language detection from yandex sdk (done)
+    (8) Implement Dialogue box React Component
 
     Bugs:
     (1) load translations csv doesn't read data properly and mashes different languages together
@@ -109,18 +110,7 @@ export class DialogBox{
     public DIALOG_BOX: HTMLDivElement | undefined;
 
     constructor(){
-        
-        //if (!window.dialogs.dialogBox){
-            // to do:
-            // (1) add dialog box class to the singleton variable
-            // make object global via dialog singleton
-         //   window.dialogs.dialogBox = self;
-        
-        //}
-
-        //depreciated dialog box creation October 33rd refactor
-        //this.DIALOG_BOX = createPanel("dialog-box");
-        this.DialogVisible = false; 
+         
     }
 
     dialogueBox(speaker: string,text: string) {
@@ -257,13 +247,17 @@ export class DialogTrigger extends EngineObject{
         // make object invisible
     }
     update(): void {
-        if (window.player){
+        //error catchers
+        if (!window.dialogs) return;
+        if (!window.player) return;
 
-                    if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
+        
+
+        if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
             // if is colliding with player show this object's dialogue
             window.dialogs.show_dialog(this.speaker, this.dialogue);
         }
-        }
+        
 
     }
 
