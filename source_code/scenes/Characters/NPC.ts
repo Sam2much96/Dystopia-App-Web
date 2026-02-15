@@ -137,10 +137,30 @@ export class Merchant extends NPC{
             
             // testing dialogues trigger 
             // dialogue trigger handles this dialogue
+              window.dialogs.showDecisionDialog(
+                `${this.speaker}`,
+                `${this.diag1}`,
+                [
+                {
+                    label: "Yes",
+                    callback: () => {
+                    console.log("Player Selected Yes");
+                    if (window.ads) window.ads.showAds(); // trgiger banner ads
+                    },
+                },
+                {
+                    label: "No",
+                    callback: () => {
+                    console.log("Player left");
+                    },
+                },
+                ]
+            );
+
 
             //show banner ads
            // 
-            window.ads.showAds();
+            //window.ads.showAds();
             this.ADS_TRIGGERED = true;
             
             //
@@ -234,7 +254,7 @@ export class Shaman extends NPC{
             //window.dialogs.show_dialog("shaman","quest update coming soon! ");
              // trigger quest giver logic to fetch the appropriate dialogue text
             let quest_diag=QuestGivers.process(this.quest,this.questdiag, "Bomb", 1, "Arrow",5,this.questdiag2, this.questdiag3);
-            window.dialogs.show_dialog(this.npcName,quest_diag); // print the dialogue text out to the player
+            window.dialogs.showDialog(this.npcName,quest_diag); // print the dialogue text out to the player
             this.QuestTriggered = true;
             this.questTimer.set(this.timeout);
             return

@@ -1,0 +1,55 @@
+.dialog-box {
+  position: relative;
+  align-content: center;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.85);
+  color: rgb(0, 0, 0);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialog-speaker {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.v1_2,
+.v1_3 {
+  height: 2px;
+  background: #555;
+}
+
+.v1_4 {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.dialog-choices {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.choice-btn {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.choice-btn:hover {
+  background: #666;
+}

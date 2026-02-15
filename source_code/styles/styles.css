@@ -116,7 +116,7 @@ h1 {
     right: 0;
     width: 100%; /*optional */
     height: 100%; /*optional */
-    pointer-events: auto;
+    
 }
 
 .ui-button {

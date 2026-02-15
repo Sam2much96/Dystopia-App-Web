@@ -5,8 +5,11 @@
 import React, { useState, useEffect} from 'react';
 
 import { StatsTabs } from './StatsTab.tsx'; // react UI component
+import {WalletPanel} from "../Wallet/WalletPanel.tsx"
+import { QuestPanel } from '../Quest/QuestPanel.tsx';
 
 import '../../../styles/stats-react.css';
+import { InventoryPanel } from '../Inventory/InventoryPanel.tsx';
 
 
 interface StatsHUDProps {
@@ -42,15 +45,24 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
     // Trigger appropriate render function
     // to do:
     // (1) format each render function to use react to render instead of dom manupulation
+    //depreciated status HUD function
+    // to do : (1) finish porting inventory and quests into React components and export them in render content function below
+    //hfhsdhgff
     switch(tab) {
       case 'inventory':
-        window.inventory?.renderInventory();
+        //window.inventory?.renderInventory();
         break;
       case 'wallet':
-        window.wallet?.renderWallet();
+         // return (
+         //   <div className="wallet-tab">
+         //</div>     <WalletPanel visible={true} onClose={function (): void {
+         //       throw new Error('Function not implemented.');
+         //     } } />
+         //   </div>
+        //  );
         break;
       case 'quest':
-        window.quest?.renderQuests();
+        //window.quest?.renderQuests();
         break;
       case 'stats':
         // Stats are handled by React state
@@ -70,11 +82,18 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({ visible, onClose }) => {
           </div>
         );
       case 'inventory':
-        return <div id="inventory-items" className="v11_5" />;
+        return <InventoryPanel/>
+          
+        ;
       case 'wallet':
-        return <div id="wallet-items" className="v11_5" />;
+        return <div id="wallet-items" className="v11_5">
+          <div className="wallet-tab">
+             <WalletPanel visible={true} onClose={() => {}}></WalletPanel>
+          </div>
+
+        </div> ;
       case 'quest':
-        return <div id="quest-items" className="v11_5" />;
+        return <QuestPanel />;
       default:
         return null;
     }

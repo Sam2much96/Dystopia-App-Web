@@ -26,6 +26,7 @@ export class Inventory {
     * (5) fix ui render to update once status hud is visible not when the tab buttons is clicked
     * (6) implement bomb explosion item from bomb class
     * (7) implement bullet item from arrow class
+    * (8) Reimplement Inventory Ui as React Component
     * 
     */
 
@@ -75,35 +76,7 @@ export class Inventory {
 
         this.statsUI.innerHTML = ""; // clear UI
 
-         // Inventory tab categories
-         //each maps to an inventory item icon in the home and public directory
-        
-        //const categories = ["All", "inventory", "wallet","compass" ,"quest","stats"];
-        //let activeCategory = "All";
-
-
-        // Create tabs container 
-        // from each of the objects in the categories array
-        //const tabsHTML = `
-        //    <div class="inventory-tabs">
-        //        ${categories.map(cat => `
-        //            <button class="inventory-tab" data-category="${cat}">
-        //            <!-- Renders the Tab icons based on the category items -->
-        //            <img src="${cat.toLowerCase()}.webp" class="tab-icon" alt="${cat} icon">
-        //            ${cat}
-         //           </button>
-         //       `).join("")}
-         //   </div>
-         //   <div id="inventory-items" class="inventory-items-grid"></div>
-        //`;
-
-        // testing rendering all inventory items to the UI
-        //this.inventoryUI.textContent = Object.entries(this.getAllItems())
-        //.map(([name, count]) => `${name} x ${count}`)
-        //.join('\n');
-
-        // Clear previous inventory UI
-        //this.inventoryUI.innerHTML = '';
+ 
         
         // connect UI inventory buttons to useItem function
         // Loop through items and create a button for each
@@ -134,100 +107,9 @@ export class Inventory {
         
 
 
-        /**
-        // depreciated code bloc
-        // to do:
-        // (1) map UI code to UI inventory tab  buttons
-        // to do: (1) connect render to tab icon buttons
-        
-        // Add click listeners to tabs
-        const tabButtons = this.inventoryUI.querySelectorAll(".inventory-tab");
-        
-        // Store tab buttons in an object for manual control
-        const tabButtonMap: Record<string, HTMLButtonElement> = {};
-
-        tabButtons.forEach((tab_btn) => {
-            const button = tab_btn as HTMLButtonElement;
-            const category = tab_btn.getAttribute("data-category");
-            if (category) {
-                tabButtonMap[category] = button;
-                button.addEventListener("click", () => {
-                activeCategory = category;
-
-                // Remove active class from all tabs
-                tabButtons.forEach(b => (b as HTMLButtonElement).classList.remove("active-tab"));
-                button.classList.add("active-tab");
-
-                // Render different content depending on the category
-                switch (category) {
-                    case "All":
-                case "inventory":
-                    this.renderItems(category);
-                    break;
-                case "wallet":
-                    this.renderWallet();
-                    break;
-                case "compass":
-                    this.renderMap();
-                    break;
-                case "quest":
-                    this.renderQuests();
-                    break;
-                case "stats":
-                    this.renderStats();
-                    break;
-
-                }
-                });
-            }
-                
-
-        });
-          */
-
-
-
-        // Initial render
-        //this.renderItems(activeCategory);
-
 
     }
 
-
-    // Version 2 Inventory Render with items (filtered by category)
-    // to do:
-    // (1) fix code bloc
-    // (2) test code bloc
-    private renderItems(category: string) : void {
-            // gets the inventory items grid created above
-            const container = document.getElementById("inventory-items");
-            if (!container) return; // guard clause
-            container.innerHTML = ""; // Clear previous
-
-            const items = window.inventory.getAllItems(); // Get inventory items
-            Object.entries(items).forEach(([itemName, itemCount]) => {
-                // sort inventory items by category
-                const itemCategory = this._getItemCategory(itemName); // Custom function
-
-                // renders the item category
-                // to do:
-                // (1) fetch each item count from the inventory record and update live
-                if (category === "All" || itemCategory === category) {
-                    container.innerHTML += `
-                        <!-- Renders the Tab items based on the inventory items data -->
-                        <div class="inventory-item">
-                            <!-- Button clicks don't work here, you'll hv to create global functions to call within this render -->
-                            <!-- Code reference : Dystopia-App-Manga Landing page code -->
-                            <button class="item-button" onclick="useItem('${itemName}', 1)">
-                                <img src="${itemName}.webp" alt="${itemName}, 1" class="item-image">
-                                <div class="item-name">${itemName}</div>
-                                <div class="item-description">Amount: ${itemCount}</div>
-                            </button>
-                        </div>
-                    `;
-                }
-            });
-        };
 
 
 
@@ -366,7 +248,7 @@ export class Inventory {
  * 
  * To Do:
  * (1) Implement ring item
- * (2)
+ * (2) port to react component Item
  * 
  * Bugs:
  * (1) item use logic is infinite and broken

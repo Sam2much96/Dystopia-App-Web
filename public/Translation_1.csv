@@ -30,6 +30,7 @@ guide book,guide book,guia turístico,guide,मार्गदर्शिका
 animatic,animatic,animatic,prévisualisation animée,एनिमैटिक,ayẹwọ̀-dínán,アニマティック,动画草图,أنيماتيك,Аниматик
 merch,merchandise,mercadoria,marchandise,वस्त्रवस्तु,Ọja,商品,商品,بضائع,Мерч
 bts,behind the scenes,por trás das câmeras,en coulisses,सीन के पीछे,niwaju aṣọ,舞台裏,幕后花絮,وراء الكواليس,Закулисье
+Empty,Empty,Vazio,Vide,खाली,Òfo,空,空 ,فارغ,Пустой
 Episode 1,episode,capítulo,episode,एपिसोड,Itiṣẹ,エピソード,剧集,الحلقة,Эпизод 1
 obtained,obtained,obtido,obtenu,प्राप्त किया,gba,得られた,获得,مُقتَنىً,Получено
 Lost,Lost,perdido,Perdu,खो गया,Ti sọnu,失った,丢失的,ضائع,Проиграл
@@ -80,6 +81,7 @@ diag1,"You have no coins, and you want to earn free coins from ads? Okay Thank y
 ليس لديك أي عملات، وتريد كسب عملات مجانية من الإعلانات؟ حسنًا، شكرًا لك","У тебя нет монет, и ты хочешь заработать бесплатные монеты из рекламы? Хорошо, спасибо!"
 diag2,Don’t jump in the hole,Não pule no buraco!,Ne saute pas dans le trou !,उस गड्ढे में मत कूदो!,Má fo sínú ihò náà!,穴に飛び込まないで！,不要跳进那个洞里！,لا تقفز في الحفرة,Не прыгай в яму!
 quest,fetch quest one,Missão de Busca Um,Quête de Récupération Un,वस्तु लाने का मिशन एक,Ìṣẹ́ ìwádi ohun kan Ọ̀kan,お使いクエスト1,收集任务一,مهمة الإحضار واحد,Квест на доставку один
+questdiag0,No active quests,Nenhuma missão ativa,Aucune quête active,कोई सक्रिय खोज नहीं,Kò sí iṣẹ́-ìwádìí tó ń lọ lọ́wọ́,アクティブなクエストはありません,没有活跃的任务,لا توجد مهام نشطة,Нет активных квестов
 questdiag1,get me,Me busca,Viens me chercher,मुझे ले आओ,wá mú mi,迎えに来て,来接我,تعال خذني,Забери меня
 questdiag2,thank you for the,Obrigado pelo,Merci pour le,इसके लिए धन्यवाद,Ẹ ṣé fún,をありがとう,感谢,شكرًا على الـ,Спасибо за
 questdiag3,"please, remember to fetch me","Por favor, lembre-se de me buscar","S’il te plaît, n’oublie pas de venir me chercher","कृपया, मुझे लाना याद रखना।","Jọ̀wọ́, rántí láti wá mú mi",お願い、迎えに来るのを忘れないでね,请记得来接我,من فضلك، تذكّر أن تأتيني,"Пожалуйста, не забудь забрать меня"

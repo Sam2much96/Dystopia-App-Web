@@ -5,7 +5,7 @@
  * Replaces the legacy DOM manipulation approach with declarative React components
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import Papa from "papaparse"; //for parsing a csv file properly
@@ -78,7 +78,11 @@ export class UIReact {
        // })();
     await this.loadTranslations();
     
-    this.root.render(<GameUIContainer />);
+    this.root.render(
+    <StrictMode>
+      <GameUIContainer />
+    </StrictMode>
+  );
 
     
 

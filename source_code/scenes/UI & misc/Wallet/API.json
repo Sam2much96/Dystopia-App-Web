@@ -1,12 +1,12 @@
 {
   "apis": [
     {
-      "name": "Weather API",
-      "base_url": "https://api.weather.com/v3/",
-      "api_key": "{{WEATHER_API_KEY}}",
+      "name": "Vestige",
+      "base_url": "https://api.vestigelabs.org/",
+      "api_key": "",
       "endpoints": {
-        "current": "weather/current",
-        "forecast": "weather/forecast"
+        "price": "assets/price?asset_ids=2717482658&network_id=0&denominating_asset_id=0",
+        "forecast": ""
       }
     },
     {

@@ -255,7 +255,7 @@ export class DialogTrigger extends EngineObject{
 
         if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)){
             // if is colliding with player show this object's dialogue
-            window.dialogs.show_dialog(this.speaker, this.dialogue);
+            window.dialogs.showDialog(this.speaker, this.dialogue);
         }
         
 
@@ -298,11 +298,31 @@ export class DecisionTrigger extends EngineObject{
             //console.log("Implement Decision Dialogue");
 
             // works
-            window.dialogs.show_decision_dialog(
-                this.speaker,
-                this.dialogue,
-                this.choices
+            //window.dialogs.show_decision_dialog(
+            //    this.speaker,
+            //    this.dialogue,
+            //    this.choices
+            //);
+
+              window.dialogs.showDecisionDialog(
+                `${this.speaker}`,
+                `${this.dialogue}`,
+                [
+                {
+                    label: "Yes",
+                    callback: () => {
+                    console.log("Player Accepted");
+                    },
+                },
+                {
+                    label: "No",
+                    callback: () => {
+                    console.log("Player Declined");
+                    },
+                },
+                ]
             );
+
 
         }
     }

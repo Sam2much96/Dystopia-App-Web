@@ -25,7 +25,7 @@ export class Globals {
     public death_count : number;
     public GAME_START: boolean;
     public current_level : String = "";
-    
+    public suds : number;
 
     constructor() {
 
@@ -36,6 +36,7 @@ export class Globals {
         this.enemies = []; // internal global array to hold all enemy types
         //this.scenes = {};// holds pointers to all scenes // duplicate of window.map variable
         
+        this.suds = 0;
         //this.PlayingMusic = false; // boolean for stopping music start loop
         this.score = 0;
         this.kill_count = 0; //enemy kill count

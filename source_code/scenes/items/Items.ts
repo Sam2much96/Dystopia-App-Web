@@ -46,7 +46,7 @@ export class Items extends EngineObject {
                 // to do:
                 // (1) implement diag translation functionality (done)
                 
-                window.dialogs.show_dialog("",`${this.collect_diag}`); // to do: should ideally be item hud, requires implement stats hud for item collect
+                window.dialogs.showDialog("",`${this.collect_diag}`); // to do: should ideally be item hud, requires implement stats hud for item collect
                 
                 // add the item to the inventory
                 //window.music.item_pickup.play();

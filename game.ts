@@ -50,7 +50,7 @@ import * as LittleJS from 'littlejsengine';
 
 import {Music} from "./source_code/singletons/Music";
 import {Quest} from "./source_code/singletons/Quest";
-import {Wallet} from "./source_code/scenes/Wallet/Wallet";
+import {Wallet} from "./source_code/scenes/UI & misc/Wallet/Wallet.ts";
 import {Simulation} from "./source_code/singletons/Simulation";
 import {ThreeRender} from "./source_code/singletons/3d";
 import {Globals} from "./source_code/singletons/Globals";
@@ -111,7 +111,7 @@ declare global {
         globals: Globals,
         utils: Utils,
         music: Music,
-        dialogs : Diaglogs,
+        dialogs : any,
         quest : Quest,
         player: TopDownPlayer | SideScrollerPlayerBox,
         //enemy: Array<Enemy>,
@@ -189,7 +189,7 @@ function gameInit() {
     window.ads = new Advertising("yandex");
     
     //temporarily disbled for react ui update Feb 15,26
-    window.dialogs = new Diaglogs();
+    //window.dialogs = new Diaglogs();
     
     window.quest = new Quest();
     window.globals = new Globals();

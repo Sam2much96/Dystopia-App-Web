@@ -1,0 +1,66 @@
+
+
+/* Individual UI Button */
+.ui-button {
+  width: 64px;
+  height: 64px;
+  background: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+
+
+
+.ui-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.ui-button:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: translateY(-4px);
+}
+
+.ui-button:hover::before {
+  opacity: 1;
+}
+
+.ui-button:active {
+  transform: translateY(-2px) scale(0.95);
+}
+
+.ui-button img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ui-button {
+    width: 56px;
+    height: 56px;
+  }
+
+
+}

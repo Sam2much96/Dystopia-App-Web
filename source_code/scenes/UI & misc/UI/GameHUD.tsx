@@ -4,6 +4,7 @@
 
 //import '../../../styles/gamehud-react.css';
 import '../../../styles/menu-button.css';
+import "../../../styles/left-buttons.css";
 
 // to do: (1) add in separate css for game hud
 // (2) separate menu button into separate component
@@ -35,8 +36,19 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
   const handleDialogClick = () => {
     if (window.dialogs) {
-      // to do: (1) connect dialogues UI
-      window.dialogs.show_dialog("...", "Aarin: ...");
+      /**
+       * Code is called in UI/GameUIContainer.tsx
+       * and created in DialogueBox.tsx
+       */
+      
+      //decision dialogue box
+      //showDialog,
+      //showDecisionDialog,
+      //hideDialog,
+
+
+      // regular dialogue box
+      window.dialogs.showDialog(window.ui.t("char1", window.ui.language), window.ui.t("Character", window.ui.language));
     }
   };
 

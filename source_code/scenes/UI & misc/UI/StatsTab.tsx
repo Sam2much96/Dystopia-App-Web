@@ -30,21 +30,21 @@ export const StatsTabs: React.FC<StatsTabsProps> = ({ activeTab, onTabChange }) 
         onClick={() => handleTabClick('wallet')}
         data-i18n="Wallet"
       >
-        {window.ui.t("wallet")}
+        {window.ui.t("Wallet")}
       </button>
       <button
         className={`v12_16 tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
         onClick={() => handleTabClick('inventory')}
         data-i18n="Inventory"
       >
-        {window.ui.t("inventory")}
+        {window.ui.t("Inventory")}
       </button>
       <button
         className={`v12_17 tab-button ${activeTab === 'quest' ? 'active' : ''}`}
         onClick={() => handleTabClick('quest')}
         data-i18n="Quests"
       >
-        {window.ui.t("quests")}
+        {window.ui.t("Quests")}
       </button>
     </div>
   );

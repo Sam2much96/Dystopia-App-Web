@@ -37,7 +37,7 @@
 //import { PeraWalletConnect } from "@perawallet/connect"; //pera wallet connection for signing transactions
 //import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils' // Algokit Utils
 
-import {apiGet} from "../../singletons/Networking"; // Generic Get Request class abstract
+import {apiGet} from "../../../singletons/Networking"; // Generic Get Request class abstract
 
 
 // Vestige Asset Price API data structure 
