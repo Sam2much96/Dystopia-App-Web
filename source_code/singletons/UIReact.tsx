@@ -12,12 +12,13 @@ import Papa from "papaparse"; //for parsing a csv file properly
 
 //import './source_code/singletons/UIReact.css'; // React UI styling
 import '../styles/core-react.css';
-import '../styles/heartbox-react.css';
-import '../styles/gamehud-react.css';
-import '../styles/stats-react.css';
-import '../styles/ingame-menu-react.css';
-import '../styles/controls-react.css';
-import '../styles/dialogue-react.css';
+//import '../styles/heartbox-react.css';
+//import '../styles/gamehud-react.css';
+//import '../styles/stats-react.css';
+//import '../styles/ingame-menu-react.css';
+//import '../styles/controls-react.css';
+//import '../styles/dialogue-react.css';
+//import "../styles/pointer-fix.css";
 
 
 

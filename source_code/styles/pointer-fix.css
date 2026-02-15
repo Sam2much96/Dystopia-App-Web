@@ -165,7 +165,7 @@ a *,
 
 /* Any element that fills screen but isn't UI */
 div[style*="width: 100%"][style*="height: 100%"]:not(.ui-root):not(.ui-panel):not(.menu-container) {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 
