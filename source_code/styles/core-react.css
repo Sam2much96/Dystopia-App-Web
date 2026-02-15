@@ -9,13 +9,13 @@
 
 :root {
   /* Color Palette - Cyberpunk/RPG Theme */
-  --primary-bg: rgba(15, 23, 42, 0.95);
-  --secondary-bg: rgba(30, 41, 59, 0.9);
-  --accent-color: #60a5fa;
-  --accent-glow: #3b82f6;
+  --primary-bg: rgba(93, 93, 93, 0.95);
+  --secondary-bg: rgba(62, 62, 62, 0.9);
+  --accent-color: #fafafb;
+  --accent-glow: #f6f6f6;
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
-  --border-color: rgba(148, 163, 184, 0.3);
+  --border-color: rgba(162, 162, 162, 0.3);
   --danger-color: #ef4444;
   --success-color: #10b981;
   --warning-color: #f59e0b;

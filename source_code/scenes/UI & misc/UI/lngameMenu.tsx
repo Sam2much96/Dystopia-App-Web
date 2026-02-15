@@ -61,7 +61,7 @@ export const IngameMenu: React.FC<IngameMenuProps> = ({
         onClick={handleNewGame}
         data-i18n="new game"
       >
-        {window.ui.t("new game",window.ui.language)}
+        {window.ui.t("new game")}
       </button>
       <button 
         type="button" 

@@ -77,7 +77,8 @@ export class UIReact {
 
        // })();
     await this.loadTranslations();
-    
+   
+    // render with strictmode debugging
     this.root.render(
     <StrictMode>
       <GameUIContainer />
@@ -116,7 +117,7 @@ setOnTranslationsLoaded(cb: () => void) {
         //console.log(this.translations);
 
         //debug language translations
-        console.log("translations debug 0: ",this.translations["new game"]["fr"]); // works
+        console.log("translations debug 0: ",this.translations["new game"]["pt_BR"]); // works
         console.log("language debug:", this.language);
         
 
@@ -183,6 +184,7 @@ setOnTranslationsLoaded(cb: () => void) {
             ru_ru: "ru_RU",
             tr: "pt_BR",
             es: "pt_BR",
+            pt_BR: "pt_BR",
             fr: "fr",
             te: "te_IN",
             hi: "hi_IN",

@@ -43,20 +43,21 @@ export const Controls: React.FC<ControlsProps> = ({ visible, onClose }) => {
 }, []);
 
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  
+  //bug:
+  // (1) the normalizeLocale function breaks when using pt_BR locale
+  // i used a hacky fix by defaulting to es spanish which is not a native translation of brazillain portuguese
+
   const languages = [
     { code: 'en_US', name: 'English', flag: '🇺🇸' },
     { code: 'fr', name: 'Français', flag: '🇫🇷' },
     { code: 'ja', name: '日本語', flag: '🇯🇵' },
     { code: 'zh_CN', name: '中文', flag: '🇨🇳' },
     { code: 'ru_RU', name: 'Русский', flag: '🇷🇺' },
-    { code: 'pt_BR', name: 'Português', flag: '🇧🇷' },
+    { code: 'es', name: 'Português', flag: '🇧🇷' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦' },
     { code: 'hi_IN', name: 'हिन्दी', flag: '🇮🇳' },
-    { code: 'te_IN', name: 'తెలుగు', flag: '🇮🇳' },
     { code: 'yo_NG', name: 'Yorùbá', flag: '🇳🇬' },
-    { code: 'ha_NG', name: 'Hausa', flag: '🇳🇬' },
-    { code: 'ig_NG', name: 'Igbo', flag: '🇳🇬' }
+
   ];
 
   const [currentLanguage, setCurrentLanguage] = useState(() => {
@@ -111,6 +112,7 @@ const handleMusic = (e?: React.MouseEvent) => {
     // Close the dropdown
     setShowLanguageMenu(false);
     
+
     // Translate all UI elements
     await window.ui.translateUIElements(lang);
     
