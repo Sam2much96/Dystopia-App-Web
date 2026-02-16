@@ -16,9 +16,7 @@ const {vec2, drawTile, isOverlapping, Timer,tile} = LittleJS;
  * 
  * To do:
  * (1) Implement wallet api into script for sending txn to chain
- * (2) Implement decision dialogue box 
- * (3) Implement NPC dialogue
- * (4) Implement NPC dialogue translations via dialogue singleton
+ *
  */
 
 
@@ -33,34 +31,6 @@ class NPC extends PhysicsObject {
         this.currentFrame = 1; // set the current frame for the object
 
     }
-
-   // render(){
-        // draw the Merchant tiles (3)
-        // this is gotten from the arrangement of tile data in game.ts engine init
-        // where tileset 3 is the npc tileset
-        //console.log(this.currentFrame); 
-   //     drawTile(this.pos, this.size, tile(this.currentFrame, 128, 3, 0), this.color, 0, this.mirror);
-
-    //}
-    
-    //update() : void {
-        //trigger hit collision detection for NPC
-        //if (!this.QuestTriggered && isOverlapping(this.pos, this.size, window.player.pos, window.player.size) ) { // if hit collission and attack state
-       //     console.log("NPC Hit Collision Detection Triggered");
-            // to do:
-            // (1) trigger dialogue box (done)
-            // (2) implement dialogue translation (1/2)
-            // (3) implement decision dialogue
-            //enemy.hitCollisionDetected();
-        //    this.QuestTriggered = true // softlock this logic
-        //    this.questTimer.set(this.timeout);
-
-           
-        //}
-        //if (this.questTimer.elapsed()){
-        //    this.QuestTriggered = false;
-        //}
-    //}
 
 }
 

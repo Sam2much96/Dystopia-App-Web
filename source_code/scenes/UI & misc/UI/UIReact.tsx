@@ -16,7 +16,7 @@ import { GameUIContainer } from './GameUIContainer.tsx';
 
 
 //import './source_code/singletons/UIReact.css'; // React UI styling
-import '../../../styles/core-react.css';
+import '../../../styles/core-react-2.css';
 
 
 

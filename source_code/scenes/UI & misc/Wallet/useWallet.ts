@@ -3,7 +3,7 @@ import { apiGet } from "../../../singletons/Networking";
 //import API from "./API.json";
 
 // move api endpoints to a sub folder
-import { fetchSudPrice } from "./VestigeAPI";
+import { fetchSudPrice } from "./vestigeAPI";
 
 
 /* Types */

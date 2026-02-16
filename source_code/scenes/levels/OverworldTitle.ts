@@ -74,9 +74,11 @@ export class OverworldTile extends EngineObject{
 
         // Handle window resize
         window.addEventListener('resize', () => {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            if (this.camera){
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         });
 
         renderer.setSize(window.innerWidth, window.innerHeight);

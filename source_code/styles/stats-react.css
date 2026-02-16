@@ -65,7 +65,7 @@
   position: absolute;
   top: 80px;
   left: 0px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Dashboard Background */
@@ -203,6 +203,7 @@
   top: 65px;
   left: 39px;
   opacity: 1;
+  z-index: 1000; /* Ensure it's above other HUD layers */
 }
 
 /* Kill Count Label */

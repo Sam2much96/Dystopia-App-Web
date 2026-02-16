@@ -1,6 +1,6 @@
 import * as LittleJS from 'littlejsengine';
 
-const {vec2} = LittleJS;
+//const {vec2} = LittleJS;
 
 
 
@@ -277,7 +277,7 @@ export function useItem(type :string, amount : number ) : boolean {
 
     if (player && local_inv.has(type)){
         let old_amt : number = local_inv.get(type);
-        let new_amt = old_amt = amount;
+        let new_amt = old_amt - amount;
         local_inv.set(type, new_amt); 
         
         if (type=== health_potion){

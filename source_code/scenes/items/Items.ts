@@ -14,7 +14,7 @@ export class Items extends EngineObject {
     name  : string ;
     amount : number = 1;
     tileIndx : number;
-    collect_diag : string;
+    collect_diag : string | undefined;
     despawn : boolean = false;
     constructor(posi : LittleJS.Vector2, tileIndx : number = 50, name : string = "Generic Item"){
 
@@ -24,8 +24,7 @@ export class Items extends EngineObject {
         this.size = vec2(0.7);  
         this.name = window.ui.t(name);
         this.tileIndx = tileIndx; // set the tile index (frame number) to render
-        // tranlated item collected dialogue
-        this.collect_diag = (this.name) + " " + window.ui.t("obtained", window.ui.language) + " x " + this.amount.toString();
+        
 
 
     }
@@ -45,7 +44,8 @@ export class Items extends EngineObject {
             if (isOverlapping(this.pos, this.size, window.player.pos, window.player.size)) {
                 // to do:
                 // (1) implement diag translation functionality (done)
-                
+                // tranlated item collected dialogue
+                this.collect_diag = (this.name) + " " + window.ui.t("obtained", window.ui.language) + " x " + this.amount.toString();           
                 window.dialogs.showDialog("",`${this.collect_diag}`); // to do: should ideally be item hud, requires implement stats hud for item collect
                 
                 // add the item to the inventory
